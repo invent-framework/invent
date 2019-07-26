@@ -19,24 +19,24 @@ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
-import json
-import struct
 import kivy
 kivy.require('1.11.1')
+import json
+import struct
 from colours import COLOURS
+from enum import Enum
 from kivy.app import App
+from kivy.clock import Clock
+from kivy.core.audio import SoundLoader
 from kivy.core.window import Window
 from kivy.graphics import Rectangle, Color
-from kivy.uix.screenmanager import ScreenManager, Screen, FadeTransition
 from kivy.uix.boxlayout import BoxLayout
-from kivy.core.audio import SoundLoader
-from kivy.clock import Clock
-from kivy.uix.label import Label
 from kivy.uix.button import Button
+from kivy.uix.label import Label
+from kivy.uix.screenmanager import ScreenManager, Screen, FadeTransition
+from kivy.uix.slider import Slider
 from kivy.uix.textinput import TextInput
 from kivy.uix.togglebutton import ToggleButton 
-from kivy.uix.slider import Slider
-from enum import Enum
 
 
 def palette(name):
