@@ -40,3 +40,5 @@ therein for more information).
 ## ToDo
 
 * Documentation ;-)
+* Blockly based web application so beginners can easily generate the required
+  JSON or Python code to build their application.
