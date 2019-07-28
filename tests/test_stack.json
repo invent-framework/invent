@@ -1,0 +1,18 @@
+[
+  {
+    "buttons": [
+      {
+        "target": "AnotherCard", 
+        "label": "Button 1"
+      }
+    ], 
+    "text": "Some text for the card", 
+    "title": "ACard"
+  }, 
+  {
+    "auto_target": "ACard", 
+    "text": "Some text on another card", 
+    "auto_advance": 1.5, 
+    "title": "AnotherCard"
+  }
+]

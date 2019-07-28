@@ -22,7 +22,7 @@ with open(os.path.join(base_dir, 'CHANGES.md'), encoding='utf8') as f:
 
 
 install_requires = [
-    "Kivy==2.0.0.dev0",
+    "Kivy==1.11.1",
     "Kivy-Garden==0.1.4",
 ]
 
@@ -34,6 +34,9 @@ extras_require = {
         'pytest-random-order>=1.0.0',
         'pytest-faulthandler',
         'coverage',
+        'pycodestyle',
+        'pyflakes',
+        'black',
     ],
     'docs': [
         'sphinx',
@@ -64,15 +67,37 @@ setup(
     version=about['__version__'],
     description=about['__description__'],
     long_description='{}\n\n{}'.format(readme, changes),
+    long_description_content_type='text/markdown',
     author=about['__author__'],
     author_email=about['__email__'],
     url=about['__url__'],
     license=about['__license__'],
     packages=['pypercard', ],
     install_requires=install_requires,
-    extras_requires=extras_requires,
+    extras_require=extras_require,
     include_package_data=True,
     zip_safe=False,
     classifiers=[
+        "Development Status :: 3 - Alpha",
+        "Environment :: MacOS X",
+        "Environment :: Win32 (MS Windows)",
+        "Environment :: X11 Applications",
+        "Intended Audience :: Developers",
+        "Intended Audience :: Education",
+        "Intended Audience :: End Users/Desktop",
+        "License :: OSI Approved :: MIT License",
+        "Natural Language :: English",
+        "Operating System :: Android",
+        "Operating System :: iOS",
+        "Operating System :: MacOS",
+        "Operating System :: Microsoft :: Windows :: Windows 10",
+        "Operating System :: POSIX :: Linux",
+        "Programming Language :: Python :: 3 :: Only",
+        "Topic :: Education",
+        "Topic :: Software Development",
+        "Topic :: Software Development :: Libraries :: Application Frameworks",
+        "Topic :: Software Development :: User Interfaces",
+        "Topic :: Software Development :: Widget Sets",
+        "Topic :: System :: Software Distribution",
     ]
 )

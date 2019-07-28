@@ -20,10 +20,11 @@ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
 """
 import kivy
-kivy.require('1.11.1')
+
+kivy.require("1.11.1")
 import json
 import struct
-from colours import COLOURS
+from .colours import COLOURS
 from enum import Enum
 from kivy.app import App
 from kivy.clock import Clock
@@ -36,7 +37,7 @@ from kivy.uix.label import Label
 from kivy.uix.screenmanager import ScreenManager, Screen, FadeTransition
 from kivy.uix.slider import Slider
 from kivy.uix.textinput import TextInput
-from kivy.uix.togglebutton import ToggleButton 
+from kivy.uix.togglebutton import ToggleButton
 
 
 def palette(name):
@@ -52,17 +53,18 @@ def palette(name):
     :return: The colour expressed as a tuple of numbers used by Kivy.
     :raises ValueError: if the name of the colour is unknown.
     """
+
     def from_hex(val):
         """
         Given a raw HEX value (e.g. "FFAACC"), convert it to the colour
         encoding used by Kivy.
         """
-        r, g, b = struct.unpack('BBB', bytes.fromhex(name))
+        r, g, b = struct.unpack("BBB", bytes.fromhex(name))
         return (r // 255.0, g // 255.0, b // 255.0)
 
     if name in COLOURS:
         return COLOURS[name]
-    elif name.startswith("0x")
+    elif name.startswith("0x"):
         # Convert from hex to Kivy colour.
         name = name[2:]
         return from_hex(name)
@@ -79,6 +81,7 @@ class Inputs(Enum):
     Defines the available types of form control. Only one form control can
     appear in each card.
     """
+
     TEXTBOX = 1  #: A single line text box.
     TEXTAREA = 2  #: A multi-line text area.
     MULTICHOICE = 3  #: A multi-choice selection.
@@ -99,11 +102,21 @@ class Card:
     application. These are set and verified upon initialisation.
     """
 
-    def __init__(self, title, text=None, text_color=None, text_size=48,
-                 form=None, label=None, options=None, sound=None,
-                 sound_repeat=False, background=None, button1="", button2="",
-                 button3="", target1="", target2="", target3="",
-                 auto_advance=0, auto_target=None):
+    def __init__(
+        self,
+        title,
+        text=None,
+        text_color=None,
+        text_size=48,
+        form=None,
+        options=None,
+        sound=None,
+        sound_repeat=False,
+        background=None,
+        buttons=None,
+        auto_advance=0,
+        auto_target=None,
+    ):
         """
         Initialise and check the state of the Card. Will raise an exception if
         the passed in state is inconsistent.
@@ -113,20 +126,12 @@ class Card:
         :param str text_color: The colour of the textual content of the card.
         :param int text_size: The font size of the textual content of the card.
         :param Inputs form: The form input element to display on the card.
-        :param str label: The label associated with the form input element.
-        :param list options: The form input element's multiple options.
+        :param tuple options: The form input element's multiple options.
         :param str sound: The path to the sound file to play with the card.
         :param bool sound_repeat: A flag to indicate if the card's sound loops.
         :param str background: Either a colour or path to background image.
-        :param str button1: The text on button 1.
-        :param str button2: The text on button 2.
-        :param str button3: The text on button 3.
-        :param target1: Either a string or function returning a string
-        referencing the target card when button 1 is pressed.
-        :param target2: Either a string or function returning a string
-        referencing the target card when button 2 is pressed.
-        :param target3: Either a string or function returning a string
-        referencing the target card when button 3 is pressed.
+        :param list buttons: A list containing button definitions as
+        dictionaries containing label and transition entries.
         :param float auto_advance: The number of seconds to wait before
         advancing to the auto_target card.
         :param auto_target: Either a string or function returning a string
@@ -139,79 +144,120 @@ class Card:
             self.text_color = palette("white")
         if isinstance(text_color, str):
             self.text_color = palette(text_color)
+        if isinstance(background, str):
+            try:
+                # Check if / use when the background is the name of a colour.
+                background = palette(background)
+            except ValueError:
+                # Assume the background string is a reference to an image file.
+                pass
+        if buttons is None:
+            buttons = []
         self.text = text
         self.text_size = text_size
         self.form = form
         self.options = options
-        self.label = label
         self.sound = sound
         self.sound_repeat = sound_repeat
         self.background = background
-        self.button1 = button1
-        self.target1 = target1
-        self.button2 = button2
-        self.target2 = target2
-        self.button3 = button3
-        self.target3 = target3
+        self.buttons = buttons
         self.auto_advance = auto_advance
         self.auto_target = auto_target
+        # Will contain references to any buttons used by the card.
+        self.button_widgets = []
         self._verify()
 
     def _verify(self):
         """
-        Ensure the combination of attributes given while initialising this
-        class is valid. Will raise an exception if so.
+        Ensure the combination of attributes given for this card are compatible
+        and valid. Will raise a helpful exception if there are problems.
 
         :return: None (if no problems found).
         :raises ValueError: if inconsistencies in the form's attributes are
         found.
         """
-        if self.text and self.form:
-            # A card can only display either text OR a form widget, not both.
-            raise ValueError(f"Form '{title}' cannot contain both a "
-                             "form and text.")
-        if self.form and not self.label:
-            # A form MUST have a descriptive label (instructions).
-            raise ValueError(f"Form '{title}' must have a label.")
+        if self.form and not self.text:
+            # A form MUST have a descriptive textual label (instructions).
+            raise ValueError(f"Card '{self.title}' must have a form label.")
         if self.form == Inputs.MULTICHOICE or self.form == Inputs.SELECT:
             # There must be an options list for multichoice or select forms.
-            if isinstance(self.options, tuple) or \
-                    isinstance(self.options, list):
+            if isinstance(self.options, tuple) or isinstance(
+                self.options, list
+            ):
                 # All options must be strings.
                 if not all(isinstance(item, str) for item in self.options):
-                    raise ValueError(f"Form '{title}' options must be "
-                                     "strings.")
+                    raise ValueError(
+                        f"Card '{self.title}' form options must be strings."
+                    )
             else:
-                raise ValueError(f"Form '{title}' must have an options list.")
+                raise ValueError(
+                    f"Card '{self.title}' form must have an options list."
+                )
         if self.form == Inputs.SLIDER:
             # Slider must have options containing min, max and optional step.
-            if isinstance(self.options, tuple) or \
-                    isinstance(self.options, list):
+            if isinstance(self.options, tuple) or isinstance(
+                self.options, list
+            ):
                 length = len(self.options)
                 if length == 2 or length == 3:
                     # All options must be integers.
-                    if not all(isinstance(item, int) for item in self.options):
-                        raise ValueError(f"Form '{title}' options must be "
-                                         "integers.")
+                    if not all(
+                        isinstance(item, (int, float)) for item in self.options
+                    ):
+                        raise ValueError(
+                            f"Card '{self.title}' form options must be "
+                            "integers."
+                        )
                 else:
-                    raise ValueError(f"Form '{title}' must have no less than "
-                                     "two, or more than three options to "
-                                     "define the range of slider.")
+                    raise ValueError(
+                        f"Card '{self.title}' form must have no less than "
+                        "two, or more than three options to define the range "
+                        "of slider."
+                    )
             else:
-                raise ValueError(f"Form '{title}' must have options for "
-                                 "min, max and step range of slider.")
-        if self.button1 and not self.target1:
-            # If there's a button 1, clicking it must be handled.
-            raise ValueError(f"Form '{title}' must handle button 1.")
-        if self.button2 and not self.target2:
-            # If there's a button 2, clicking it must be handled.
-            raise ValueError(f"Form '{title}' must handle button 2.")
-        if self.button3 and not self.target3:
-            # If there's a button 3, clicking it must be handled.
-            raise ValueError(f"Form '{title}' must handle button 3.")
+                raise ValueError(
+                    f"Card '{self.title}' form must have options for min, max "
+                    "and step range of slider."
+                )
+        if self.buttons:
+            # Ensure every button is defined by a dictionary with the
+            # expected attributes and values.
+            for button in self.buttons:
+                if isinstance(button, dict):
+                    # Buttons must be expressed as dictionaries.
+                    if "label" in button and "target" in button:
+                        # Buttons must contain "label" and "target" attributes.
+                        if not isinstance(button["label"], str):
+                            # Labels must be strings.
+                            raise ValueError(
+                                f"Card '{self.title}' has a button whose "
+                                "label is not a string."
+                            )
+                        if not (
+                            isinstance(button["target"], str)
+                            or callable(button["target"])
+                        ):
+                            # Targets must be strings or callables.
+                            raise ValueError(
+                                f"Card '{self.title}' has a button whose "
+                                "target is not a string or function."
+                            )
+                    else:
+                        raise ValueError(
+                            f"Card '{self.title}' has a button definition "
+                            "that does not contain the expected 'label' and "
+                            "'target' keys."
+                        )
+                else:
+                    raise ValueError(
+                        f"Card '{self.title}' has a button definition that is "
+                        "not expressed as a dictionary."
+                    )
         if self.auto_advance and not self.auto_target:
-            # If there's an auto_advance flag, there must be a target card.
-            raise ValueError(f"Form '{title}' must auto-advance to a card.")
+            # If there's an auto_advance value, there must be a target card.
+            raise ValueError(
+                f"Card '{self.title}' must auto-advance to a card."
+            )
 
     def screen(self, screen_manager, data_store):
         """
@@ -234,70 +280,78 @@ class Card:
         screen.bind(on_pre_enter=self._pre_enter)
         screen.bind(on_pre_leave=self._leave)
         # The main layout that defines how UI elements are drawn.
-        self.layout = BoxLayout(orientation='vertical')
-        screen.add_widget(layout)
+        self.layout = BoxLayout(orientation="vertical")
+        screen.add_widget(self.layout)
         # The sound player for this card.
         self.player = None
         # Text font size for the Screen instance.
         self.font_size = "{}sp".format(self.text_size)
-        if self.text:
-            self._draw_text()
-        elif self.form:
+        if self.form:
             self._draw_form()
+        elif self.text:
+            self._draw_text()
         else:
-            layout.add_widget(Label(text=" "))
+            # For padding purposes.
+            self.layout.add_widget(Label(text=" "))
         if self.sound:
             self.player = SoundLoader.load(self.sound)
             self.player.loop = self.sound_repeat
         if self.background:
-            layout.bind(size=self._update_rect, pos=self._update_rect)
-            with layout.canvas.before:
+            self.layout.bind(size=self._update_rect, pos=self._update_rect)
+            with self.layout.canvas.before:
                 if isinstance(self.background, tuple):
                     Color(*self.background)
-                    self.rect = Rectangle(size=layout.size, pos=layout.pos)
+                    self.rect = Rectangle(
+                        size=self.layout.size, pos=self.layout.pos
+                    )
                 else:
-                    self.rect = Rectangle(source=self.background,
-                                          size=layout.size, pos=layout.pos)
-        if self.button1 or self.button2 or self.button3:
+                    self.rect = Rectangle(
+                        source=self.background,
+                        size=self.layout.size,
+                        pos=self.layout.pos,
+                    )
+        if self.buttons:
             self._draw_buttons()
         return screen
 
     def _draw_text(self):
         """
-        Encompasses the drawing of text onto the card.
+        Encompasses the drawing of a single textual block onto the card.
         """
-        self.text_label = Label(text=self.text, font_size=self.font_size,
-                                markup=True)
+        self.text_label = Label(
+            text=self.text, font_size=self.font_size, markup=True
+        )
         self.text_label.color = list(self.text_color)
         self.text_label.padding = 10, 10
-        self.text_label.text_size = (Window.width, Window.height) 
+        self.text_label.text_size = (Window.width, Window.height)
         self.text_label.valign = "middle"
         self.text_label.halign = "center"
         self.layout.add_widget(self.text_label)
 
     def _draw_form(self):
         """
-        Encompasses the drawing of a form onto the card.
+        Encompasses the drawing of a form with a textual label onto the card.
         """
-        inner_layout = BoxLayout(orientation='vertical')
-        label_layout = BoxLayout(orientation='vertical', size_hint=(1, 0.2))
-        self.form_label = Label(text=self.label, font_size=self.font_size,
-                                markup=True)
+        inner_layout = BoxLayout(orientation="vertical")
+        label_layout = BoxLayout(orientation="vertical", size_hint=(1, 0.2))
+        self.form_label = Label(
+            text=self.text, font_size=self.font_size, markup=True
+        )
         self.form_label.color = list(self.text_color)
         self.form_label.valign = "top"
         self.form_label.halign = "left"
         label_layout.add_widget(self.form_label)
-        form_layout = BoxLayout(orientation='vertical')
+        form_layout = BoxLayout(orientation="vertical")
         form_layout.padding = 10
         filler = None
         if self.form == Inputs.TEXTBOX:
-            self.textbox = TextInput(text='', multiline=False)
+            self.textbox = TextInput(text="", multiline=False)
             self.textbox.font_size = self.font_size
             form_layout.size_hint = (1, 0.2)
             form_layout.add_widget(self.textbox)
-            filler = BoxLayout(orientation='vertical', size_hint=(1, 0.6))
+            filler = BoxLayout(orientation="vertical", size_hint=(1, 0.6))
         elif self.form == Inputs.TEXTAREA:
-            self.textarea = TextInput(text='')
+            self.textarea = TextInput(text="")
             self.textarea.font_size = self.font_size
             form_layout.add_widget(self.textarea)
         elif self.form == Inputs.MULTICHOICE:
@@ -321,8 +375,9 @@ class Card:
                 step = self.options[2]
             else:
                 step = 1
-            self.slider = Slider(value_track=True, min=min_val,
-                                 max=max_val, step=step)
+            self.slider = Slider(
+                value_track=True, min=min_val, max=max_val, step=step
+            )
             self.slider_label = Label(text="0", font_size=64)
             self.slider.bind(value=self._slider_change)
             form_layout.add_widget(self.slider)
@@ -337,35 +392,30 @@ class Card:
         """
         Encompasses the drawing of buttons onto the card.
         """
-        button_layout = BoxLayout(orientation='horizontal',
-                                  size_hint=(1, 0.2))
-        if self.button1:
-            self.b1 = Button(text=self.button1)
-            self.b1.bind(on_press=self._button_click(self.target1))
-            button_layout.add_widget(self.b1)
-        if self.button2:
-            self.b2 = Button(text=self.button2)
-            self.b2.bind(on_press=self._button_click(self.target2))
-            button_layout.add_widget(self.b2)
-        if self.button3:
-            self.b3 = Button(text=self.button3)
-            self.b3.bind(on_press=self._button_click(self.target3))
-            button_layout.add_widget(self.b3)
-        layout.add_widget(button_layout)
+        button_layout = BoxLayout(orientation="horizontal", size_hint=(1, 0.2))
+        for button in self.buttons:
+            b = Button(text=button["label"])
+            b.bind(on_press=self._button_click(button["target"]))
+            self.button_widgets.append(b)
+            button_layout.add_widget(b)
+        self.layout.add_widget(button_layout)
 
     def form_value(self):
         """
         Return the value obtained from the user via the form associated with
         this card. Return None if no form is specified.
         """
-        if self.form:
+        if self.form and self.layout:  # There must be rendered form widgets.
             if self.form == Inputs.TEXTBOX:
                 return self.textbox.text
             elif self.form == Inputs.TEXTAREA:
                 return self.textarea.text
             elif self.form == Inputs.MULTICHOICE:
-                return [toggle.text for toggle in self.multichoice
-                        if toggle.state == "down"]
+                return [
+                    toggle.text
+                    for toggle in self.multichoice
+                    if toggle.state == "down"
+                ]
             elif self.form == Inputs.SELECT:
                 for button in self.select:
                     if button.state == "down":
@@ -382,16 +432,14 @@ class Card:
         that all the UI elements containing textual values are formatted with
         values from the data_store dictionary.
         """
-        if self.text:
+        if self.form:
+            self.form_label.text = self.text.format(**self.data_store)
+        elif self.text:
             self.text_label.text = self.text.format(**self.data_store)
-        if self.label:
-            self.form_label.text = self.label.format(**self.data_store)
-        if self.button1:
-            self.b1.text = self.button1.format(**self.data_store)
-        if self.button2:
-            self.b2.text = self.button2.format(**self.data_store)
-        if self.button3:
-            self.b3.text = self.button3.format(**self.data_store)
+        for i in range(len(self.button_widgets)):
+            self.button_widgets[i].text = self.buttons[i]["label"].format(
+                **self.data_store
+            )
 
     def _enter(self, card):
         """
@@ -432,12 +480,14 @@ class Card:
         If target is a callable, call the function and transition to the card
         identified by the string result.
         """
+
         def on_click(button):
             if callable(target):
                 next_card = target(self.data_store, self.form_value())
             else:
                 next_card = target
             self.screen_manager.current = next_card
+
         return on_click
 
     def _slider_change(self, slider, value):
@@ -469,7 +519,7 @@ class CardApp(App):
     An app with more than a passing resemblance to HyperCard stacks. :-)
     """
 
-    def __init__(self, name="Python Application", data_store=None):
+    def __init__(self, name="A PyperCard Application :-)", data_store=None):
         """
         Setup with a clean state.
         """
@@ -478,6 +528,7 @@ class CardApp(App):
         if data_store is None:
             self.data_store = {}
         else:
+            # User supplied dict allows for default states.
             self.data_store = data_store
         # Contains the card objects which drive the application.
         self.cards = {}
@@ -505,30 +556,12 @@ class CardApp(App):
         with open(filename) as f:
             stack = json.load(f)
             for card in stack:
-                c = Card(card["card_id"])
-                if "background_image" in card:
-                    c.background = card["background_image"]
-                if "text" in card:
-                    c.text = card["text"]
-                if "text_color" in card:
-                    c.text_color = palette(card["text_color"])
-                if "sound" in card:
-                    c.sound = card["sound"]
-                if "sound_repeat" in card:
-                    c.sound_repeat = card["sound_repeat"] == True
-                if "button01_text" in card:
-                    c.button1 = card["button01_text"]
-                if "button01_goto_card_id" in card:
-                    c.target1 = card["button01_goto_card_id"]
-                if "button02_text" in card:
-                    c.button2 = card["button02_text"]
-                if "button02_goto_card_id" in card:
-                    c.target2 = card["button02_goto_card_id"]
-                self.add_card(c)
+                new_card = Card(**card)
+                self.add_card(new_card)
 
     def build(self):
         """
         Called by Kivy to display something (in this case the screen manager
-        containing all the screens).
+        containing all the screens associated with each card).
         """
         return self.screen_manager
