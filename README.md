@@ -10,4 +10,33 @@ This is very much a first draft bodge. ;-)
 
 ## Developer Setup
 
+Git clone the repository:
 
+```
+git clone https://github.com/ntoll/pypercard.git
+```
+
+(Recommended) Upgrade local pip:
+
+```
+pip install --upgrade pip
+```
+
+Make a virtualenv, then install the requirements:
+
+```
+pip install -e ".[dev]"
+```
+
+Run the test suite:
+
+```
+make check
+```
+
+Try out some of the examples in the "examples" subdirectory (see the README
+therein for more information).
+
+## ToDo
+
+* Documentation ;-)
