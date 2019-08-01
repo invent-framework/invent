@@ -24,8 +24,13 @@ with open(os.path.join(base_dir, 'CHANGES.md'), encoding='utf8') as f:
 install_requires = [
     "Kivy==1.11.1",
     "Kivy-Garden==0.1.4",
+    'docutils;platform_system == "Windows"',
+    'pygments;platform_system == "Windows"',
+    'pypiwin32;platform_system == "Windows"',
+    'kivy_deps.sdl2==0.1.22;platform_system == "Windows"',
+    'kivy_deps.glew==0.1.12;platform_system == "Windows"',
+    'kivy_deps.angle==0.1.9;platform_system == "Windows"',
 ]
-
 
 extras_require = {
     'tests': [
@@ -45,7 +50,6 @@ extras_require = {
         # Wheel building and PyPI uploading
         'wheel',
         'twine',
-        # Windows native packaging (see win_installer.py).
     ],
 }
 
