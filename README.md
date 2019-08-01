@@ -8,6 +8,14 @@ which users transition in a choose-your-own-adventure style.
 
 This is very much a first draft bodge. ;-)
 
+## Install via pip
+
+To install PyperCard via pip, type the following command in the terminal/command prompt:
+
+```
+pip install pypercard
+```
+
 ## Developer Setup
 
 Git clone the repository:
