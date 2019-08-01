@@ -10,7 +10,7 @@ This is very much a first draft bodge. ;-)
 
 ## Install via pip
 
-To install PyperCard via pip, type the following command in the terminal/command prompt:
+To install PyperCard via pip, type the following command into the terminal/command prompt:
 
 ```
 pip install pypercard
