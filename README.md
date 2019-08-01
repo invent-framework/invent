@@ -39,7 +39,6 @@ therein for more information).
 
 ## ToDo
 
-* Test in non-Linux environments (Windows, OSX).
 * Packaging for mobile (Android and iOS).
 * Documentation ;-)
 * Blockly based web application so beginners can easily generate the required
