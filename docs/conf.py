@@ -10,9 +10,9 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
-# import os
-# import sys
-# sys.path.insert(0, os.path.abspath('.'))
+import os
+import sys
+sys.path.insert(0, os.path.abspath('..'))
 
 
 # -- Project information -----------------------------------------------------
@@ -22,7 +22,8 @@ copyright = '2019, Nicholas H.Tollervey'
 author = 'Nicholas H.Tollervey'
 
 # The full version, including alpha/beta/rc tags
-release = '0.0.1'
+from pypercard import __version__
+release = __version__
 
 
 # -- General configuration ---------------------------------------------------
@@ -31,6 +32,8 @@ release = '0.0.1'
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
 extensions = [
+    "sphinx.ext.autodoc",
+    "sphinx.ext.viewcode",
 ]
 
 # Add any paths that contain templates here, relative to this directory.
@@ -40,6 +43,8 @@ templates_path = ['_templates']
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = ['_build', 'Thumbs.db', '.DS_Store']
+
+pygments_style = 'sphinx'
 
 
 # -- Options for HTML output -------------------------------------------------
@@ -53,3 +58,23 @@ html_theme = 'alabaster'
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
+
+html_logo = 'logo.png'
+
+from pypercard import __description__
+html_theme_options = {
+    'description': __description__,
+    'logo_name': True,
+    'logo_text_align': 'center',
+    'github_user': 'ntoll',
+    'github_repo': 'pypercard',
+    'page_width': '1200px',
+}
+
+html_sidebars = {
+    '**': [
+        'about.html',
+        'searchbox.html',
+        'navigation.html',
+    ]
+}

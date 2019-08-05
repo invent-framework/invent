@@ -1,4 +1,7 @@
 """
+This module contains the core classes and functions used by PyperCard to
+create a GUI stack of cards that transition to each other via button presses.
+
 Copyright (c) 2019 Nicholas Tollervey.
 
 Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -62,8 +65,8 @@ def palette(name):
         r, g, b = struct.unpack("BBB", bytes.fromhex(name))
         return (r // 255.0, g // 255.0, b // 255.0)
 
-    if name in COLOURS:
-        return COLOURS[name]
+    if name.lower() in COLOURS:
+        return COLOURS[name.lower()]
     elif name.startswith("0x"):
         # Convert from hex to Kivy colour.
         name = name[2:]
@@ -100,6 +103,24 @@ class Card:
     Each node has pre-defined attributes which describe the appearance of
     the card and the behaviour for transitioning to other cards in the
     application. These are set and verified upon initialisation.
+
+    :param str title: The unique meaningful title/id of the card.
+    :param str text: The textual content of the card.
+    :param str text_color: The colour of the textual content of the card.
+    :param int text_size: The font size of the textual content of the card.
+    :param Inputs form: The form input element to display on the card.
+    :param tuple options: The form input element's multiple options.
+    :param str sound: The path to the sound file to play with the card.
+    :param bool sound_repeat: A flag to indicate if the card's sound loops.
+    :param str background: Either a colour or path to background image.
+    :param list buttons: A list containing button definitions as
+        dictionaries containing label and transition attributes with optional
+        text_size, text_color and background_color attributes.
+    :param float auto_advance: The number of seconds to wait before
+        advancing to the auto_target card.
+    :param auto_target: Either a string or function returning a string
+        referencing the target card for auto-advancement.
+    :raises ValueError: If the states passed in are inconsistent.
     """
 
     def __init__(
@@ -120,24 +141,6 @@ class Card:
         """
         Initialise and check the state of the Card. Will raise an exception if
         the passed in state is inconsistent.
-
-        :param str title: The unique meaningful title/id of the card.
-        :param str text: The textual content of the card.
-        :param str text_color: The colour of the textual content of the card.
-        :param int text_size: The font size of the textual content of the card.
-        :param Inputs form: The form input element to display on the card.
-        :param tuple options: The form input element's multiple options.
-        :param str sound: The path to the sound file to play with the card.
-        :param bool sound_repeat: A flag to indicate if the card's sound loops.
-        :param str background: Either a colour or path to background image.
-        :param list buttons: A list containing button definitions as
-        dictionaries containing label and transition entries.
-        :param float auto_advance: The number of seconds to wait before
-        advancing to the auto_target card.
-        :param auto_target: Either a string or function returning a string
-        referencing the target card for auto-advancement.
-        :return: None
-        :raises ValueError: If the states passed in are inconsistent.
         """
         self.title = title
         if text_color is None:
@@ -172,7 +175,6 @@ class Card:
         Ensure the combination of attributes given for this card are compatible
         and valid. Will raise a helpful exception if there are problems.
 
-        :return: None (if no problems found).
         :raises ValueError: if inconsistencies in the form's attributes are
         found.
         """
@@ -265,10 +267,9 @@ class Card:
         have been associated with the expected event handlers.
 
         :param kivy.uix.screenmanager.ScreenManager screen_manager: The UI
-        stack of screens which controls which card is to be displayed.
+            stack of screens which controls which card is to be displayed.
         :param dict data_store: A dictionary containing application state.
-        :return kivy.uix.screenmanager.Screen: A graphical representation of
-        the card.
+        :return: A graphical representation of the card.
         """
         # References to app related objects.
         self.screen_manager = screen_manager
@@ -396,6 +397,18 @@ class Card:
         for button in self.buttons:
             b = Button(text=button["label"])
             b.bind(on_press=self._button_click(button["target"]))
+            if "text_size" in button:
+                b.font_size = button["text_size"]
+            else:
+                b.font_size = 24
+            if "text_color" in button:
+                b.color = palette(button["text_color"])
+            else:
+                b.color = palette("white")
+            if "background_color" in button:
+                b.background_color = palette(button["background_color"])
+            else:
+                b.background_color = palette("grey")
             self.button_widgets.append(b)
             button_layout.add_widget(b)
         self.layout.add_widget(button_layout)
@@ -404,6 +417,8 @@ class Card:
         """
         Return the value obtained from the user via the form associated with
         this card. Return None if no form is specified.
+
+        :return: The value currently set for this card's form.
         """
         if self.form and self.layout:  # There must be rendered form widgets.
             if self.form == Inputs.TEXTBOX:
@@ -517,9 +532,15 @@ class Card:
 class CardApp(App):
     """
     An app with more than a passing resemblance to HyperCard stacks. :-)
+
+    :param str name: The name of the application.
+    :param dict data_store: The dictionary to use as the data store.
+    :param list stack: A list of Card instances defining the default stack.
     """
 
-    def __init__(self, name="A PyperCard Application :-)", data_store=None):
+    def __init__(
+        self, name="A PyperCard Application :-)", data_store=None, stack=None
+    ):
         """
         Setup with a clean state.
         """
@@ -530,20 +551,26 @@ class CardApp(App):
         else:
             # User supplied dict allows for default states.
             self.data_store = data_store
-        # Contains the card objects which drive the application.
-        self.cards = {}
         # Define the nature and duration of the transition between cards.
         transition = FadeTransition()
         transition.duration = 0.1
         # The screen manager containing all the screens that make up the stack
         # of cards.
         self.screen_manager = ScreenManager(transition=transition)
+        # Contains the card objects which drive the application.
+        self.cards = {}
+        # Populate with the default stack (if it exists)
+        if stack:
+            for card in stack:
+                self.add_card(card)
         # Set the window title to the app's name.
         self.title = name
 
     def add_card(self, card):
         """
         Given a card instance, add it to the application.
+
+        :param Card card: The card instance to add to the application's stack.
         """
         self.cards[card.title] = card
         screen = card.screen(self.screen_manager, self.data_store)
@@ -552,6 +579,9 @@ class CardApp(App):
     def load(self, filename):
         """
         Load and instantiate a stack of cards from the referenced JSON file.
+
+        :param str filename: The path to the JSON file to load as the
+            application's stack.
         """
         with open(filename) as f:
             stack = json.load(f)
@@ -563,5 +593,7 @@ class CardApp(App):
         """
         Called by Kivy to display something (in this case the screen manager
         containing all the screens associated with each card).
+
+        :return: The screen manager object containing the stack of cards.
         """
         return self.screen_manager
