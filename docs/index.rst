@@ -24,7 +24,8 @@ interface to use on your Windows, OSX, Linux, Android or iOS devices.
 **The best place to start is by reading the** :doc:`tutorials`. If you want
 further support, then please
 `join our chat channel <https://gitter.im/pypercard/community>`_. We're a
-friendly bunch and welcome questions from beginners.
+friendly bunch and welcome questions from beginners. If you're more experienced
+check out the :doc:`cheatsheet` for a quick summary of what's going on.
 
 A simple temperature conversion example application built with PyperCard is
 shown below. This only took just over
