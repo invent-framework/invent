@@ -8,6 +8,7 @@ PyperCard to create simple GUI driven apps.
   game assets in the same directory as the game script itself.
 * Forms - a simple example of all the different form input elements available
   within PyperCard.
+* Name - asks the user for their name and prints a nice welcome.
 * Temperature - a very simple celsius / farenheit conversion program that uses
   simple callable transitions to implement the program logic.
 

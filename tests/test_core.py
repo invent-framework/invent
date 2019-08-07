@@ -17,6 +17,15 @@ def test_palette_colour_name():
     assert isinstance(result, tuple)
 
 
+def test_palette_colour_name_capitalised():
+    """
+    If given a colour name (e.g. "RED"), return a tuple representing
+    the Kivy colour.
+    """
+    result = palette("RED")
+    assert isinstance(result, tuple)
+
+
 def test_palette_raw_hex():
     """
     If given a raw hex value as a string (e.g. "0xFFCC99"), return a tuple
@@ -610,6 +619,43 @@ def test_card_draw_buttons():
     card._draw_buttons()
     assert len(card.button_widgets) == 1
     assert card.button_widgets[0].text == "Button1"
+    assert card.button_widgets[0].color == [1.0, 1.0, 1.0, 1.0]  # white.
+    assert card.button_widgets[0].background_color == [
+        0.7450980392156863,
+        0.7450980392156863,
+        0.7450980392156863,
+        1.0,
+    ]  # grey.
+    assert card.button_widgets[0].font_size == 24.0
+    card._button_click.assert_called_once_with("AnotherCard")
+    assert card.layout.add_widget.call_count == 1
+
+
+def test_card_draw_buttons_custom_size_colours():
+    """
+    Ensure that customisations to the buttons text size, text colour and
+    background colour are set as expected.
+    """
+    card = Card(
+        "title",
+        buttons=[
+            {
+                "label": "Button1",
+                "target": "AnotherCard",
+                "text_size": 32,
+                "text_color": "red",
+                "background_color": "blue",
+            }
+        ],
+    )
+    card.layout = mock.MagicMock()
+    card._button_click = mock.MagicMock()
+    card._draw_buttons()
+    assert len(card.button_widgets) == 1
+    assert card.button_widgets[0].text == "Button1"
+    assert card.button_widgets[0].font_size == 32.0
+    assert card.button_widgets[0].color == [1.0, 0.0, 0.0, 1.0]
+    assert card.button_widgets[0].background_color == [0.0, 0.0, 1.0, 1.0]
     card._button_click.assert_called_once_with("AnotherCard")
     assert card.layout.add_widget.call_count == 1
 
@@ -878,14 +924,15 @@ def test_cardapp_init_no_data_store():
     assert app.title == "A PyperCard Application :-)"
 
 
-def test_cardapp_init_title_and_datastore():
+def test_cardapp_init_title_datastore_and_stack():
     """
     Ensure the CardApp instance is set up with the expected user defined
     values.
     """
-    app = CardApp("An App", {"foo": "bar"})
+    stack = [Card("test")]
+    app = CardApp("An App", {"foo": "bar"}, stack)
     assert app.data_store == {"foo": "bar"}
-    assert app.cards == {}
+    assert app.cards == {"test": stack[0]}
     assert isinstance(app.screen_manager, ScreenManager)
     assert app.title == "An App"
 
@@ -904,6 +951,21 @@ def test_cardapp_add_card():
     app.screen_manager.add_widget.assert_called_once_with(
         card.screen(None, None)
     )
+
+
+def test_cardapp_add_card_title_collision():
+    """
+    If the new card's title attribute is already taken, then the application
+    should raise a ValueError.
+    """
+    app = CardApp()
+    app.screen_manager = mock.MagicMock()
+    card = Card("title")
+    card.screen = mock.MagicMock()
+    app.add_card(card)
+    new_card = Card("title")
+    with pytest.raises(ValueError):
+        app.add_card(new_card)
 
 
 def test_cardapp_load():

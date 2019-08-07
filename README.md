@@ -6,8 +6,6 @@ module for non-CircuitPython computing environments. This module re-uses the
 JSON specification used to create HyperCard like "stacks" of states between
 which users transition in a choose-your-own-adventure style.
 
-This is very much a first draft bodge. ;-)
-
 ## Install via pip
 
 To install PyperCard via pip, type the following command into the terminal/command prompt:
@@ -48,6 +46,3 @@ therein for more information).
 ## ToDo
 
 * Packaging for mobile (Android and iOS).
-* Documentation ;-)
-* Blockly based web application so beginners can easily generate the required
-  JSON or Python code to build their application.
