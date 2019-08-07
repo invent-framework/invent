@@ -11,8 +11,7 @@ PyperCard - Easy GUIs for All
     <img alt="Splash image" src="_static/splash.png" style="border: none;">
 
 PyperCard is a `HyperCard <https://en.wikipedia.org/wiki/HyperCard>`_ inspired
-`Pythonic <https://www.python.org/dev/peps/pep-0020/>`_ and deliberately
-constrained
+`Pythonic <https://www.python.org/dev/peps/pep-0020/>`_ 
 `GUI <https://en.wikipedia.org/wiki/Graphical_user_interface>`_ framework for
 beginner programmers.
 
@@ -64,7 +63,8 @@ graduate to a less constrained GUI framework such as
     **This documentation is for two sorts of readers**.
 
     1. Folks who want to use PyperCard to build cross platform GUI
-    applications. If this is *you*, check out the :doc:`tutorials` first.
+    applications. If this is *you*, check out the :doc:`tutorials` first. If
+    you're already quite technical, you should see the :doc:`cheatsheet`.
 
     2. Programmers who want to contribute to the development of PyperCard
     itself. If this is *you*, start with the :doc:`contributing`
