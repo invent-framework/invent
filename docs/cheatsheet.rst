@@ -69,6 +69,15 @@ and means you should be familiar with the following core concepts:
 * Future versions of PyperCard will **automate the packaging of your app** for
   Windows, OSX, Linux, Android and iOS.
 
+The following diagram may help you visualise these concepts. There are three
+cards in the application stack: ``blue``, ``white`` and ``yellow``. The
+``blue`` card can transition to the ``white`` and ``yellow`` cards (as
+demonstrated by the arrows).
+
+.. raw:: html
+
+    <img alt="Splash image" src="_static/splash.png" style="border: none;">
+
 Colours
 +++++++
 
@@ -891,14 +900,416 @@ hex RGB value as a string in two common forms: ``0xRRGGBB`` (raw hex) and
 The CardApp
 +++++++++++
 
+The ``CardApp`` class is used to instantiate an application. Depending on your
+level of skill and / or need for refinement, there are several approaches to
+this.
+
+If you have defined a stack in a JSON file (see below), all that is required
+is::
+
+    from pypercard import CardApp
+
+    app = CardApp()
+    app.load("my_stack.json")
+    app.run()
+
+If you're declaring your stack of cards with Python (something you'll need to
+do for more complicated applications), then you can pass the stack as an
+argument when instantiating the ``CardApp`` class. The ``stack`` argument must
+be a list of ``Card`` instances::
+
+    from pypercard import CardApp, Card
+
+    app = CardApp(stack=[Card("hello", text="Hello, World!"), ])
+    app.run()
+
+Finally, you could use the ``CardApp`` class's ``add_card`` method to add
+individual ``Card`` instances. However, the ``stack`` argument is far more
+convenient and is a simple convenience wrapper around the ``add_card`` to save
+you time.
+
+Obviously, as demonstrated in the examples above, to make the application run
+you call the ``run`` method.
+
+The ``CardApp`` can take the following arguments when instantiated:
+
+* ``name`` - what your operating system will display as the name of the
+  application. Defaults to ``"A PyperCard Application :-)"``.
+* ``data_store`` - a dictionary the application should use for storing
+  application state. Pass in your own dictionary if you need to pre-load it
+  with default state, depending on the needs of your application. If you don't
+  supply a ``data_store`` argument, then PyperCard will use an empty
+  dictionary. The ``data_store`` instance is one of the arguments passed into
+  transition functions (see below).
+* ``stack`` - a list of ``Card`` instances which defines the application's
+  stack (see description above).
+
+For more information about the ``CardApp`` class, please see :doc:`api`.
+
 Cards
 +++++
+
+Instances of the ``Card`` class represent different screens in the application
+stack. Users transition between cards in one of two ways: by pressing a button
+to activate a transition (see below) or by automatically advancing to a target
+card after a pre-determined period of time.
+
+All cards must have a unique (and preferably meaningful) ``title`` attribute,
+supplied as an argument when the object is instantiated. All the other
+attributes for a card are optional and define how the card looks and behaves.
+Such attributes are usually assigned when the card is instantiated. Once the
+card is associated with an application its attributes cannot be changed.
+
+The available attributes are (see the :doc:`api` for more details):
+
+* ``title`` - a unique (within the stack) and preferably meaningful string
+  identifier for the card.
+* ``text`` - the (string) textual content of the card. It's possible to change
+  the look of the text using
+  `BBCode style markup <https://kivy.org/doc/stable/api-kivy.core.text.markup.html>`_.
+  If there is a form, the ``text`` will be displayed in the form of a label for
+  the form input, otherwise the text will take up the full screen.
+* ``text_color`` - a string containing the default colour of the text. Defaults
+  to ``"white"``. See the section on colour (above) for valid colour names and
+  values.
+* ``text_size`` - an integer representing the default size of the text.
+  Defaults to 48 (px).
+* ``form`` - the type of form input (see below) associated with the card. Must
+  be one of the attributes of the ``Inputs`` enum class: ``TEXTBOX``,
+  ``TEXTAREA``, ``MULTICHOICE``, ``SELECT`` or ``SLIDER``.
+* ``options`` - a list or tuple containing configuration options needed by the
+  form input. See the description of each form input (below) for more
+  information.
+* ``sound`` - a string containing the path to a sound file to play when the
+  card is displayed. Only sound formats supported by the platform upon which
+  the application is running can be played.
+* ``sound_repeat`` - a boolean flag to indicate if the sound associated with
+  the card should continue to loop.
+* ``background`` - a string containing either the colour (see above) of the
+  card's background, or a path to an image to display as the background. The
+  default value is ``"black"``.
+* ``buttons`` - a list or tuple containing dictionary definitions of the
+  buttons to display on the card which will be used to activate a transition
+  to other cards in the stack. Each button dictionary must have at least two
+  attributes: ``label`` (associated with a string containing the text to
+  display on the button) and ``target`` (associated with either a string
+  containing the ``title`` of the target card to transition to, or a function
+  [see below] containing business logic which will return the ``title`` of
+  the target card for transition). Button dictionaries may also contain three
+  options attributes: ``text_size`` (an integer indication of the size of the
+  button's label text), ``text_color`` (a string containing the colour of the
+  button's label text), and ``background_color`` (a string containing the
+  colour of the button's background).
+* ``auto_advance`` - a floating point value to indicate the number of seconds
+  to wait until the card automatically transitions to the card indicated by the
+  ``auto_target`` attribute.
+* ``auto_target`` - a string containing the ``title`` of the card to transition
+  to after the number of seconds indicated by the ``auto_advance`` attribute.
+
+Here's an example of a card with textual content and a single button which will
+transition the application to another card called ``another_card``. Notice how
+the first argument is the card's mandatory and unique ``title`` attribute::
+
+    from pypercard import Card, CardApp
+
+    card = Card("example_card", text="Hello, World!", text_color="red")
+    app = CardApp(stack=[card, ])
+    app.run()
+
+It's important to understand the life-cycle of a card.
+
+When the ``Card`` class is instantiated with the various attributes needed to
+describe the new card object's content and behaviour, the various constraints
+required for the card to behave properly are validated. If there's a problem
+(for example, you specify a ``form`` input which requires ``options`` to work
+properly, but you fail to supply any ``options``) then a ``ValueError``
+exception will be raised.
+
+When the card is added to the application (usually as a member of a stack list
+when the application is instantiated), then it is drawn as a
+``Kivy.uix.screenmanager.Screen`` instance and added to a screen manager object
+that belongs to the application.
+
+If a card is indicated as the next target to display, before it is shown to the
+user all the textual content of the card is re-formatted against the contents
+of the application's ``data_store``. This means Python's built-in simple
+string templating language can be used to make the content of the card
+dynamic. For instance if the ``text`` attribute of the card was the string,
+``"Hello, {name}."``, and the application's ``data_store`` dictionary was,
+``{"name": "Nicholas"}``, then the textual content displayed to the user would
+be updated to, ``"Hello, Nicholas"``. The textual content, form label and
+button labels can all be updated in this way.
+
+When a card is first displayed to the user two things happen: if a ``sound``
+should be played (and repeated) then this is started, and if the card can
+automatically advance after a certain period of time, this event is scheduled.
+
+Finally, when the card is removed from the screen (and before the next card
+is displayed), then if there is any sound playing, this is stopped.
 
 JSON Stacks
 +++++++++++
 
+PyperCard is designed to be easy to use and understand with special attention
+paid to the needs of beginner developers.
+
+Writing Python code can be intimidating for beginner developers. In order to
+declare the UI stack of cards in Python a developers needs to instantiate
+several classes, create a Python list and even write their own functions when
+all they want to do is describe a very simple stack of cards.
+
+As a result, it's possible to declare a simple stack of cards that require no
+business logic using the JSON data format. This was the approach taken by
+Adafruit who
+`provided the inspiration for this project <https://learn.adafruit.com/circuit-python-your-own-adventure>`_.
+
+The JSON file must contain an array of JSON objects. Each object represents a
+card in the application's stack.
+
+Attributes of the JSON objects must match the names of the arguments used when
+instantiating the Python ``Card`` class (see above).
+
+Use the ``CardApp`` class's ``load`` convenience function with the path to the
+JSON file to load the stack::
+
+    from pypercard import CardApp
+
+    app = CardApp()
+    app.load("my_stack.json")
+    app.run()
+
+The JSON data format is a lightweight and easy to read solution which has the
+advantage of being a ubiquitous form of data exchange. Following simple naming
+conventions for defining JSON objects means little effort is needed to define
+a working stack for a simple app::
+
+    [
+        {
+            "title": "hello",
+            "text": "Hello there!",
+            "text_color": "green",
+            "buttons": [
+                {
+                    "label": "OK",
+                    "target": "goodbye"
+                }
+            ]
+        },
+        {
+            "title": "goodbye",
+            "text": "Goodbye!",
+            "text_color": "red",
+            "buttons": [
+                {
+                    "label": "OK",
+                    "target": "hello"
+                }
+            ]
+        }
+    ]
+
+This also has the advantage that, at some later date, a graphical beginner
+friendly tool, could be created to emit valid JSON files to make this process
+even less intimidating. Nevertheless, writing JSON in a text editor is not an
+onerous task and goes some way to demonstrating how simple it is to use a text
+based medium for programming.
+
+Forms
++++++
+
+As has been pointed out in the section on the ``Card`` class (see above), a
+card can contain a form input field. Only one form input field can be displayed
+on each card. The input field is specified as one of the attributes of the
+``Inputs`` enumeration class::
+
+    from pypercard import Card, Inputs, CardApp
+
+    card = Card("form_example", form=Inputs.TEXTBOX, text="A text box")
+    app = CardApp(stack=[card, ])
+    app.run()
+
+In the example above, a text box with the label ``"A text box"`` will be
+displayed by the card.
+
+The value of the form input field is used as an argument into the transition
+function called when the user moves away from the card.
+
+Sometimes, the form input field needs extra information to designate
+``options`` needed to display the input field properly. These options are
+explained below as each form field is described.
+
+TEXTBOX
+~~~~~~~
+
+A text box is a single line text entry field which needs no special options:
+
+.. image:: textbox.png
+
+TEXTAREA
+~~~~~~~~
+
+A text area is a multi line text entry field which needs no special options:
+
+.. image:: textarea.png
+
+MULTICHOICE
+~~~~~~~~~~~
+
+A multiple choice field allows users to select none, any or all of a range of
+options. These options should be expressed as a tuple of string values.
+
+.. image:: multichoice.png
+
+SELECT
+~~~~~~
+
+A selector field allows users to select either a single value or no value from
+a range of options. The options should be expressed as a tuple of string
+values.
+
+.. image:: select.png
+
+SLIDER
+~~~~~~
+
+A slider is for providing numeric input. It must have a minimum (min),
+maximum (max) and optional step value provided in a tuple of numeric values.
+
+.. image:: slider.png
+
+The code for creating each of the illustrated form elements, including examples
+of the options for multiple choice, selector and slider fields is copied
+below::
+
+    from pypercard import Inputs, Card, CardApp
+
+
+    stack = [
+        Card(
+            "TextBox",
+            form=Inputs.TEXTBOX,
+            text="A single line textbox",
+            buttons=[{"label": "Next", "target": "TextArea"}],
+        ),
+        Card(
+            "TextArea",
+            form=Inputs.TEXTAREA,
+            text="A multi line text area",
+            buttons=[{"label": "Next", "target": "MultiChoice"}],
+        ),
+        Card(
+            "MultiChoice",
+            form=Inputs.MULTICHOICE,
+            options=["Ham", "Eggs", "Bacon", "Sausage"],
+            text="A multiple choice selection",
+            buttons=[{"label": "Next", "target": "Select"}],
+        ),
+        Card(
+            "Select",
+            form=Inputs.SELECT,
+            options=["Red", "Green", "Yellow", "Blue"],
+            text="A single choice collection",
+            buttons=[{"label": "Next", "target": "Slider"}],
+        ),
+        Card(
+            "Slider",
+            form=Inputs.SLIDER,
+            options=(-100, 100, 10),
+            text="A slider with min/max/step",
+            buttons=[{"label": "Next", "target": "TextBox"}],
+        ),
+    ]
+    app = CardApp(name="Examples of form elements...", stack=stack)
+    app.run()
+
 Transitions
 +++++++++++
+
+Transitions are how the user moves between cards. Transitions can be of two
+types:
+
+* A string value referencing the unique ``title`` attribute of the target card.
+* A function, containing business logic, which returns a string value
+  referencing the unique ``title`` attribute of the target card.
+
+Transitions are declared in two places:
+
+* As the value associated with the ``"target"`` attribute of a button, or;
+* As the value of a card's ``auto_target`` attribute.
+
+If you're using transition functions, you should declare them first, before
+creating the ``Card`` objects which may reference them.
+
+Transition functions always take two arguments and must always return a string
+containing a valid card ``title``. The two arguments are:
+
+* ``data_store`` - a reference to the application's ``data_store`` instance
+  which is used to set and get application state.
+* ``form_value`` - the current value of the form input field in the card from
+  which the user is transitioning. This will be ``None`` if the card didn't
+  contain a form input field, or false-y if the user didn't enter anything.
+
+As a result, your transition function should look something like this::
+
+    def my_transition(data_store, form_value):
+        # Arbitrary Python code here.
+        return "a_card_title"
+
+.. warning::
+
+    The code within the transition function can be any arbitrary Python, but it
+    is important to note that these are **blocking functions** so do not do
+    anything which will cause the application to pause.
+
+The following simple example demonstrates how transition functions work::
+
+    from pypercard import Inputs, Card, CardApp
+
+
+    def get_name(data_store, form_value):
+        """
+        Gets the name of the user from the form field and stores it in the
+        data_store. If no name is given, causes an error to be displayed.
+        """
+        if form_value:
+            data_store["name"] = form_value
+            return "hello"
+        else:
+            return "error"
+
+
+    stack = [
+        Card(
+            "get_value",
+            form=Inputs.TEXTBOX,
+            text="What is your name..?",
+            buttons=[
+                {"label": "OK", "target": get_name}  # Use the function!
+            ]
+        ),
+        Card(
+            "hello",
+            text="Hello {name}!",
+            buttons=[
+                {"label": "OK", "target": "get_value"}
+            ]
+        ),
+        Card(
+            "error",
+            text="ERROR\n\nPlease enter a name!",
+            text_color="white",
+            background="red",
+            auto_advance=3,
+            auto_target="get_value"
+        ),
+    ]
+
+    app = CardApp(stack=stack)
+    app.run()
+
+The end result looks like this:
+
+.. image:: name_app.gif
 
 Packaging
 +++++++++

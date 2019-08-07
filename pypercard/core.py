@@ -258,7 +258,8 @@ class Card:
         if self.auto_advance and not self.auto_target:
             # If there's an auto_advance value, there must be a target card.
             raise ValueError(
-                f"Card '{self.title}' must auto-advance to a card."
+                f"Card '{self.title}' must have a duration and target to "
+                "auto-advance to the next card."
             )
 
     def screen(self, screen_manager, data_store):

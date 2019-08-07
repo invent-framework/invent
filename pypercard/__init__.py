@@ -18,7 +18,7 @@ __all__ = ["Card", "CardApp", "Inputs", "palette"]
 
 __title__ = "pypercard"
 __description__ = "A HyperCard inspired GUI framework for beginner developers."
-__version__ = "0.0.1-alpha.2"
+__version__ = "0.0.1-alpha.3"
 __license__ = "MIT"
 __url__ = "https://github.com/ntoll/pypercard"
 __author__ = "Nicholas H.Tollervey"
