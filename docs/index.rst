@@ -11,7 +11,8 @@ PyperCard - Easy GUIs for All
     <img alt="Splash image" src="_static/splash.png" style="border: none;">
 
 PyperCard is a `HyperCard <https://en.wikipedia.org/wiki/HyperCard>`_ inspired
-`Pythonic <https://www.python.org/dev/peps/pep-0020/>`_
+`Pythonic <https://www.python.org/dev/peps/pep-0020/>`_ and deliberately
+constrained
 `GUI <https://en.wikipedia.org/wiki/Graphical_user_interface>`_ framework for
 beginner programmers.
 

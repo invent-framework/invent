@@ -80,6 +80,35 @@ also have the following optional attributes:
 Form Inputs
 +++++++++++
 
+For an application to be useful it often needs to gather and process user
+input. In PyperCard this is achieved through form input fields. Each card may
+only have one form input field.
+
+There are five possible types of input.
+
+A single-line text box:
+
+.. image:: textbox.png
+
+A multi-line text entry field:
+
+.. image:: textarea.png
+
+A multiple choice field so users can select none, one or more of a range of
+values:
+
+.. image:: multichoice.png
+
+A selector field so users can select a single value or no value at all from a
+range of values:
+
+.. image:: select.png
+
+A slider for providing numeric input between a minimum and maximum value with
+an option to define the step between values as the slider moves.
+
+.. image:: slider.png
+
 Function follows Form
 +++++++++++++++++++++
 
