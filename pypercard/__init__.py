@@ -17,9 +17,7 @@ __all__ = ["Card", "CardApp", "Inputs", "palette"]
 # somewhat naively by setup.py and the Windows installer generation script.
 
 __title__ = "pypercard"
-__description__ = (
-    "A HyperCard inspired GUI framework for beginner Python programmers."
-)
+__description__ = "A HyperCard inspired GUI framework for beginner developers."
 __version__ = "0.0.1-alpha.2"
 __license__ = "MIT"
 __url__ = "https://github.com/ntoll/pypercard"

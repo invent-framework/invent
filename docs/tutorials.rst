@@ -3,7 +3,8 @@ PyperCard Tutorials
 
 The following tutorials are for anyone who wants to use PyperCard to create
 their own GUI driven applications that run on Windows, OSX, Linux, Android and
-iOS.
+iOS. If you're looking for technical reference information you should check out
+the :doc:`cheatsheet` instead.
 
 We assume only two things:
 

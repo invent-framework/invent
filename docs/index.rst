@@ -76,7 +76,9 @@ Contents:
    :maxdepth: 2
 
    tutorials.rst
+   cheatsheet.rst
    contributing.rst
+   design.rst
    code_of_conduct.rst
    setup.rst
    api.rst

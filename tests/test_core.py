@@ -953,6 +953,21 @@ def test_cardapp_add_card():
     )
 
 
+def test_cardapp_add_card_title_collision():
+    """
+    If the new card's title attribute is already taken, then the application
+    should raise a ValueError.
+    """
+    app = CardApp()
+    app.screen_manager = mock.MagicMock()
+    card = Card("title")
+    card.screen = mock.MagicMock()
+    app.add_card(card)
+    new_card = Card("title")
+    with pytest.raises(ValueError):
+        app.add_card(new_card)
+
+
 def test_cardapp_load():
     """
     Ensure the referenced JSON file is used to instantiate a card and add it to

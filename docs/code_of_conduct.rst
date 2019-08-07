@@ -1,7 +1,7 @@
 Code of Conduct
 ---------------
 
-We expect contributors to follow the
+We expect contributors, collaborators and community members to follow the
 `Python Software Foundation's Code of Conduct <https://www.python.org/psf/codeofconduct/>`_,
 reproduced below.
 

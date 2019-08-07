@@ -1,13 +1,27 @@
 Developer Setup
 ===============
 
-The source code is hosted on GitHub. Fork the repository with the following
+The source code is hosted on GitHub. Clone the repository with the following
 command::
 
   git clone https://github.com/ntoll/pypercard.git
 
+Alternatively, fork the project and clone your own fork. Please submit pull
+requests on their own separate and meaningfully named branches.
+
 **PyperCard does not and never will use or support Python 2**. You should use
 Python 3.6 or above.
+
+If you want to discuss PyperCard, aspects of its design or engage with the
+wider project please don't hesitate to
+`join our chat channel <https://gitter.im/pypercard/community>`_.
+Alternatively, we welcome contributions, bug reports, suggestions and pull
+requests via our `GitHub repository <https://github.com/ntoll/pypercard>`_.
+
+.. note::
+
+    We expect everyone participating in the development of PyperCard to act in
+    accordance with the PSF's :doc:`code_of_conduct`.
 
 Windows, OSX, Linux
 +++++++++++++++++++
@@ -103,6 +117,5 @@ Before Submitting
 +++++++++++++++++
 
 Before contributing code please make sure you've read :doc:`contributing` and
-follow the checklist for contributing changes. We expect everyone participating
-in the development of PyperCard to act in accordance with the PSF's
-:doc:`code_of_conduct`.
+follow the checklist for contributing changes.
+

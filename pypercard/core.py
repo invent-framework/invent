@@ -571,7 +571,12 @@ class CardApp(App):
         Given a card instance, add it to the application.
 
         :param Card card: The card instance to add to the application's stack.
+        :raises ValueError: if the card's title attribute isn't unique.
         """
+        if card.title in self.cards:
+            raise ValueError(
+                f"A card with the title '{card.title}` already exists."
+            )
         self.cards[card.title] = card
         screen = card.screen(self.screen_manager, self.data_store)
         self.screen_manager.add_widget(screen)

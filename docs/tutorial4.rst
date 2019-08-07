@@ -3,11 +3,9 @@ Using Forms and Python
 
 While it's nice to click buttons in an adventure game to work your way through
 the story, most applications need more powerful and flexible means of capturing
-user input. These usually involve forms which can contain various different
-types of input.
-
-PyperCard has a very simple form mechanism that allows you to specify just one
-input type per card.
+user input. These usually involve forms containing various different
+types of input. Happily, PyperCard has a very simple form mechanism that
+allows you to specify just one input type per card.
 
 In addition, you don't need to use JSON to specify your cards (although this is
 often convenient for applications that don't use forms). It's possible to
@@ -23,14 +21,14 @@ Defining a card in Python is very simple::
         text="Hello",
         text_color="green",
         buttons=[{"label": "Finish", target: "goodbye"}]
-        )
+    )
 
     goodbye_card = Card(
         title="goodbye",
         text="Goodbye",
         text_color="red",
         buttons=[{"label": "Start again", target: "hello"}]
-        )
+    )
 
 Note how the buttons are defined as Python dictionaries.
 
@@ -40,6 +38,18 @@ passing them into the application::
     stack = [hello_card, goodbye_card, ] 
     app = CardApp(stack=stack)
     app.run()
+
+Alternatively, you can add cards individually via the application's
+``add_card`` method::
+
+    app = CardApp()
+    app.add_card(hello_card)
+    app.add_card(goodbye_card)
+    app.run()
+
+When a card or stack of cards are added to the application, the card titles
+will be checked to ensure they are unique. If not, PyperCard will raise an
+exception.
 
 There are some further attributes which PyperCard cards can have which have not
 been mentioned so far. They are:

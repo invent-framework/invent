@@ -25,7 +25,8 @@ We expect contributors to follow our :doc:`code_of_conduct`.
 
 Check out our :doc:`setup`
 documentation for instructions to configure a working development environment
-for PyperCard.
+for PyperCard. To learn about the design of PyperCard please read the
+:doc:`design` documentation.
 
 Feedback may be given for contributions and, where necessary, changes will
 be politely requested and discussed with the originating author. Respectful
@@ -47,15 +48,17 @@ Checklist
 +++++++++
 
 * If your contribution includes non-obvious technical decision making please
-  make sure you document this.
+  make sure you document this in ``docs/design.rst``.
 * Your code should be commented in *plain English* (British spelling).
 * If your contribution is for a major block of work and you've not done so
-  already, add yourself to the AUTHORS file following the convention found
+  already, add yourself to the AUTHORS.md file following the convention found
   therein.
-* We have 100% test coverage - include tests to maintain this!
+* We have 100% test coverage - include tests to maintain this! We're happy to
+  help and advise you when it comes to testing.
 * **Before submitting code ensure coding standards and test coverage by running**::
 
     make check
 
-* If in doubt, ask a question. The only stupid question is the one that's never asked.
+* If in doubt, ask a question (`join our chat channel <https://gitter.im/pypercard/community>`_).
+  The only stupid question is the one that's never asked.
 * Most importantly, **Have fun!** :-)
