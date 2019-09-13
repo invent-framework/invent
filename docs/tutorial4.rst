@@ -20,14 +20,14 @@ Defining a card in Python is very simple::
         title="hello",
         text="Hello",
         text_color="green",
-        buttons=[{"label": "Finish", target: "goodbye"}]
+        buttons=[{"label": "Finish", "target": "goodbye"}]
     )
 
     goodbye_card = Card(
         title="goodbye",
         text="Goodbye",
         text_color="red",
-        buttons=[{"label": "Start again", target: "hello"}]
+        buttons=[{"label": "Start again", "target": "hello"}]
     )
 
 Note how the buttons are defined as Python dictionaries.
