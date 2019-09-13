@@ -1261,6 +1261,11 @@ As a result, your transition function should look something like this::
     is important to note that these are **blocking functions** so do not do
     anything which will cause the application to pause.
 
+Please note that the text associated with labels and buttons is formatted for
+template names with the values found in the ``data_store`` (see the example
+below). In this way, values stored in the ``data_store`` can safely be
+shown to the user.
+
 The following simple example demonstrates how transition functions work::
 
     from pypercard import Inputs, Card, CardApp
