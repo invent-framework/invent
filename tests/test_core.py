@@ -805,6 +805,7 @@ def test_card_enter():
         mock_clock.schedule_once.assert_called_once_with(
             card._next_card, card.auto_advance
         )
+        assert card.auto_event == mock_clock.schedule_once()
         card.player.play.assert_called_once_with()
         card.player.seek.assert_called_once_with(0)
 
@@ -816,8 +817,12 @@ def test_card_leave():
     """
     card = Card("title")
     card.player = mock.MagicMock()
+    mock_auto_event = mock.MagicMock()
+    card.auto_event = mock_auto_event
     card._leave(card)
     card.player.stop.assert_called_once_with()
+    mock_auto_event.cancel.assert_called_once_with()
+    assert card.auto_event is None
 
 
 def test_card_update_rect():

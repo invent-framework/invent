@@ -168,6 +168,8 @@ class Card:
         self.auto_target = auto_target
         # Will contain references to any buttons used by the card.
         self.button_widgets = []
+        # Will become a reference to any scheduled auto advance transition.
+        self.auto_event = None
         self._verify()
 
     def _verify(self):
@@ -467,7 +469,9 @@ class Card:
             self.player.play()
             self.player.seek(0)
         if self.auto_advance:
-            Clock.schedule_once(self._next_card, self.auto_advance)
+            self.auto_event = Clock.schedule_once(
+                self._next_card, self.auto_advance
+            )
 
     def _leave(self, card):
         """
@@ -476,6 +480,9 @@ class Card:
         """
         if self.player:
             self.player.stop()
+        if self.auto_event:
+            self.auto_event.cancel()
+            self.auto_event = None
 
     def _update_rect(self, instance, value):
         """
