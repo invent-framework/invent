@@ -1002,7 +1002,10 @@ The available attributes are (see the :doc:`api` for more details):
   colour of the button's background).
 * ``auto_advance`` - a floating point value to indicate the number of seconds
   to wait until the card automatically transitions to the card indicated by the
-  ``auto_target`` attribute.
+  ``auto_target`` attribute. It is possible to mix buttons and ``auto_advance``
+  as a means to transition from a card. If a button is clicked before the
+  scheduled automatic transition then the scheduled transition will not take
+  place.
 * ``auto_target`` - a string containing the ``title`` of the card to transition
   to after the number of seconds indicated by the ``auto_advance`` attribute.
 
