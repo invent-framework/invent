@@ -132,7 +132,7 @@ Transition functions are used in two places:
 1. As the value of the ``"target"`` attribute of a button, or;
 2. As the value of a card's ``"auto_target"`` attribute.
 
-Transation functions **must be defined before you reference them in your
+Transition functions **must be defined before you reference them in your
 code**.
 
 In addition to working out the target card for the transition and handling user
@@ -181,7 +181,7 @@ with the name input form.
 
 Here's how I'd write the function::
 
-    def get_name(data_store, form_field):
+    def get_name(data_store, form_value):
         if form_value:
             data_store["username"] = form_value
             return "hello"
@@ -232,13 +232,13 @@ The following simple example shows this all in action::
 
     stack = [
         Card(
-        "get_value",  # First card get's the user's name.
-        form=Inputs.TEXTBOX,  # Contains a single text box...
-        text="What is your name..?",  # ...with appropriate instructions.
-        buttons=[
-            # A button whose target is the "get_name" transition function.
-            {"label": "OK", "target": get_name}  # Click "OK".
-        ]
+            "get_value",  # First card get's the user's name.
+            form=Inputs.TEXTBOX,  # Contains a single text box...
+            text="What is your name..?",  # ...with appropriate instructions.
+            buttons=[
+                # A button whose target is the "get_name" transition function.
+                {"label": "OK", "target": get_name}  # Click "OK".
+            ]
         ),
         Card(
             "hello",  # A card to say "Hello" to the user.
