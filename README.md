@@ -2,22 +2,32 @@
 
 This project's documentation can be found [here](https://pypercard.rtfd.io).
 
-A re-implementation of
+This started, in 2019, as a re-implementation of 
 [Adafruit's CircuitPython PYOA](https://github.com/adafruit/Adafruit_CircuitPython_PYOA)
-module for non-CircuitPython computing environments. This module re-uses a
-modified version of the JSON specification used to create HyperCard like
-"stacks" of states, between which users transition in a
-choose-your-own-adventure style.
+module, but for non-CircuitPython computing environments. It was originally
+written using the [Kivy](https://kivy.org/) framework for cross-platform
+development. After successfully using PyperCard for teaching purposes,
+development stalled because of the COVID pandemic.
 
-## Install via pip
+However, PyperCard is back in active development _with some significant
+changes_:
 
-To install PyperCard via pip, type the following command into the terminal/command prompt:
+* [PyScript](https://pyscript.net/) replaces Kivy as the underlying framework
+  for generating and running the user interface.
+* [Nicholas](https://github.com/ntoll), the original core developer of
+  PyperCard, has been hired by [Anaconda Inc](https://anaconda.com/) to work
+  on PyScript, and so his work on this project is sponsored by his employer
+  (hence some of the copyright changes).
+* Ownership of the repository will be transferred to the
+  [pyscript organisation](https://github.com/pyscript) on GitHub (the old
+  repository will automatically redirect to the new one).
+* Since this is a complete rewrite, the license has been changed from MIT
+  to Apache2.
 
-```
-pip install pypercard
-```
+All the assets relating to the old version of the project can still be found
+in the `old` directory in this repository.
 
-## Developer Setup
+## Developer setup
 
 Git clone the repository:
 
@@ -34,18 +44,20 @@ pip install --upgrade pip
 Make a virtualenv, then install the requirements:
 
 ```
-pip install -e ".[dev]"
+pip install -r requirements.txt
 ```
 
-Run the test suite:
+Most useful developer related tasks are automated by a `Makefile`:
 
 ```
-make check
+$ make
+There's no default Makefile target right now. Try:
+
+make clean - reset the project and remove auto-generated assets.
+make tidy - tidy up the code with the 'black' formatter.
+make lint - check the code for obvious errors with flake8.
+make serve - serve the project at: http://0.0.0.0:8000/
+make test - while serving the app, run the test suite in browser.
 ```
 
-Try out some of the examples in the "examples" subdirectory (see the README
-therein for more information).
-
-## ToDo
-
-* Packaging for mobile (Android and iOS).
+The tests should open in your browser, and pass. ;-)
