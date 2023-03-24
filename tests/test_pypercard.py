@@ -316,7 +316,7 @@ def test_card_render():
     # Register a transition to be attached to the element/event rendered in
     # the result.
     my_transition = mock.MagicMock(return_value="baz")
-    c.register_transition("#id2", "click", my_transition)
+    c.register_transition("id2", "click", my_transition)
 
     # RENDER!
     result = c.render(ds)
@@ -361,7 +361,7 @@ def test_card_register_transition():
     def my_transition(card, ds):
         return "another_card_name"
 
-    c.register_transition("#id2", "click", my_transition)
+    c.register_transition("id2", "click", my_transition)
     assert len(c._transitions) == 1
     assert c._transitions[0]["selector"] == "#id2"
     assert c._transitions[0]["event_name"] == "click"
@@ -508,7 +508,7 @@ def test_app_transition_decorator_missing_card():
 
     with pytest.raises(ValueError):
 
-        @app.transition("foo", "#bar", "click")
+        @app.transition("foo", "bar", "click")
         def test_trans(card, datastore):
             pass
 
@@ -524,7 +524,7 @@ def test_app_transition():
 
     mock_work = mock.MagicMock()
 
-    @app.transition("test_card1", "#id1", "click")
+    @app.transition(tc1, "id1", "click")
     def my_transition(card, datastore):
         mock_work(card, datastore)
         return "test_card2"
@@ -547,7 +547,7 @@ def test_app_start():
 
     mock_work = mock.MagicMock()
 
-    @app.transition("test_card1", "#id1", "click")
+    @app.transition(tc1, "id1", "click")
     def my_transition(card, datastore):
         mock_work(card, datastore)
         return "test_card2"

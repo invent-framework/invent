@@ -229,12 +229,12 @@ class Card:
         created by the card.
         """
         # Create the rendered element.
-        self.content = document.createElement("div")
+        self.content = document.createElement("pyper-card")
         html = self.template.format(**datastore)
         self.content.innerHTML = html
         # Attach transitions.
         for transition in self._transitions:
-            target_elements = self.content.querySelectorAll(
+            target_elements = self.get_elements(
                 transition["selector"]
             )
             for element in target_elements:
@@ -253,7 +253,7 @@ class Card:
         """
         self.content = None
 
-    def register_transition(self, selector, event_name, handler):
+    def register_transition(self, id, event_name, handler):
         """
         selector - a CSS selector identifying the target elements.
         event_name - e.g. "click"
@@ -266,7 +266,7 @@ class Card:
         handler_proxy = ffi.create_proxy(handler)
         self._transitions.append(
             {
-                "selector": selector,
+                "selector": "#" + id,
                 "event_name": event_name,
                 "handler": handler_proxy,
             }
@@ -280,6 +280,13 @@ class Card:
         if self.content:
             return self.content.querySelector(selector)
 
+    def get_elements(self, selector):
+        """
+        Convenience function for getting a child element that matches the
+        passed in CSS selector.
+        """
+        if self.content:
+            return self.content.querySelectorAll(selector)
 
 class App:
     """
@@ -381,11 +388,12 @@ class App:
             @functools.wraps(func)
             def inner_wrapper(event):
                 next_card = func(card, self.datastore)
-                if next_card and next_card in self.stack:
-                    card.hide()
-                    new_card = self.stack[next_card].render(self.datastore)
-                    self.div.replaceChildren()
-                    self.div.appendChild(new_card)
+                if next_card:
+                    new_card = self._resolve_card(next_card)
+                    if new_card.name in self.stack:
+                        card.hide()
+                        new_card.render(self.datastore)
+                        self.div.replaceChildren([new_card])
 
             card.register_transition(element, event, inner_wrapper)
             return inner_wrapper
