@@ -68,6 +68,6 @@ $ make serve
 
 Then visit
 [http://localhost:8000/tests.html](http://localhost:8000/tests.html) or, in
-another console with the code still serving, `make tests`.
+another console with the code still serving, `make test`.
 
 The tests should open in your browser, and pass. ;-)
