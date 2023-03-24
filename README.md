@@ -60,4 +60,14 @@ make serve - serve the project at: http://0.0.0.0:8000/
 make test - while serving the app, run the test suite in browser.
 ```
 
+To run the test suite:
+
+```
+$ make serve
+```
+
+Then visit
+[http://localhost:8000/tests.html](http://localhost:8000/tests.html) or, in
+another console with the code still serving, `make tests`.
+
 The tests should open in your browser, and pass. ;-)
