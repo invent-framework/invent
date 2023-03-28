@@ -1,2 +1,4 @@
 black
 flake8
+myst-parser
+sphinx

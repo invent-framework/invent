@@ -8,6 +8,7 @@ all:
 	@echo "make lint - check the code for obvious errors with flake8."
 	@echo "make serve - serve the project at: http://0.0.0.0:8000/"
 	@echo "make test - while serving the app, run the test suite in browser."
+	@echo "make docs - use Sphinx to create project documentation."
 
 clean:
 	rm -rf .pytest_cache
@@ -15,8 +16,9 @@ clean:
 
 tidy:
 	black -l 79 pypercard.py
-	black -l 79 tests/*
-	black -l 79 examples/*
+	black -l 79 tests
+	black -l 79 examples
+	black -l 79 docs
 
 lint:
 	flake8 pypercard.py tests/* examples/*
@@ -26,3 +28,10 @@ serve:
 
 test:
 	python -m webbrowser http://localhost:8000/tests.html
+
+docs: clean
+	$(MAKE) -C docs clean html
+	@echo ""
+	@echo "Documentation can be found here:"
+	@echo file://`pwd`/docs/_build/html/index.html
+	@echo ""
