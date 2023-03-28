@@ -71,3 +71,13 @@ Then visit
 another console with the code still serving, `make test`.
 
 The tests should open in your browser, and pass. ;-)
+
+## Example applications
+
+Several example applications, demonstrating various different aspects of
+PyperCard can be found in the `examples` subdirectory of this repository.
+
+They are, in order of complexity (simple first):
+
+* `hello` - a very simple and raw "hello" application that prompts users to
+  enter their name, and click a button for a friendly greeting.
