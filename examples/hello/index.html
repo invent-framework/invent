@@ -10,5 +10,14 @@
 <body>
     <py-config src="./pyscript.toml"></py-config>
     <py-script src="./main.py"></py-script>
+    <template id="get_name">
+      <label for="name">Enter your name: </label>
+      <input id="name" type="text" autofocus/>
+      <button id="submit">Hello</button>
+    </template>
+    <template id="say_hello">
+      <h1>Hello {name}!</h1>
+      <button id="again" autofocus>Again</button>
+    </template>
 </body>
 </html>

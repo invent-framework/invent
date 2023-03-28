@@ -5,23 +5,12 @@ display a friendly "Hello world!" type message.
 from pypercard import App, Card
 
 
+# The templates for these cards can be found in index.html.
 cards = [
-    Card(
-        "get_name",
-        """
-<label for="name">Enter your name: </label>
-<input id="name" type="text" autofocus/>
-<button id="submit">Hello</button>
-""",
-    ),
-    Card(
-        "say_hello",
-        """
-<h1>Hello {name}!</h1>
-<button id="again" autofocus>Again</button>
-""",
-    ),
+    Card("get_name"),
+    Card("say_hello"),
 ]
+
 
 hello_app = App(name="Hello world, PyperCard style", card_list=cards)
 
