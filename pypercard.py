@@ -215,7 +215,9 @@ class Card:
             if templateElement:
                 self.template = templateElement.innerHTML
             else:
-                raise RuntimeError(f"Unable to find template for card '{self.name}'.")
+                raise RuntimeError(
+                    f"Unable to find template for card '{self.name}'."
+                )
         self.on_render = on_render
         self._transitions = []  # To hold transitions acting on the card.
         self.content = None  # Will reference the rendered element in the DOM.

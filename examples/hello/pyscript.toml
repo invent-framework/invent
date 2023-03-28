@@ -1,2 +1,2 @@
 [[fetch]]
-from = "/pypercard.py"
+from = "../../pypercard.py"

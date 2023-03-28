@@ -3,7 +3,7 @@
     <title>PyperCard PyTest Suite</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <link rel="stylesheet" href="/static/pyscript.css" />
+    <link rel="stylesheet" href="static/pyscript.css" />
     <script defer src="https://pyscript.net/releases/2022.12.1/pyscript.js"></script>
   </head>
   <body>
@@ -15,10 +15,10 @@
       files = ["pypercard.py"]
       [[fetch]]
       from = "tests/"
-      files = ["__init__.py", "test_pypercard.py", ]
+      files = ["test_pypercard.py", ]
       to_folder = "tests"
     </py-config>
-    <py-script src="/static/main.py"></py-script>
+    <py-script src="static/main.py"></py-script>
     <template id="test_card_with_element_template">
       <p>This is a test. {foo}</p>
     </template>
