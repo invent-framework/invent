@@ -392,8 +392,8 @@ class App:
                     new_card = self._resolve_card(next_card)
                     if new_card.name in self.stack:
                         card.hide()
-                        new_card.render(self.datastore)
-                        self.div.replaceChildren(new_card)
+                        new_element = new_card.render(self.datastore)
+                        self.div.replaceChildren(new_element)
 
             card.register_transition(element, event, inner_wrapper)
             return inner_wrapper
