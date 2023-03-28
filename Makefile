@@ -16,9 +16,10 @@ clean:
 tidy:
 	black -l 79 pypercard.py
 	black -l 79 tests/*
+	black -l 79 examples/*
 
 lint:
-	flake8 pypercard.py tests/*
+	flake8 pypercard.py tests/* examples/*
 
 serve:
 	python -m http.server

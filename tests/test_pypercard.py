@@ -8,13 +8,13 @@ from unittest import mock
 @pytest.fixture(autouse=True)
 def before_tests():
     """
-    Ensure browser storage is always reset to empty. Remove the app div. Reset
-    the page title.
+    Ensure browser storage is always reset to empty. Remove the app
+    placeholder. Reset the page title.
     """
     localStorage.clear()
-    app_div = document.getElementById("pypercard-app")
-    if app_div:
-        app_div.remove()
+    app_placeholder = document.querySelector("pyper-app")
+    if app_placeholder:
+        app_placeholder.remove()
     document.querySelector("title").innerText = "PyperCard PyTest Suite"
 
 
@@ -116,7 +116,7 @@ def test_datastore_keys():
     }
 
 
-def test_pop():
+def test_datastore_pop():
     """
     An existing item is popped from the datastore.
     """
@@ -128,7 +128,7 @@ def test_pop():
     assert "a" not in ds
 
 
-def test_pop_no_key():
+def test_datastore_pop_no_key():
     """
     Popping a non-existent item returns None by default.
     """
@@ -136,7 +136,7 @@ def test_pop_no_key():
     assert ds.pop("foo") is None
 
 
-def test_pop_no_key_with_default():
+def test_datastore_pop_no_key_with_default():
     """
     Popping a non-existent item returns the given default value.
     """
@@ -144,7 +144,7 @@ def test_pop_no_key_with_default():
     assert ds.pop("foo", True) is True
 
 
-def test_popitem():
+def test_datastore_popitem():
     """
     NotImplemented
     """
@@ -153,7 +153,7 @@ def test_popitem():
         ds.popitem()
 
 
-def test_setdefault_no_key():
+def test_datastore_setdefault_no_key():
     """
     If the key doesn't exist, by default returns None and sets key to an
     associated value of None.
@@ -164,7 +164,7 @@ def test_setdefault_no_key():
     assert ds["a"] is None
 
 
-def test_setdefault_has_key():
+def test_datastore_setdefault_has_key():
     """
     If the key exists, just return the associated value and do NOT update the
     value.
@@ -175,7 +175,7 @@ def test_setdefault_has_key():
     assert ds["a"] == 1
 
 
-def test_setdefault_no_key_with_default():
+def test_datastore_setdefault_no_key_with_default():
     """
     If the key doesn't exist, return the default value and set the key to the
     given default value.
@@ -186,7 +186,7 @@ def test_setdefault_no_key_with_default():
     assert ds["a"] is True
 
 
-def test_update():
+def test_datastore_update():
     """
     Given an iterable of key/value pairs, insert them into the datastore.
     """
@@ -198,7 +198,7 @@ def test_update():
     assert ds["b"] == 2
 
 
-def test_values():
+def test_datastore_values():
     """
     Returns a list of the stored values.
     """
@@ -208,7 +208,7 @@ def test_values():
     assert sorted(ds.values()) == [1, 2]
 
 
-def test_len():
+def test_datastore_len():
     """
     Builtin len works as expected.
     """
@@ -218,7 +218,7 @@ def test_len():
     assert len(ds) == 1
 
 
-def test_get_set_del_item():
+def test_datastore_get_set_del_item():
     """
     Getting an item should work as expected.
     """
@@ -232,7 +232,7 @@ def test_get_set_del_item():
         del ds["a"]
 
 
-def test_iter():
+def test_datastore_iter():
     """
     It's possible to iterate over the keys in a datastore.
     """
@@ -243,7 +243,7 @@ def test_iter():
         assert key in ds
 
 
-def test_contains():
+def test_datastore_contains():
     """
     It's possible to check if a key is in the datastore.
     """
@@ -369,6 +369,28 @@ def test_card_register_transition():
     assert isinstance(c._transitions[0]["handler"], ffi.JsProxy)
 
 
+def test_card_get_by_id():
+    """
+    If the card has been rendered, then the get_by_id function returns the
+    element with the given id.
+    """
+    ds = pypercard.DataStore(foo="bar")
+    name = "test_card"
+    template = "<p id='id1'>{foo}</p>"
+    c = pypercard.Card(name, template)
+    # Not rendered, so return None.
+    assert c.get_by_id("id1") is None
+    # Now rendered, returns the expected element.
+    c.render(ds)
+    el = c.get_by_id("id1")
+    assert el.outerHTML == '<p id="id1">bar</p>'
+    # Non-existent element returns None
+    assert c.get_by_id("not-there") is None
+    # Hide the card, the element no longer exists.
+    c.hide()
+    assert c.get_by_id("id1") is None
+
+
 def test_card_get_element():
     """
     If the card has been rendered, then the get_element function returns the
@@ -392,14 +414,41 @@ def test_card_get_element():
     assert c.get_element("#id1") is None
 
 
+def test_card_get_elements():
+    """
+    If the card has been rendered, then the get_elements function returns the
+    elements that match the given selector. If no elements match, an empty list
+    is returned.
+    """
+    ds = pypercard.DataStore(foo="bar")
+    name = "test_card"
+    template = "<p class='test'>{foo}</p><p class='test'>Test</p>"
+    c = pypercard.Card(name, template)
+
+    # Not rendered, so return an empty list.
+    assert c.get_elements(".test") == []
+    # Now rendered, returns the expected element.
+    c.render(ds)
+    result = c.get_elements(".test")
+    assert isinstance(result, list)
+    assert len(result) == 2
+    assert result[0].outerHTML == '<p class="test">bar</p>'
+    assert result[1].outerHTML == '<p class="test">Test</p>'
+    # Non-existent element returns empty list.
+    assert c.get_elements(".not-there") == []
+    # Hide the card, the elements no longer exist.
+    c.hide()
+    assert c.get_elements(".test") == []
+
+
 def test_app_default_init():
     """
     Given default args, the app is set-up as expected.
     """
     app = pypercard.App()
     assert document.querySelector("title").innerText == app.name
-    app_div = document.querySelector("#pypercard-app")
-    assert app_div.parentNode == document.body
+    app_placeholder = document.querySelector("pyper-app")
+    assert app_placeholder.parentNode == document.body
 
 
 def test_app_custom_init():
@@ -420,30 +469,6 @@ def test_app_custom_init():
     assert app.stack["test_card"] == card
     assert card.app == app
     assert document.querySelector("title").innerText == app.name
-
-
-def test_app_add_card():
-    """
-    It's possible to add a card to the app's stack.
-    """
-    app = pypercard.App()
-    assert len(app.stack) == 0
-    c = pypercard.Card("test_card", "<p>Hello</p>")
-    app.add_card(c)
-    assert len(app.stack) == 1
-    assert app.stack["test_card"] == c
-    assert c.app == app
-
-
-def test_app_add_card_duplicate():
-    """
-    Adding a card with a name that already exists, causes a ValueError.
-    """
-    app = pypercard.App()
-    c = pypercard.Card("test_card", "<p>Hello</p>")
-    app.add_card(c)
-    with pytest.raises(ValueError):
-        app.add_card(c)
 
 
 def test_app_resolve_card_as_string():
@@ -481,6 +506,44 @@ def test_app_resolve_card_wrong_type():
     app.add_card(c)
     with pytest.raises(ValueError):
         app._resolve_card(1234567)
+
+
+def test_app_render_card():
+    """
+    The given card is rendered in the expected way. For example, autofocus is
+    respected.
+    """
+    app = pypercard.App()
+    c = pypercard.Card("test_card", "<input id='test' type='text' autofocus/>")
+    app.add_card(c)
+    app._render_card(c)
+    assert document.activeElement == c.get_by_id("test")
+    app_placeholder = document.querySelector("pyper-app")
+    assert app_placeholder.firstChild == c.content
+
+
+def test_app_add_card():
+    """
+    It's possible to add a card to the app's stack.
+    """
+    app = pypercard.App()
+    assert len(app.stack) == 0
+    c = pypercard.Card("test_card", "<p>Hello</p>")
+    app.add_card(c)
+    assert len(app.stack) == 1
+    assert app.stack["test_card"] == c
+    assert c.app == app
+
+
+def test_app_add_card_duplicate():
+    """
+    Adding a card with a name that already exists, causes a ValueError.
+    """
+    app = pypercard.App()
+    c = pypercard.Card("test_card", "<p>Hello</p>")
+    app.add_card(c)
+    with pytest.raises(ValueError):
+        app.add_card(c)
 
 
 def test_app_remove_card():
@@ -554,8 +617,8 @@ def test_app_start():
 
     app.start("test_card1")
 
-    app_div = document.getElementById("pypercard-app")
-    assert app_div.firstChild == tc1.content
+    app_placeholder = document.querySelector("pyper-app")
+    assert app_placeholder.firstChild == tc1.content
 
 
 def test_app_start_already_started():

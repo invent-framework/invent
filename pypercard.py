@@ -234,9 +234,7 @@ class Card:
         self.content.innerHTML = html
         # Attach transitions.
         for transition in self._transitions:
-            target_elements = self.get_elements(
-                transition["selector"]
-            )
+            target_elements = self.get_elements(transition["selector"])
             for element in target_elements:
                 element.addEventListener(
                     transition["event_name"], transition["handler"]
@@ -272,21 +270,31 @@ class Card:
             }
         )
 
+    def get_by_id(self, element_id):
+        """
+        Convenence function for getting a child element by id. Returns None if
+        no element is found.
+        """
+        return self.get_element("#" + element_id)
+
     def get_element(self, selector):
         """
         Convenience function for getting a child element that matches the
-        passed in CSS selector.
+        passed in CSS selector. Returns None if no element is found.
         """
         if self.content:
             return self.content.querySelector(selector)
 
     def get_elements(self, selector):
         """
-        Convenience function for getting a child element that matches the
-        passed in CSS selector.
+        Convenience function for getting a Python list of child elements that
+        match the passed in CSS selector. Returns an empty list if no elements
+        are found.
         """
         if self.content:
-            return self.content.querySelectorAll(selector)
+            return list(self.content.querySelectorAll(selector))
+        return []
+
 
 class App:
     """
@@ -320,20 +328,8 @@ class App:
         # Update the page title to the name of the app.
         document.querySelector("title").innerText = self.name
         # Create the element into which the app will appear.
-        self.div = document.createElement("div")
-        self.div.id = "pypercard-app"
-        document.body.appendChild(self.div)
-
-    def add_card(self, card):
-        """
-        Add a card to the stack.
-        """
-        if card.name in self.stack:
-            raise ValueError(
-                f"A card with the name '{card.name}' already exists."
-            )
-        card.register_app(self)
-        self.stack[card.name] = card
+        self.placeholder = document.createElement("pyper-app")
+        document.body.appendChild(self.placeholder)
 
     def _resolve_card(self, card_reference):
         """
@@ -358,6 +354,27 @@ class App:
             )
         else:
             raise ValueError("Invalid card reference.")
+
+    def _render_card(self, card):
+        """
+        Renders the referenced card into the DOM via self.placeholder.
+        """
+        new_element = card.render(self.datastore)
+        self.placeholder.replaceChildren(new_element)
+        autofocus = new_element.querySelector("[autofocus]")
+        if autofocus:
+            autofocus.focus()
+
+    def add_card(self, card):
+        """
+        Add a card to the stack.
+        """
+        if card.name in self.stack:
+            raise ValueError(
+                f"A card with the name '{card.name}' already exists."
+            )
+        card.register_app(self)
+        self.stack[card.name] = card
 
     def remove_card(self, card_reference):
         """
@@ -390,10 +407,8 @@ class App:
                 next_card = func(card, self.datastore)
                 if next_card:
                     new_card = self._resolve_card(next_card)
-                    if new_card.name in self.stack:
-                        card.hide()
-                        new_element = new_card.render(self.datastore)
-                        self.div.replaceChildren(new_element)
+                    card.hide()
+                    self._render_card(new_card)
 
             card.register_transition(element, event, inner_wrapper)
             return inner_wrapper
@@ -410,8 +425,7 @@ class App:
         if self.started:
             raise RuntimeError("The application has already started.")
         card = self._resolve_card(card_reference)
-        new_card = card.render(self.datastore)
-        self.div.appendChild(new_card)
+        self._render_card(card)
         self.started = True
 
     def dump(self):
