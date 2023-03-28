@@ -1,5 +1,7 @@
 # PyperCard - A Pythonic HyperCard for Beginner Programmers
 
+View this repository [via GitHub pages](https://pyscript.github.io/pypercard/).
+
 This project's documentation can be found [here](https://pypercard.rtfd.io).
 
 This started, in 2019, as a re-implementation of 
