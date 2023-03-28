@@ -198,14 +198,24 @@ class Card:
     elements rendered by this card, given a valid CSS selector.
     """
 
-    def __init__(self, name, template, on_render=None):
+    def __init__(self, name, template=None, on_render=None):
         """
         Initialise the card with a unique name, an HTML template used to
         render the card, and an optional on_render function to be called
         just after the card is rendered, but before it is added to the DOM.
+
+        If the template is not given, will attempt to extract the innerHTML
+        from a template tag with an id of the given name of the card.
         """
         self.name = name
-        self.template = template
+        if template:
+            self.template = template
+        else:
+            templateElement = document.querySelector("template#" + self.name)
+            if templateElement:
+                self.template = templateElement.innerHTML
+            else:
+                raise RuntimeError(f"Unable to find template for card '{self.name}'.")
         self.on_render = on_render
         self._transitions = []  # To hold transitions acting on the card.
         self.content = None  # Will reference the rendered element in the DOM.

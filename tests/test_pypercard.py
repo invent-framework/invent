@@ -267,6 +267,24 @@ def test_card_init():
     assert c.app is None
 
 
+def test_card_init_element_template():
+    """
+    If there is no template given, the template is populated from the innerHTML
+    of the template element in the dom with the id of the name of the card.
+    """
+    c = pypercard.Card("test_card_with_element_template")
+    assert c.template.strip() == "<p>This is a test. {foo}</p>"
+
+
+def test_card_init_no_template():
+    """
+    If no template is given, and there's no matching template element in the
+    DOM, then a RuntimeError happens.
+    """
+    with pytest.raises(RuntimeError):
+        pypercard.Card("does_not_exist_in_the_dom")
+
+
 def test_card_init_with_on_render():
     """
     Ensure the user defined on_render function is set, as expected.
