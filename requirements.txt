@@ -2,3 +2,4 @@ black
 flake8
 myst-parser
 sphinx
+sphinx-autodoc2

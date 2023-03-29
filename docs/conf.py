@@ -21,9 +21,20 @@ release = "0.0.1"
 
 extensions = [
     "myst_parser",
-    "sphinx.ext.autodoc",
+    "autodoc2",
     "sphinx.ext.viewcode",
 ]
+
+autodoc2_packages = [
+    {
+        "path": "../pypercard.py",
+        "module": "pypercard"
+    }
+]
+autodoc2_output_dir = "api"
+autodoc2_render_plugin = "myst"
+autodoc2_no_index = True
+autodoc2_index_template = None
 
 templates_path = ["_templates"]
 exclude_patterns = ["_build", "Thumbs.db", ".DS_Store"]

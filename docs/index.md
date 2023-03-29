@@ -58,7 +58,7 @@ cheatsheet.md
 contributing.md
 design.md
 code_of_conduct.md
-api.md
+API Reference <api/pypercard/pypercard.md>
 license.md
 authors.md
 ```
