@@ -410,7 +410,7 @@ class App:
         card = self._resolve_card(card_reference)
         del self.stack[card.name]
 
-    def transition(self, card_reference, element, event):
+    def transition(self, from_card, element, event):
         """
         Return a function, that handles an event dispatched from within the
         referenced card.
@@ -423,7 +423,7 @@ class App:
         The reference to the card can be an instance of the card itself, or
         a string containing the card's name.
         """
-        card = self._resolve_card(card_reference)
+        card = self._resolve_card(from_card)
 
         def wrapper(func):
             @functools.wraps(func)
