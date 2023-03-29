@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Hello App</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/water.css">
+    <script defer src="https://pyscript.net/releases/2022.12.1/pyscript.js"></script>
+</head>
+<body>
+    <py-config src="./pyscript.toml"></py-config>
+    <py-script src="./main.py"></py-script>
+    <template id="input_card">
+      <img src="logo.png" alt="Temperature logo"/>
+      <h2>Please enter a temperature, and click the desired button to
+      convert.</h2>
+      <input id="temperature" type="text" autofocus/>
+      <button id="to_c">To Celsius</button>
+      <button id="to_f">To Farenheit</button>
+    </template>
+    <template id="result_card">
+      <img src="logo.png" alt="Temperature logo"/>
+      <h1>{result}</h1>
+      <button id="again" autofocus>Again</button>
+    </template>
+    <template id="error_card">
+      <img src="logo.png" alt="Temperature logo"/>
+      <h2>Oops... something went wrong.</h2> 
+      <button id="reset" autofocus>Reset</button><br/>
+      <img src="wasm_wabbit.png" alt="Angry rabbit"/>
+    </template>
+</body>
+</html>

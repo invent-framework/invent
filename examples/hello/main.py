@@ -1,29 +1,17 @@
 """
-A simple PyperCard example of using a form to get a user's name, and then
-display a friendly "Hello world!" type message.
+The simplest possible app. It says, "Hello, World!".
 """
 from pypercard import App, Card
 
-
-# The templates for these cards can be found in index.html.
-cards = [
-    Card("get_name"),
-    Card("say_hello"),
-]
-
-
-hello_app = App(name="Hello world, PyperCard style", card_list=cards)
-
-
-@hello_app.transition("get_name", "submit", "click")
-def hello(card, datastore):
-    datastore["name"] = card.get_by_id("name").value
-    return "say_hello"
-
-
-@hello_app.transition("say_hello", "again", "click")
-def again(card, datastore):
-    return "get_name"
-
-
-hello_app.start("get_name")
+# Create an app, called "Hello", with a single "hello" card.
+app = App(
+    # The optional name of the app become's the page title, in the browser.
+    name="Hello",
+    # The optional card_list contains the initial stack of cards.
+    card_list=[
+        # The card is named "hello", and will display the template's content.
+        Card(name="hello", template="Hello, world!"),
+    ],
+)
+# Start the app with the "hello" card.
+app.start("hello")

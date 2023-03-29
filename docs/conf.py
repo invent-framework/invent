@@ -25,12 +25,7 @@ extensions = [
     "sphinx.ext.viewcode",
 ]
 
-autodoc2_packages = [
-    {
-        "path": "../pypercard.py",
-        "module": "pypercard"
-    }
-]
+autodoc2_packages = [{"path": "../pypercard.py", "module": "pypercard"}]
 autodoc2_output_dir = "api"
 autodoc2_render_plugin = "myst"
 autodoc2_no_index = True

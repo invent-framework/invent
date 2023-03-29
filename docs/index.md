@@ -16,7 +16,7 @@ modern user interface to run on Windows, OSX, Linux, Android or iOS devices.
 **This documentation is for two sorts of readers**.
 
 1. Folks who want to use PyperCard to build cross platform GUI
-applications. If this is *you*, check out the [tutorial](tutorial.md) first.
+applications. If this is *you*, check out the [tutorials](tutorials.md) first.
 If you're already quite technical, you should see the
 [cheatsheet](cheatsheet.md).
 
@@ -53,7 +53,7 @@ professional level web application frameworks.
 ```{toctree}
 :maxdepth: 2
 
-tutorial.md
+tutorials.md
 cheatsheet.md
 contributing.md
 design.md
