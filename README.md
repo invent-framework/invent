@@ -86,6 +86,8 @@ They are, in order of complexity (simple first):
   enter their name, and click a button for a friendly greeting.
 * `temperatures` - convert between celsius and fahrenheit, whilst handling
   errors.
+* `card carousel` - a demonstration of automatic advance to the next card after
+  N seconds.
 * `calculator` - a simple calculator demonstrating a recursive single card app.
 * `alchemyst` - an atmospheric point and click adventure game in the style of
   the classic Myst (built using the original HyperCard).
