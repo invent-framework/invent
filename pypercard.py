@@ -4,7 +4,7 @@ PyperCard
 A simple HyperCard inspired framework for PyScript, implemented as a finite
 state machine for building graphical apps in Python.
 
-Based on original pre-COVID work by Nicholas H.Tollervey.
+Based on original pre-COVID work by [Nicholas H.Tollervey.](https://ntoll.org/)
 
 Copyright (c) 2023 Anaconda Inc.
 
@@ -23,26 +23,26 @@ limitations under the License.
 import functools
 import json
 from pyodide import ffi
-from js import document, localStorage
+from js import document, localStorage, setTimeout
 
 
 class DataStore:
     """
     A simple key/value data store.
 
-    Wraps a JavaScript Storage object for browser based data storage. Looks
-    and feels mostly like a Python dictionary but has the same characteristics
-    as a JavaScript localStorage object.
+    Wraps a JavaScript `Storage` object for browser based data storage. Looks
+    and feels mostly like a Python `dict` but has the same characteristics
+    as a JavaScript `localStorage` object.
 
     For more information see:
 
-    https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API
+    <https://developer.mozilla.org/en-US/docs/Web/API/Web_Storage_API>
     """
 
     def __init__(self, **kwargs):
         """
-        The underlying Storage object is an instance of Window.localStorage
-        (it persists between browser opening/closing). Any **kwargs are added
+        The underlying `Storage` object is an instance of `Window.localStorage`
+        (it persists between browser opening/closing). Any `**kwargs` are added
         to the dictionary.
         """
         self.store = localStorage
@@ -57,7 +57,7 @@ class DataStore:
 
     def copy(self):
         """
-        Returns a Python dict copy of the data store.
+        Returns a Python `dict` copy of the data store.
         """
         return {k: v for k, v in self.items()}
 
@@ -112,7 +112,7 @@ class DataStore:
 
         If the key does not exist, insert the key, with the specified value.
 
-        Default value is None.
+        Default value is `None`.
         """
         if key in self:
             return self[key]
@@ -139,13 +139,13 @@ class DataStore:
 
     def __len__(self):
         """
-        Number of items in the data store.
+        The number of items in the data store.
         """
         return self.store.length
 
     def __getitem__(self, key):
         """
-        Get the item (as a string) stored against the given key.
+        Get and JSON deserialize the item stored against the given key.
         """
         if key in self:
             return json.loads(self.store.getItem(key))
@@ -184,42 +184,81 @@ class DataStore:
 
 class Card:
     """
-    Represents a card in our application.
+    Represents a card in the application. A card defines what is presented to
+    the user.
 
     The app ensures that only one card is ever displayed at once. Each card
-    has a name and an html template that defines how it looks on the page.
+    has a `name` and an html `template` that defines how it looks on the page.
 
-    Cards are rendered from the template with the render method, that returns
-    the element for the app to insert into the DOM.
+    Cards may also have optional `auto_advance` and `auto_advance_after`
+    attributes for transitioning to another card after a given period of time.
+
+    Cards are rendered from the `template` by the `render` method, that returns
+    an HTML element for the app to insert into the DOM.
 
     Bespoke behaviour for rendering can be defined by the user. This should
-    be passed in as the optional on_render argument when initialising the
-    card. It will be called, at the end of the card's render function, but
+    be passed in as the optional `on_render` argument when initialising the
+    card. It will be called, at the end of the card's `render` function, but
     before the element to insert into the DOM is returned to the app. The
-    on_render function is called with the same arguments as a transition
+    `on_render` function is called with the same arguments as a transition
     function: current card, and datastore.
 
-    The hide method cleans up the rendered HTML element, which the parent app
+    The `hide` method cleans up the rendered HTML element, which the parent app
     will eventually remove from the DOM.
 
-    It's also possible to use the register_transition method to register a
+    It's also possible to use the `register_transition` method to register a
     user defined function to handle events dispatched by elements found in the
     card's HTML. These transition the app to new cards.
 
-    Finally, a convenience function called find_element returns matching HTML
-    elements rendered by this card, given a valid CSS selector.
+    Finally, the convenience functions called `get_by_id`, `get_element` and
+    `get_elements` return individual or groups of matching HTML elements
+    rendered by this card, given a valid id or CSS selector (comments attached
+    to the functions explain the specific behaviours).
     """
 
-    def __init__(self, name, template=None, on_render=None):
+    def __init__(
+        self,
+        name,
+        template=None,
+        on_render=None,
+        auto_advance=None,
+        auto_advance_after=None,
+    ):
         """
-        Initialise the card with a unique name, an HTML template used to
-        render the card, and an optional on_render function to be called
-        just after the card is rendered, but before it is added to the DOM.
+        Initialise the card with a `name` unique within the application in
+        which it is used.
 
-        If the template is not given, will attempt to extract the innerHTML
-        from a template tag with an id of the given name of the card.
+        The following optional arguments are available to customize the card's
+        appearance and behaviour.
+
+        The string content of the `template` argument is used to render the
+        card. If not given, the card will attempt to extract the `innerHTML`
+        from a `template` tag with an id of the given name of the card.
+        Otherwise, the card will raise a `RuntimeError`.
+
+        The `on_render` function is called just after the card is rendered, but
+        before it is added to the DOM. It should take `card` and `datastore`
+        arguments (just like transitions) and be used for customising the
+        rendered card.
+
+        The `auto_advance` can be either a string containing the name of the
+        card to which to automatically transition, or a transition function to
+        call that returns a string containing the name of the next card.
+
+        The `auto_advance_after` is the number of seconds, as a `float` or
+        `int`, to wait until the `auto_advance` is evaluated to discern the
+        next card to which to automatically transition.
+
+        Either both `auto_advance` and `auto_advance_after` need to be given,
+        or both need to be `None`. Otherwise, the card will raise a
+        `ValueError`. If the `auto_advance` is not a string or function or the
+        `auto_advance_after` is not an integer or float, a `TypeError` will be
+        raised.
         """
         self.name = name
+        self.auto_advance = None
+        self.auto_advance_after = None
+        # Template handling / validation.
         if template:
             self.template = template
         else:
@@ -229,6 +268,32 @@ class Card:
             else:
                 raise RuntimeError(
                     f"Unable to find template for card '{self.name}'."
+                )
+        # Check auto_* values are a pair: either both truth-y or both false-y.
+        if bool(auto_advance) != bool(auto_advance_after):
+            raise ValueError(
+                "Both auto_advance AND auto_advance_after are required."
+            )
+        # Auto advance setup / validation.
+        if auto_advance:
+            if isinstance(auto_advance, str):
+                self.auto_advance = lambda c, d: auto_advance
+            elif callable(auto_advance):
+                self.auto_advance = auto_advance
+            else:
+                raise TypeError(
+                    "The auto_advance must be either a string or function."
+                )
+        if auto_advance_after:
+            if isinstance(auto_advance_after, float) or isinstance(
+                auto_advance_after, int
+            ):
+                # Python counts time in seconds (that may be floats to indicate
+                # fractions-of-a-second, or integers).
+                self.auto_advance_after = float(auto_advance_after)
+            else:
+                raise TypeError(
+                    "Please use a number of seconds for auto_advance_after."
                 )
         self.on_render = on_render
         self._transitions = []  # To hold transitions acting on the card.
@@ -243,10 +308,10 @@ class Card:
 
     def render(self, datastore):
         """
-        Renders this card into a container div element that is returned
-        to the parent app to insert into the DOM.
+        Renders this card into a container `pyper-card` element that is
+        returned to the parent app to insert into the DOM.
 
-        Ensures the template is .formated with the datastore dictionary (so
+        Ensures the template is `.format`-ed with the datastore dictionary (so
         named custom values can be inserted into the template).
 
         Rebinds any user defined transitions to the newly rendered elements
@@ -275,11 +340,12 @@ class Card:
         """
         self.content = None
 
-    def register_transition(self, id, event_name, handler):
+    def register_transition(self, element_id, event_name, handler):
         """
-        selector - a CSS selector identifying the target elements.
-        event_name - e.g. "click"
-        handler - the Python transition function to call when the event fires.
+        `element_id` - the unique ID identifying the target element.
+        `event_name` - e.g. "click"
+        `handler` - the Python transition function to call when the event
+        fires.
 
         The transition function should return the unique name of the next
         card to display. If no name is returned the app will stay on the
@@ -288,7 +354,7 @@ class Card:
         handler_proxy = ffi.create_proxy(handler)
         self._transitions.append(
             {
-                "selector": "#" + id,
+                "selector": "#" + element_id,
                 "event_name": event_name,
                 "handler": handler_proxy,
             }
@@ -296,15 +362,15 @@ class Card:
 
     def get_by_id(self, element_id):
         """
-        Convenence function for getting a child element by id. Returns None if
-        no element is found.
+        Convenence function for getting a child element by id. Returns `None`
+        if no element is found.
         """
         return self.get_element("#" + element_id)
 
     def get_element(self, selector):
         """
         Convenience function for getting a child element that matches the
-        passed in CSS selector. Returns None if no element is found.
+        passed in CSS selector. Returns `None` if no element is found.
         """
         if self.content:
             return self.content.querySelector(selector)
@@ -324,23 +390,24 @@ class App:
     """
     Represents a HyperCard-ish application.
 
-    This encapsulates the state (as a DataStore), stack of cards, and
-    registering transitions. Furthermore, it's possible to dump and load a
-    declaritive JSON representation of the application.
+    This encapsulates the state (as a `DataStore`), stack of `Card` instances,
+    and registering transitions. Furthermore, it's possible to dump and load a
+    declaritive `JSON` representation of the application.
 
-    If no default arguments given, will assume sensible defaults.
+    If no default arguments given, the app will assume sensible defaults.
     """
 
     def __init__(
         self, name="My PyperCard App", datastore=None, card_list=None
     ):
         """
-        Initialise a PyperCard app with a given name (used as the page's
-        title).
+        Initialise a PyperCard app with a given `name` (used as the page's
+        `title`).
 
-        The datastore is an optional pre-populated DataStore instance.
+        The `datastore` is an optional pre-populated `DataStore` instance.
 
-        The card_list is an optional list of cards with which to initialise.
+        The `card_list` is an optional list of `Card` instances with which to
+        initialise.
         """
         self.started = False
         self.name = name
@@ -361,7 +428,7 @@ class App:
         card's name, or a card object, returns the correct card instance if
         the card is in the app's stack.
 
-        Otherwise raises a ValueError.
+        Otherwise raises a `ValueError`.
         """
         if isinstance(card_reference, str):
             # The card reference is a string containing the name of the card,
@@ -379,11 +446,30 @@ class App:
         else:
             raise ValueError("Invalid card reference.")
 
-    def _render_card(self, card):
+    def render_card(self, card):
         """
-        Renders the referenced card into the DOM via self.placeholder.
+        Renders the referenced card into the DOM via `self.placeholder`.
         """
         new_element = card.render(self.datastore)
+        if card.auto_advance:
+            # Start auto advance timer.
+
+            def wrapper():
+                """
+                Wraps the card's `auto_advance` function. Called when the
+                timeout is activated. Only calls the `auto_advance` if the card
+                is still displayed (i.e. it has rendered `content`).
+                """
+                if card.content:
+                    next_card = card.auto_advance(card, self.datastore)
+                    if next_card:
+                        new_card = self._resolve_card(next_card)
+                        card.hide()
+                        self.render_card(new_card)
+
+            timeout_handler = ffi.create_proxy(wrapper)
+            # Python sleeps in seconds, JavaScript in milliseconds.
+            setTimeout(timeout_handler, int(card.auto_advance_after * 1000))
         self.placeholder.replaceChildren(new_element)
         autofocus = new_element.querySelector("[autofocus]")
         if autofocus:
@@ -405,7 +491,7 @@ class App:
         Remove a card from the stack.
 
         The reference to the card can be an instance of the card itself, or
-        a string containing the card's name.
+        a string containing the card's `name`.
         """
         card = self._resolve_card(card_reference)
         del self.stack[card.name]
@@ -413,15 +499,15 @@ class App:
     def transition(self, from_card, element, event):
         """
         Return a function, that handles an event dispatched from within the
-        referenced card.
+        referenced `from_card`.
 
         It ensures the event ends up calling the user's wrapped function which
-        returns the name of the next card.
+        returns the `name` of the next card.
 
         The outer function hides the current card, and shows the next card.
 
         The reference to the card can be an instance of the card itself, or
-        a string containing the card's name.
+        a string containing the card's `name`.
         """
         card = self._resolve_card(from_card)
 
@@ -432,7 +518,7 @@ class App:
                 if next_card:
                     new_card = self._resolve_card(next_card)
                     card.hide()
-                    self._render_card(new_card)
+                    self.render_card(new_card)
 
             card.register_transition(element, event, inner_wrapper)
             return inner_wrapper
@@ -444,12 +530,12 @@ class App:
         Start the app with the referenced card.
 
         The reference to the card can be an instance of the card itself, or
-        a string containing the card's name.
+        a string containing the card's `name`.
         """
         if self.started:
             raise RuntimeError("The application has already started.")
         card = self._resolve_card(card_reference)
-        self._render_card(card)
+        self.render_card(card)
         self.started = True
 
     def dump(self):

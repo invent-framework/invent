@@ -260,6 +260,8 @@ def test_card_init():
     template = "<p>{value}</p>"
     c = pypercard.Card(name, template)
     assert c.name == name
+    assert c.auto_advance is None
+    assert c.auto_advance_after is None
     assert c.template == template
     assert c.on_render is None
     assert c._transitions == []
@@ -302,6 +304,75 @@ def test_card_init_with_on_render():
     assert c._transitions == []
     assert c.content is None
     assert c.app is None
+
+
+def test_card_init_valid_auto_advance_args():
+    """
+    If auto_advance and auto_advance_after arguments are correctly given, they
+    are correctly stored in the card instance.
+
+    The auto_advance should be either a string or function that defines the
+    name of the next card.
+    """
+    name = "test_card"
+    template = "<p>{foo}</p>"
+    # Test with a string auto_advance containing the name of the next card.
+    c = pypercard.Card(
+        name, template, auto_advance="foo", auto_advance_after=1
+    )
+    assert callable(c.auto_advance)
+    assert c.auto_advance(c, {}) == "foo"
+    assert isinstance(c.auto_advance_after, float)
+    assert c.auto_advance_after == 1.0
+    # Rebind with a callable auto_advance.
+
+    def test_advance_transition(card, datastore):
+        return "bar"
+
+    c = pypercard.Card(
+        name,
+        template,
+        auto_advance=test_advance_transition,
+        auto_advance_after=1,
+    )
+    assert callable(c.auto_advance)
+    assert c.auto_advance(c, {}) == "bar"
+
+
+def test_card_init_missing_auto_advance_args():
+    """
+    Both auto_advance and auto_advance_after should:
+
+    * both be None, or
+    * both exist.
+
+    If one or the other is missing, the card should raise a ValueError.
+    """
+    name = "test_card"
+    template = "<p>{foo}</p>"
+    with pytest.raises(ValueError):
+        pypercard.Card(name, template, auto_advance="foo")
+    with pytest.raises(ValueError):
+        pypercard.Card(name, template, auto_advance_after=1.2)
+
+
+def test_card_init_invalid_auto_advance_args():
+    """
+    A TypeError is raised if:
+
+    * the `auto_advance` is not a string or function, or
+    * the `auto_advance_after` is not a float or int.
+    """
+    name = "test_card"
+    template = "<p>{foo}</p>"
+    with pytest.raises(TypeError):
+        pypercard.Card(
+            name, template, auto_advance=123, auto_advance_after=123
+        )
+    with pytest.raises(TypeError):
+        pypercard.Card(
+            name, template, auto_advance="foo", auto_advance_after="foo"
+        )
 
 
 def test_card_register_app():
@@ -534,10 +605,51 @@ def test_app_render_card():
     app = pypercard.App()
     c = pypercard.Card("test_card", "<input id='test' type='text' autofocus/>")
     app.add_card(c)
-    app._render_card(c)
+    app.render_card(c)
     assert document.activeElement == c.get_by_id("test")
     app_placeholder = document.querySelector("pyper-app")
     assert app_placeholder.firstChild == c.content
+
+
+def test_app_render_card_with_auto_advance():
+    """
+    The given card is rendered in the expected way. However, because it has
+    valid auto_advance and auto_advance_after values, JavaScript's setTimeout
+    is called with the expected values (a function to call when the timeout
+    occurs, and number of milliseconds to wait for the timeout to fire).
+
+    When called, the function to call when the timeout occurs behaves as
+    expected: if the card is still rendered, call the auto_advance function,
+    otherwise don't do anything.
+    """
+    app = pypercard.App()
+    c = pypercard.Card(
+        "test_card",
+        "<input id='test' type='text' autofocus/>",
+        auto_advance=mock.MagicMock(return_value="foo"),
+        auto_advance_after=1.23,
+    )
+    app.add_card(c)
+    with mock.patch("pypercard.setTimeout") as mock_timeout:
+        app.render_card(c)
+        assert mock_timeout.call_count == 1
+        timeout_function = mock_timeout.call_args_list[0][0][0]
+        timeout_duration = mock_timeout.call_args_list[0][0][1]
+        app._resolve_card = mock.MagicMock()
+        app.render_card = mock.MagicMock()
+        # With no content (the card isn't visible), nothing happens.
+        c.content = None
+        timeout_function()
+        assert app._resolve_card.call_count == 0
+        assert app.render_card.call_count == 0
+        # But with content (the card is visible), the expected transition takes
+        # place.
+        c.content = "dummy content"
+        timeout_function()
+        app._resolve_card.assert_called_once_with("foo")
+        assert app.render_card.call_count == 1
+        # Translated from Python seconds, to JavaScript milliseconds.
+        assert timeout_duration == 1230
 
 
 def test_app_add_card():

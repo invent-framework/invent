@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Hello App</title>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/water.css">
+    <script defer src="https://pyscript.net/releases/2022.12.1/pyscript.js"></script>
+</head>
+<body>
+    <py-config src="./pyscript.toml"></py-config>
+    <py-script src="./main.py"></py-script>
+    <template id="card1">
+      <h1>Auto advance</h1>
+      <p>Sometimes you just want one card to transition to another, with no
+      interaction from the user, and after a certain period of time.</p>
+      <p>For example, this card will transition to the next card after 10
+      seconds.</p>
+    </template>
+    <template id="card2">
+      <h2>The second card</h2>
+      <p>This card will automatically transition to the third card after 10
+      seconds, by calling a user defined function with some simple counting
+      logic in it. The user defined function simply returns a string containing
+      the name of the next card to render.</p>
+      <p>But if you click the button, you'll transition back to the
+      first card, and the automatic transition won't happen.</p>
+      <button id="reset" autofocus>Reset</button>
+    </template>
+    <template id="card3">
+      <h2>The final card</h2>
+      <p>That's it! This card has been displayed {counter} time[s].</p>
+      <p>It will automatically transition back to the first after 5
+      seconds.</p>
+    </template>
+</body>
+</html>

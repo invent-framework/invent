@@ -15,7 +15,7 @@ def to_c(card, datastore):
         temp = float(card.get_by_id("temperature").value)
         datastore["result"] = str(round((temp - 32) * (5 / 9), 2)) + "°c"
         return "result_card"
-    except Exception as ex:
+    except Exception:
         return "error_card"
 
 
@@ -25,7 +25,7 @@ def to_f(card, datastore):
         temp = float(card.get_by_id("temperature").value)
         datastore["result"] = str(round((temp * (9 / 5)) + 32, 2)) + "°f"
         return "result_card"
-    except:
+    except Exception:
         return "error_card"
 
 

@@ -192,7 +192,7 @@
 
 `````
 
-`````{py:class} Card(name, template=None, on_render=None)
+`````{py:class} Card(name, template=None, on_render=None, auto_advance=None, auto_advance_after=None)
 :canonical: pypercard.Card
 :noindex:
 
@@ -232,7 +232,7 @@
 
 ````
 
-````{py:method} register_transition(id, event_name, handler)
+````{py:method} register_transition(element_id, event_name, handler)
 :canonical: pypercard.Card.register_transition
 :noindex:
 
@@ -292,11 +292,11 @@
 
 ````
 
-````{py:method} _render_card(card)
-:canonical: pypercard.App._render_card
+````{py:method} render_card(card)
+:canonical: pypercard.App.render_card
 :noindex:
 
-```{autodoc2-docstring} pypercard.App._render_card
+```{autodoc2-docstring} pypercard.App.render_card
 ```
 
 ````

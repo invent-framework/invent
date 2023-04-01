@@ -15,13 +15,13 @@ modern user interface to run on Windows, OSX, Linux, Android or iOS devices.
 ```{note}
 **This documentation is for two sorts of readers**.
 
-1. Folks who want to use PyperCard to build cross platform GUI
-applications. If this is *you*, check out the [tutorials](tutorials.md) first.
-If you're already quite technical, you should see the
+1. **Folks who want to use PyperCard to build cross platform GUI
+applications**. If this is *you*, check out the [tutorials](tutorials.md)
+first.  If you're already quite technical, you should see the
 [cheatsheet](cheatsheet.md).
 
-2. Programmers who want to contribute to the development of PyperCard
-itself. If this is *you*, start with
+2. **Programmers who want to contribute to the development of PyperCard
+itself**. If this is *you*, start with
 [our guidance for contributing](contributing.md).
 
 If you want further support, then please
@@ -59,7 +59,7 @@ contributing.md
 design.md
 code_of_conduct.md
 API Reference <api/pypercard/pypercard.md>
-license.md
+License <license.md>
 authors.md
 ```
 
