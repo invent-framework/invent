@@ -20,7 +20,7 @@ def auto_func(card, datastore):
 # The templates for these cards can be found in index.html.
 cards = [
     Card("card1", auto_advance="card2", auto_advance_after=10),
-    Card("card2", auto_advance=auto_func, auto_advance_after=10),
+    Card("card2", auto_advance=auto_func, auto_advance_after=20),
     Card("card3", auto_advance="card1", auto_advance_after=5),
 ]
 
