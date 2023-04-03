@@ -25,7 +25,7 @@ itself**. If this is *you*, start with
 [our guidance for contributing](contributing.md).
 
 If you want further support, then please
-[join PyScript's discord server](https://discord.me/tynfpgrwda).
+[join the PyperCard channel on PyScript's discord server](https://discord.gg/TKyjvSynTP).
 We're a friendly bunch and welcome questions from beginners.
 ```
 

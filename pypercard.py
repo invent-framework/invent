@@ -102,9 +102,9 @@ class DataStore:
     def popitem(self):
         """
         Makes no sense given the underlying JavaScript Storage object's
-        behaviour.
+        behaviour. Raises a `NotImplementedError`.
         """
-        raise NotImplementedError
+        raise NotImplementedError()
 
     def setdefault(self, key, value=None):
         """

@@ -3,26 +3,28 @@
 Hey! Many thanks for wanting to develop, improve and contribute to PyperCard.
 
 PyperCard reflects the colourful and diverse backgrounds, cultures and
-interests of our community. We want to help you bring yourself to our community
-so we all flourish and benefit from each other's experience and contributions.
-As a result, our [Code of Conduct](code_of_conduct.md) is an expression of what
-you can expect from us and what we hope from you should we find ourselves
-_being together_ in a place to collaborate with each other.
+interests of our community. As a result, our
+[Code of Conduct](code_of_conduct.md) is an expression of what you can expect
+from us and what we hope from you as we find ourselves _being together_ in a
+collaborative online space.
+
+Put simply, we want to welcome you to our community so we all flourish and
+benefit from each other's experiences, perspectives and contributions.
 
 If you're thinking, _"but they don't mean me"_, then we especially mean
-**YOU**.
+_**YOU**_.
 
-* If you're from a background that isn't usually well-represented in most
+* If you're from a background **that isn't usually well-represented** in most
   technical communities, get involved - _we want to help you make a
   difference_.
 * If you're from a background **that is well-represented** in most technical
-  groups, get involved - _we want your help making a difference_.
-* If you're worried about not being technical enough, get involved - _your
+  groups, get involved - _we want your help in making a difference_.
+* If you're **worried about not being technical enough**, get involved - _your
   fresh perspective will be invaluable_.
-* If you think you're an imposter, join us - _many of the PyperCard
+* If you think **you're an imposter**, join us - _many of the PyperCard
   contributors feel this way_.
-* This is a volunteer led community, so join us - _you will be welcomed with
-  friendship, support and compassion_.
+* This is a **volunteer led community**, so join us - _you will be welcomed
+  with friendship, support and compassion_.
 
 ## Reporting bugs
 
