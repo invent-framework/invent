@@ -27,7 +27,7 @@ changes_:
   to Apache2.
 
 All the assets relating to the old version of the project can still be found
-in the `old` directory in this repository.
+in the `old` branch in this repository.
 
 ## Developer setup
 
