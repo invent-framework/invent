@@ -8,26 +8,30 @@ This started, in 2019, as a re-implementation of
 [Adafruit's CircuitPython PYOA](https://github.com/adafruit/Adafruit_CircuitPython_PYOA)
 module, but for non-CircuitPython computing environments. It was originally
 written using the [Kivy](https://kivy.org/) framework for cross-platform
-development. After successfully using PyperCard for teaching purposes,
-development stalled because of the COVID pandemic.
+development. After successfully using PyperCard for teaching purposes with the
+wonderful [young folk](https://youngcodersmeetup.wixsite.com/ycm-uk)
+at the London
+[Young Coders' Meetup](https://twitter.com/YCM_UK), development stalled because
+of the COVID pandemic.
 
 However, PyperCard is back in active development _with some significant
 changes_:
 
-* [PyScript](https://pyscript.net/) replaces Kivy as the underlying framework
-  for generating and running the user interface.
-* [Nicholas](https://github.com/ntoll), the original core developer of
-  PyperCard, has been hired by [Anaconda Inc](https://anaconda.com/) to work
+* [PyScript](https://pyscript.net/) replaces Kivy as the underlying
+  cross-platform framework for generating and running the user interface.
+* [Nicholas](https://github.com/ntoll), the original developer and maintainer
+  of PyperCard, has been hired by [Anaconda Inc](https://anaconda.com/) to work
   on PyScript, and so his work on this project is sponsored by his employer
-  (hence some of the copyright changes).
-* Ownership of the repository will be transferred to the
+  (hence the copyright changes).
+* Ownership of the repository has been transferred to the
   [pyscript organisation](https://github.com/pyscript) on GitHub (the old
   repository will automatically redirect to the new one).
 * Since this is a complete rewrite, the license has been changed from MIT
   to Apache2.
 
 All the assets relating to the old version of the project can still be found
-in the `old` branch in this repository.
+in the [old branch](https://github.com/pyscript/pypercard/tree/old) in this
+repository.
 
 ## Developer setup
 
