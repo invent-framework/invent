@@ -4,13 +4,13 @@ View this repository [via GitHub pages](https://pyscript.github.io/pypercard/).
 
 This project's documentation can be found [here](https://pypercard.rtfd.io).
 
-This started, in 2019, as a re-implementation of 
+This project started in 2019 as a re-implementation of 
 [Adafruit's CircuitPython PYOA](https://github.com/adafruit/Adafruit_CircuitPython_PYOA)
 module, but for non-CircuitPython computing environments. It was originally
 written using the [Kivy](https://kivy.org/) framework for cross-platform
-development. After successfully using PyperCard for teaching purposes with the
-wonderful [young folk](https://youngcodersmeetup.wixsite.com/ycm-uk)
-at the London
+development. After successfully testing PyperCard for teaching and learning
+purposes with the wonderful
+[young folk](https://youngcodersmeetup.wixsite.com/ycm-uk) at the London
 [Young Coders' Meetup](https://twitter.com/YCM_UK), development stalled because
 of the COVID pandemic.
 
@@ -73,8 +73,8 @@ $ make serve
 ```
 
 Then visit
-[http://localhost:8000/tests.html](http://localhost:8000/tests.html) or, in
-another console with the code still serving, `make test`.
+[http://localhost:8000/](http://localhost:8000/) and click the "Run the test
+suite" button, or, in another console with the code still serving, `make test`.
 
 The tests should open in your browser, and pass. ;-)
 
