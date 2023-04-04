@@ -530,6 +530,61 @@ def test_card_get_elements():
     assert c.get_elements(".test") == []
 
 
+def test_card_play_sound():
+    """
+    Ensure the Audio object for the named sound is retrieved, processed and
+    played as expected. Rather difficult to test without the aid of ears...
+    hence the use of mocking.
+    """
+    name = "test_card"
+    template = "<p class='test'>{foo}</p><p class='test'>Test</p>"
+    c = pypercard.Card(name, template)
+
+    mock_app = mock.MagicMock()
+    mock_audio = mock.MagicMock()
+    mock_audio.currentTime = 1
+    mock_app.get_sound.return_value = mock_audio
+    c.register_app(mock_app)
+    c.pause_sound = mock.MagicMock()
+
+    c.play_sound("test", loop=True)
+
+    # The loop flag has been set correctly.
+    assert mock_audio.loop is True
+    # Because the position of the sound was not at the start, it was reset via
+    # the pause method.
+    c.pause_sound.assert_called_once_with("test")
+    # The JavaScript Audio object was play()-ed.
+    mock_audio.play.assert_called_once_with()
+
+
+def test_card_pause_sound():
+    """
+    Ensure the Audio object for the named sound is retrieved, and paused as
+    expected. Rather difficult to test without the aid of ears... hence the use
+    of mocking.
+    """
+    name = "test_card"
+    template = "<p class='test'>{foo}</p><p class='test'>Test</p>"
+    c = pypercard.Card(name, template)
+
+    mock_app = mock.MagicMock()
+    mock_audio = mock.MagicMock()
+    mock_audio.currentTime = 1
+    mock_app.get_sound.return_value = mock_audio
+    c.register_app(mock_app)
+
+    # Pause and retain place in the audio.
+    c.pause_sound("test", keep_place=True)
+    mock_audio.pause.assert_called_once_with()
+    assert mock_audio.currentTime == 1
+    mock_audio.pause.reset_mock()
+    # Pause and reset back to the start of the audio (default behaviour).
+    c.pause_sound("test")
+    mock_audio.pause.assert_called_once_with()
+    assert mock_audio.currentTime == 0
+
+
 def test_app_default_init():
     """
     Given default args, the app is set-up as expected.
@@ -550,13 +605,20 @@ def test_app_custom_init():
     card_list = [
         card,
     ]
-    app = pypercard.App(name="Custom name", datastore=ds, card_list=card_list)
+    sounds = {
+        "test_audio": "examples/loosey_goosey/honk.mp3",
+    }
+    app = pypercard.App(
+        name="Custom name", datastore=ds, card_list=card_list, sounds=sounds
+    )
     assert app.name == "Custom name"
     assert app.datastore == ds
     assert "test_card" in app.stack
     assert len(app.stack) == 1
     assert app.stack["test_card"] == card
     assert card.app == app
+    assert "test_audio" in app.sounds
+    assert len(app.sounds) == 1
     assert document.querySelector("title").innerText == app.name
 
 
@@ -690,6 +752,47 @@ def test_app_remove_card():
     app.remove_card(c)
     assert "test_card" not in app.stack
     assert len(app.stack) == 0
+
+
+def test_app_add_sound():
+    """
+    Ensure the expected Audio instance is added to the available audio clips
+    for the application.
+    """
+    app = pypercard.App()
+    assert app.sounds == {}
+    app.add_sound("test_audio", "examples/loosey_goosey/honk.mp3")
+    assert "test_audio" in app.sounds
+    assert len(app.sounds) == 1
+    assert app.sounds["test_audio"].src.endswith(
+        "examples/loosey_goosey/honk.mp3"
+    )
+
+
+def test_app_get_sound():
+    """
+    The get_sound method returns the expected Audio instance pointing at the
+    correct src. If the passed in name does not reference an audio object, a
+    ValueError is raised.
+    """
+    app = pypercard.App()
+    app.add_sound("test_audio", "examples/loosey_goosey/honk.mp3")
+    audio = app.get_sound("test_audio")
+    assert audio.src.endswith("examples/loosey_goosey/honk.mp3")
+    with pytest.raises(ValueError):
+        app.get_sound("foo")
+
+
+def test_app_remove_sound():
+    """
+    Ensure the referenced sound is removed from the available sounds for the
+    app.
+    """
+    app = pypercard.App()
+    app.add_sound("test_audio", "examples/loosey_goosey/honk.mp3")
+    assert "test_audio" in app.sounds
+    app.remove_sound("test_audio")
+    assert "test_audio" not in app.sounds
 
 
 def test_app_transition_decorator_missing_card():
