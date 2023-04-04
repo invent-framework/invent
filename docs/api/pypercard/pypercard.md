@@ -268,9 +268,27 @@
 
 ````
 
+````{py:method} play_sound(name, loop=False)
+:canonical: pypercard.Card.play_sound
+:noindex:
+
+```{autodoc2-docstring} pypercard.Card.play_sound
+```
+
+````
+
+````{py:method} pause_sound(name, keep_place=False)
+:canonical: pypercard.Card.pause_sound
+:noindex:
+
+```{autodoc2-docstring} pypercard.Card.pause_sound
+```
+
+````
+
 `````
 
-`````{py:class} App(name='My PyperCard App', datastore=None, card_list=None)
+`````{py:class} App(name='My PyperCard App', datastore=None, card_list=None, sounds=None)
 :canonical: pypercard.App
 :noindex:
 
@@ -315,6 +333,33 @@
 :noindex:
 
 ```{autodoc2-docstring} pypercard.App.remove_card
+```
+
+````
+
+````{py:method} add_sound(name, url)
+:canonical: pypercard.App.add_sound
+:noindex:
+
+```{autodoc2-docstring} pypercard.App.add_sound
+```
+
+````
+
+````{py:method} get_sound(name)
+:canonical: pypercard.App.get_sound
+:noindex:
+
+```{autodoc2-docstring} pypercard.App.get_sound
+```
+
+````
+
+````{py:method} remove_sound(name)
+:canonical: pypercard.App.remove_sound
+:noindex:
+
+```{autodoc2-docstring} pypercard.App.remove_sound
 ```
 
 ````

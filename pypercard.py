@@ -1,8 +1,6 @@
 """
-PyperCard
-
-A simple HyperCard inspired framework for PyScript, implemented as a finite
-state machine for building graphical apps in Python.
+PyperCard is a simple HyperCard inspired framework for PyScript, implemented as
+a finite state machine for building graphical apps in Python.
 
 Based on original pre-COVID work by [Nicholas H.Tollervey.](https://ntoll.org/)
 
@@ -23,7 +21,7 @@ limitations under the License.
 import functools
 import json
 from pyodide import ffi
-from js import document, localStorage, setTimeout
+from js import document, localStorage, setTimeout, Audio
 
 
 class DataStore:
@@ -210,10 +208,14 @@ class Card:
     user defined function to handle events dispatched by elements found in the
     card's HTML. These transition the app to new cards.
 
-    Finally, the convenience functions called `get_by_id`, `get_element` and
+    The convenience functions called `get_by_id`, `get_element` and
     `get_elements` return individual or groups of matching HTML elements
     rendered by this card, given a valid id or CSS selector (comments attached
     to the functions explain the specific behaviours).
+
+    Audio capabilities can be accessed via every card's `play_sound` and
+    `pause_sound` methods. The sounds to be played must be referenced by the
+    app (see the App class documentation for how this works).
     """
 
     def __init__(
@@ -385,6 +387,35 @@ class Card:
             return list(self.content.querySelectorAll(selector))
         return []
 
+    def play_sound(self, name, loop=False):
+        """
+        Play the sound, added to the self.app object with the given name. If
+        the sound was paused with the `keep_place` flag set to `True`, the
+        sound will resume playing from the place at which it was paused.
+        Otherwise, the sound will play from the start.
+
+        If `loop` is `True` the sound will keep repeating until paused or
+        removed from the application.
+        """
+        sound = self.app.get_sound(name)
+        sound.loop = loop
+        if sound.currentTime > 0:
+            self.pause_sound(name)
+        sound.play()
+
+    def pause_sound(self, name, keep_place=False):
+        """
+        If the sound, added to the self.app object with the given name, is
+        playing, pause it. If `keep_place` is `True` the sound will pause at
+        its current location. Otherwise, should the sound be played again, it
+        will play from the start.
+
+        """
+        sound = self.app.get_sound(name)
+        sound.pause()
+        if not keep_place:
+            sound.currentTime = 0
+
 
 class App:
     """
@@ -398,7 +429,11 @@ class App:
     """
 
     def __init__(
-        self, name="My PyperCard App", datastore=None, card_list=None
+        self,
+        name="My PyperCard App",
+        datastore=None,
+        card_list=None,
+        sounds=None,
     ):
         """
         Initialise a PyperCard app with a given `name` (used as the page's
@@ -408,6 +443,9 @@ class App:
 
         The `card_list` is an optional list of `Card` instances with which to
         initialise.
+
+        The `sounds` dict contains default `name` / `url` pairs that define
+        the initial sounds the app may need to play.
         """
         self.started = False
         self.name = name
@@ -416,6 +454,10 @@ class App:
         if card_list:
             for card in card_list:
                 self.add_card(card)
+        self.sounds = {}
+        if sounds:
+            for name, url in sounds.items():
+                self.add_sound(name, url)
         # Update the page title to the name of the app.
         document.querySelector("title").innerText = self.name
         # Create the element into which the app will appear.
@@ -495,6 +537,36 @@ class App:
         """
         card = self._resolve_card(card_reference)
         del self.stack[card.name]
+
+    def add_sound(self, name, url):
+        """
+        Add a named Audio object to the application, to play the sound file
+        found at the given URL.
+
+        **NOTE** The URL is NOT a reference to a file on the PyScript
+        filesystem, but a file accessible to the browser via an HTTP request.
+        """
+        if name in self.sounds:
+            raise ValueError(f"A sound with the name '{name}' already exists.")
+        self.sounds[name] = Audio.new(url)
+
+    def get_sound(self, name):
+        """
+        Get the sound referenced by the given name.
+
+        If the name doesn't reference a sound, a ValueError is raised.
+        """
+        if name in self.sounds:
+            return self.sounds[name]
+        else:
+            raise ValueError(f"A sound with the name '{name}' does not exist.")
+
+    def remove_sound(self, name):
+        """
+        Remove the Audio object referenced by the given name.
+        """
+        if name in self.sounds:
+            del self.sounds[name]
 
     def transition(self, from_card, element, event):
         """

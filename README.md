@@ -86,12 +86,14 @@ PyperCard can be found in the `examples` subdirectory of this repository.
 They are, in order of complexity (simple first):
 
 * `hello` - it displays "Hello, world!" with PyperCard.
-* `hello_interactive` - a simple interactive application that prompts users to
+* `hello interactive` - a simple interactive application that prompts users to
   enter their name, and click a button for a friendly greeting.
 * `temperatures` - convert between celsius and fahrenheit, whilst handling
   errors.
 * `card carousel` - a demonstration of automatic advance to the next card after
   N seconds.
+* `loosey goosey` - a goose based honking-as-a-service application to
+  demonstrate PyperCard's audio capabilities.
 * `calculator` - a simple calculator demonstrating a recursive single card app.
 * `alchemyst` - an atmospheric point and click adventure game in the style of
   the classic Myst (built using the original HyperCard).
