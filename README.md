@@ -94,6 +94,8 @@ They are, in order of complexity (simple first):
   N seconds.
 * `loosey goosey` - a goose based honking-as-a-service application to
   demonstrate PyperCard's audio capabilities.
+* `turner` - use the background properties of cards to display full screen
+  images of some of Turner's paintings, to the music of Bach.
 * `calculator` - a simple calculator demonstrating a recursive single card app.
 * `alchemyst` - an atmospheric point and click adventure game in the style of
   the classic Myst (built using the original HyperCard).

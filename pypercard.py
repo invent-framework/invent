@@ -21,7 +21,7 @@ limitations under the License.
 import functools
 import json
 from pyodide import ffi
-from js import document, localStorage, setTimeout, Audio
+from js import document, localStorage, CSS, setTimeout, Audio, fetch
 
 
 class DataStore:
@@ -216,6 +216,13 @@ class Card:
     Audio capabilities can be accessed via every card's `play_sound` and
     `pause_sound` methods. The sounds to be played must be referenced by the
     app (see the App class documentation for how this works).
+
+    Cards can optionally define the nature of their background, via the
+    `background` and `background_repeat` attributes. The `background` should
+    either be a valid CSS color or a URL to an image. If the `background` is
+    an image, the `background_repeat` flag will indicate if the image will
+    fill the whole screen or repeat in a tiled fashion (the default is to
+    fill the whole screen).
     """
 
     def __init__(
@@ -225,6 +232,8 @@ class Card:
         on_render=None,
         auto_advance=None,
         auto_advance_after=None,
+        background=None,
+        background_repeat=False,
     ):
         """
         Initialise the card with a `name` unique within the application in
@@ -256,10 +265,19 @@ class Card:
         `ValueError`. If the `auto_advance` is not a string or function or the
         `auto_advance_after` is not an integer or float, a `TypeError` will be
         raised.
+
+        The optional `background` argument can either contain a valid CSS
+        `color` or a URL to an image to display as the background.
+
+        The optional `background_repeat` flag defines if the `background`
+        image fills the whole screen (the default) or repeats in a tiled
+        fashion (if the flag is set to `True`).
         """
         self.name = name
         self.auto_advance = None
         self.auto_advance_after = None
+        self.background = background
+        self.background_repeat = background_repeat
         # Template handling / validation.
         if template:
             self.template = template
@@ -297,6 +315,9 @@ class Card:
                 raise TypeError(
                     "Please use a number of seconds for auto_advance_after."
                 )
+        # Pre-fetch/cache background image.
+        if self.background and not CSS.supports("color", self.background):
+            fetch(self.background)
         self.on_render = on_render
         self._transitions = []  # To hold transitions acting on the card.
         self.content = None  # Will reference the rendered element in the DOM.
@@ -430,14 +451,16 @@ class App:
 
     def __init__(
         self,
-        name="My PyperCard App",
+        name=None,
         datastore=None,
         card_list=None,
         sounds=None,
     ):
         """
-        Initialise a PyperCard app with a given `name` (used as the page's
-        `title`).
+        Initialise a PyperCard app.
+
+        If no `name` is given, the page's `title` value is used. Otherwise the
+        given `name` becomes the page `title`.
 
         The `datastore` is an optional pre-populated `DataStore` instance.
 
@@ -448,7 +471,13 @@ class App:
         the initial sounds the app may need to play.
         """
         self.started = False
-        self.name = name
+        if name:
+            self.name = name
+            # Update the page title to the name of the app.
+            document.querySelector("title").innerText = self.name
+        else:
+            # No name given, so use the page title.
+            self.name = document.querySelector("title").innerText
         self.datastore = datastore if datastore else DataStore()
         self.stack = {}
         if card_list:
@@ -458,11 +487,14 @@ class App:
         if sounds:
             for name, url in sounds.items():
                 self.add_sound(name, url)
-        # Update the page title to the name of the app.
-        document.querySelector("title").innerText = self.name
         # Create the element into which the app will appear.
         self.placeholder = document.createElement("pyper-app")
         document.body.appendChild(self.placeholder)
+        # Ensure the <html> and <body> tags have the expected style (needed for
+        # background images).
+        style = document.createElement("style")
+        style.innerText = "html, body {width:100%;height:100%;}"
+        document.head.appendChild(style)
 
     def _resolve_card(self, card_reference):
         """
@@ -512,6 +544,29 @@ class App:
             timeout_handler = ffi.create_proxy(wrapper)
             # Python sleeps in seconds, JavaScript in milliseconds.
             setTimeout(timeout_handler, int(card.auto_advance_after * 1000))
+        # Ensure the background is [re]set.
+        background = ""
+        if card.background:
+            if CSS.supports("color", card.background):
+                # It's a background colour.
+                background = f"background-color: {card.background};"
+            else:
+                # Assume it's a URL to a background image.
+                if card.background_repeat:
+                    # Tiled
+                    background = (
+                        f"background-image: url('{card.background}');"
+                        "background-repeat: repeat;"
+                    )
+                else:
+                    # Filled
+                    background = (
+                        f"background-image: url('{card.background}');"
+                        "background-size: cover;"
+                        "background-repeat: no-repeat;"
+                        "background-position: center;"
+                    )
+        self.set_background(background)
         self.placeholder.replaceChildren(new_element)
         autofocus = new_element.querySelector("[autofocus]")
         if autofocus:
@@ -567,6 +622,13 @@ class App:
         """
         if name in self.sounds:
             del self.sounds[name]
+
+    def set_background(self, background=""):
+        """
+        Set the body tag's background style attribute to the given value. If
+        no value is given, resets it to blank.
+        """
+        document.body.style = background
 
     def transition(self, from_card, element, event):
         """

@@ -262,6 +262,8 @@ def test_card_init():
     assert c.name == name
     assert c.auto_advance is None
     assert c.auto_advance_after is None
+    assert c.background is None
+    assert c.background_repeat is False
     assert c.template == template
     assert c.on_render is None
     assert c._transitions == []
@@ -373,6 +375,41 @@ def test_card_init_invalid_auto_advance_args():
         pypercard.Card(
             name, template, auto_advance="foo", auto_advance_after="foo"
         )
+
+
+def test_card_init_background_args_color():
+    """
+    Arguments relating to the background and tiling are correctly handled.
+    """
+    name = "test_card"
+    template = "<p>{foo}</p>"
+    with mock.patch("pypercard.fetch") as mock_fetch:
+        c = pypercard.Card(name, template, background="red")
+        # No need to pre-fetch images.
+        assert mock_fetch.call_count == 0
+    assert c.background == "red"
+    assert c.background_repeat is False
+
+
+def test_card_init_background_args_image():
+    """
+    Arguments relating to the background and tiling are correctly handled.
+    """
+    name = "test_card"
+    template = "<p>{foo}</p>"
+    with mock.patch("pypercard.fetch") as mock_fetch:
+        c = pypercard.Card(
+            name,
+            template,
+            background="examples/turner/rain_steam_speed.jpg",
+            background_repeat=True,
+        )
+        # Pre-fetch images.
+        mock_fetch.assert_called_once_with(
+            "examples/turner/rain_steam_speed.jpg"
+        )
+    assert c.background == "examples/turner/rain_steam_speed.jpg"
+    assert c.background_repeat is True
 
 
 def test_card_register_app():
@@ -589,6 +626,8 @@ def test_app_default_init():
     """
     Given default args, the app is set-up as expected.
     """
+    test_name = "this is a test"
+    document.querySelector("title").innerText = test_name
     app = pypercard.App()
     assert document.querySelector("title").innerText == app.name
     app_placeholder = document.querySelector("pyper-app")
@@ -671,6 +710,81 @@ def test_app_render_card():
     assert document.activeElement == c.get_by_id("test")
     app_placeholder = document.querySelector("pyper-app")
     assert app_placeholder.firstChild == c.content
+
+
+def test_app_render_card_background_colour():
+    """
+    The given card is rendered with the given CSS background-color.
+    """
+    app = pypercard.App()
+    c = pypercard.Card("test_card", "<h1>A test card</h1>", background="red")
+    app.add_card(c)
+    app.render_card(c)
+    # Check the colour specification from the Card instance is reflected in
+    # the DOM
+    assert getattr(document.body.style, "background-color") == "red"
+    # Reset
+    app.set_background()
+    assert getattr(document.body.style, "background-color") == ""
+
+
+def test_app_render_card_background_image():
+    """
+    The given card is rendered with the given background image.
+    """
+    app = pypercard.App()
+    c = pypercard.Card(
+        "test_card",
+        "<h1>A test card</h1>",
+        background="examples/turner/rain_steam_speed.jpg",
+    )
+    app.add_card(c)
+    app.render_card(c)
+    # Check the background image specification from the Card instance is
+    # reflected in the DOM
+    assert (
+        getattr(document.body.style, "background-image")
+        == 'url("examples/turner/rain_steam_speed.jpg")'
+    )
+    assert getattr(document.body.style, "background-size") == "cover"
+    assert getattr(document.body.style, "background-repeat") == "no-repeat"
+    assert (
+        getattr(document.body.style, "background-position") == "center center"
+    )
+    # Reset
+    app.set_background()
+    assert getattr(document.body.style, "background-image") == ""
+    assert getattr(document.body.style, "background-image") == ""
+    assert getattr(document.body.style, "background-size") == ""
+    assert getattr(document.body.style, "background-repeat") == ""
+    assert getattr(document.body.style, "background-position") == ""
+
+
+def test_app_render_card_background_image_tiled():
+    """
+    The given card is rendered with the given background image in a tiled
+    manner.
+    """
+    app = pypercard.App()
+    c = pypercard.Card(
+        "test_card",
+        "<h1>A test card</h1>",
+        background="examples/turner/rain_steam_speed.jpg",
+        background_repeat=True,
+    )
+    app.add_card(c)
+    app.render_card(c)
+    # Check the background image specification from the Card instance is
+    # reflected in the DOM
+    assert (
+        getattr(document.body.style, "background-image")
+        == 'url("examples/turner/rain_steam_speed.jpg")'
+    )
+    assert getattr(document.body.style, "background-repeat") == "repeat"
+    # Reset
+    app.set_background()
+    assert getattr(document.body.style, "background-image") == ""
+    assert getattr(document.body.style, "background-repeat") == ""
 
 
 def test_app_render_card_with_auto_advance():
@@ -793,6 +907,20 @@ def test_app_remove_sound():
     assert "test_audio" in app.sounds
     app.remove_sound("test_audio")
     assert "test_audio" not in app.sounds
+
+
+def test_set_background():
+    """
+    Ensure the CSS properties for the background are added to the body tag's
+    style. Using the set_background method without arguments just resets
+    everything.
+    """
+    app = pypercard.App()
+    assert getattr(document.body.style, "background-color") == ""
+    app.set_background("background-color: red;")
+    assert getattr(document.body.style, "background-color") == "red"
+    app.set_background()
+    assert getattr(document.body.style, "background-color") == ""
 
 
 def test_app_transition_decorator_missing_card():
