@@ -192,7 +192,7 @@
 
 `````
 
-`````{py:class} Card(name, template=None, on_render=None, auto_advance=None, auto_advance_after=None)
+`````{py:class} Card(name, template=None, on_render=None, auto_advance=None, transition=None, sound=None, sound_loop=False, background=None, background_repeat=False)
 :canonical: pypercard.Card
 :noindex:
 
@@ -288,7 +288,7 @@
 
 `````
 
-`````{py:class} App(name='My PyperCard App', datastore=None, card_list=None, sounds=None)
+`````{py:class} App(name=None, datastore=None, card_list=None, sounds=None)
 :canonical: pypercard.App
 :noindex:
 
@@ -360,6 +360,15 @@
 :noindex:
 
 ```{autodoc2-docstring} pypercard.App.remove_sound
+```
+
+````
+
+````{py:method} set_background(background='')
+:canonical: pypercard.App.set_background
+:noindex:
+
+```{autodoc2-docstring} pypercard.App.set_background
 ```
 
 ````
