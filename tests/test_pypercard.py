@@ -319,7 +319,9 @@ def test_card_init_valid_auto_advance_args():
     name = "test_card"
     template = "<p>{foo}</p>"
     # Test with a string transition containing the name of the next card.
-    c = pypercard.Card(name, template, auto_advance=1, transition="foo")
+    c = pypercard.Card(
+        name, template, auto_advance=1, transition="foo" 
+    )
     assert callable(c.transition)
     assert c.transition(c, {}) == "foo"
     assert isinstance(c.auto_advance, float)
@@ -367,9 +369,13 @@ def test_card_init_invalid_auto_advance_args():
     name = "test_card"
     template = "<p>{foo}</p>"
     with pytest.raises(TypeError):
-        pypercard.Card(name, template, auto_advance=123, transition=123)
+        pypercard.Card(
+            name, template, auto_advance=123, transition=123
+        )
     with pytest.raises(TypeError):
-        pypercard.Card(name, template, auto_advance="foo", transition="foo")
+        pypercard.Card(
+            name, template, auto_advance="foo", transition="foo"
+        )
 
 
 def test_card_init_background_args_color():
@@ -627,6 +633,8 @@ def test_app_default_init():
     assert document.querySelector("title").innerText == app.name
     app_placeholder = document.querySelector("pyper-app")
     assert app_placeholder.parentNode == document.body
+    # The empty app as picked up the card from the DOM.
+    assert len(app.stack) == 1
 
 
 def test_app_custom_init():
@@ -828,7 +836,7 @@ def test_app_add_card():
     It's possible to add a card to the app's stack.
     """
     app = pypercard.App()
-    assert len(app.stack) == 0
+    app.stack = {}
     c = pypercard.Card("test_card", "<p>Hello</p>")
     app.add_card(c)
     assert len(app.stack) == 1
