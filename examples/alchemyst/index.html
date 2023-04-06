@@ -4,7 +4,7 @@
     <title>The Alchemist's Tower</title>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/water.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/dark.css">
     <script defer src="https://pyscript.net/releases/2022.12.1/pyscript.js"></script>
 </head>
 <body>
@@ -16,7 +16,7 @@
       <input id="name" type="text" autofocus/>
       <button id="submit">Continue</button>
     </template>
-    <template id="nameerror">
+    <template id="nameerror" auto-advance=3 transition="hello">
       <h2>⚠️ Please tell me your name.</h2>
     </template>
     <template id="intro1">
@@ -26,15 +26,15 @@
       <p>If there are no buttons visible, it means the screen will advance
       after a pre-determined period of time.</p>
       <p>Can you solve the riddle of the Alchemist's Tower?</p>
-      <button id="submit" transition="intro2">Continue</button>
+      <button id="submit" transition="intro2" autofocus>Continue</button>
     </template>
-    <template id="intro2" sound="music/opening.mp3" auto-advance=2 transition="intro2b"></template>
-    <template id="intro2b" auto-advance=6 transition="intro2c">
+    <template id="intro2" sound="music/opening.mp3" auto-advance=13 transition="intro2b"></template>
+    <template id="intro2b" auto-advance=17 transition="intro2c">
       <h1>The Alchemist's Tower</h1>
       <h2>A mystery set on the banks of Lake Zurich</h2>
     </template>
-    <template id="intro2c" auto-advance=2 transition="intro3"></template>
-    <template id="intro3" auto-advance=32 transition="landing">
+    <template id="intro2c" auto-advance=1.5 transition="intro3"></template>
+    <template id="intro3" auto-advance=39 transition="landing">
       <p>Lake Zurich reflected the whispy white autumn clouds, yet the water
       was clear enough that it was easy to spot fish and see the sandy bed
       several metres below. The fresh smell of reeds and algae was in the air.
@@ -44,16 +44,19 @@
       trees within which could be seen an irregular group of white-washed
       towers and walls.</p>
       <p>The taciturn youth at the helm had simply promised to land at a
-      secret location ripe for exploration.</p>
+      secret location ripe for exploration...</p>
+      <p>...and so you drifted towards your destination.</p>
     </template>
-    <template id="landing" background="img/from_lake.png" auto-advance=10.5 transition="landed"></template>
+    <template id="landing" background="img/from_lake.png" auto-advance=11 transition="landed"></template>
     <template id="landed" sound="sfx/lake.mp3" sound-loop>
       <p>"{name}, this is where you get off", said the youth.</p>
       <p>He avoided making eye contact whilst offering a hand onto the shore of
       the lake.</p>
       <p>As quickly as possible he pushed off and, without turning around,
       waved as he sailed towards the middle of the lake.</p>
-      <button id="continue" transition="to_patio">Continue</button>
+      <!-- button id="continue" transition="to_patio">Continue</button -->
+      <p>To be continued...</p>
+      <h2>🤡</h2>
     </template>
 </body>
 </html>

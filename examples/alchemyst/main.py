@@ -11,8 +11,11 @@ app = App()
 
 @app.transition("hello", "submit", "click")
 def hello(card, datastore):
-    datastore["name"] = card.get_by_id("name").value
-    return "intro1"
+    name = card.get_by_id("name").value.strip()
+    if name:
+        datastore["name"] = name
+        return "intro1"
+    return "nameerror"
 
 
 app.start("hello")
