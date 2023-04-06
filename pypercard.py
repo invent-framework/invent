@@ -1,6 +1,6 @@
 """
-PyperCard is a simple HyperCard inspired framework for PyScript, implemented as
-a finite state machine for building graphical apps in Python.
+PyperCard is a simple HyperCard inspired framework for PyScript for building
+graphical apps in Python.
 
 Based on original pre-COVID work by [Nicholas H.Tollervey.](https://ntoll.org/)
 
@@ -188,8 +188,8 @@ class Card:
     The app ensures that only one card is ever displayed at once. Each card
     has a `name` and an html `template` that defines how it looks on the page.
 
-    Cards may also have optional `auto_advance` and `auto_advance_after`
-    attributes for transitioning to another card after a given period of time.
+    Cards may also have optional `auto_advance` and `transition`
+    attributes for transitioning to a target card after a given period of time.
 
     Cards are rendered from the `template` by the `render` method, that returns
     an HTML element for the app to insert into the DOM.
@@ -231,7 +231,9 @@ class Card:
         template=None,
         on_render=None,
         auto_advance=None,
-        auto_advance_after=None,
+        transition=None,
+        sound=None,
+        sound_loop=False,
         background=None,
         background_repeat=False,
     ):
@@ -252,18 +254,18 @@ class Card:
         arguments (just like transitions) and be used for customising the
         rendered card.
 
-        The `auto_advance` can be either a string containing the name of the
+        The `auto_advance` is the number of seconds, as a `float` or
+        `int`, to wait until the `transition` is evaluated to discern the
+        next card to which to automatically transition.
+
+        The `transition` can be either a string containing the name of the
         card to which to automatically transition, or a transition function to
         call that returns a string containing the name of the next card.
 
-        The `auto_advance_after` is the number of seconds, as a `float` or
-        `int`, to wait until the `auto_advance` is evaluated to discern the
-        next card to which to automatically transition.
-
-        Either both `auto_advance` and `auto_advance_after` need to be given,
+        Either both `auto_advance` and `transition` need to be given,
         or both need to be `None`. Otherwise, the card will raise a
-        `ValueError`. If the `auto_advance` is not a string or function or the
-        `auto_advance_after` is not an integer or float, a `TypeError` will be
+        `ValueError`. If the `transition` is not a string or function or the
+        `auto_advance` is not an integer or float, a `TypeError` will be
         raised.
 
         The optional `background` argument can either contain a valid CSS
@@ -275,7 +277,9 @@ class Card:
         """
         self.name = name
         self.auto_advance = None
-        self.auto_advance_after = None
+        self.transition = None
+        self.sound = sound
+        self.sound_loop = sound_loop
         self.background = background
         self.background_repeat = background_repeat
         # Template handling / validation.
@@ -289,31 +293,31 @@ class Card:
                 raise RuntimeError(
                     f"Unable to find template for card '{self.name}'."
                 )
-        # Check auto_* values are a pair: either both truth-y or both false-y.
-        if bool(auto_advance) != bool(auto_advance_after):
+        # Check both values are a pair: either both truth-y or both false-y.
+        if bool(auto_advance) != bool(transition):
             raise ValueError(
-                "Both auto_advance AND auto_advance_after are required."
+                "Both auto_advance AND transition are required."
             )
-        # Auto advance setup / validation.
+        # Auto advance/target setup and validation.
         if auto_advance:
-            if isinstance(auto_advance, str):
-                self.auto_advance = lambda c, d: auto_advance
-            elif callable(auto_advance):
-                self.auto_advance = auto_advance
-            else:
-                raise TypeError(
-                    "The auto_advance must be either a string or function."
-                )
-        if auto_advance_after:
-            if isinstance(auto_advance_after, float) or isinstance(
-                auto_advance_after, int
+            if isinstance(auto_advance, float) or isinstance(
+                auto_advance, int
             ):
                 # Python counts time in seconds (that may be floats to indicate
                 # fractions-of-a-second, or integers).
-                self.auto_advance_after = float(auto_advance_after)
+                self.auto_advance= float(auto_advance)
             else:
                 raise TypeError(
-                    "Please use a number of seconds for auto_advance_after."
+                    "Please use a number of seconds for auto_advance."
+                )
+        if transition:
+            if isinstance(transition, str):
+                self.transition = lambda c, d: transition 
+            elif callable(transition):
+                self.transition = transition
+            else:
+                raise TypeError(
+                    "The transition must be either a string or function."
                 )
         # Pre-fetch/cache background image.
         if self.background and not CSS.supports("color", self.background):
@@ -535,7 +539,7 @@ class App:
                 is still displayed (i.e. it has rendered `content`).
                 """
                 if card.content:
-                    next_card = card.auto_advance(card, self.datastore)
+                    next_card = card.transition(card, self.datastore)
                     if next_card:
                         new_card = self._resolve_card(next_card)
                         card.hide()
@@ -543,7 +547,7 @@ class App:
 
             timeout_handler = ffi.create_proxy(wrapper)
             # Python sleeps in seconds, JavaScript in milliseconds.
-            setTimeout(timeout_handler, int(card.auto_advance_after * 1000))
+            setTimeout(timeout_handler, int(card.auto_advance * 1000))
         # Ensure the background is [re]set.
         background = ""
         if card.background:

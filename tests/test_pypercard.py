@@ -261,7 +261,7 @@ def test_card_init():
     c = pypercard.Card(name, template)
     assert c.name == name
     assert c.auto_advance is None
-    assert c.auto_advance_after is None
+    assert c.transition is None
     assert c.background is None
     assert c.background_repeat is False
     assert c.template == template
@@ -310,40 +310,41 @@ def test_card_init_with_on_render():
 
 def test_card_init_valid_auto_advance_args():
     """
-    If auto_advance and auto_advance_after arguments are correctly given, they
+    If auto_advance and transition arguments are correctly given, they
     are correctly stored in the card instance.
 
-    The auto_advance should be either a string or function that defines the
+    The transition should be either a string or function that defines the
     name of the next card.
     """
     name = "test_card"
     template = "<p>{foo}</p>"
-    # Test with a string auto_advance containing the name of the next card.
+    # Test with a string transition containing the name of the next card.
     c = pypercard.Card(
-        name, template, auto_advance="foo", auto_advance_after=1
+        name, template, auto_advance=1, transition="foo" 
     )
-    assert callable(c.auto_advance)
-    assert c.auto_advance(c, {}) == "foo"
-    assert isinstance(c.auto_advance_after, float)
-    assert c.auto_advance_after == 1.0
-    # Rebind with a callable auto_advance.
+    assert callable(c.transition)
+    assert c.transition(c, {}) == "foo"
+    assert isinstance(c.auto_advance, float)
+    assert c.auto_advance == 1.0
 
-    def test_advance_transition(card, datastore):
+    # Rebind with a callable transition.
+
+    def test_transition(card, datastore):
         return "bar"
 
     c = pypercard.Card(
         name,
         template,
-        auto_advance=test_advance_transition,
-        auto_advance_after=1,
+        auto_advance=1,
+        transition=test_transition,
     )
-    assert callable(c.auto_advance)
-    assert c.auto_advance(c, {}) == "bar"
+    assert callable(c.transition)
+    assert c.transition(c, {}) == "bar"
 
 
 def test_card_init_missing_auto_advance_args():
     """
-    Both auto_advance and auto_advance_after should:
+    Both auto_advance and transition should:
 
     * both be None, or
     * both exist.
@@ -353,27 +354,27 @@ def test_card_init_missing_auto_advance_args():
     name = "test_card"
     template = "<p>{foo}</p>"
     with pytest.raises(ValueError):
-        pypercard.Card(name, template, auto_advance="foo")
+        pypercard.Card(name, template, auto_advance=1)
     with pytest.raises(ValueError):
-        pypercard.Card(name, template, auto_advance_after=1.2)
+        pypercard.Card(name, template, transition="foo")
 
 
 def test_card_init_invalid_auto_advance_args():
     """
     A TypeError is raised if:
 
-    * the `auto_advance` is not a string or function, or
-    * the `auto_advance_after` is not a float or int.
+    * the `auto_advance` is not a float or int, or
+    * the `transition` is not a string or function.
     """
     name = "test_card"
     template = "<p>{foo}</p>"
     with pytest.raises(TypeError):
         pypercard.Card(
-            name, template, auto_advance=123, auto_advance_after=123
+            name, template, auto_advance=123, transition=123
         )
     with pytest.raises(TypeError):
         pypercard.Card(
-            name, template, auto_advance="foo", auto_advance_after="foo"
+            name, template, auto_advance="foo", transition="foo"
         )
 
 
@@ -790,20 +791,20 @@ def test_app_render_card_background_image_tiled():
 def test_app_render_card_with_auto_advance():
     """
     The given card is rendered in the expected way. However, because it has
-    valid auto_advance and auto_advance_after values, JavaScript's setTimeout
+    valid auto_advance and transition values, JavaScript's setTimeout
     is called with the expected values (a function to call when the timeout
     occurs, and number of milliseconds to wait for the timeout to fire).
 
     When called, the function to call when the timeout occurs behaves as
-    expected: if the card is still rendered, call the auto_advance function,
-    otherwise don't do anything.
+    expected: if the card is still rendered, call the user supplied transition
+    function, otherwise don't do anything.
     """
     app = pypercard.App()
     c = pypercard.Card(
         "test_card",
         "<input id='test' type='text' autofocus/>",
-        auto_advance=mock.MagicMock(return_value="foo"),
-        auto_advance_after=1.23,
+        auto_advance=1.23,
+        transition=mock.MagicMock(return_value="foo"),
     )
     app.add_card(c)
     with mock.patch("pypercard.setTimeout") as mock_timeout:
