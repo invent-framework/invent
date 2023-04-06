@@ -482,10 +482,64 @@ class App:
             self.name = document.querySelector("title").innerText
         self.datastore = datastore if datastore else DataStore()
         self.stack = {}
+        self.sounds = {}
         if card_list:
             for card in card_list:
                 self.add_card(card)
-        self.sounds = {}
+        else:
+            # TODO: Check the DOM for cards, and re-inflate.
+            # * Find any sounds... add them to the sounds list.
+            # * Find child elements with `transition="foo"` and register transition.
+            card_templates = document.querySelectorAll("template")
+            if card_templates:
+                # Re inflate the cards.
+                for card_template in card_templates:
+                    name = card_template.id
+                    template = card_template.innerHTML
+                    auto_advance = card_template.getAttribute("auto-advance")
+                    if auto_advance:
+                        auto_advance = float(auto_advance)
+                    transition = card_template.getAttribute("transition")
+                    background = card_template.getAttribute("background")
+                    background_repeat = card_template.getAttribute(
+                        "background-repeat"
+                    )
+                    sound = card_template.getAttribute("sound")
+                    if sound:
+                        self.add_sound(sound, sound)
+                    sound_loop = card_template.hasAttribute("sound-loop")
+                    new_card = Card(
+                        name,
+                        template=template,
+                        auto_advance=auto_advance,
+                        transition=transition,
+                        background=background,
+                        background_repeat=background_repeat,
+                        sound=sound,
+                        sound_loop=sound_loop,
+                    )
+                    buttons = card_template.content.querySelectorAll(
+                        "button[transition]"
+                    )
+
+                    def wrapper(transition, card, event):
+                        new_card = self._resolve_card(transition)
+                        card.hide()
+                        self.render_card(new_card)
+
+                    for button in buttons:
+                        transition = button.getAttribute("transition")
+                        if transition:
+                            new_card.register_transition(
+                                button.id,
+                                "click",
+                                functools.partial(
+                                    wrapper, transition, new_card
+                                ),
+                            )
+                    self.add_card(new_card)
+            else:
+                raise RuntimeError("Cannot find cards for application.")
         if sounds:
             for name, url in sounds.items():
                 self.add_sound(name, url)
@@ -511,7 +565,7 @@ class App:
             if card_reference in self.stack:
                 return self.stack[card_reference]
             raise ValueError(
-                "The card '{card_reference}' does not exist in the stack."
+                f"The card '{card_reference}' does not exist in the stack."
             )
         elif isinstance(card_reference, Card):
             if card_reference.name in self.stack:
@@ -573,6 +627,8 @@ class App:
         autofocus = new_element.querySelector("[autofocus]")
         if autofocus:
             autofocus.focus()
+        if card.sound:
+            card.play_sound(card.sound, card.sound_loop)
 
     def add_card(self, card):
         """
