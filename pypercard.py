@@ -295,9 +295,7 @@ class Card:
                 )
         # Check both values are a pair: either both truth-y or both false-y.
         if bool(auto_advance) != bool(transition):
-            raise ValueError(
-                "Both auto_advance AND transition are required."
-            )
+            raise ValueError("Both auto_advance AND transition are required.")
         # Auto advance/target setup and validation.
         if auto_advance:
             if isinstance(auto_advance, float) or isinstance(
@@ -305,14 +303,14 @@ class Card:
             ):
                 # Python counts time in seconds (that may be floats to indicate
                 # fractions-of-a-second, or integers).
-                self.auto_advance= float(auto_advance)
+                self.auto_advance = float(auto_advance)
             else:
                 raise TypeError(
                     "Please use a number of seconds for auto_advance."
                 )
         if transition:
             if isinstance(transition, str):
-                self.transition = lambda c, d: transition 
+                self.transition = lambda c, d: transition
             elif callable(transition):
                 self.transition = transition
             else:
