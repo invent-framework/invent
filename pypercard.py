@@ -20,6 +20,7 @@ limitations under the License.
 """
 import functools
 import json
+from typing import List
 from pyodide import ffi
 from js import document, localStorage, CSS, setTimeout, Audio, fetch
 
@@ -484,7 +485,7 @@ class App:
         self.stack = {}
         self.sounds = {}
 
-        card_list = card_list or self._harvest_cards_from_document()
+        card_list = card_list or self._harvest_cards_from_dom()
         if not card_list:
             raise RuntimeError("Cannot find cards for application.")
 
@@ -503,9 +504,16 @@ class App:
         style.innerText = "html, body {width:100%;height:100%;}"
         document.head.appendChild(style)
 
-    def _harvest_cards_from_document(self):
+    def _harvest_cards_from_dom(self) -> List[Card]:
         """
         Harvest any cards defined in the DOM.
+
+        This queries the DOM for all 'template' tags and uses their attributes to
+        configure card.
+
+        Returns:
+            A (possibly empty) list of the Card instances.
+
         """
 
         cards = []
