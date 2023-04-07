@@ -487,9 +487,6 @@ class App:
             for card in card_list:
                 self.add_card(card)
         else:
-            # TODO: Check the DOM for cards, and re-inflate.
-            # * Find any sounds... add them to the sounds list.
-            # * Find child elements with `transition="foo"` and register transition.
             card_templates = document.querySelectorAll("template")
             if card_templates:
                 # Re inflate the cards.
