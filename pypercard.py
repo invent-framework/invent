@@ -1049,16 +1049,6 @@ class Machine:
         # gets added again when we go there.
         return self.history.pop()
 
-    def run(self, *inputs):
-        """ Call 'next' for all the specified inputs.
-
-        Primarily useful for testing/playing with your state machine!
-
-        """
-
-        for input_ in inputs:
-            self.next(input_)
-
     def start(self, state_name=None):
         """ Start the machine. """
 
@@ -1090,9 +1080,8 @@ class Machine:
         # Transitions can add to the context... we do it here in case any of the
         # transition hooks want to use the value.
         if transition.context_object_name:
-            self.context[
-                transition.context_object_name] = transition.get_context_object(self,
-                                                                                input_)
+            self.context[transition.context_object_name] = \
+                transition.get_context_object(self,  input_)
 
         # Pre-transition hooks.
         transition.call_before_hooks(self, input_)
@@ -1101,10 +1090,8 @@ class Machine:
         next_state_name = transition.get_target(self, input_)
 
         # A transition can accept the input but NOT move to another state by returning
-        # an empty string (this is our cheap and cheerful solution to handle incorrect
-        # answers in quizzes etc.).
-        #
-        # We allow either an empty string or None to mean "no transition".
+        # anything "falsey" (e.g. an empty string or None). This allows transition hooks
+        # to be run without changing state.
         if next_state_name:
             # Exit the current state...
             self._exit_state(self.current_state)
