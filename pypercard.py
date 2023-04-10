@@ -885,7 +885,7 @@ class App:
         return state, transitions
 
     def _get_to_card_name(self, from_card, fn_or_to_card_name):
-        """Get the name of the card to move *to* in a transition. """
+        """Get the name of the card to transition *to*. """
 
         # Call the transition function and see where we are headed to.
         if callable(fn_or_to_card_name):
