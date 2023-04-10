@@ -520,20 +520,15 @@ class App:
             self.name = document.querySelector("title").innerText
         self.datastore = datastore if datastore else DataStore()
         self.stack = collections.OrderedDict()
+        self.machine = Machine(self)
         self.sounds = {}
 
-        transitions = []
-        if not card_list:
-            card_list, transitions = self._harvest_cards_from_dom()
-
+        card_list = card_list or self._harvest_cards_from_dom()
         if not card_list:
             raise RuntimeError("Cannot find cards for application.")
 
         for card in card_list:
             self.add_card(card)
-
-        # Create the app's finite state machine.
-        self.machine = self._create_app_state_machine(transitions)
 
         if sounds:
             for name, url in sounds.items():
@@ -595,7 +590,7 @@ class App:
                 next_card_name = button.getAttribute("transition")
                 if next_card_name:
                     transitions.append(
-                        self._create_app_transition(
+                        self._create_dom_event_transition(
                             next_card_name, name, button.id, "click"
                         )
                     )
@@ -603,7 +598,9 @@ class App:
 
             cards.append(new_card)
 
-        return cards, transitions
+        self.machine.transitions.extend(transitions)
+
+        return cards
 
     def _resolve_card(self, card_reference):
         """
@@ -685,6 +682,11 @@ class App:
         card.register_app(self)
         self.stack[card.name] = card
 
+        # Create and add a state machine state for the card along with any appropriate
+        # transitions (e.g. auto-advance etc.).
+        state, transitions = self._create_card_state(card)
+        self.machine.add_state(state, transitions)
+
     def get_next_card(self, card):
         """Get the next card in the card list.
 
@@ -763,7 +765,7 @@ class App:
 
         def wrapper(fn):
             self.machine.transitions.append(
-                self._create_app_transition(fn, from_card_name, element_id, event_name)
+                self._create_dom_event_transition(fn, from_card_name, element_id, event_name)
             )
 
             from_card.register_transition(element_id, event_name)
@@ -797,29 +799,32 @@ class App:
 
     # Internal #########################################################################
 
-    def _create_app_state_machine(self, transitions=None, state_name=None, history=None, context=None):
-        """Create a simple finite state machine ("machine" for short!) for the app."""
+    def _create_auto_advance_transition(self, from_card):
+        """Create a transition that accepts a timeout and advances to another card."""
 
-        states = []
-        transitions = transitions or []
-        for card in self.stack.values():
-            card_state, card_transitions = self._create_card_state(card)
-            states.append(card_state)
-            transitions.extend(card_transitions)
+        def acceptor(machine, input_):
+            """Accepts a timeout event on the card."""
 
-        machine = Machine(
-            model=self,
-            states=states,
-            transitions=transitions,
-            state_name=state_name or states[0].name,
-            history=history,
-            context=context
-        )
+            if input_.get("event") == "timeout" and input_.get("card").name == from_card.name:
+                # Timers are removed when a state is exited, but just in case there is a
+                # timing issue, we make sure the machine is still on the card that timed
+                # out.
+                if machine.state_name == from_card.name:
+                    return True
 
-        return machine
+            return False
 
-    def _create_app_transition(self, fn_or_card_name, from_card_name, element_id, event_name):
-        """Create a transition specified via the "app.transition" decorator."""
+        def target(machine, input_):
+            """Gets the state to transition to from the card's transition attribute. """
+
+            return self._get_target_state(from_card, from_card.transition)
+
+        return Transition(source=from_card.name, acceptor=acceptor, target=target)
+
+    def _create_dom_event_transition(
+        self, fn_or_card_name, from_card_name, element_id, event_name
+    ):
+        """Create a transition from a state triggered by a DOM event."""
 
         def acceptor(machine, input_):
             if input_.get("event") != event_name:
@@ -844,26 +849,7 @@ class App:
             # The card that we are (potentially) transitioning from.
             from_card = self._resolve_card(from_card_name)
 
-            # Call the transition function and see where we are headed to.
-            if callable(fn_or_card_name):
-                to_state_or_card = fn_or_card_name(from_card, self.datastore)
-
-            else:
-                to_state_or_card = fn_or_card_name
-
-            if isinstance(to_state_or_card, str):
-                to_state = to_state_or_card
-
-            else:
-                to_state = to_state_or_card.name
-
-            if to_state == "<previous>":
-                to_state = machine.history_pop_previous()
-
-            elif to_state == "<next>":
-                to_state = self.get_next_card(from_card).name
-
-            return to_state
+            return self._get_target_state(from_card, fn_or_card_name)
 
         return Transition(source=from_card_name, acceptor=acceptor, target=target)
 
@@ -887,23 +873,29 @@ class App:
 
         return state, transitions
 
-    def _create_auto_advance_transition(self, card):
-        """Create a transition that accepts a timeout and advances to the next card."""
+    def _get_target_state(self, from_card,  fn_or_card_name):
+        """Get the target state (i.e. the state to move to) in a transition. """
 
-        def acceptor(machine, input_):
-            if input_.get("event") == "timeout" and input_.get("card").name == card.name:
-                # Timers are removed when a state is exited, but just in case there is a
-                # timing issue, we make sure the machine is still on the card that timed
-                # out.
-                if machine.state_name == card.name:
-                    return True
+        # Call the transition function and see where we are headed to.
+        if callable(fn_or_card_name):
+            to_state_or_card = fn_or_card_name(from_card, self.datastore)
 
-            return False
+        else:
+            to_state_or_card = fn_or_card_name
 
-        def target(machine, input_):
-            return card.transition(card, self.datastore)
+        if isinstance(to_state_or_card, str):
+            to_state = to_state_or_card
 
-        return Transition(source=card.name, acceptor=acceptor, target=target)
+        else:
+            to_state = to_state_or_card.name
+
+        if to_state == "<previous>":
+            to_state = self.machine.history_pop_previous()
+
+        elif to_state == "<next>":
+            to_state = self.get_next_card(from_card).name
+
+        return to_state
 
 
 # A simple Finite State Machine (FSM) implementation ###################################
@@ -939,7 +931,7 @@ class Machine:
         ]
 
         self.model = model
-        self.state_name = state_name or self.states[0].name
+        self.state_name = state_name
         self.history = history or []
         self.context = context or {}
 
@@ -968,6 +960,14 @@ class Machine:
 
             for transition in self.transitions
         ])
+
+    def add_state(self, state, transitions=None):
+        """Add a state and (optionally) its transitions to the machine."""
+
+        self.states.append(state)
+        self.transitions.extend(transitions or [])
+
+        self._states_by_name = {state.name: state for state in self.states}
 
     def goto(self, state_name, run_hooks=True):
         """ Goto a specific state.
@@ -1050,6 +1050,9 @@ class Machine:
 
     def start(self):
         """ Start the machine. """
+
+        # If no start state was specified then use the first one in the list of states.
+        self.state_name = self.state_name or self.states[0].name
 
         self._enter_state(self.current_state)
 
