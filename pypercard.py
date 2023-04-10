@@ -1095,7 +1095,7 @@ class Machine:
         state.call_on_exit_hooks(self)
 
 
-class State(object):
+class State:
     """ A state in a state machine :) """
 
     def __init__(self, name, on_enter=None, on_exit=None):
@@ -1126,7 +1126,7 @@ class State(object):
             hook(machine)
 
 
-class Transition(object):
+class Transition:
     """ A possible transition from one state to another. """
 
     def __init__(self, source, acceptor, target=None, context_object_name='',
@@ -1185,7 +1185,7 @@ class Transition(object):
             hook(machine, input_)
 
 
-class Acceptor(object):
+class Acceptor:
     """ Acceptors determine whether the received input is allowed."""
 
     def __init__(self, fn=None):
