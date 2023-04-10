@@ -753,7 +753,7 @@ class App:
         document.body.style = background
 
     def transition(self, from_card_name, element_id, event_name):
-        """A decorator to create transitions for an event within the specified card.
+        """A decorator to create transitions for DOM events within the specified card.
 
         This just adds a transition to the app's state machine.
 
