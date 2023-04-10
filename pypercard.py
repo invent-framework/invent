@@ -324,7 +324,7 @@ class Card:
         self._transitions = []  # To hold transitions acting on the card.
         self.content = None  # Will reference the rendered element in the DOM.
         self.app = None  # Will reference the parent application.
-        self._auto_advance_timer = None # Will reference a timer for auto-advancing.
+        self._auto_advance_timer = None  # Will reference a timer for auto-advancing.
 
     def register_app(self, app):
         """
@@ -591,7 +591,7 @@ class App:
                 if next_card_name:
                     transitions.append(
                         self._create_dom_event_transition(
-                            next_card_name, name, button.id, "click"
+                            name, next_card_name, button.id, "click"
                         )
                     )
                     new_card.register_transition(button.id, "click")
@@ -763,24 +763,29 @@ class App:
 
         def wrapper(fn):
             self.machine.transitions.append(
-                self._create_dom_event_transition(fn, from_card_name, element_id, event_name)
+                self._create_dom_event_transition(
+                    from_card_name, fn, element_id, event_name
+                )
             )
 
             from_card.register_transition(element_id, event_name)
 
         return wrapper
 
-    def start(self, card_reference):
+    def start(self, card_reference=None):
         """
         Start the app with the referenced card.
 
         The reference to the card can be an instance of the card itself, or
         a string containing the card's `name`.
         """
+
         if self.started:
             raise RuntimeError("The application has already started.")
 
-        self.machine.start()
+        card = self._resolve_card(card_reference)
+
+        self.machine.start(card.name)
         self.started = True
 
     def dump(self):
@@ -820,12 +825,12 @@ class App:
         return Transition(source=from_card.name, acceptor=acceptor, target=target)
 
     def _create_dom_event_transition(
-        self, fn_or_card_name, from_card_name, element_id, event_name
+        self, from_card_name, fn_or_card_name, element_id, dom_event_name
     ):
-        """Create a transition from a state triggered by a DOM event."""
+        """Create a transition triggered by a DOM event."""
 
         def acceptor(machine, input_):
-            if input_.get("event") != event_name:
+            if input_.get("event") != dom_event_name:
                 return False
 
             if element_id is not None and input_.get("dom_event").target.id != element_id:
@@ -1046,11 +1051,11 @@ class Machine:
         for input_ in inputs:
             self.next(input_)
 
-    def start(self):
+    def start(self, state_name=None):
         """ Start the machine. """
 
         # If no start state was specified then use the first one in the list of states.
-        self.state_name = self.state_name or self.states[0].name
+        self.state_name = state_name or self.states[0].name
 
         self._enter_state(self.current_state)
 
