@@ -20,7 +20,6 @@ limitations under the License.
 """
 import functools
 import json
-from typing import List
 from pyodide import ffi
 from js import document, localStorage, CSS, setTimeout, Audio, fetch
 
@@ -504,7 +503,7 @@ class App:
         style.innerText = "html, body {width:100%;height:100%;}"
         document.head.appendChild(style)
 
-    def _harvest_cards_from_dom(self) -> List[Card]:
+    def _harvest_cards_from_dom(self):
         """
         Harvest any cards defined in the DOM.
 
