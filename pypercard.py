@@ -688,9 +688,7 @@ class App:
         self.machine.add_state(state, transitions)
 
     def get_next_card(self, card):
-        """Get the next card in the card list.
-
-        Currently, this is ONLY called when auto-advancing.
+        """Get the next card sequentially in the card list.
 
         Returns:
             None if 'card' is the last card.
