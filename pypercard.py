@@ -324,6 +324,7 @@ class Card:
         self._transitions = []  # To hold transitions acting on the card.
         self.content = None  # Will reference the rendered element in the DOM.
         self.app = None  # Will reference the parent application.
+        self._auto_advance_timer = None # Will reference a timer for auto-advancing.
 
     def register_app(self, app):
         """
@@ -348,6 +349,18 @@ class Card:
             self.content = document.createElement("pyper-card")
         html = self.template.format(**datastore)
         self.content.innerHTML = html
+
+        # Set an auto-advance timer if required.
+        if self.auto_advance is not None:
+            def on_timeout():
+                """Called when the card timer has timed-out!"""
+
+                self.app.machine.next({"event": "timeout", "card": self})
+
+            # Python sleeps in seconds, JavaScript in milliseconds :)
+            self._auto_advence_timer = setTimeout(
+                ffi.create_proxy(on_timeout), int(self.auto_advance * 1000)
+            )
 
         # Add DOM event listeners for any transitions added via "app.transition".
         for transition in self._transitions:
@@ -383,6 +396,10 @@ class Card:
         """
 
         self.content.style.display = "none"
+
+        # Clear the auto-advance timer if necessary.
+        if self._auto_advance_timer:
+            clearTimeout(self._auto_advance_timer)
 
         # Remove any DOM event listeners that were hooked up when the card was
         # shown.
@@ -531,9 +548,6 @@ class App:
         style.innerText = "html, body {width:100%;height:100%;}"
         document.head.appendChild(style)
 
-        # Any active card timers.
-        self._card_timers = {}
-
     def _harvest_cards_from_dom(self):
         """
         Harvest any cards defined in the DOM.
@@ -622,17 +636,6 @@ class App:
 
         card.render(self.datastore)
 
-        if card.auto_advance is not None:
-            def on_timeout():
-                """Called when the card timer has timed-out!"""
-
-                self.machine.next({"event": "timeout", "card": card})
-
-            # Python sleeps in seconds, JavaScript in milliseconds :)
-            self._card_timers[card.name] = setTimeout(
-                ffi.create_proxy(on_timeout), int(card.auto_advance * 1000)
-            )
-
         # Ensure the background is [re]set.
         background = ""
         if card.background:
@@ -668,10 +671,6 @@ class App:
 
     def hide_card(self, card):
         """Hide the specified card."""
-
-        timer = self._card_timers.get(card.name)
-        if timer:
-            clearTimeout(timer)
 
         card.hide()
 
@@ -879,7 +878,7 @@ class App:
             return False
 
         def target(machine, input_):
-            return card.transition(card, card.app.datastore)
+            return card.transition(card, self.datastore)
 
         return Transition(source=card.name, target=target, acceptor=acceptor)
 
