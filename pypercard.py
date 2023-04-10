@@ -685,6 +685,26 @@ class App:
         card.register_app(self)
         self.stack[card.name] = card
 
+    def get_next_card(self, card):
+        """Get the next card in the card list.
+
+        Currently, this is ONLY called when auto-advancing.
+
+        Returns:
+            None if 'card' is the last card.
+
+        """
+
+        cards = list(self.stack.values())
+
+        index = cards.index(card)
+        if index == len(cards)-1:
+            return None
+
+        next_card = cards[index+1]
+
+        return next_card
+
     def remove_card(self, card_reference):
         """
         Remove a card from the stack.
@@ -840,6 +860,9 @@ class App:
             if to_state == "<previous>":
                 to_state = machine.history_pop_previous()
 
+            elif to_state == "<next>":
+                to_state = self.get_next_card(from_card).name
+
             return to_state
 
         return Transition(source=from_card_name, acceptor=acceptor, target=target)
@@ -880,7 +903,7 @@ class App:
         def target(machine, input_):
             return card.transition(card, self.datastore)
 
-        return Transition(source=card.name, target=target, acceptor=acceptor)
+        return Transition(source=card.name, acceptor=acceptor, target=target)
 
 
 # A simple Finite State Machine (FSM) implementation ###################################
