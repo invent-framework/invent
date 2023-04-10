@@ -1021,7 +1021,7 @@ class Machine:
         for transition in self.transitions:
             if transition.source == '*' or transition.source == self.state_name:
                 # We use the first transition that accepts the input.
-                if transition.acceptor.accepts(self, input_):
+                if transition.accepts(self, input_):
                     return self._do_transition(transition, input_)
 
         # No transition handled the input.
@@ -1186,6 +1186,15 @@ class Transition:
 
         print(
             f'{indent}{type(self).__name__}("{self.source}", {self.acceptor}, "{self.target}", "{self.context_object_name}", before={self.before}, after={self.after})')
+
+    def accepts(self, machine, input_):
+        """ Return True iff the specified input is accepted.
+
+        By default, this simply calls the transition's acceptor.
+
+        """
+
+        return self.acceptor.accepts(machine, input_)
 
     def get_context_object(self, machine, input_):
         """ Return the object to add to the machine's context iff this transition succeeds.
