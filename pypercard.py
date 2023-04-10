@@ -358,7 +358,7 @@ class Card:
                 self.app.machine.next({"event": "timeout", "card": self})
 
             # Python sleeps in seconds, JavaScript in milliseconds :)
-            self._auto_advence_timer = setTimeout(
+            self._auto_advance_timer = setTimeout(
                 ffi.create_proxy(on_timeout), int(self.auto_advance * 1000)
             )
 
