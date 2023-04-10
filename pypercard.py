@@ -783,9 +783,13 @@ class App:
         if self.started:
             raise RuntimeError("The application has already started.")
 
-        card = self._resolve_card(card_reference)
+        if card_reference:
+            card_name = self._resolve_card(card_reference).name
 
-        self.machine.start(card.name)
+        else:
+            card_name = None  # Machine will default to the first card in the list.
+
+        self.machine.start(card_name)
         self.started = True
 
     def dump(self):
