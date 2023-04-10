@@ -19,6 +19,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 import collections
+import functools
 import json
 from pyodide import ffi
 from js import document, localStorage, CSS, clearTimeout, setTimeout, Audio, fetch
@@ -365,14 +366,13 @@ class Card:
         # Add DOM event listeners for any transitions added via "app.transition".
         for transition in self._transitions:
             target_elements = self.get_elements(transition["selector"])
-            # TODO: Closure in for loop!
             for element in target_elements:
-                def handler(evt):
+                def handler(transition, evt):
                     self.app.machine.next(
                         {"event": transition["event_name"], "dom_event": evt}
                     )
 
-                handler_proxy = ffi.create_proxy(handler)
+                handler_proxy = ffi.create_proxy(functools.partial(handler, transition))
                 transition["handler"] = handler_proxy
 
                 element.addEventListener(
