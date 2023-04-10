@@ -310,7 +310,7 @@ class Card:
                 )
         if transition:
             if isinstance(transition, str):
-                self.transition = lambda c, d: transition
+                self.transition = lambda card, datastore: transition
             elif callable(transition):
                 self.transition = transition
             else:
@@ -506,7 +506,6 @@ class App:
         self.sounds = {}
 
         transitions = []
-
         if not card_list:
             card_list, transitions = self._harvest_cards_from_dom()
 
