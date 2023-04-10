@@ -187,7 +187,7 @@ class Card:
     the user.
 
     The app ensures that only one card is ever displayed at once. Each card
-    has a `name` and an html `template` that defines how it looks on the page.
+    has a `name` and an HTML `template` that defines how it looks on the page.
 
     Cards may also have optional `auto_advance` and `transition`
     attributes for transitioning to a target card after a given period of time.
