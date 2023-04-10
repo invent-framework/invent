@@ -818,41 +818,49 @@ class App:
             return False
 
         def target(machine, input_):
-            """Gets the state to transition to from the card's transition attribute. """
+            """Returns the name of the card to transition to.
 
-            return self._get_target_state(from_card, from_card.transition)
+            This uses the card's "transition" attribute which can be either:
+
+            - a function with two arguments (card , datastore) that returns a string
+              which is the name of card to transition to.
+
+            - a string which is the name of the card to transition to.
+
+            """
+
+            return self._get_to_card_name(from_card, from_card.transition)
 
         return Transition(source=from_card.name, acceptor=acceptor, target=target)
 
     def _create_dom_event_transition(
-        self, from_card_name, fn_or_card_name, element_id, dom_event_name
+        self, from_card_name, fn_or_to_card_name, element_id, dom_event_name
     ):
         """Create a transition triggered by a DOM event."""
 
         def acceptor(machine, input_):
+            """Accepts a DOM event with the specified name.
+
+            If an element id is specified then only accept if the element was the DOM
+            event target.
+
+            """
+
             if input_.get("event") != dom_event_name:
                 return False
 
-            if element_id is not None and input_.get("dom_event").target.id != element_id:
-                return False
+            if element_id is not None:
+                if input_.get("dom_event").target.id != element_id:
+                    return False
 
             return True
 
         def target(machine, _input):
-            """This function is called to get the state to transition to.
+            """Return the name of the card to transition to. """
 
-            If the transition function returns...
-
-            - either an empty string or None, the machine stays in the current state.
-            - a non-empty string, the machine moves to the state with that name.
-            - a Card instance, the machine moves to the state with the card's name.
-
-            """
-
-            # The card that we are (potentially) transitioning from.
             from_card = self._resolve_card(from_card_name)
 
-            return self._get_target_state(from_card, fn_or_card_name)
+            return self._get_to_card_name(from_card, fn_or_to_card_name)
 
         return Transition(source=from_card_name, acceptor=acceptor, target=target)
 
@@ -876,29 +884,29 @@ class App:
 
         return state, transitions
 
-    def _get_target_state(self, from_card,  fn_or_card_name):
-        """Get the target state (i.e. the state to move to) in a transition. """
+    def _get_to_card_name(self, from_card, fn_or_to_card_name):
+        """Get the name of the card to move *to* in a transition. """
 
         # Call the transition function and see where we are headed to.
-        if callable(fn_or_card_name):
-            to_state_or_card = fn_or_card_name(from_card, self.datastore)
+        if callable(fn_or_to_card_name):
+            to_card_or_name = fn_or_to_card_name(from_card, self.datastore)
 
         else:
-            to_state_or_card = fn_or_card_name
+            to_card_or_name = fn_or_to_card_name
 
-        if isinstance(to_state_or_card, str):
-            to_state = to_state_or_card
+        if isinstance(to_card_or_name, str):
+            to_card_name = to_card_or_name
 
         else:
-            to_state = to_state_or_card.name
+            to_card_name = to_card_or_name.name
 
-        if to_state == "<previous>":
-            to_state = self.machine.history_pop_previous()
+        if to_card_or_name == "<previous>":
+            to_card_name = self.machine.history_pop_previous()
 
-        elif to_state == "<next>":
-            to_state = self.get_next_card(from_card).name
+        elif to_card_name == "<next>":
+            to_card_name = self.get_next_card(from_card).name
 
-        return to_state
+        return to_card_name
 
 
 # A simple Finite State Machine (FSM) implementation ###################################
@@ -1055,7 +1063,7 @@ class Machine:
         """ Start the machine. """
 
         # If no start state was specified then use the first one in the list of states.
-        self.state_name = state_name or self.states[0].name
+        self.state_name = state_name or self.state_name or self.states[0].name
 
         self._enter_state(self.current_state)
 
