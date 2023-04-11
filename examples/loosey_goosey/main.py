@@ -14,12 +14,12 @@ honk_app = App(
 )
 
 
-@honk_app.transition("goose_card", "honk", "click")
+@honk_app.transition("goose_card", "click", "honk")
 def honk_button(card, datastore):
     card.play_sound("honk")
 
 
-@honk_app.transition("goose_card", "goose", "click")
+@honk_app.transition("goose_card", "click", "goose")
 def honk_picture(card, datastore):
     card.play_sound("honk")
 

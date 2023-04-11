@@ -591,7 +591,7 @@ class App:
                 if next_card_name:
                     transitions.append(
                         self._create_dom_event_transition(
-                            name, next_card_name, button.id, "click"
+                            name, next_card_name, "click", button.id
                         )
                     )
                     new_card.register_transition(button.id, "click")
@@ -752,23 +752,32 @@ class App:
         """
         document.body.style = background
 
-    def transition(self, from_card_name, element_id, event_name):
+    def transition(self, from_card_name, dom_event_name, element_id=None):
         """A decorator to create transitions for DOM events within the specified card.
 
         This just adds a transition to the app's state machine.
 
         """
 
-        from_card = self._resolve_card(from_card_name)
-
         def wrapper(fn):
             self.machine.transitions.append(
                 self._create_dom_event_transition(
-                    from_card_name, fn, element_id, event_name
+                    from_card_name, fn, dom_event_name, element_id
                 )
             )
 
-            from_card.register_transition(element_id, event_name)
+            # App level transition.
+            if from_card_name == "*":
+                def handler(evt):
+                    self.machine.next({"event": dom_event_name, "dom_event": evt})
+
+                handler_proxy = ffi.create_proxy(handler)
+                document.addEventListener(dom_event_name, handler_proxy)
+
+            # Card-level transition.
+            else:
+                from_card = self._resolve_card(from_card_name)
+                from_card.register_transition(element_id, dom_event_name)
 
         return wrapper
 
@@ -833,12 +842,12 @@ class App:
 
             """
 
-            return self._get_to_card_name(from_card, from_card.transition)
+            return self._get_to_card_name(from_card, from_card.transition, input_)
 
         return Transition(source=from_card.name, acceptor=acceptor, target=target)
 
     def _create_dom_event_transition(
-        self, from_card_name, fn_or_to_card_name, element_id, dom_event_name
+        self, from_card_name, fn_or_to_card_name, dom_event_name, element_id
     ):
         """Create a transition triggered by a DOM event."""
 
@@ -859,12 +868,16 @@ class App:
 
             return True
 
-        def target(machine, _input):
+        def target(machine, input_):
             """Return the name of the card to transition to. """
 
-            from_card = self._resolve_card(from_card_name)
+            if from_card_name == "*":
+                from_card = self._resolve_card(self.machine.current_state.name)
 
-            return self._get_to_card_name(from_card, fn_or_to_card_name)
+            else:
+                from_card = self._resolve_card(from_card_name)
+
+            return self._get_to_card_name(from_card, fn_or_to_card_name, input_)
 
         return Transition(source=from_card_name, acceptor=acceptor, target=target)
 
@@ -888,15 +901,30 @@ class App:
 
         return state, transitions
 
-    def _get_to_card_name(self, from_card, fn_or_to_card_name):
+    def _get_to_card_name(self, from_card, fn_or_to_card_name, input_):
         """Get the name of the card to transition *to*. """
 
         # Call the transition function and see where we are headed to.
         if callable(fn_or_to_card_name):
-            to_card_or_name = fn_or_to_card_name(from_card, self.datastore)
+            dom_event = input_.get("dom_event")
+            if dom_event:
+                import inspect
+                signature = inspect.signature(fn_or_to_card_name)
+                if len(signature.parameters) > 2:
+                    to_card_or_name = fn_or_to_card_name(from_card, self.datastore, dom_event)
+
+                else:
+                    to_card_or_name = fn_or_to_card_name(from_card, self.datastore)
+
+
+            else:
+                to_card_or_name = fn_or_to_card_name(from_card, self.datastore)
 
         else:
             to_card_or_name = fn_or_to_card_name
+
+        if not to_card_or_name:
+            return ""
 
         if isinstance(to_card_or_name, str):
             to_card_name = to_card_or_name
