@@ -9,7 +9,7 @@ temp_app = App(
 )
 
 
-@temp_app.transition("input_card", "to_c", "click")
+@temp_app.transition("input_card", "click", "to_c")
 def to_c(card, datastore):
     try:
         temp = float(card.get_by_id("temperature").value)
@@ -19,7 +19,7 @@ def to_c(card, datastore):
         return "error_card"
 
 
-@temp_app.transition("input_card", "to_f", "click")
+@temp_app.transition("input_card", "click", "to_f")
 def to_f(card, datastore):
     try:
         temp = float(card.get_by_id("temperature").value)
@@ -29,12 +29,12 @@ def to_f(card, datastore):
         return "error_card"
 
 
-@temp_app.transition("result_card", "again", "click")
+@temp_app.transition("result_card", "click", "again")
 def again(card, datastore):
     return "input_card"
 
 
-@temp_app.transition("error_card", "reset", "click")
+@temp_app.transition("error_card", "click", "reset")
 def reset(card, datastore):
     return "input_card"
 

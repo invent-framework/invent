@@ -31,7 +31,7 @@ carousel_app = App(
 )
 
 
-@carousel_app.transition("card2", "reset", "click")
+@carousel_app.transition("card2", "click", "reset")
 def reset(card, datastore):
     return "card1"
 
