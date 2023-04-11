@@ -910,8 +910,9 @@ class App:
             # The arguments to pass to the callable transition.
             args = [from_card, self.datastore]
 
-            # If the transition was triggered by a DOM event then event can
-            # (optionally) be passed into the transition.
+            # If the transition was triggered by a DOM event then the event can
+            # (optionally) be passed into the transition depending on the signature
+            # of the user's function.
             dom_event = input_.get("dom_event")
             if dom_event:
                 signature = inspect.signature(fn_or_to_card_name)
@@ -924,6 +925,7 @@ class App:
         else:
             to_card_or_name = fn_or_to_card_name
 
+        # No transition.
         if not to_card_or_name:
             return ""
 
