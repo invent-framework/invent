@@ -936,10 +936,20 @@ class App:
             to_card_name = to_card_or_name.name
 
         if to_card_or_name == "-":
-            to_card_name = self.machine.history_pop_previous()
+            card_list = list(self.stack.values())
+            if card_list.index(from_card) > 0:
+                to_card_name = self.machine.history_pop_previous()
+
+            else:
+                to_card_name = ""
 
         elif to_card_name == "+":
-            to_card_name = self.get_next_card(from_card).name
+            card_list = list(self.stack.values())
+            if card_list.index(from_card) < len(card_list)-1:
+                to_card_name = self.get_next_card(from_card).name
+
+            else:
+                to_card_name = ""
 
         return to_card_name
 
