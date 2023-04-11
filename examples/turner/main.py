@@ -56,10 +56,10 @@ turner_app = App(
 @turner_app.transition("*", "keydown")
 def keydown(card, datastore, event):
     if event.keyCode == 39:
-        return "<next>"
+        return "+"
 
     if event.keyCode == 37:
-        return "<previous>"
+        return "-"
 
 
 @turner_app.transition("intro", "click", "start")

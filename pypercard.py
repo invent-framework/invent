@@ -21,6 +21,7 @@ limitations under the License.
 import collections
 import functools
 import json
+import inspect
 from pyodide import ffi
 from js import document, localStorage, CSS, clearTimeout, setTimeout, Audio, fetch
 
@@ -904,22 +905,22 @@ class App:
     def _get_to_card_name(self, from_card, fn_or_to_card_name, input_):
         """Get the name of the card to transition *to*. """
 
-        # Call the transition function and see where we are headed to.
+        # If we have a callable transition then, err, call it!
         if callable(fn_or_to_card_name):
+            # The arguments to pass to the callable transition.
+            args = [from_card, self.datastore]
+
+            # If the transition was triggered by a DOM event then event can
+            # (optionally) be passed into the transition.
             dom_event = input_.get("dom_event")
             if dom_event:
-                import inspect
                 signature = inspect.signature(fn_or_to_card_name)
                 if len(signature.parameters) > 2:
-                    to_card_or_name = fn_or_to_card_name(from_card, self.datastore, dom_event)
+                    args.append(dom_event)
 
-                else:
-                    to_card_or_name = fn_or_to_card_name(from_card, self.datastore)
+            to_card_or_name = fn_or_to_card_name(*args)
 
-
-            else:
-                to_card_or_name = fn_or_to_card_name(from_card, self.datastore)
-
+        # Otherwise the transition is just the name of the card to transition to.
         else:
             to_card_or_name = fn_or_to_card_name
 
@@ -932,10 +933,10 @@ class App:
         else:
             to_card_name = to_card_or_name.name
 
-        if to_card_or_name == "<previous>":
+        if to_card_or_name == "-":
             to_card_name = self.machine.history_pop_previous()
 
-        elif to_card_name == "<next>":
+        elif to_card_name == "+":
             to_card_name = self.get_next_card(from_card).name
 
         return to_card_name
