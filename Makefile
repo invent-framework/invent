@@ -17,6 +17,8 @@ all:
 clean:
 	rm -rf .pytest_cache
 	rm -rf dist
+	rm -rf docs/api/*
+	rm -rf docs/_build
 	find . | grep -E "(__pycache__)" | xargs rm -rf
 
 tidy:
