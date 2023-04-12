@@ -123,7 +123,6 @@ class Machine:
         3) null if no transition accepted the input.
 
         """
-        1/0
         if self.is_done:
             self.pprint()
             raise ValueError(f'Machine is already done but got input: {input_}')
@@ -135,8 +134,7 @@ class Machine:
                     return self._do_transition(transition, input_)
 
         # No transition handled the input.
-        print('No transition handled input:', input_)
-        self.pprint()
+        # print('No transition handled input:', input_)
         return ''
 
     def history_pop_previous(self):

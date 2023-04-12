@@ -180,7 +180,7 @@ def test_card_render():
     """
     Returns the expected and correctly rendered card as an HTML div element.
     """
-    name = "test_card"
+    name = "test_card1"
     # Check this is called when the card is shown to the user.
     my_on_show = mock.MagicMock()
     # Ensure this value is inserted into the template.
@@ -189,11 +189,13 @@ def test_card_render():
     # dispatch an event.
     template = "<p id='id1'>{foo}</p><buton id='id2'>Click me</button>"
     # Make the card.
-    c = pypercard.Card(name, template, my_on_show)
-    app = pypercard.App(card_list=[c,], datastore=ds)
+    c1 = pypercard.Card(name, template, my_on_show)
+    # Make a next card.
+    c2 = pypercard.Card("test_card2", "<p>test card 2</p>")
+    app = pypercard.App(card_list=[c1, c2], datastore=ds)
     # Register a transition to be attached to the element/event rendered in
     # the result.
-    my_transition = mock.MagicMock(return_value="baz")
+    my_transition = mock.MagicMock(return_value="test_card2")
 
     @app.transition(name, "click", "id2")
     def test_transition(card, datastore):
@@ -203,7 +205,7 @@ def test_card_render():
     app.start()
 
     # The on_render function was called with the expected objects.
-    my_on_show.assert_called_once_with(c, ds)
+    my_on_show.assert_called_once_with(c1, ds)
     # The Python formatting into the template inserted the expected value from
     # the datastore.
     assert document.querySelector("#id1").innerText == "bar"
@@ -668,18 +670,20 @@ def test_app_transition():
     tc2 = pypercard.Card("test_card2", "<p>Finished!</p>")
     app = pypercard.App(card_list=[tc1, tc2])
 
-    call_count = 0
+    call_count = mock.MagicMock()
 
     @app.transition("test_card1", "click", "id1")
     def my_transition(card, datastore):
-        call_count += 1
+        print("Hello from transition")
+        call_count()
+        print("Hello from transition again")
         return "test_card2"
 
     app.start("test_card1")
     button = tc1.get_element("#id1")
     button.click()
-    assert call_count == 1
-    assert tc1.content is None
+    assert call_count.call_count == 1
+    assert tc1.content.style.display == "none"
     assert tc2.content.innerHTML == "<p>Finished!</p>"
 
 
