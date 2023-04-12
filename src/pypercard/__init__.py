@@ -21,5 +21,9 @@ limitations under the License.
 from .core import Card, App
 from .datastore import DataStore
 
-__all__ = ["Card", "App", "DataStore", ]
+__all__ = [
+    "Card",
+    "App",
+    "DataStore",
+]
 __version__ = "0.0.1.alpha.5"

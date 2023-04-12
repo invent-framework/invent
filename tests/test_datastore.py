@@ -235,4 +235,3 @@ def test_datastore_contains():
     ds = pypercard.DataStore()
     ds["a"] = 1
     assert "a" in ds
-

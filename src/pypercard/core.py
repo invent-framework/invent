@@ -171,7 +171,9 @@ class Card:
         self._transitions = []  # To hold transitions acting on the card.
         self.content = None  # Will reference the rendered element in the DOM.
         self.app = None  # Will reference the parent application.
-        self._auto_advance_timer = None  # Will reference a timer for auto-advancing.
+        self._auto_advance_timer = (
+            None  # Will reference a timer for auto-advancing.
+        )
 
     def register_app(self, app):
         """
@@ -199,6 +201,7 @@ class Card:
 
         # Set an auto-advance timer if required.
         if self.auto_advance is not None:
+
             def on_timeout():
                 """Called when the card timer has timed-out!"""
 
@@ -209,17 +212,21 @@ class Card:
                 ffi.create_proxy(on_timeout), int(self.auto_advance * 1000)
             )
 
-        # Add DOM event listeners for any transitions added via "app.transition".
+        # Add DOM event listeners for any transitions added via
+        # "app.transition".
         for transition in self._transitions:
             target_elements = self.get_elements(transition["selector"])
             for element in target_elements:
+
                 def handler(transition, evt):
                     print("HERE", transition, evt)
                     self.app.machine.next(
                         {"event": transition["event_name"], "dom_event": evt}
                     )
 
-                handler_proxy = ffi.create_proxy(functools.partial(handler, transition))
+                handler_proxy = ffi.create_proxy(
+                    functools.partial(handler, transition)
+                )
                 transition["handler"] = handler_proxy
 
                 element.addEventListener(
@@ -237,8 +244,8 @@ class Card:
     def hide(self):
         """Hide the card (i.e. make it invisible to the user!).
 
-        This leaves the card in the DOM but just sets 'display' to None, and removes
-        any DOM event listeners.
+        This leaves the card in the DOM but just sets 'display' to None, and
+        removes any DOM event listeners.
 
         """
 
@@ -394,8 +401,8 @@ class App:
         """
         Harvest any cards defined in the DOM.
 
-        This queries the DOM for all 'template' tags and uses their attributes to
-        configure card.
+        This queries the DOM for all 'template' tags and uses their attributes
+        to configure card.
 
         Returns:
             A (possibly empty) list of the Card instances.
@@ -403,7 +410,7 @@ class App:
         """
 
         cards = []
-        transitions =[]
+        transitions = []
         for card_template in document.querySelectorAll("template"):
             name = card_template.id
             template = card_template.innerHTML
@@ -412,9 +419,7 @@ class App:
                 auto_advance = float(auto_advance)
             transition = card_template.getAttribute("transition")
             background = card_template.getAttribute("background")
-            background_repeat = card_template.getAttribute(
-                "background-repeat"
-            )
+            background_repeat = card_template.getAttribute("background-repeat")
             sound = card_template.getAttribute("sound")
             if sound:
                 self.add_sound(sound, sound)
@@ -529,8 +534,8 @@ class App:
         card.register_app(self)
         self.stack[card.name] = card
 
-        # Create and add a state machine state for the card along with any appropriate
-        # transitions (e.g. auto-advance etc.).
+        # Create and add a state machine state for the card along with any
+        # appropriate transitions (e.g. auto-advance etc.).
         state, transitions = self._create_card_state(card)
         self.machine.add_state(state, transitions)
 
@@ -545,10 +550,10 @@ class App:
         cards = list(self.stack.values())
 
         index = cards.index(card)
-        if index == len(cards)-1:
+        if index == len(cards) - 1:
             return None
 
-        next_card = cards[index+1]
+        next_card = cards[index + 1]
 
         return next_card
 
@@ -600,7 +605,9 @@ class App:
         document.body.style = background
 
     def transition(self, from_card_name, dom_event_name, element_id=None):
-        """A decorator to create transitions for DOM events within the specified card.
+        """
+        A decorator to create transitions for DOM events within the specified
+        card.
 
         This just adds a transition to the app's state machine.
 
@@ -615,8 +622,11 @@ class App:
 
             # App level transition.
             if from_card_name == "*":
+
                 def handler(evt):
-                    self.machine.next({"event": dom_event_name, "dom_event": evt})
+                    self.machine.next(
+                        {"event": dom_event_name, "dom_event": evt}
+                    )
 
                 handler_proxy = ffi.create_proxy(handler)
                 document.addEventListener(dom_event_name, handler_proxy)
@@ -643,7 +653,9 @@ class App:
             card_name = self._resolve_card(card_reference).name
 
         else:
-            card_name = None  # Machine will default to the first card in the list.
+            card_name = (
+                None  # Machine will default to the first card in the list.
+            )
 
         self.machine.start(card_name)
         self.started = True
@@ -660,18 +672,20 @@ class App:
         """
         pass
 
-    # Internal #########################################################################
-
     def _create_auto_advance_transition(self, from_card):
-        """Create a transition that accepts a timeout and advances to another card."""
+        """Create a transition that accepts a timeout and advances to another
+        card."""
 
         def acceptor(machine, input_):
             """Accepts a timeout event on the card."""
 
-            if input_.get("event") == "timeout" and input_.get("card").name == from_card.name:
-                # Timers are removed when a state is exited, but just in case there is a
-                # timing issue, we make sure the machine is still on the card that timed
-                # out.
+            if (
+                input_.get("event") == "timeout"
+                and input_.get("card").name == from_card.name
+            ):
+                # Timers are removed when a state is exited, but just in case
+                # there is a timing issue, we make sure the machine is still
+                # on the card that timed out.
                 if machine.state_name == from_card.name:
                     return True
 
@@ -682,16 +696,20 @@ class App:
 
             This uses the card's "transition" attribute which can be either:
 
-            - a function with two arguments (card , datastore) that returns a string
-              which is the name of card to transition to.
+            - a function with two arguments (card , datastore) that returns a
+              string which is the name of card to transition to.
 
             - a string which is the name of the card to transition to.
 
             """
 
-            return self._get_to_card_name(from_card, from_card.transition, input_)
+            return self._get_to_card_name(
+                from_card, from_card.transition, input_
+            )
 
-        return Transition(source=from_card.name, acceptor=acceptor, target=target)
+        return Transition(
+            source=from_card.name, acceptor=acceptor, target=target
+        )
 
     def _create_dom_event_transition(
         self, from_card_name, fn_or_to_card_name, dom_event_name, element_id
@@ -701,8 +719,8 @@ class App:
         def acceptor(machine, input_):
             """Accepts a DOM event with the specified name.
 
-            If an element id is specified then only accept if the element was the DOM
-            event target.
+            If an element id is specified then only accept if the element was
+            the DOM event target.
 
             """
 
@@ -716,7 +734,7 @@ class App:
             return True
 
         def target(machine, input_):
-            """Return the name of the card to transition to. """
+            """Return the name of the card to transition to."""
 
             if from_card_name == "*":
                 from_card = self._resolve_card(self.machine.current_state.name)
@@ -724,9 +742,13 @@ class App:
             else:
                 from_card = self._resolve_card(from_card_name)
 
-            return self._get_to_card_name(from_card, fn_or_to_card_name, input_)
+            return self._get_to_card_name(
+                from_card, fn_or_to_card_name, input_
+            )
 
-        return Transition(source=from_card_name, acceptor=acceptor, target=target)
+        return Transition(
+            source=from_card_name, acceptor=acceptor, target=target
+        )
 
     def _create_card_state(self, card):
         """Create a state machine state for the specified card.
@@ -739,7 +761,7 @@ class App:
         state = State(
             name=card.name,
             on_enter=[lambda machine: self.render_card(card)],
-            on_exit=[lambda machine: self.hide_card(card)]
+            on_exit=[lambda machine: self.hide_card(card)],
         )
 
         transitions = []
@@ -749,7 +771,7 @@ class App:
         return state, transitions
 
     def _get_to_card_name(self, from_card, fn_or_to_card_name, input_):
-        """Get the name of the card to transition *to*. """
+        """Get the name of the card to transition *to*."""
 
         # If we have a callable transition then, err, call it!
         if callable(fn_or_to_card_name):
@@ -757,8 +779,8 @@ class App:
             args = [from_card, self.datastore]
 
             # If the transition was triggered by a DOM event then the event can
-            # (optionally) be passed into the transition depending on the signature
-            # of the user's function.
+            # (optionally) be passed into the transition depending on the
+            # signature of the user's function.
             dom_event = input_.get("dom_event")
             if dom_event:
                 signature = inspect.signature(fn_or_to_card_name)
@@ -767,7 +789,8 @@ class App:
 
             to_card_or_name = fn_or_to_card_name(*args)
 
-        # Otherwise the transition is just the name of the card to transition to.
+        # Otherwise the transition is just the name of the card to transition
+        # to.
         else:
             to_card_or_name = fn_or_to_card_name
 
@@ -791,11 +814,10 @@ class App:
 
         elif to_card_name == "+":
             card_list = list(self.stack.values())
-            if card_list.index(from_card) < len(card_list)-1:
+            if card_list.index(from_card) < len(card_list) - 1:
                 to_card_name = self.get_next_card(from_card).name
 
             else:
                 to_card_name = ""
 
         return to_card_name
-

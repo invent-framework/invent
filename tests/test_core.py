@@ -1,7 +1,6 @@
 import pypercard
 import pytest
-from pyodide import ffi
-from js import document, localStorage
+from js import document
 from unittest import mock
 
 
@@ -225,7 +224,12 @@ def test_card_hide():
     name = "test_card"
     template = "<p id='id1'>{foo}</p><buton id='id2'>Click me</button>"
     c = pypercard.Card(name, template)
-    app = pypercard.App(card_list=[c, ], datastore=ds)
+    app = pypercard.App(
+        card_list=[
+            c,
+        ],
+        datastore=ds,
+    )
     assert c.content is None
     app.start()  # will render the card
     assert c.content is not None
@@ -529,12 +533,9 @@ def test_app_render_card_with_auto_advance():
         "test_card1",
         "<input id='test' type='text' autofocus/>",
         auto_advance=1.23,
-        transition=lambda card, datastore: "test_card2"
+        transition=lambda card, datastore: "test_card2",
     )
-    c2 = pypercard.Card(
-        "test_card2",
-        "<p>test card 2</p>"
-    )
+    c2 = pypercard.Card("test_card2", "<p>test card 2</p>")
     app = pypercard.App(card_list=[c1, c2])
 
     def fake_timeout(fn, duration):
