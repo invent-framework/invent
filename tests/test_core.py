@@ -181,30 +181,34 @@ def test_card_render():
     Returns the expected and correctly rendered card as an HTML div element.
     """
     name = "test_card"
-    # Check this is called when rendering.
-    my_on_render = mock.MagicMock()
+    # Check this is called when the card is shown to the user.
+    my_on_show = mock.MagicMock()
     # Ensure this value is inserted into the template.
     ds = pypercard.DataStore(foo="bar")
     # A simple template with a place to insert data, and an element to
     # dispatch an event.
     template = "<p id='id1'>{foo}</p><buton id='id2'>Click me</button>"
     # Make the card.
-    c = pypercard.Card(name, template, my_on_render)
+    c = pypercard.Card(name, template, my_on_show)
+    app = pypercard.App(card_list=[c,], datastore=ds)
     # Register a transition to be attached to the element/event rendered in
     # the result.
     my_transition = mock.MagicMock(return_value="baz")
-    c.register_transition("id2", "click", my_transition)
 
-    # RENDER!
-    result = c.render(ds)
+    @app.transition(name, "click", "id2")
+    def test_transition(card, datastore):
+        return my_transition()
+
+    # Render the card (on app start).
+    app.start()
 
     # The on_render function was called with the expected objects.
-    my_on_render.assert_called_once_with(c, ds)
+    my_on_show.assert_called_once_with(c, ds)
     # The Python formatting into the template inserted the expected value from
     # the datastore.
-    assert result.querySelector("#id1").innerText == "bar"
+    assert document.querySelector("#id1").innerText == "bar"
     # The button, when clicked, dispatches to the expected transition handler.
-    button = result.querySelector("#id2")
+    button = document.querySelector("#id2")
     assert my_transition.call_count == 0
     button.click()
     assert my_transition.call_count == 1
@@ -219,31 +223,12 @@ def test_card_hide():
     name = "test_card"
     template = "<p id='id1'>{foo}</p><buton id='id2'>Click me</button>"
     c = pypercard.Card(name, template)
+    app = pypercard.App(card_list=[c, ], datastore=ds)
     assert c.content is None
-    c.render(ds)
+    app.start()  # will render the card
     assert c.content is not None
     c.hide()
-    assert c.content is None
-
-
-def test_card_register_transition():
-    """
-    Ensure the passed in transition is dealt stored, in readiness to be
-    applied later when the card is rendered.
-    """
-    name = "test_card"
-    template = "<p id='id1'>{foo}</p><buton id='id2'>Click me</button>"
-    c = pypercard.Card(name, template)
-
-    def my_transition(card, ds):
-        return "another_card_name"
-
-    c.register_transition("id2", "click", my_transition)
-    assert len(c._transitions) == 1
-    assert c._transitions[0]["selector"] == "#id2"
-    assert c._transitions[0]["event_name"] == "click"
-    # The my_transition function has been converted to a JsProxy object.
-    assert isinstance(c._transitions[0]["handler"], ffi.JsProxy)
+    assert c.content.style.display == "none"
 
 
 def test_card_get_by_id():
@@ -263,9 +248,6 @@ def test_card_get_by_id():
     assert el.outerHTML == '<p id="id1">bar</p>'
     # Non-existent element returns None
     assert c.get_by_id("not-there") is None
-    # Hide the card, the element no longer exists.
-    c.hide()
-    assert c.get_by_id("id1") is None
 
 
 def test_card_get_element():
@@ -286,9 +268,6 @@ def test_card_get_element():
     assert el.outerHTML == '<p id="id1">bar</p>'
     # Non-existent element returns None
     assert c.get_element("#not-there") is None
-    # Hide the card, the element no longer exists.
-    c.hide()
-    assert c.get_element("#id1") is None
 
 
 def test_card_get_elements():
@@ -313,9 +292,6 @@ def test_card_get_elements():
     assert result[1].outerHTML == '<p class="test">Test</p>'
     # Non-existent element returns empty list.
     assert c.get_elements(".not-there") == []
-    # Hide the card, the elements no longer exist.
-    c.hide()
-    assert c.get_elements(".test") == []
 
 
 def test_card_play_sound():
@@ -546,39 +522,32 @@ def test_app_render_card_with_auto_advance():
     valid auto_advance and transition values, JavaScript's setTimeout
     is called with the expected values (a function to call when the timeout
     occurs, and number of milliseconds to wait for the timeout to fire).
-
-    When called, the function to call when the timeout occurs behaves as
-    expected: if the card is still rendered, call the user supplied transition
-    function, otherwise don't do anything.
     """
-    app = pypercard.App()
-    c = pypercard.Card(
-        "test_card",
+    c1 = pypercard.Card(
+        "test_card1",
         "<input id='test' type='text' autofocus/>",
         auto_advance=1.23,
-        transition=mock.MagicMock(return_value="foo"),
+        transition=lambda card, datastore: "test_card2"
     )
-    app.add_card(c)
-    with mock.patch("pypercard.setTimeout") as mock_timeout:
-        app.render_card(c)
-        assert mock_timeout.call_count == 1
-        timeout_function = mock_timeout.call_args_list[0][0][0]
-        timeout_duration = mock_timeout.call_args_list[0][0][1]
-        app._resolve_card = mock.MagicMock()
-        app.render_card = mock.MagicMock()
-        # With no content (the card isn't visible), nothing happens.
-        c.content = None
-        timeout_function()
-        assert app._resolve_card.call_count == 0
-        assert app.render_card.call_count == 0
-        # But with content (the card is visible), the expected transition takes
-        # place.
-        c.content = "dummy content"
-        timeout_function()
-        app._resolve_card.assert_called_once_with("foo")
-        assert app.render_card.call_count == 1
+    c2 = pypercard.Card(
+        "test_card2",
+        "<p>test card 2</p>"
+    )
+    app = pypercard.App(card_list=[c1, c2])
+
+    def fake_timeout(fn, duration):
+        fake_timeout.duration = duration
+        fake_timeout.call_count += 1
+        fn()
+
+    fake_timeout.call_count = 0
+
+    with mock.patch("pypercard.core.setTimeout", fake_timeout):
+        app.start()
+        assert fake_timeout.call_count == 1
+        assert app.machine.state_name == "test_card2"
         # Translated from Python seconds, to JavaScript milliseconds.
-        assert timeout_duration == 1230
+        assert fake_timeout.duration == 1230
 
 
 def test_app_add_card():
@@ -699,16 +668,17 @@ def test_app_transition():
     tc2 = pypercard.Card("test_card2", "<p>Finished!</p>")
     app = pypercard.App(card_list=[tc1, tc2])
 
-    mock_work = mock.MagicMock()
+    call_count = 0
 
-    @app.transition(tc1, "id1", "click")
+    @app.transition("test_card1", "click", "id1")
     def my_transition(card, datastore):
-        mock_work(card, datastore)
+        call_count += 1
         return "test_card2"
 
     app.start("test_card1")
-    tc1.get_element("#id1").click()
-    mock_work.assert_called_once_with(tc1, app.datastore)
+    button = tc1.get_element("#id1")
+    button.click()
+    assert call_count == 1
     assert tc1.content is None
     assert tc2.content.innerHTML == "<p>Finished!</p>"
 

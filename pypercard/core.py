@@ -214,6 +214,7 @@ class Card:
             target_elements = self.get_elements(transition["selector"])
             for element in target_elements:
                 def handler(transition, evt):
+                    print("HERE", transition, evt)
                     self.app.machine.next(
                         {"event": transition["event_name"], "dom_event": evt}
                     )
