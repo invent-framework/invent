@@ -12,10 +12,12 @@
         "pytest",
       ]
       [[fetch]]
-      files = ["pypercard.py"]
+      from = "pypercard/"
+      files = ["__init__.py", "core.py", "datastore.py", "state_machine.py"]
+      to_folder = "pypercard"
       [[fetch]]
       from = "tests/"
-      files = ["test_pypercard.py", ]
+      files = ["__init__.py", "test_core.py", "test_datastore.py", "test_state_machine.py", "conftest.py", ]
       to_folder = "tests"
     </py-config>
     <py-script src="static/main.py"></py-script>
