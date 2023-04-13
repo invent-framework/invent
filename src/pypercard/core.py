@@ -247,12 +247,13 @@ class Card:
                     transition["event_name"], transition["handler"]
                 )
 
-        # And finally... show the card content!
-        self.content.style.display = "block"
-
         # Ensure user-supplied "on_show" is called.
         if self.on_show:
             self.on_show(self, datastore)
+
+        # And finally... show the card content!
+        self.content.style.display = "block"
+
         return self.content
 
     def hide(self):
