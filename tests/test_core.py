@@ -17,7 +17,7 @@ def test_card_init():
     assert c.background is None
     assert c.background_repeat is False
     assert c.template == template
-    assert c.on_render is None
+    assert c.on_show is None
     assert c._transitions == []
     assert c.content is None
     assert c.app is None
@@ -41,20 +41,20 @@ def test_card_init_no_template():
         pypercard.Card("does_not_exist_in_the_dom")
 
 
-def test_card_init_with_on_render():
+def test_card_init_with_on_show():
     """
-    Ensure the user defined on_render function is set, as expected.
+    Ensure the user defined on_show function is set, as expected.
     """
 
-    def my_on_render(card, datastore):
+    def my_on_show(card, datastore):
         pass
 
     name = "test_card"
     template = "<p>{foo}</p>"
-    c = pypercard.Card(name, template, on_render=my_on_render)
+    c = pypercard.Card(name, template, on_show=my_on_show)
     assert c.name == name
     assert c.template == template
-    assert c.on_render == my_on_render
+    assert c.on_show == my_on_show
     assert c._transitions == []
     assert c.content is None
     assert c.app is None
@@ -188,7 +188,7 @@ def test_card_render():
     # dispatch an event.
     template = "<p id='id1'>{foo}</p><buton id='id2'>Click me</button>"
     # Make the card.
-    c1 = pypercard.Card(name, template, my_on_show)
+    c1 = pypercard.Card(name, template, on_show=my_on_show)
     # Make a next card.
     c2 = pypercard.Card("test_card2", "<p>test card 2</p>")
     app = pypercard.App(card_list=[c1, c2], datastore=ds)
@@ -203,7 +203,7 @@ def test_card_render():
     # Render the card (on app start).
     app.start()
 
-    # The on_render function was called with the expected objects.
+    # The on_show function was called with the expected objects.
     my_on_show.assert_called_once_with(c1, ds)
     # The Python formatting into the template inserted the expected value from
     # the datastore.
@@ -223,7 +223,9 @@ def test_card_hide():
     ds = pypercard.DataStore(foo="bar")
     name = "test_card"
     template = "<p id='id1'>{foo}</p><buton id='id2'>Click me</button>"
-    c = pypercard.Card(name, template)
+    # Check this is called when the card is hidden from the user.
+    my_on_hide = mock.MagicMock()
+    c = pypercard.Card(name, template, on_hide=my_on_hide)
     app = pypercard.App(
         card_list=[
             c,
@@ -235,6 +237,9 @@ def test_card_hide():
     assert c.content is not None
     c.hide()
     assert c.content.style.display == "none"
+
+    # The on_show function was called with the expected objects.
+    my_on_hide.assert_called_once_with(c, ds)
 
 
 def test_card_get_by_id():
@@ -249,7 +254,7 @@ def test_card_get_by_id():
     # Not rendered, so return None.
     assert c.get_by_id("id1") is None
     # Now rendered, returns the expected element.
-    c.render(ds)
+    c.show(ds)
     el = c.get_by_id("id1")
     assert el.outerHTML == '<p id="id1">bar</p>'
     # Non-existent element returns None
@@ -269,7 +274,7 @@ def test_card_get_element():
     # Not rendered, so return None.
     assert c.get_element("#id1") is None
     # Now rendered, returns the expected element.
-    c.render(ds)
+    c.show(ds)
     el = c.get_element("#id1")
     assert el.outerHTML == '<p id="id1">bar</p>'
     # Non-existent element returns None
@@ -290,7 +295,7 @@ def test_card_get_elements():
     # Not rendered, so return an empty list.
     assert c.get_elements(".test") == []
     # Now rendered, returns the expected element.
-    c.render(ds)
+    c.show(ds)
     result = c.get_elements(".test")
     assert isinstance(result, list)
     assert len(result) == 2
@@ -441,7 +446,7 @@ def test_app_render_card():
     app = pypercard.App()
     c = pypercard.Card("test_card", "<input id='test' type='text' autofocus/>")
     app.add_card(c)
-    app.render_card(c)
+    app.show_card(c)
     assert document.activeElement == c.get_by_id("test")
     app_placeholder = document.querySelector("pyper-app")
     assert app_placeholder.firstChild == c.content
@@ -454,7 +459,7 @@ def test_app_render_card_background_colour():
     app = pypercard.App()
     c = pypercard.Card("test_card", "<h1>A test card</h1>", background="red")
     app.add_card(c)
-    app.render_card(c)
+    app.show_card(c)
     # Check the colour specification from the Card instance is reflected in
     # the DOM
     assert getattr(document.body.style, "background-color") == "red"
@@ -474,7 +479,7 @@ def test_app_render_card_background_image():
         background="examples/turner/rain_steam_speed.jpg",
     )
     app.add_card(c)
-    app.render_card(c)
+    app.show_card(c)
     # Check the background image specification from the Card instance is
     # reflected in the DOM
     assert (
@@ -508,7 +513,7 @@ def test_app_render_card_background_image_tiled():
         background_repeat=True,
     )
     app.add_card(c)
-    app.render_card(c)
+    app.show_card(c)
     # Check the background image specification from the Card instance is
     # reflected in the DOM
     assert (
