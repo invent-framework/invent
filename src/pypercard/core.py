@@ -230,9 +230,13 @@ class Card:
         # Add DOM event listeners for any transitions added via
         # "app.transition".
         for transition in self._transitions:
-            target_elements = self.get_elements(transition["selector"])
-            for element in target_elements:
+            if transition["selector"] == "pyper-card":
+                target_elements = [self.content]
 
+            else:
+                target_elements = self.get_elements(transition["selector"])
+
+            for element in target_elements:
                 def handler(transition, evt):
                     self.app.machine.next(
                         {"event": transition["event_name"], "dom_event": evt}
@@ -283,16 +287,26 @@ class Card:
         if self.on_hide:
             self.on_hide(self, self.app.datastore)
 
-    def register_transition(self, element_id, event_name):
+    def register_transition(self, event_name, element_id=None):
         """
-        `element_id` - the unique ID identifying the target element.
         `event_name` - e.g. "click"
+        `element_id` - the unique ID identifying the target element.
         """
+
+        # Card level...
+        if element_id is None:
+            selector = "pyper-card"
+
+        elif element_id is not None:
+            selector = "#" + element_id
+
+        else:
+            raise ValueError("We don't have no query yet!")
 
         self._transitions.append(
             {
-                "selector": "#" + element_id,
                 "event_name": event_name,
+                "selector": selector,
             }
         )
 
@@ -465,7 +479,7 @@ class App:
                             name, next_card_name, "click", button.id
                         )
                     )
-                    new_card.register_transition(button.id, "click")
+                    new_card.register_transition("click", button.id)
 
             cards.append(new_card)
 
@@ -625,19 +639,20 @@ class App:
         """
         document.body.style = background
 
-    def transition(self, from_card_name, dom_event_name, element_id=None):
+    def transition(self, from_card_name, dom_event_name, id=None, query=None):
         """
         A decorator to create transitions for DOM events within the specified
         card.
 
         This just adds a transition to the app's state machine.
+        :param query:
 
         """
 
         def wrapper(fn):
             self.machine.transitions.append(
                 self._create_dom_event_transition(
-                    from_card_name, fn, dom_event_name, element_id
+                    from_card_name, fn, dom_event_name, id
                 )
             )
 
@@ -655,7 +670,7 @@ class App:
             # Card-level transition.
             else:
                 from_card = self._resolve_card(from_card_name)
-                from_card.register_transition(element_id, dom_event_name)
+                from_card.register_transition(dom_event_name, id)
 
         return wrapper
 
