@@ -38,18 +38,22 @@ class Card:
     Cards may also have optional `auto_advance` and `transition`
     attributes for transitioning to a target card after a given period of time.
 
-    Cards are rendered from the `template` by the `render` method, that returns
-    an HTML element for the app to insert into the DOM.
+    Cards are rendered from the `template` in the `show` method. The first time `show`
+    is called it creates a `pyper-card` HTML elementML for the app to insert into the
+    DOM.
 
     Bespoke behaviour for rendering can be defined by the user. This should
-    be passed in as the optional `on_render` argument when initialising the
-    card. It will be called, at the end of the card's `render` function, but
+    be passed in as the optional `on_show` argument when initialising the
+    card. It will be called, at the end of the card's `show` function, but
     before the element to insert into the DOM is returned to the app. The
-    `on_render` function is called with the same arguments as a transition
+    `on_show` function is called with the same arguments as a transition
     function: current card, and datastore.
 
-    The `hide` method cleans up the rendered HTML element, which the parent app
-    will eventually remove from the DOM.
+    The `hide` method hides card's HTML element, but leaves it in the DOM.
+
+    Card's can optionally take some action each time a card is hidden using the
+    `on_hide` method. The `on_hide` method is called with the same arguments as a
+    transition function: current card, and datastore.
 
     It's also possible to use the `register_transition` method to register a
     user defined function to handle events dispatched by elements found in the
@@ -76,7 +80,8 @@ class Card:
         self,
         name,
         template=None,
-        on_render=None,
+        on_show=None,
+        on_hide=None,
         auto_advance=None,
         transition=None,
         sound=None,
@@ -96,10 +101,13 @@ class Card:
         from a `template` tag with an id of the given name of the card.
         Otherwise, the card will raise a `RuntimeError`.
 
-        The `on_render` function is called just after the card is rendered, but
-        before it is added to the DOM. It should take `card` and `datastore`
-        arguments (just like transitions) and be used for customising the
-        rendered card.
+        The `on_show` function is called every time the card is shown. It should take
+        `card` and `datastore` arguments (just like transitions) and be used for
+        customising the rendered card.
+
+        The `on_hide` function is called every time the card is hidden. It should take
+        `card` and `datastore` arguments (just like transitions) and be used for
+        stopping actions (sounds etc.).
 
         The `auto_advance` is the number of seconds, as a `float` or
         `int`, to wait until the `transition` is evaluated to discern the
@@ -167,7 +175,8 @@ class Card:
         # Pre-fetch/cache background image.
         if self.background and not CSS.supports("color", self.background):
             fetch(self.background)
-        self.on_render = on_render
+        self.on_show = on_show
+        self.on_hide = on_hide
         self._transitions = []  # To hold transitions acting on the card.
         self.content = None  # Will reference the rendered element in the DOM.
         self.app = None  # Will reference the parent application.
@@ -181,10 +190,16 @@ class Card:
         """
         self.app = app
 
-    def render(self, datastore):
+    def show(self, datastore):
         """
-        Renders this card into a container `pyper-card` element that is
-        returned to the parent app to insert into the DOM.
+        Show the card (i.e. make it visible to the user).
+
+        If this is the first time the card has been shown a `pyper-card` element will be
+        created for it and inserted into the DOM (as a child of the app's `pyper-app`
+        element).
+
+        If the card has already been shown then we simply make it visible by setting
+        the element's display attribute to "block".
 
         Ensures the template is `.format`-ed with the datastore dictionary (so
         named custom values can be inserted into the template).
@@ -193,15 +208,15 @@ class Card:
         created by the card.
         """
 
-        # Create the rendered element if it doesn't already exist.
+        # Create the card's content element if it doesn't already exist.
         if not self.content:
             self.content = document.createElement("pyper-card")
+
         html = self.template.format(**datastore)
         self.content.innerHTML = html
 
         # Set an auto-advance timer if required.
         if self.auto_advance is not None:
-
             def on_timeout():
                 """Called when the card timer has timed-out!"""
 
@@ -219,7 +234,6 @@ class Card:
             for element in target_elements:
 
                 def handler(transition, evt):
-                    print("HERE", transition, evt)
                     self.app.machine.next(
                         {"event": transition["event_name"], "dom_event": evt}
                     )
@@ -236,9 +250,9 @@ class Card:
         # And finally... show the card content!
         self.content.style.display = "block"
 
-        # Ensure user-supplied on_render is called.
-        if self.on_render:
-            self.on_render(self, datastore)
+        # Ensure user-supplied "on_show" is called.
+        if self.on_show:
+            self.on_show(self, datastore)
         return self.content
 
     def hide(self):
@@ -263,6 +277,10 @@ class Card:
                 element.removeEventListener(
                     transition["event_name"], transition["handler"]
                 )
+
+        # Ensure user-supplied "on_hide" is called.
+        if self.on_hide:
+            self.on_hide(self, self.app.datastore)
 
     def register_transition(self, element_id, event_name):
         """
@@ -478,12 +496,12 @@ class App:
         else:
             raise ValueError("Invalid card reference.", card_reference)
 
-    def render_card(self, card):
+    def show_card(self, card):
         """
-        Renders the referenced card into the DOM via `self.placeholder`.
+        Show the referenced card into the DOM via `self.placeholder`.
         """
 
-        card.render(self.datastore)
+        card.show(self.datastore)
 
         # Ensure the background is [re]set.
         background = ""
@@ -566,6 +584,8 @@ class App:
         """
         card = self._resolve_card(card_reference)
         del self.stack[card.name]
+
+        # TODO: remove the card state and transitions from the app's state machine.
 
     def add_sound(self, name, url):
         """
@@ -760,7 +780,7 @@ class App:
 
         state = State(
             name=card.name,
-            on_enter=[lambda machine: self.render_card(card)],
+            on_enter=[lambda machine: self.show_card(card)],
             on_exit=[lambda machine: self.hide_card(card)],
         )
 
