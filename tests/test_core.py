@@ -191,7 +191,7 @@ def test_card_render():
     c1 = pypercard.Card(name, template, on_show=my_on_show)
     # Make a next card.
     c2 = pypercard.Card("test_card2", "<p>test card 2</p>")
-    app = pypercard.App(card_list=[c1, c2], datastore=ds)
+    app = pypercard.App(cards=[c1, c2], datastore=ds)
     # Register a transition to be attached to the element/event rendered in
     # the result.
     my_transition = mock.MagicMock(return_value="test_card2")
@@ -204,7 +204,7 @@ def test_card_render():
     app.start()
 
     # The on_show function was called with the expected objects.
-    my_on_show.assert_called_once_with(c1, ds)
+    my_on_show.assert_called_once_with(app, c1)
     # The Python formatting into the template inserted the expected value from
     # the app.datastore.
     assert document.querySelector("#id1").innerText == "bar"
@@ -227,7 +227,7 @@ def test_card_hide():
     my_on_hide = mock.MagicMock()
     c = pypercard.Card(name, template, on_hide=my_on_hide)
     app = pypercard.App(
-        card_list=[
+        cards=[
             c,
         ],
         datastore=ds,
@@ -239,7 +239,7 @@ def test_card_hide():
     assert c.content.style.display == "none"
 
     # The on_show function was called with the expected objects.
-    my_on_hide.assert_called_once_with(c, ds)
+    my_on_hide.assert_called_once_with(app, c)
 
 
 def test_card_get_by_id():
@@ -251,10 +251,11 @@ def test_card_get_by_id():
     name = "test_card"
     template = "<p id='id1'>{foo}</p>"
     c = pypercard.Card(name, template)
+    app = pypercard.App(cards=[c, ])
     # Not rendered, so return None.
     assert c.get_by_id("id1") is None
     # Now rendered, returns the expected element.
-    c.show(ds)
+    c.show()
     el = c.get_by_id("id1")
     assert el.outerHTML == '<p id="id1">bar</p>'
     # Non-existent element returns None
@@ -270,11 +271,12 @@ def test_card_get_element():
     name = "test_card"
     template = "<p id='id1'>{foo}</p>"
     c = pypercard.Card(name, template)
+    app = pypercard.App(cards=[c, ])
 
     # Not rendered, so return None.
     assert c.get_element("#id1") is None
     # Now rendered, returns the expected element.
-    c.show(ds)
+    c.show()
     el = c.get_element("#id1")
     assert el.outerHTML == '<p id="id1">bar</p>'
     # Non-existent element returns None
@@ -291,11 +293,12 @@ def test_card_get_elements():
     name = "test_card"
     template = "<p class='test'>{foo}</p><p class='test'>Test</p>"
     c = pypercard.Card(name, template)
+    app = pypercard.App(cards=[c, ])
 
     # Not rendered, so return an empty list.
     assert c.get_elements(".test") == []
     # Now rendered, returns the expected element.
-    c.show(ds)
+    c.show()
     result = c.get_elements(".test")
     assert isinstance(result, list)
     assert len(result) == 2
@@ -303,61 +306,6 @@ def test_card_get_elements():
     assert result[1].outerHTML == '<p class="test">Test</p>'
     # Non-existent element returns empty list.
     assert c.get_elements(".not-there") == []
-
-
-def test_card_play_sound():
-    """
-    Ensure the Audio object for the named sound is retrieved, processed and
-    played as expected. Rather difficult to test without the aid of ears...
-    hence the use of mocking.
-    """
-    name = "test_card"
-    template = "<p class='test'>{foo}</p><p class='test'>Test</p>"
-    c = pypercard.Card(name, template)
-
-    mock_app = mock.MagicMock()
-    mock_audio = mock.MagicMock()
-    mock_audio.currentTime = 1
-    mock_app.get_sound.return_value = mock_audio
-    c.register_app(mock_app)
-    c.pause_sound = mock.MagicMock()
-
-    c.play_sound("test", loop=True)
-
-    # The loop flag has been set correctly.
-    assert mock_audio.loop is True
-    # Because the position of the sound was not at the start, it was reset via
-    # the pause method.
-    c.pause_sound.assert_called_once_with("test")
-    # The JavaScript Audio object was play()-ed.
-    mock_audio.play.assert_called_once_with()
-
-
-def test_card_pause_sound():
-    """
-    Ensure the Audio object for the named sound is retrieved, and paused as
-    expected. Rather difficult to test without the aid of ears... hence the use
-    of mocking.
-    """
-    name = "test_card"
-    template = "<p class='test'>{foo}</p><p class='test'>Test</p>"
-    c = pypercard.Card(name, template)
-
-    mock_app = mock.MagicMock()
-    mock_audio = mock.MagicMock()
-    mock_audio.currentTime = 1
-    mock_app.get_sound.return_value = mock_audio
-    c.register_app(mock_app)
-
-    # Pause and retain place in the audio.
-    c.pause_sound("test", keep_place=True)
-    mock_audio.pause.assert_called_once_with()
-    assert mock_audio.currentTime == 1
-    mock_audio.pause.reset_mock()
-    # Pause and reset back to the start of the audio (default behaviour).
-    c.pause_sound("test")
-    mock_audio.pause.assert_called_once_with()
-    assert mock_audio.currentTime == 0
 
 
 def test_app_default_init():
@@ -388,7 +336,7 @@ def test_app_custom_init():
         "test_audio": "examples/loosey_goosey/honk.mp3",
     }
     app = pypercard.App(
-        name="Custom name", datastore=ds, card_list=card_list, sounds=sounds
+        name="Custom name", datastore=ds, cards=card_list, sounds=sounds
     )
     assert app.name == "Custom name"
     assert app.datastore == ds
@@ -541,7 +489,7 @@ def test_app_render_card_with_auto_advance():
         transition=lambda app, card: "test_card2",
     )
     c2 = pypercard.Card("test_card2", "<p>test card 2</p>")
-    app = pypercard.App(card_list=[c1, c2])
+    app = pypercard.App(cards=[c1, c2])
 
     def fake_timeout(fn, duration):
         fake_timeout.duration = duration
@@ -588,7 +536,7 @@ def test_app_remove_card():
     """
     c = pypercard.Card("test_card", "<p>Hello</p>")
     app = pypercard.App(
-        card_list=[
+        cards=[
             c,
         ]
     )
@@ -639,6 +587,55 @@ def test_app_remove_sound():
     assert "test_audio" not in app.sounds
 
 
+def test_app_play_sound():
+    """
+    Ensure the Audio object for the named sound is retrieved, processed and
+    played as expected. Rather difficult to test without the aid of ears...
+    hence the use of mocking.
+    """
+    app = pypercard.App()
+    app.add_sound("test_audio", "examples/loosey_goosey/honk.mp3")
+
+    mock_audio = mock.MagicMock()
+    mock_audio.currentTime = 1
+    app.get_sound = mock.MagicMock(return_value=mock_audio)
+    app.pause_sound = mock.MagicMock()
+
+    app.play_sound("test", loop=True)
+
+    # The loop flag has been set correctly.
+    assert mock_audio.loop is True
+    # Because the position of the sound was not at the start, it was reset via
+    # the pause method.
+    app.pause_sound.assert_called_once_with("test")
+    # The JavaScript Audio object was play()-ed.
+    mock_audio.play.assert_called_once_with()
+
+
+def test_card_pause_sound():
+    """
+    Ensure the Audio object for the named sound is retrieved, and paused as
+    expected. Rather difficult to test without the aid of ears... hence the use
+    of mocking.
+    """
+    app = pypercard.App()
+    app.add_sound("test_audio", "examples/loosey_goosey/honk.mp3")
+
+    mock_audio = mock.MagicMock()
+    mock_audio.currentTime = 1
+    app.get_sound = mock.MagicMock(return_value=mock_audio)
+
+    # Pause and retain place in the audio.
+    app.pause_sound("test", keep_place=True)
+    mock_audio.pause.assert_called_once_with()
+    assert mock_audio.currentTime == 1
+    mock_audio.pause.reset_mock()
+    # Pause and reset back to the start of the audio (default behaviour).
+    app.pause_sound("test")
+    mock_audio.pause.assert_called_once_with()
+    assert mock_audio.currentTime == 0
+
+
 def test_set_background():
     """
     Ensure the CSS properties for the background are added to the body tag's
@@ -674,7 +671,7 @@ def test_app_transition_on_element_id():
     """
     tc1 = pypercard.Card("test_card1", "<button id='id1'>Click me</button>")
     tc2 = pypercard.Card("test_card2", "<p>Finished!</p>")
-    app = pypercard.App(card_list=[tc1, tc2])
+    app = pypercard.App(cards=[tc1, tc2])
 
     call_count = mock.MagicMock()
 
@@ -698,7 +695,7 @@ def test_app_transition_on_card():
     """
     tc1 = pypercard.Card("test_card1", "<button id='id1'>Click me</button>")
     tc2 = pypercard.Card("test_card2", "<p>Finished!</p>")
-    app = pypercard.App(card_list=[tc1, tc2])
+    app = pypercard.App(cards=[tc1, tc2])
 
     call_count = mock.MagicMock()
 
@@ -722,7 +719,7 @@ def test_app_start():
     """
     tc1 = pypercard.Card("test_card1", "<button id='id1'>Click me</button>")
     tc2 = pypercard.Card("test_card2", "<p>Finished!</p>")
-    app = pypercard.App(card_list=[tc1, tc2])
+    app = pypercard.App(cards=[tc1, tc2])
 
     mock_work = mock.MagicMock()
 

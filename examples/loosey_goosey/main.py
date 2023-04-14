@@ -5,7 +5,7 @@ from pypercard import App, Card
 
 honk_app = App(
     name="Loosey Goosey.",
-    card_list=[
+    cards=[
         Card("goose_card"),
     ],
     sounds={
@@ -16,7 +16,7 @@ honk_app = App(
 
 @honk_app.transition("goose_card", "click")
 def honk(app, card):
-    card.play_sound("honk")
+    app.play_sound("honk")
 
 
 honk_app.start("goose_card")

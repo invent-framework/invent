@@ -5,7 +5,7 @@ from pypercard import App, Card
 
 # Create an app, with a single "hello" card.
 app = App(
-    card_list=[
+    cards=[
         # The card is named "hello", and will display the template's content.
         Card(name="hello", template="Hello, world!"),
     ],

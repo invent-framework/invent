@@ -5,7 +5,7 @@ from pypercard import App, Card
 
 temp_app = App(
     name="Temperature conversion tool.",
-    card_list=[Card("input_card"), Card("result_card"), Card("error_card")],
+    cards=[Card("input_card"), Card("result_card"), Card("error_card")],
 )
 
 

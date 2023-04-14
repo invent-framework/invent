@@ -27,7 +27,7 @@ cards = [
 
 # Create the app while ensuring the counter is reset.
 carousel_app = App(
-    name="PyperCard carousel", datastore={"counter": 0}, card_list=cards
+    name="PyperCard carousel", datastore={"counter": 0}, cards=cards
 )
 
 

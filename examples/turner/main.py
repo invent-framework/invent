@@ -46,7 +46,7 @@ cards = [
 
 turner_app = App(
     name="Turner's Paintings",
-    card_list=cards,
+    cards=cards,
     sounds={
         "bach": "bach_cello.mp3",
     },
@@ -64,7 +64,7 @@ def keydown(app, card, event):
 
 @turner_app.transition("intro", "click", "start")
 def start(app, card):
-    card.play_sound("bach", loop=True)
+    app.play_sound("bach", loop=True)
     return "burning_of_house_of_commons"
 
 

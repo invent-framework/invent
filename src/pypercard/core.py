@@ -39,7 +39,7 @@ class Card:
     attributes for transitioning to a target card after a given period of time.
 
     Cards are rendered from the `template` in the `show` method. The first time
-    `show` is called it creates a `pyper-card` HTML elementML for the app to
+    `show` is called it creates a `pyper-card` HTML element for the app to
     insert into the DOM.
 
     Bespoke behaviour for rendering can be defined by the user. This should
@@ -47,13 +47,13 @@ class Card:
     card. It will be called, at the end of the card's `show` function, but
     before the element to insert into the DOM is returned to the app. The
     `on_show` function is called with the same arguments as a transition
-    function: current card, and datastore.
+    function: a reference to the app and the current card.
 
     The `hide` method hides card's HTML element, but leaves it in the DOM.
 
     Card's can optionally take some action each time a card is hidden using the
     `on_hide` method. The `on_hide` method is called with the same arguments as
-    a transition function: current card, and datastore.
+    a transition function: a reference to the app and the current card.
 
     It's also possible to use the `register_transition` method to register a
     user defined function to handle events dispatched by elements found in the
@@ -63,10 +63,6 @@ class Card:
     `get_elements` return individual or groups of matching HTML elements
     rendered by this card, given a valid id or CSS selector (comments attached
     to the functions explain the specific behaviours).
-
-    Audio capabilities can be accessed via every card's `play_sound` and
-    `pause_sound` methods. The sounds to be played must be referenced by the
-    app (see the App class documentation for how this works).
 
     Cards can optionally define the nature of their background, via the
     `background` and `background_repeat` attributes. The `background` should
@@ -102,11 +98,11 @@ class Card:
         Otherwise, the card will raise a `RuntimeError`.
 
         The `on_show` function is called every time the card is shown. It
-        should take `card` and `datastore` arguments (just like transitions)
+        should take `app` and `card` arguments (just like transitions)
         and be used for customising the rendered card.
 
         The `on_hide` function is called every time the card is hidden. It
-        should take `card` and `datastore` arguments (just like transitions)
+        should take `app` and `card` arguments (just like transitions)
         and be used for stopping actions (sounds etc.).
 
         The `auto_advance` is the number of seconds, as a `float` or
@@ -190,7 +186,7 @@ class Card:
         """
         self.app = app
 
-    def show(self, datastore):
+    def show(self):
         """
         Show the card (i.e. make it visible to the user).
 
@@ -201,18 +197,17 @@ class Card:
         If the card has already been shown then we simply make it visible by
         setting the element's display attribute to "block".
 
-        Ensures the template is `.format`-ed with the datastore dictionary (so
-        named custom values can be inserted into the template).
+        Ensures the template is `.format`-ed with the self.app.datastore
+        dictionary (so named custom values can be inserted into the template).
 
         Rebinds any user defined transitions to the newly rendered elements
         created by the card.
         """
-
         # Create the card's content element if it doesn't already exist.
         if not self.content:
             self.content = document.createElement("pyper-card")
 
-        html = self.template.format(**datastore)
+        html = self.template.format(**self.app.datastore)
         self.content.innerHTML = html
 
         # Set an auto-advance timer if required.
@@ -255,7 +250,7 @@ class Card:
 
         # Ensure user-supplied "on_show" is called.
         if self.on_show:
-            self.on_show(self, datastore)
+            self.on_show(self.app, self)
 
         # And finally... show the card content!
         self.content.style.display = "block"
@@ -263,13 +258,12 @@ class Card:
         return self.content
 
     def hide(self):
-        """Hide the card (i.e. make it invisible to the user!).
+        """
+        Hide the card (i.e. make it invisible to the user!).
 
         This leaves the card in the DOM but just sets 'display' to None, and
         removes any DOM event listeners.
-
         """
-
         self.content.style.display = "none"
 
         # Clear the auto-advance timer if necessary.
@@ -287,14 +281,13 @@ class Card:
 
         # Ensure user-supplied "on_hide" is called.
         if self.on_hide:
-            self.on_hide(self, self.app.datastore)
+            self.on_hide(self.app, self)
 
     def register_transition(self, event_name, element_id=None):
         """
         `event_name` - e.g. "click"
         `element_id` - the unique ID identifying the target element.
         """
-
         # Card level...
         if element_id is None:
             selector = "pyper-card"
@@ -337,43 +330,19 @@ class Card:
             return list(self.content.querySelectorAll(selector))
         return []
 
-    def play_sound(self, name, loop=False):
-        """
-        Play the sound, added to the self.app object with the given name. If
-        the sound was paused with the `keep_place` flag set to `True`, the
-        sound will resume playing from the place at which it was paused.
-        Otherwise, the sound will play from the start.
-
-        If `loop` is `True` the sound will keep repeating until paused or
-        removed from the application.
-        """
-        sound = self.app.get_sound(name)
-        sound.loop = loop
-        if sound.currentTime > 0:
-            self.pause_sound(name)
-        sound.play()
-
-    def pause_sound(self, name, keep_place=False):
-        """
-        If the sound, added to the self.app object with the given name, is
-        playing, pause it. If `keep_place` is `True` the sound will pause at
-        its current location. Otherwise, should the sound be played again, it
-        will play from the start.
-
-        """
-        sound = self.app.get_sound(name)
-        sound.pause()
-        if not keep_place:
-            sound.currentTime = 0
-
 
 class App:
     """
     Represents a HyperCard-ish application.
 
     This encapsulates the state (as a `DataStore`), stack of `Card` instances,
-    and registering transitions. Furthermore, it's possible to dump and load a
-    declarative `JSON` representation of the application.
+    and registering transitions.
+
+    Other app-wide functions (such as playing or pausing sounds) are methods
+    of this class.
+
+    Furthermore, it will be possible to dump and load a declarative `JSON`
+    representation of the application.
 
     If no default arguments given, the app will assume sensible defaults.
     """
@@ -382,7 +351,7 @@ class App:
         self,
         name=None,
         datastore=None,
-        card_list=None,
+        cards=None,
         sounds=None,
     ):
         """
@@ -393,7 +362,7 @@ class App:
 
         The `datastore` is an optional pre-populated `DataStore` instance.
 
-        The `card_list` is an optional list of `Card` instances with which to
+        The `cards` is an optional list of `Card` instances with which to
         initialise.
 
         The `sounds` dict contains default `name` / `url` pairs that define
@@ -412,7 +381,7 @@ class App:
         self.machine = Machine(self)
         self.sounds = {}
 
-        card_list = card_list or self._harvest_cards_from_dom()
+        card_list = cards or self._harvest_cards_from_dom()
         if not card_list:
             raise RuntimeError("Cannot find cards for application.")
 
@@ -439,11 +408,8 @@ class App:
         This queries the DOM for all 'template' tags and uses their attributes
         to configure card.
 
-        Returns:
-            A (possibly empty) list of the Card instances.
-
+        Returns a (possibly empty) list of the Card instances.
         """
-
         cards = []
         transitions = []
         for card_template in document.querySelectorAll("template"):
@@ -517,9 +483,7 @@ class App:
         """
         Show the referenced card into the DOM via `self.placeholder`.
         """
-
-        card.show(self.datastore)
-
+        card.show()
         # Ensure the background is [re]set.
         background = ""
         if card.background:
@@ -551,11 +515,12 @@ class App:
             autofocus.focus()
 
         if card.sound:
-            card.play_sound(card.sound, card.sound_loop)
+            self.play_sound(card.sound, card.sound_loop)
 
     def hide_card(self, card):
-        """Hide the specified card."""
-
+        """
+        Hide the specified card.
+        """
         card.hide()
 
     def add_card(self, card):
@@ -575,11 +540,10 @@ class App:
         self.machine.add_state(state, transitions)
 
     def get_next_card(self, card):
-        """Get the next card sequentially in the card list.
+        """
+        Get the next card sequentially in the card list.
 
-        Returns:
-            None if 'card' is the last card.
-
+        Returns `None` if 'card' is the last card.
         """
 
         cards = list(self.stack.values())
@@ -635,6 +599,35 @@ class App:
         if name in self.sounds:
             del self.sounds[name]
 
+    def play_sound(self, name, loop=False):
+        """
+        Play the sound, added to self with the given name. If
+        the sound was paused with the `keep_place` flag set to `True`, the
+        sound will resume playing from the place at which it was paused.
+        Otherwise, the sound will play from the start.
+
+        If `loop` is `True` the sound will keep repeating until paused or
+        removed from the application.
+        """
+        sound = self.get_sound(name)
+        sound.loop = loop
+        if sound.currentTime > 0:
+            self.pause_sound(name)
+        sound.play()
+
+    def pause_sound(self, name, keep_place=False):
+        """
+        If the sound, added to self with the given name, is
+        playing, pause it. If `keep_place` is `True` the sound will pause at
+        its current location. Otherwise, should the sound be played again, it
+        will play from the start.
+
+        """
+        sound = self.get_sound(name)
+        sound.pause()
+        if not keep_place:
+            sound.currentTime = 0
+
     def set_background(self, background=""):
         """
         Set the body tag's background style attribute to the given value. If
@@ -648,10 +641,7 @@ class App:
         card.
 
         This just adds a transition to the app's state machine.
-        :param query:
-
         """
-
         def wrapper(fn):
             self.machine.transitions.append(
                 self._create_dom_event_transition(
@@ -712,11 +702,15 @@ class App:
         pass
 
     def _create_auto_advance_transition(self, from_card):
-        """Create a transition that accepts a timeout and advances to another
-        card."""
+        """
+        Create a transition that accepts a timeout and advances to another
+        card.
+        """
 
         def acceptor(machine, input_):
-            """Accepts a timeout event on the card."""
+            """
+            Accepts a timeout event on the card.
+            """
 
             if (
                 input_.get("event") == "timeout"
@@ -731,7 +725,8 @@ class App:
             return False
 
         def target(machine, input_):
-            """Returns the name of the card to transition to.
+            """
+            Returns the name of the card to transition to.
 
             This uses the card's "transition" attribute which can be either:
 
@@ -739,7 +734,6 @@ class App:
               string which is the name of card to transition to.
 
             - a string which is the name of the card to transition to.
-
             """
 
             return self._get_to_card_name(
@@ -753,14 +747,16 @@ class App:
     def _create_dom_event_transition(
         self, from_card_name, fn_or_to_card_name, dom_event_name, element_id
     ):
-        """Create a transition triggered by a DOM event."""
+        """
+        Create a transition triggered by a DOM event.
+        """
 
         def acceptor(machine, input_):
-            """Accepts a DOM event with the specified name.
+            """
+            Accepts a DOM event with the specified name.
 
             If an element id is specified then only accept if the element was
             the DOM event target.
-
             """
 
             if input_.get("event") != dom_event_name:
@@ -773,7 +769,9 @@ class App:
             return True
 
         def target(machine, input_):
-            """Return the name of the card to transition to."""
+            """
+            Return the name of the card to transition to.
+            """
 
             if from_card_name == "*":
                 from_card = self._resolve_card(self.machine.current_state.name)
@@ -790,11 +788,10 @@ class App:
         )
 
     def _create_card_state(self, card):
-        """Create a state machine state for the specified card.
+        """
+        Create a state machine state for the specified card.
 
-        Returns:
-            a tuple in the form (State, [Transition])
-
+        Returns a `tuple` in the form (State, [Transition])
         """
 
         state = State(
@@ -810,7 +807,9 @@ class App:
         return state, transitions
 
     def _get_to_card_name(self, from_card, fn_or_to_card_name, input_):
-        """Get the name of the card to transition *to*."""
+        """
+        Get the name of the card to transition *to*.
+        """
 
         # If we have a callable transition then, err, call it!
         if callable(fn_or_to_card_name):

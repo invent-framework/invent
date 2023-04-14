@@ -12,7 +12,7 @@ cards = [
 ]
 
 
-hello_app = App(name="Hello world, PyperCard style", card_list=cards)
+hello_app = App(name="Hello world, PyperCard style", cards=cards)
 
 
 @hello_app.transition("get_name", "click", "submit")
