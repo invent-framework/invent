@@ -251,7 +251,13 @@ def test_card_get_by_id():
     name = "test_card"
     template = "<p id='id1'>{foo}</p>"
     c = pypercard.Card(name, template)
-    app = pypercard.App(cards=[c, ])
+    app = pypercard.App(
+        cards=[
+            c,
+        ],
+        datastore=ds,
+    )
+    assert app.started is False
     # Not rendered, so return None.
     assert c.get_by_id("id1") is None
     # Now rendered, returns the expected element.
@@ -271,8 +277,13 @@ def test_card_get_element():
     name = "test_card"
     template = "<p id='id1'>{foo}</p>"
     c = pypercard.Card(name, template)
-    app = pypercard.App(cards=[c, ])
-
+    app = pypercard.App(
+        cards=[
+            c,
+        ],
+        datastore=ds,
+    )
+    assert app.started is False
     # Not rendered, so return None.
     assert c.get_element("#id1") is None
     # Now rendered, returns the expected element.
@@ -293,8 +304,13 @@ def test_card_get_elements():
     name = "test_card"
     template = "<p class='test'>{foo}</p><p class='test'>Test</p>"
     c = pypercard.Card(name, template)
-    app = pypercard.App(cards=[c, ])
-
+    app = pypercard.App(
+        cards=[
+            c,
+        ],
+        datastore=ds,
+    )
+    assert app.started is False
     # Not rendered, so return an empty list.
     assert c.get_elements(".test") == []
     # Now rendered, returns the expected element.

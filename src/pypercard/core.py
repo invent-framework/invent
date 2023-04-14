@@ -642,6 +642,7 @@ class App:
 
         This just adds a transition to the app's state machine.
         """
+
         def wrapper(fn):
             self.machine.transitions.append(
                 self._create_dom_event_transition(
