@@ -38,9 +38,9 @@ class Card:
     Cards may also have optional `auto_advance` and `transition`
     attributes for transitioning to a target card after a given period of time.
 
-    Cards are rendered from the `template` in the `show` method. The first time `show`
-    is called it creates a `pyper-card` HTML elementML for the app to insert into the
-    DOM.
+    Cards are rendered from the `template` in the `show` method. The first time
+    `show` is called it creates a `pyper-card` HTML elementML for the app to
+    insert into the DOM.
 
     Bespoke behaviour for rendering can be defined by the user. This should
     be passed in as the optional `on_show` argument when initialising the
@@ -52,8 +52,8 @@ class Card:
     The `hide` method hides card's HTML element, but leaves it in the DOM.
 
     Card's can optionally take some action each time a card is hidden using the
-    `on_hide` method. The `on_hide` method is called with the same arguments as a
-    transition function: current card, and datastore.
+    `on_hide` method. The `on_hide` method is called with the same arguments as
+    a transition function: current card, and datastore.
 
     It's also possible to use the `register_transition` method to register a
     user defined function to handle events dispatched by elements found in the
@@ -101,13 +101,13 @@ class Card:
         from a `template` tag with an id of the given name of the card.
         Otherwise, the card will raise a `RuntimeError`.
 
-        The `on_show` function is called every time the card is shown. It should take
-        `card` and `datastore` arguments (just like transitions) and be used for
-        customising the rendered card.
+        The `on_show` function is called every time the card is shown. It
+        should take `card` and `datastore` arguments (just like transitions)
+        and be used for customising the rendered card.
 
-        The `on_hide` function is called every time the card is hidden. It should take
-        `card` and `datastore` arguments (just like transitions) and be used for
-        stopping actions (sounds etc.).
+        The `on_hide` function is called every time the card is hidden. It
+        should take `card` and `datastore` arguments (just like transitions)
+        and be used for stopping actions (sounds etc.).
 
         The `auto_advance` is the number of seconds, as a `float` or
         `int`, to wait until the `transition` is evaluated to discern the
@@ -165,7 +165,7 @@ class Card:
                 )
         if transition:
             if isinstance(transition, str):
-                self.transition = lambda card, datastore: transition
+                self.transition = lambda app, card: transition
             elif callable(transition):
                 self.transition = transition
             else:
@@ -194,12 +194,12 @@ class Card:
         """
         Show the card (i.e. make it visible to the user).
 
-        If this is the first time the card has been shown a `pyper-card` element will be
-        created for it and inserted into the DOM (as a child of the app's `pyper-app`
-        element).
+        If this is the first time the card has been shown a `pyper-card`
+        element will be created for it and inserted into the DOM (as a child
+        of the app's `pyper-app` element).
 
-        If the card has already been shown then we simply make it visible by setting
-        the element's display attribute to "block".
+        If the card has already been shown then we simply make it visible by
+        setting the element's display attribute to "block".
 
         Ensures the template is `.format`-ed with the datastore dictionary (so
         named custom values can be inserted into the template).
@@ -217,6 +217,7 @@ class Card:
 
         # Set an auto-advance timer if required.
         if self.auto_advance is not None:
+
             def on_timeout():
                 """Called when the card timer has timed-out!"""
 
@@ -237,6 +238,7 @@ class Card:
                 target_elements = self.get_elements(transition["selector"])
 
             for element in target_elements:
+
                 def handler(transition, evt):
                     self.app.machine.next(
                         {"event": transition["event_name"], "dom_event": evt}
@@ -600,7 +602,8 @@ class App:
         card = self._resolve_card(card_reference)
         del self.stack[card.name]
 
-        # TODO: remove the card state and transitions from the app's state machine.
+        # TODO: remove the card state and transitions from the app's state
+        # machine.
 
     def add_sound(self, name, url):
         """
@@ -812,7 +815,7 @@ class App:
         # If we have a callable transition then, err, call it!
         if callable(fn_or_to_card_name):
             # The arguments to pass to the callable transition.
-            args = [from_card, self.datastore]
+            args = [self, from_card]
 
             # If the transition was triggered by a DOM event then the event can
             # (optionally) be passed into the transition depending on the

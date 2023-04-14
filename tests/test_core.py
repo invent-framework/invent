@@ -46,7 +46,7 @@ def test_card_init_with_on_show():
     Ensure the user defined on_show function is set, as expected.
     """
 
-    def my_on_show(card, datastore):
+    def my_on_show(app, card):
         pass
 
     name = "test_card"
@@ -79,7 +79,7 @@ def test_card_init_valid_auto_advance_args():
 
     # Rebind with a callable transition.
 
-    def test_transition(card, datastore):
+    def test_transition(app, card):
         return "bar"
 
     c = pypercard.Card(
@@ -197,7 +197,7 @@ def test_card_render():
     my_transition = mock.MagicMock(return_value="test_card2")
 
     @app.transition(name, "click", id="id2")
-    def test_transition(card, datastore):
+    def test_transition(app, card):
         return my_transition()
 
     # Render the card (on app start).
@@ -206,7 +206,7 @@ def test_card_render():
     # The on_show function was called with the expected objects.
     my_on_show.assert_called_once_with(c1, ds)
     # The Python formatting into the template inserted the expected value from
-    # the datastore.
+    # the app.datastore.
     assert document.querySelector("#id1").innerText == "bar"
     # The button, when clicked, dispatches to the expected transition handler.
     button = document.querySelector("#id2")
@@ -538,7 +538,7 @@ def test_app_render_card_with_auto_advance():
         "test_card1",
         "<input id='test' type='text' autofocus/>",
         auto_advance=1.23,
-        transition=lambda card, datastore: "test_card2",
+        transition=lambda app, card: "test_card2",
     )
     c2 = pypercard.Card("test_card2", "<p>test card 2</p>")
     app = pypercard.App(card_list=[c1, c2])
@@ -663,7 +663,7 @@ def test_app_transition_decorator_missing_card():
     with pytest.raises(ValueError):
 
         @app.transition("foo", "click", id="bar")
-        def test_trans(card, datastore):
+        def test_trans(app, card):
             pass
 
 
@@ -679,7 +679,7 @@ def test_app_transition_on_element_id():
     call_count = mock.MagicMock()
 
     @app.transition("test_card1", "click", id="id1")
-    def my_transition(card, datastore):
+    def my_transition(app, card):
         call_count()
         return "test_card2"
 
@@ -703,7 +703,7 @@ def test_app_transition_on_card():
     call_count = mock.MagicMock()
 
     @app.transition("test_card1", "click")
-    def my_transition(card, datastore):
+    def my_transition(app, card):
         call_count()
         return "test_card2"
 
@@ -727,8 +727,8 @@ def test_app_start():
     mock_work = mock.MagicMock()
 
     @app.transition(tc1, "click", id="id1")
-    def my_transition(card, datastore):
-        mock_work(card, datastore)
+    def my_transition(app, card):
+        mock_work(app, card)
         return "test_card2"
 
     app.start("test_card1")

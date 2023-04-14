@@ -54,7 +54,7 @@ turner_app = App(
 
 
 @turner_app.transition("*", "keydown")
-def keydown(card, datastore, event):
+def keydown(app, card, event):
     if event.keyCode == 39:
         return "+"
 
@@ -63,7 +63,7 @@ def keydown(card, datastore, event):
 
 
 @turner_app.transition("intro", "click", "start")
-def start(card, datastore):
+def start(app, card):
     card.play_sound("bach", loop=True)
     return "burning_of_house_of_commons"
 

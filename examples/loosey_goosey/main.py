@@ -15,7 +15,7 @@ honk_app = App(
 
 
 @honk_app.transition("goose_card", "click")
-def honk(card, datastore):
+def honk(app, card):
     card.play_sound("honk")
 
 
