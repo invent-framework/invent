@@ -7,13 +7,13 @@ name of the next card.
 from pypercard import App, Card
 
 
-def auto_func(card, datastore):
+def auto_func(app, card):
     """
     Called while transitioning from card 2, to card 3.
     """
-    count = datastore.setdefault("counter", 0)
+    count = app.datastore.setdefault("counter", 0)
     count += 1
-    datastore["counter"] = count
+    app.datastore["counter"] = count
     return "card3"
 
 
@@ -32,7 +32,7 @@ carousel_app = App(
 
 
 @carousel_app.transition("card2", "click", "reset")
-def reset(card, datastore):
+def reset(app, card):
     return "card1"
 
 

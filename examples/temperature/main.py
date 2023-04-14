@@ -10,32 +10,32 @@ temp_app = App(
 
 
 @temp_app.transition("input_card", "click", "to_c")
-def to_c(card, datastore):
+def to_c(app, card):
     try:
         temp = float(card.get_by_id("temperature").value)
-        datastore["result"] = str(round((temp - 32) * (5 / 9), 2)) + "°c"
+        app.datastore["result"] = str(round((temp - 32) * (5 / 9), 2)) + "°c"
         return "result_card"
     except Exception:
         return "error_card"
 
 
 @temp_app.transition("input_card", "click", "to_f")
-def to_f(card, datastore):
+def to_f(app, card):
     try:
         temp = float(card.get_by_id("temperature").value)
-        datastore["result"] = str(round((temp * (9 / 5)) + 32, 2)) + "°f"
+        app.datastore["result"] = str(round((temp * (9 / 5)) + 32, 2)) + "°f"
         return "result_card"
     except Exception:
         return "error_card"
 
 
 @temp_app.transition("result_card", "click", "again")
-def again(card, datastore):
+def again(app, card):
     return "input_card"
 
 
 @temp_app.transition("error_card", "click", "reset")
-def reset(card, datastore):
+def reset(app, card):
     return "input_card"
 
 

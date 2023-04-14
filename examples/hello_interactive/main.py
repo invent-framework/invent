@@ -16,13 +16,13 @@ hello_app = App(name="Hello world, PyperCard style", card_list=cards)
 
 
 @hello_app.transition("get_name", "click", "submit")
-def hello(card, datastore):
-    datastore["name"] = card.get_by_id("name").value
+def hello(app, card):
+    app.datastore["name"] = card.get_by_id("name").value
     return "say_hello"
 
 
 @hello_app.transition("say_hello", "click", "again")
-def again(card, datastore):
+def again(app, card):
     return "get_name"
 
 
