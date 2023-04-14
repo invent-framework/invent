@@ -54,7 +54,7 @@ dist: clean lint
 publish-test: dist
 	@echo "Packaging complete... Uploading to TEST instance of PyPi..."
 	python3 -m pip install --upgrade twine
-	python3 -m twine upload --repository testpypi --sign dist/*
+	python3 -m twine upload --repository test --sign dist/*
 
 publish-live: dist
 	@echo "Packaging complete... Uploading to LIVE instance of PyPi..."
