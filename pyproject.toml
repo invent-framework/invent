@@ -4,7 +4,7 @@ build-backend = "hatchling.build"
 
 [project]
 name = "pypercard"
-version = "0.0.1a5"
+dynamic = ["version"]
 authors = [
   { name="Nicholas H.Tollervey", email="ntoll@ntoll.org" },
 ]
@@ -13,13 +13,11 @@ readme = "README.md"
 requires-python = ">=3.7"
 classifiers = [
     "Development Status :: 3 - Alpha",
-    "Environment :: MacOS X",
-    "Environment :: Win32 (MS Windows)",
-    "Environment :: X11 Applications",
+    "Environment :: WebAssembly :: Emscripten",
     "Intended Audience :: Developers",
     "Intended Audience :: Education",
     "Intended Audience :: End Users/Desktop",
-    "License :: OSI Approved :: MIT License",
+    "License :: OSI Approved :: Apache Software License",
     "Natural Language :: English",
     "Operating System :: Android",
     "Operating System :: iOS",
@@ -37,6 +35,9 @@ classifiers = [
 [project.urls]
 "Homepage" = "https://github.com/pyscript/pypercard"
 "Bug Tracker" = "https://github.com/pyscript/pypercard/issues"
+
+[tool.hatch.version]
+path = "src/pypercard/__about__.py"
 
 [tool.hatch.build.targets.wheel]
 packages = ["src/pypercard"]
