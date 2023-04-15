@@ -5,6 +5,18 @@
     <meta name="viewport" content="width=device-width,initial-scale=1">
     <link rel="stylesheet" href="static/pyscript.css" />
     <script defer src="https://pyscript.net/releases/2022.12.1/pyscript.js"></script>
+    <!--script>
+      document.addEventListener("py-status-message", e => {
+        if(e.detail === "Python ready!") {
+          pyscript.runtime.interpreter.setStdout({
+            isatty: true,
+            raw(byte) {
+              terminal.write(new Uint8Array([byte]));
+            },
+          });
+        }
+      });
+    </script-->
   </head>
   <body>
     <py-config>

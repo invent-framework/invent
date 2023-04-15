@@ -1,0 +1,4 @@
+[[fetch]]
+from = "../../src/pypercard/"
+files = ["__init__.py", "core.py", "datastore.py", "state_machine.py"]
+to_folder = "pypercard"

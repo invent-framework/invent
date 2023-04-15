@@ -103,7 +103,7 @@ They are, in order of complexity (simple first):
   demonstrate PyperCard's audio capabilities.
 * [turner](https://pyscript.github.io/pypercard/examples/turner/) - use the background properties of cards to display full screen
   images of some of Turner's paintings, to the music of Bach.
-* [calculator]() - a simple calculator demonstrating a recursive single card
+* [calculator](https://pyscript.github.io/pypercard/examples/calculator/) - a simple calculator demonstrating a recursive single card
   app.
 * [alchemyst](https://pyscript.github.io/pypercard/examples/alchemyst/) - an atmospheric point and click adventure game in the style of
   the classic Myst (built using the original HyperCard).
