@@ -21,6 +21,7 @@ limitations under the License.
 import collections
 import functools
 import inspect
+import random
 from pyodide import ffi
 from js import document, CSS, clearTimeout, setTimeout, Audio, fetch
 from pypercard.state_machine import Machine, State, Transition
@@ -401,6 +402,16 @@ class App:
         style.innerText = "html, body {width:100%;height:100%;}"
         document.head.appendChild(style)
 
+    def _new_id(self):
+        """
+        Get's a likely unique id to be attached to an element that doesn't have
+        one (but should).
+
+        Why not UUID? MicroPython.
+        """
+        chrs = "abcdefghijklmnopqrstuvwxyz1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+        return "pc" + "".join([random.choice(chrs) for i in range(12)])
+
     def _harvest_cards_from_dom(self):
         """
         Harvest any cards defined in the DOM.
@@ -414,6 +425,13 @@ class App:
         transitions = []
         for card_template in document.querySelectorAll("template"):
             name = card_template.id
+            # Ensure all buttons with transitions have unique ids.
+            tmp_buttons = card_template.content.querySelectorAll(
+                "button[transition]"
+            )
+            for button in tmp_buttons:
+                if not button.id:
+                    button.id = self._new_id()
             template = card_template.innerHTML
             auto_advance = card_template.getAttribute("auto-advance")
             if auto_advance:
@@ -422,7 +440,7 @@ class App:
             background = card_template.getAttribute("background")
             background_repeat = card_template.getAttribute("background-repeat")
             sound = card_template.getAttribute("sound")
-            if sound:
+            if sound and sound not in self.sounds:
                 self.add_sound(sound, sound)
             sound_loop = card_template.hasAttribute("sound-loop")
             new_card = Card(
@@ -579,7 +597,9 @@ class App:
         """
         if name in self.sounds:
             raise ValueError(f"A sound with the name '{name}' already exists.")
-        self.sounds[name] = Audio.new(url)
+        sound = Audio.new(url)
+        sound.preload = "auto"
+        self.sounds[name] = sound
 
     def get_sound(self, name):
         """
@@ -599,7 +619,7 @@ class App:
         if name in self.sounds:
             del self.sounds[name]
 
-    def play_sound(self, name, loop=False):
+    def play_sound(self, name, loop=False, multitrack=False, restart=False):
         """
         Play the sound, added to self with the given name. If
         the sound was paused with the `keep_place` flag set to `True`, the
@@ -608,12 +628,28 @@ class App:
 
         If `loop` is `True` the sound will keep repeating until paused or
         removed from the application.
+
+        If `multitrack` is `True` then any currently playing sounds will
+        continue to play. The default is false, so only one track will play
+        at any given time (the most recet track to be played).
+
+        If `restart` is `True` then, if the sound is already playing when this
+        function is called, it will be restarted from the beginning, otherwise
+        the sound will be allowed to continue to play as is.
         """
         sound = self.get_sound(name)
         sound.loop = loop
-        if sound.currentTime > 0:
+        if not multitrack:
+            # Stop all other sounds that are not this sound.
+            for s in self.sounds:
+                if s != name:
+                    self.pause_sound(s)
+        if restart and sound.currentTime > 0:
+            # force restart from the start of the track.
             self.pause_sound(name)
-        sound.play()
+        if sound.paused:
+            # play the sound if it's not already playing.
+            sound.play()
 
     def pause_sound(self, name, keep_place=False):
         """

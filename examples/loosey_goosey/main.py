@@ -16,7 +16,7 @@ honk_app = App(
 
 @honk_app.transition("goose_card", "click")
 def honk(app, card):
-    app.play_sound("honk")
+    app.play_sound("honk", restart=True)
 
 
 honk_app.start("goose_card")

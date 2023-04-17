@@ -619,12 +619,53 @@ def test_app_play_sound():
 
     app.play_sound("test", loop=True)
 
+    # The "other" track is paused because the multitrack flag is set to the
+    # default of False (so only one sound at a time is playing).
+    app.pause_sound.assert_called_once_with("test_audio")
+
     # The loop flag has been set correctly.
     assert mock_audio.loop is True
-    # Because the position of the sound was not at the start, it was reset via
-    # the pause method.
+    # The JavaScript Audio object was play()-ed.
+    mock_audio.play.assert_called_once_with()
+
+
+def test_app_play_sound_restart():
+    """
+    If the restart flag is set to True, the audio is reset to position zero
+    via the pause_sound method.
+    """
+    app = pypercard.App()
+    mock_audio = mock.MagicMock()
+    mock_audio.currentTime = 1
+    app.get_sound = mock.MagicMock(return_value=mock_audio)
+    app.pause_sound = mock.MagicMock()
+
+    app.play_sound("test", restart=True)
+    # Because the position of the sound was not at the start and the restart
+    # flag is set, it was reset via the pause method.
     app.pause_sound.assert_called_once_with("test")
     # The JavaScript Audio object was play()-ed.
+    mock_audio.play.assert_called_once_with()
+
+
+def test_app_play_sound_multitrack():
+    """
+    If the multitrack flag is set to True, then the other audio files that
+    may be playing are not stopped (so multiple tracks may play at the same
+    time).
+    """
+    app = pypercard.App()
+    app.add_sound("test_audio", "examples/loosey_goosey/honk.mp3")
+
+    mock_audio = mock.MagicMock()
+    mock_audio.paused = True
+    app.get_sound = mock.MagicMock(return_value=mock_audio)
+    app.pause_sound = mock.MagicMock()
+
+    app.play_sound("test", multitrack=True)
+    # No pause of tracks.
+    assert app.pause_sound.call_count == 0
+    # The expected audio was played.
     mock_audio.play.assert_called_once_with()
 
 
