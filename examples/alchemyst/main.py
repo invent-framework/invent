@@ -32,53 +32,26 @@ def hello(app, card):
     return "nameerror"
 
 
-@app.transition("landed", "click", "continue")
-def to_patio_landing(app, card):
-    return which_patio(app, card)
-
-
-@app.transition("beach", "click", "right")
-def to_patio_landing(app, card):
-    return which_patio(app, card)
-
-
-def which_patio(app, card):
+@app.transition(["beach", "landed"], "click", query=".to_patio")
+def to_patio(app, card):
     if app.datastore["open"]:
         return "patio_open"
     return "patio_closed"
 
 
-@app.transition("patio_closed", "click", "to_front_door")
+@app.transition(
+    [
+        "patio_closed",
+        "patio_open",
+        "stone",
+        "lake_reeds",
+        "undergrowth",
+        "front_courtyard",
+    ],
+    "click",
+    query=".to_front_door",
+)
 def to_front_door(app, card):
-    return which_front_door(app, card)
-
-
-@app.transition("patio_open", "click", "to_front_door")
-def to_front_door(app, card):
-    return which_front_door(app, card)
-
-
-@app.transition("stone", "click", "to_front_door")
-def to_front_door(app, card):
-    return which_front_door(app, card)
-
-
-@app.transition("lake_reeds", "click", "to_front_door")
-def to_front_door(app, card):
-    return which_front_door(app, card)
-
-
-@app.transition("undergrowth", "click", "to_front_door")
-def to_front_door(app, card):
-    return which_front_door(app, card)
-
-
-@app.transition("front_courtyard", "click", "to_front_door")
-def to_front_door(app, card):
-    return which_front_door(app, card)
-
-
-def which_front_door(app, card):
     if app.datastore["open"]:
         return "front_door_open"
     else:
