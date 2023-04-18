@@ -1,6 +1,6 @@
 """
-A mysterious Myst like game to demonstrate some of the more creative uses of
-PyperCard.
+A mysterious Myst like game to demonstrate some of the more creative and
+expressive uses of PyperCard.
 """
 from pypercard import App
 import random
