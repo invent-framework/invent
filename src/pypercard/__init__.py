@@ -19,7 +19,15 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 from .core import Card, App
-from .datastore import DataStore
+
+try:
+    from .datastore import DataStore
+except Exception:
+    # Sometimes, due to browser security policy, the localStorage object won't
+    # be available, and so the DataStore import won't work. In which case, we
+    # just re-use the standard Python dict.
+    DataStore = dict
+
 
 __all__ = [
     "Card",

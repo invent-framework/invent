@@ -776,7 +776,7 @@ def test_app_transition_on_multiple_cards():
     """
     tc1 = pypercard.Card("test_card1", '<button id="id1">Click me</button>')
     tc2 = pypercard.Card("test_card2", '<button id="id2">Click me</button>')
-    tc3 = pypercard.Card("test_card3", '<p>Finished!</p>')
+    tc3 = pypercard.Card("test_card3", "<p>Finished!</p>")
     app = pypercard.App(cards=[tc1, tc2, tc3])
 
     call_count = mock.MagicMock()
@@ -797,7 +797,7 @@ def test_app_transition_on_multiple_cards():
     button.click()
     assert call_count.call_count == 2
     assert tc2.content.style.display == "none"
-    assert tc3.content.innerHTML == '<p>Finished!</p>'
+    assert tc3.content.innerHTML == "<p>Finished!</p>"
 
 
 def test_app_start():

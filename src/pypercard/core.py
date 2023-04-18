@@ -35,9 +35,12 @@ class Card:
 
     The app ensures that only one card is ever displayed at once. Each card
     has a `name` and an HTML `template` that defines how it looks on the page.
+    If a `template` is not passed in on instantiation, the `Card` will look for
+    a `template` element within the DOM with the same `id` as the given `name`
+    to use as the template instead.
 
-    Cards may also have optional `auto_advance` and `transition`
-    attributes for transitioning to a target card after a given period of time.
+    Cards may also have optional `auto_advance` and `transition` attributes for
+    transitioning to a target card after a given period of time.
 
     Cards are rendered from the `template` in the `show` method. The first time
     `show` is called it creates a `pyper-card` HTML element for the app to
@@ -58,7 +61,8 @@ class Card:
 
     It's also possible to use the `register_transition` method to register a
     user defined function to handle events dispatched by elements found in the
-    card's HTML. These transition the app to new cards.
+    card's HTML. These contain application logic and transition the app to new
+    cards by returning a string indicating the name of the next card to show.
 
     The convenience functions called `get_by_id`, `get_element` and
     `get_elements` return individual or groups of matching HTML elements
@@ -67,7 +71,7 @@ class Card:
 
     Cards can optionally define the nature of their background, via the
     `background` and `background_repeat` attributes. The `background` should
-    either be a valid CSS color or a URL to an image. If the `background` is
+    either be a valid CSS `color` or a URL to an image. If the `background` is
     an image, the `background_repeat` flag will indicate if the image will
     fill the whole screen or repeat in a tiled fashion (the default is to
     fill the whole screen).
@@ -189,16 +193,16 @@ class Card:
 
     def show(self):
         """
-        Show the card (i.e. make it visible to the user).
+        Show the card to the user.
 
         If this is the first time the card has been shown a `pyper-card`
         element will be created for it and inserted into the DOM (as a child
         of the app's `pyper-app` element).
 
         If the card has already been shown then we simply make it visible by
-        setting the element's display attribute to "block".
+        setting the element's `display` attribute to `block`.
 
-        Ensures the template is `.format`-ed with the self.app.datastore
+        Ensures the template is `.format`-ed with the `self.app.datastore`
         dictionary (so named custom values can be inserted into the template).
 
         Rebinds any user defined transitions to the newly rendered elements
@@ -260,9 +264,9 @@ class Card:
 
     def hide(self):
         """
-        Hide the card (i.e. make it invisible to the user!).
+        Hide the card from the user.
 
-        This leaves the card in the DOM but just sets 'display' to None, and
+        This leaves the card in the DOM but just sets `display` to `none`, and
         removes any DOM event listeners.
         """
         self.content.style.display = "none"
@@ -334,16 +338,18 @@ class Card:
 
 class App:
     """
-    Represents a HyperCard-ish application.
+    Represents a card based application.
 
     This encapsulates the state (as a `DataStore`), stack of `Card` instances,
     and registering transitions.
 
     Other app-wide functions (such as playing or pausing sounds) are methods
-    of this class.
+    of this class. To add your own app-wide functions, create a sub-class of
+    this one.
 
-    Furthermore, it will be possible to dump and load a declarative `JSON`
-    representation of the application.
+    TODO: It will be possible to dump and load a declarative `JSON`
+    representation of the application, once the specification and capabilities
+    of an app are finalised.
 
     If no default arguments given, the app will assume sensible defaults.
     """
@@ -363,8 +369,9 @@ class App:
 
         The `datastore` is an optional pre-populated `DataStore` instance.
 
-        The `cards` is an optional list of `Card` instances with which to
-        initialise.
+        The `cards` are an optional list of `Card` instances with which to
+        initialise the app. If no cards are given, the app will look in the
+        DOM for `template` tags to populate the card stack.
 
         The `sounds` dict contains default `name` / `url` pairs that define
         the initial sounds the app may need to play.
@@ -410,14 +417,15 @@ class App:
         Why not UUID? MicroPython.
         """
         chrs = "abcdefghijklmnopqrstuvwxyz1234567890ABCDEFGHIJKLMNOPQRSTUVWXYZ"
-        return "pc" + "".join([random.choice(chrs) for i in range(12)])
+        return "pyper" + "".join([random.choice(chrs) for i in range(12)])
 
     def _harvest_cards_from_dom(self):
         """
         Harvest any cards defined in the DOM.
 
-        This queries the DOM for all 'template' tags and uses their attributes
-        to configure card.
+        This queries the DOM for all 'template' tags. The contents and
+        attributes of each template tag is used to configure a card in the
+        app's stack of cards.
 
         Returns a (possibly empty) list of the Card instances.
         """
@@ -500,6 +508,9 @@ class App:
     def show_card(self, card):
         """
         Show the referenced card into the DOM via `self.placeholder`.
+
+        TODO: enable different types of visual transition between cards (e.g.
+        fade, slide etc...).
         """
         card.show()
         # Ensure the background is [re]set.
@@ -671,12 +682,26 @@ class App:
         """
         document.body.style = background
 
-    def transition(self, from_card_name_or_list, dom_event_name, id=None, query=None):
+    def transition(
+        self, from_card_name_or_list, dom_event_name, id=None, query=None
+    ):
         """
         A decorator to create transitions for DOM events within the specified
         card.
 
         This just adds a transition to the app's state machine.
+
+        The `from_card_name_or_list` can be either a string of the name of the
+        target card, or a list of target card names.
+
+        The `dom_event_name` is the name of the event, as dispatched by the
+        browser, e.g. "click".
+
+        The `id` is the unique `id` attribute of the target element within the
+        referenced card[s], that will dispatch the event.
+
+        Finally, `query` is a way to provide a valid CSS query to match
+        elements within the referenced card[s], that will dispatch the event.
         """
 
         if type(from_card_name_or_list) is not list:
@@ -717,6 +742,9 @@ class App:
 
         The reference to the card can be an instance of the card itself, or
         a string containing the card's `name`.
+
+        If no `card_reference` is given, the app will start with the first
+        card that was added to its stack.
         """
 
         if self.started:
