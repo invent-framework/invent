@@ -769,6 +769,37 @@ def test_app_transition_on_card():
     assert tc2.content.innerHTML == "<p>Finished!</p>"
 
 
+def test_app_transition_on_multiple_cards():
+    """
+    A function decorated by the @app.transition works correctly when the
+    expected element/event happens on multiple cards.
+    """
+    tc1 = pypercard.Card("test_card1", '<button id="id1">Click me</button>')
+    tc2 = pypercard.Card("test_card2", '<button id="id2">Click me</button>')
+    tc3 = pypercard.Card("test_card3", '<p>Finished!</p>')
+    app = pypercard.App(cards=[tc1, tc2, tc3])
+
+    call_count = mock.MagicMock()
+
+    @app.transition(["test_card1", "test_card2"], "click")
+    def my_transition(app, card):
+        call_count()
+        return "+"
+
+    app.start("test_card1")
+    button = tc1.get_element("#id1")
+    button.click()
+    assert call_count.call_count == 1
+    assert tc1.content.style.display == "none"
+    assert tc2.content.innerHTML == '<button id="id2">Click me</button>'
+
+    button = tc2.get_element("#id2")
+    button.click()
+    assert call_count.call_count == 2
+    assert tc2.content.style.display == "none"
+    assert tc3.content.innerHTML == '<p>Finished!</p>'
+
+
 def test_app_start():
     """
     Assuming the app is configured correctly, calling start with a reference

@@ -671,7 +671,7 @@ class App:
         """
         document.body.style = background
 
-    def transition(self, from_card_name, dom_event_name, id=None, query=None):
+    def transition(self, from_card_name_or_list, dom_event_name, id=None, query=None):
         """
         A decorator to create transitions for DOM events within the specified
         card.
@@ -679,28 +679,35 @@ class App:
         This just adds a transition to the app's state machine.
         """
 
+        if type(from_card_name_or_list) is not list:
+            from_card_name_or_list = [from_card_name_or_list]
+
         def wrapper(fn):
-            self.machine.transitions.append(
-                self._create_dom_event_transition(
-                    from_card_name, fn, dom_event_name, id
-                )
-            )
-
-            # App level transition.
-            if from_card_name == "*":
-
-                def handler(evt):
-                    self.machine.next(
-                        {"event": dom_event_name, "dom_event": evt}
+            app_level_already_added = False
+            for from_card_name in from_card_name_or_list:
+                self.machine.transitions.append(
+                    self._create_dom_event_transition(
+                        from_card_name, fn, dom_event_name, id
                     )
+                )
 
-                handler_proxy = ffi.create_proxy(handler)
-                document.addEventListener(dom_event_name, handler_proxy)
+                # App level transition.
+                if from_card_name == "*" and not app_level_already_added:
+                    # We only need add the app level listener once :)
+                    app_level_already_added = True
 
-            # Card-level transition.
-            else:
-                from_card = self._resolve_card(from_card_name)
-                from_card.register_transition(dom_event_name, id)
+                    def handler(evt):
+                        self.machine.next(
+                            {"event": dom_event_name, "dom_event": evt}
+                        )
+
+                    handler_proxy = ffi.create_proxy(handler)
+                    document.addEventListener(dom_event_name, handler_proxy)
+
+                # Card-level transition.
+                else:
+                    from_card = self._resolve_card(from_card_name)
+                    from_card.register_transition(dom_event_name, id)
 
         return wrapper
 
