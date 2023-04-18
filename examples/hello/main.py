@@ -1,5 +1,5 @@
 """
-The simplest possible app. It says, "Hello, World!".
+The simplest possible app. It displays, "Hello, World!".
 """
 from pypercard import App, Card
 
@@ -10,5 +10,5 @@ app = App(
         Card(name="hello", template="Hello, world!"),
     ],
 )
-# Start the app with the "hello" card.
-app.start("hello")
+# Start the app.
+app.start()
