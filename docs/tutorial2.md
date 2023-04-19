@@ -6,7 +6,7 @@ To get the most from PyperCard you should understand three core concepts:
 * cards, and,
 * transitions.
 
-To help, let's learn to think about how an application works.
+To help, let's learn to think about how a PyperCard application works.
 
 ## Telling a story
 
@@ -96,7 +96,7 @@ top of the stack (the equivalent of the arrows in the story-board).**
 We can't over state how important it is for you to understand and become
 comfortable with these three simple concepts:
 
-* A stack of cards is like your whole application.
+* The stack of cards _is your application_.
 * A card is a screen in your application. Each card fulfils a specific role or
   function.
 * A transition allows users to move between cards in a meaninful way, thus

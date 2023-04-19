@@ -11,6 +11,9 @@ about PyperCard please consult the [tutorials](tutorials.md).
 
 ## Installation
 
+PyperCard runs on top of [PyScript](https://pyscript.net/) - a browser based
+Python platform.
+
 The quickest way to get going is via a free (but limited) account at
 [PyScript.com](https://pyscript.com/):
 
@@ -18,7 +21,7 @@ The quickest way to get going is via a free (but limited) account at
 * Update the project's `pyscript.toml` file so `pypercard` is listed as a
   dependency:
 
-```python
+```toml
 packages = ["pypercard", ]
 ```
 
@@ -26,13 +29,9 @@ packages = ["pypercard", ]
 * The `index.html` file can be used to define how your cards look via several
   hidden `template` elements.
 
-You can also just do the equivalent of:
-
-```
-pip install pypercard
-```
-
-In your usual Python development environment.
+Alternatively, just look at the
+[example projects](https://github.com/pyscript/pypercard/tree/main/examples)
+to see how to organise an app.
 
 ## Core concepts
 
