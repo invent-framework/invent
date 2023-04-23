@@ -19,7 +19,16 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 import json
-from js import localStorage
+from js import console
+
+# TODO: This is a temporary fix to make sure it doesn't break right away when localStorage isn't
+#       available (like, i.e., in iFrame). We should instead make sure the storage backend we
+#       use for the datastore has a compatible API.
+try:
+    from js import localStorage
+except ImportError:
+    class localStorage(dict):
+        pass
 
 
 class DataStore:
