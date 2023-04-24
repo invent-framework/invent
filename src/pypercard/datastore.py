@@ -140,8 +140,7 @@ class DataStore:
         Return a list of the values stored in the data store.
         """
         result = []
-        for i in range(0, len(self)):
-            key = self.store.key(i)
+        for key in self._keys:
             result.append(self[key])
         return result
 
