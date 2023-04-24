@@ -11,6 +11,13 @@ def test_datastore_default_init():
     assert ds.store == localStorage
 
 
+def test_dirty_datastore():
+    template = "Test {foo}"
+    localStorage.setItem("foo", "bar")
+    ds = pypercard.DataStore()
+    template.format(**ds)
+
+
 def test_datastore_init_with_values():
     """
     If the persist flag on __init__ is True, sessionStorage is used.
