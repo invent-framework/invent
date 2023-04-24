@@ -51,6 +51,7 @@ class DataStore:
         to the dictionary.
         """
         self.store = localStorage
+        self._keys = []
         if kwargs:
             self.update(kwargs.items())
 
@@ -130,6 +131,8 @@ class DataStore:
         data store.
         """
         for key, value in iterable:
+            if not key in self._keys:
+                self._keys.append(key)
             self[key] = value
 
     def values(self):
