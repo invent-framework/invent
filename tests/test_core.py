@@ -915,6 +915,28 @@ def test_app_start():
     assert app_placeholder.firstChild == tc1.content
 
 
+def test_app_start_with_no_arguments():
+    """
+    Assuming the app is configured correctly, calling start with no arguments
+    results in the first card in the list being rendered to the DOM.
+    """
+    tc1 = pypercard.Card("test_card1", "<button id='id1'>Click me</button>")
+    tc2 = pypercard.Card("test_card2", "<p>Finished!</p>")
+    app = pypercard.App(cards=[tc1, tc2])
+
+    mock_work = mock.MagicMock()
+
+    @app.transition(tc1, "click", id="id1")
+    def my_transition(app, card):
+        mock_work(app, card)
+        return "test_card2"
+
+    app.start()
+
+    app_placeholder = document.querySelector("pyper-app")
+    assert app_placeholder.firstChild == tc1.content
+
+
 def test_app_start_already_started():
     """
     If the app is already started, calling start will result in a
