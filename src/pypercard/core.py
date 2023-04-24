@@ -216,18 +216,9 @@ class Card:
         html = self.template.format(**self.app.datastore)
         self.content.innerHTML = html
 
-        # Set an auto-advance timer if required.
+        # Start an auto-advance timer if required.
         if self.auto_advance is not None:
-
-            def on_timeout():
-                """Called when the card timer has timed-out!"""
-
-                self.app.machine.next({"event": "timeout", "card": self})
-
-            # Python sleeps in seconds, JavaScript in milliseconds :)
-            self._auto_advance_timer = setTimeout(
-                ffi.create_proxy(on_timeout), int(self.auto_advance * 1000)
-            )
+            self._start_auto_advance_timer()
 
         # Add DOM event listeners for any transitions added via
         # "app.transition".
@@ -274,6 +265,21 @@ class Card:
                 element.addEventListener(
                     transition["dom_event_name"], transition["handler"]
                 )
+
+    def _start_auto_advance_timer(self):
+        """
+        Start the card's auto-advance timer.
+        """
+
+        def on_timeout():
+            """Called when the card timer has timed-out!"""
+
+            self.app.machine.next({"event": "timeout", "card": self})
+
+        # Python sleeps in seconds, JavaScript in milliseconds :)
+        self._auto_advance_timer = setTimeout(
+            ffi.create_proxy(on_timeout), int(self.auto_advance * 1000)
+        )
 
     def hide(self):
         """
