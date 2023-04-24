@@ -336,6 +336,43 @@ class Card:
         return []
 
 
+def register_app_hooks(before=None, after=None):
+    """Decorator for registering `before` and `after` hooks for a class
+    method. Before and after are the names of the hooks associated with the
+    method that will be executed (e.g. "before_my_method" and "after_my_method"
+    in the example below). These hooks are registered with the class instance via
+    the @App.register_hook decorator.
+
+    Usage:
+
+    class App:
+
+        @register_app_hooks(before="before_my_method", after="after_my_method")
+        def my_method(self, *args, **kwargs):
+            #... do stuff ...
+    """
+    if before is None and after is None:
+        raise ValueError("Must specify at least one hook")
+
+    def decorator(func):
+        def _wrapper(self, *args, **kwargs):
+            # First we go over the before hooks
+            if before:
+                for handler in self._registered_hooks[before]:
+                    handler(self, *args, **kwargs)
+
+            res = func(self, *args, **kwargs)
+
+            # Then we go over the after hooks
+            if after:
+                for handler in self._registered_hooks[after]:
+                    handler(self, *args, **kwargs)
+
+            return res
+        return _wrapper
+    return decorator
+
+
 class App:
     """
     Represents a card based application.
