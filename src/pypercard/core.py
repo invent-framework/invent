@@ -218,6 +218,7 @@ class Card:
 
         # Set an auto-advance timer if required.
         if self.auto_advance is not None:
+
             def on_timeout():
                 """Called when the card timer has timed-out!"""
 
@@ -261,8 +262,11 @@ class Card:
                 target_elements = self.get_elements(transition["selector"])
 
             for element in target_elements:
+
                 def handler(evt):
-                    self.app.machine.next({"event": evt.type, "dom_event": evt})
+                    self.app.machine.next(
+                        {"event": evt.type, "dom_event": evt}
+                    )
 
                 handler_proxy = ffi.create_proxy(handler)
                 transition["handler"] = handler_proxy
@@ -702,7 +706,9 @@ class App:
         if not keep_place:
             sound.currentTime = 0
 
-    def register_transition(self, dom_event_name, element_id=None, selector=None):
+    def register_transition(
+        self, dom_event_name, element_id=None, selector=None
+    ):
         """
         `event_name` - e.g. "click"
         `element_id` - the unique ID identifying the target element.
@@ -857,8 +863,12 @@ class App:
         )
 
     def _create_dom_event_transition(
-        self, from_card_name, transition_fn_or_card_name, dom_event_name,
-        element_id=None, selector=None
+        self,
+        from_card_name,
+        transition_fn_or_card_name,
+        dom_event_name,
+        element_id=None,
+        selector=None,
     ):
         """
         Create a transition that is triggered by a DOM event.

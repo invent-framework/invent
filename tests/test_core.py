@@ -751,7 +751,9 @@ def test_app_transition_with_query():
     expected element/event happens on an element that matches the specified
     query.
     """
-    tc1 = pypercard.Card("test_card1", "<button class='press-me'>Click me</button>")
+    tc1 = pypercard.Card(
+        "test_card1", "<button class='press-me'>Click me</button>"
+    )
     tc2 = pypercard.Card("test_card2", "<p>Finished!</p>")
     app = pypercard.App(cards=[tc1, tc2])
 
@@ -861,8 +863,12 @@ def test_app_transition_on_all_cards_with_query():
     A function decorated by the @app.transition works correctly when the
     expected element/event happens on all cards.
     """
-    tc1 = pypercard.Card("test_card1", '<button class="next">Click me</button>')
-    tc2 = pypercard.Card("test_card2", '<button class="next">Click me</button>')
+    tc1 = pypercard.Card(
+        "test_card1", '<button class="next">Click me</button>'
+    )
+    tc2 = pypercard.Card(
+        "test_card2", '<button class="next">Click me</button>'
+    )
     tc3 = pypercard.Card("test_card3", "<p>Finished!</p>")
     app = pypercard.App(cards=[tc1, tc2, tc3])
 
