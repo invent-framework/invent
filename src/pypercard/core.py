@@ -208,6 +208,7 @@ class Card:
         Rebinds any user defined transitions to the newly rendered elements
         created by the card.
         """
+
         # Create the card's content element if it doesn't already exist.
         if not self.content:
             self.content = document.createElement("pyper-card")
@@ -217,7 +218,6 @@ class Card:
 
         # Set an auto-advance timer if required.
         if self.auto_advance is not None:
-
             def on_timeout():
                 """Called when the card timer has timed-out!"""
 
@@ -230,28 +230,7 @@ class Card:
 
         # Add DOM event listeners for any transitions added via
         # "app.transition".
-        for transition in self._transitions:
-            if transition["selector"] == "pyper-card":
-                target_elements = [self.content]
-
-            else:
-                target_elements = self.get_elements(transition["selector"])
-
-            for element in target_elements:
-
-                def handler(transition, evt):
-                    self.app.machine.next(
-                        {"event": transition["event_name"], "dom_event": evt}
-                    )
-
-                handler_proxy = ffi.create_proxy(
-                    functools.partial(handler, transition)
-                )
-                transition["handler"] = handler_proxy
-
-                element.addEventListener(
-                    transition["event_name"], transition["handler"]
-                )
+        self._add_dom_event_listeners()
 
         # Ensure user-supplied "on_show" is called.
         if self.on_show:
@@ -261,6 +240,36 @@ class Card:
         self.content.style.display = "block"
 
         return self.content
+
+    def _add_dom_event_listeners(self):
+        """
+        Add DOM event listeners for any transitions added via
+        "app.transition".
+
+        """
+
+        # TODO: Unify registering of transitions as a) we now have 2 places to
+        # store them and b) we are reaching into the app!
+        for transition in self._transitions + self.app._transitions:
+            if transition["selector"] == "document":
+                target_elements = [document]
+
+            elif transition["selector"] == "pyper-card":
+                target_elements = [self.content]
+
+            else:
+                target_elements = self.get_elements(transition["selector"])
+
+            for element in target_elements:
+                def handler(evt):
+                    self.app.machine.next({"event": evt.type, "dom_event": evt})
+
+                handler_proxy = ffi.create_proxy(handler)
+                transition["handler"] = handler_proxy
+
+                element.addEventListener(
+                    transition["dom_event_name"], transition["handler"]
+                )
 
     def hide(self):
         """
@@ -277,35 +286,52 @@ class Card:
 
         # Remove any DOM event listeners that were hooked up when the card was
         # shown.
-        for transition in self._transitions:
-            target_elements = self.get_elements(transition["selector"])
-            for element in target_elements:
-                element.removeEventListener(
-                    transition["event_name"], transition["handler"]
-                )
+        self._remove_dom_event_listeners()
 
         # Ensure user-supplied "on_hide" is called.
         if self.on_hide:
             self.on_hide(self.app, self)
 
-    def register_transition(self, event_name, element_id=None):
+    def _remove_dom_event_listeners(self):
+        """
+        Remove any DOM event listeners that were hooked up when the card was
+        shown.
+        """
+
+        # TODO: Unify registering of transitions as a) we now have 2 places to
+        # store them and b) we are reaching into the app!
+        for transition in self._transitions + self.app._transitions:
+            if transition["selector"] == "document":
+                target_elements = [document]
+
+            else:
+                target_elements = self.get_elements(transition["selector"])
+
+            for element in target_elements:
+                element.removeEventListener(
+                    transition["dom_event_name"], transition["handler"]
+                )
+
+    def register_transition(self, dom_event_name, element_id=None, query=None):
         """
         `event_name` - e.g. "click"
         `element_id` - the unique ID identifying the target element.
+        `query` - a CSS selector identifying the target element(s).
         """
+
         # Card level...
-        if element_id is None:
+        if element_id is None and query is None:
             selector = "pyper-card"
 
         elif element_id is not None:
             selector = "#" + element_id
 
         else:
-            raise ValueError("We don't have no query yet!")
+            selector = query
 
         self._transitions.append(
             {
-                "event_name": event_name,
+                "dom_event_name": dom_event_name,
                 "selector": selector,
             }
         )
@@ -388,6 +414,7 @@ class App:
         self.stack = collections.OrderedDict()
         self.machine = Machine(self)
         self.sounds = {}
+        self._transitions = []  # To hold transitions acting on ALL cards.
 
         card_list = cards or self._harvest_cards_from_dom()
         if not card_list:
@@ -411,7 +438,7 @@ class App:
 
     def _new_id(self):
         """
-        Get's a likely unique id to be attached to an element that doesn't have
+        Gets a likely unique id to be attached to an element that doesn't have
         one (but should).
 
         Why not UUID? MicroPython.
@@ -675,6 +702,29 @@ class App:
         if not keep_place:
             sound.currentTime = 0
 
+    def register_transition(self, dom_event_name, element_id=None, selector=None):
+        """
+        `event_name` - e.g. "click"
+        `element_id` - the unique ID identifying the target element.
+        `query` - a CSS selector identifying the target element(s).
+        """
+
+        if element_id is None and selector is None:
+            selector = "document"
+
+        elif element_id is not None:
+            selector = "#" + element_id
+
+        else:
+            selector = selector
+
+        self._transitions.append(
+            {
+                "dom_event_name": dom_event_name,
+                "selector": selector,
+            }
+        )
+
     def set_background(self, background=""):
         """
         Set the body tag's background style attribute to the given value. If
@@ -692,7 +742,8 @@ class App:
         This just adds a transition to the app's state machine.
 
         The `from_card_name_or_list` can be either a string of the name of the
-        target card, or a list of target card names.
+        target card, or a list of target card names. If the card name is "*"
+        the transition applies to ALL cards in.
 
         The `dom_event_name` is the name of the event, as dispatched by the
         browser, e.g. "click".
@@ -708,31 +759,21 @@ class App:
             from_card_name_or_list = [from_card_name_or_list]
 
         def wrapper(fn):
-            app_level_already_added = False
             for from_card_name in from_card_name_or_list:
                 self.machine.transitions.append(
                     self._create_dom_event_transition(
-                        from_card_name, fn, dom_event_name, id
+                        from_card_name, fn, dom_event_name, id, query
                     )
                 )
 
-                # App level transition.
-                if from_card_name == "*" and not app_level_already_added:
-                    # We only need add the app level listener once :)
-                    app_level_already_added = True
+                # The transition applies to ALL cards in the app.
+                if from_card_name == "*":
+                    self.register_transition(dom_event_name, id, query)
 
-                    def handler(evt):
-                        self.machine.next(
-                            {"event": dom_event_name, "dom_event": evt}
-                        )
-
-                    handler_proxy = ffi.create_proxy(handler)
-                    document.addEventListener(dom_event_name, handler_proxy)
-
-                # Card-level transition.
+                # The transition applies to a specific card.
                 else:
                     from_card = self._resolve_card(from_card_name)
-                    from_card.register_transition(dom_event_name, id)
+                    from_card.register_transition(dom_event_name, id, query)
 
         return wrapper
 
@@ -754,9 +795,8 @@ class App:
             card_name = self._resolve_card(card_reference).name
 
         else:
-            card_name = (
-                None  # Machine will default to the first card in the list.
-            )
+            # Machine will default to the first card in the list.
+            card_name = None
 
         self.machine.start(card_name)
         self.started = True
@@ -808,7 +848,7 @@ class App:
             - a string which is the name of the card to transition to.
             """
 
-            return self._get_to_card_name(
+            return self._get_name_of_card_to_transition_to(
                 from_card, from_card.transition, input_
             )
 
@@ -817,18 +857,19 @@ class App:
         )
 
     def _create_dom_event_transition(
-        self, from_card_name, fn_or_to_card_name, dom_event_name, element_id
+        self, from_card_name, transition_fn_or_card_name, dom_event_name,
+        element_id=None, selector=None
     ):
         """
-        Create a transition triggered by a DOM event.
+        Create a transition that is triggered by a DOM event.
         """
 
         def acceptor(machine, input_):
             """
-            Accepts a DOM event with the specified name.
+            Accepts a DOM event named `dom_event_name`.
 
-            If an element id is specified then only accept if the element was
-            the DOM event target.
+            If an element id or CSS query selector is specified then only accept
+            if the DOM event target matches.
             """
 
             if input_.get("event") != dom_event_name:
@@ -836,6 +877,21 @@ class App:
 
             if element_id is not None:
                 if input_.get("dom_event").target.id != element_id:
+                    return False
+
+            if selector is not None:
+                if from_card_name == "*":
+                    from_card = self._resolve_card(
+                        self.machine.current_state.name
+                    )
+
+                else:
+                    from_card = self._resolve_card(from_card_name)
+
+                for element in from_card.get_elements(selector):
+                    if input_.get("dom_event").target == element:
+                        return True
+                else:
                     return False
 
             return True
@@ -851,8 +907,8 @@ class App:
             else:
                 from_card = self._resolve_card(from_card_name)
 
-            return self._get_to_card_name(
-                from_card, fn_or_to_card_name, input_
+            return self._get_name_of_card_to_transition_to(
+                from_card, transition_fn_or_card_name, input_
             )
 
         return Transition(
@@ -878,14 +934,16 @@ class App:
 
         return state, transitions
 
-    def _get_to_card_name(self, from_card, fn_or_to_card_name, input_):
+    def _get_name_of_card_to_transition_to(
+        self, from_card, transition_fn_or_card_name, input_
+    ):
         """
         Get the name of the card to transition *to*.
         """
 
-        # If we have a callable transition then, err, call it!
-        if callable(fn_or_to_card_name):
-            # The arguments to pass to the callable transition.
+        # If we have a transition function then, err, call it!
+        if callable(transition_fn_or_card_name):
+            # The arguments to pass to the transition function.
             args = [self, from_card]
 
             # If the transition was triggered by a DOM event then the event can
@@ -893,16 +951,16 @@ class App:
             # signature of the user's function.
             dom_event = input_.get("dom_event")
             if dom_event:
-                signature = inspect.signature(fn_or_to_card_name)
+                signature = inspect.signature(transition_fn_or_card_name)
                 if len(signature.parameters) > 2:
                     args.append(dom_event)
 
-            to_card_or_name = fn_or_to_card_name(*args)
+            to_card_or_name = transition_fn_or_card_name(*args)
 
         # Otherwise the transition is just the name of the card to transition
         # to.
         else:
-            to_card_or_name = fn_or_to_card_name
+            to_card_or_name = transition_fn_or_card_name
 
         # No transition.
         if not to_card_or_name:
