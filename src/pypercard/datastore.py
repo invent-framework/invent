@@ -148,7 +148,7 @@ class DataStore:
         """
         The number of items in the data store.
         """
-        return self.store.length
+        return len(self._keys)
 
     def __getitem__(self, key):
         """
