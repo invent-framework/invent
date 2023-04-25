@@ -165,6 +165,8 @@ class DataStore:
 
         The underlying JavaScript Storage only stored values as strings.
         """
+        if not key in self._keys:
+            self._keys.append(key)
         return self.store.setItem(key, json.dumps(value))
 
     def __delitem__(self, key):
@@ -172,6 +174,7 @@ class DataStore:
         Delete the item stored against the given key.
         """
         if key in self:
+            self._keys.remove(key)
             return self.store.removeItem(key)
         else:
             raise KeyError(key)
@@ -180,11 +183,7 @@ class DataStore:
         """
         Return an iterator over the keys.
         """
-        # TODO: This loop in the check (and the whole _can_serialize_from_storage method function in general)
-        #       is a temporary fix to make sure it doesn't break right away when localStorage is dirty
-        #       and have values that cannot be serialized. We should instead make sure we keep track of the
-        #       keys that are explicitly put in the datastore and only iterate over those.
-        return (key for key in self.keys() if self._can_serialize_from_storage(key))
+        return self._keys()
 
     def __contains__(self, key):
         """
