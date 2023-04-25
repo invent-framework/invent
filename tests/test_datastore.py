@@ -12,11 +12,34 @@ def test_datastore_default_init():
 
 
 def test_dirty_datastore():
+    """
+    If users use localStorage directly, the DataStore doesn't know about it.
+    """
     template = "Test {foo}"
+    # WHEN we set the value through the DataStore directly BEFORE the Datastore has been
+    # instantiated
     localStorage.setItem("foo", "bar")
     ds = pypercard.DataStore()
-    template.format(**ds)
 
+    with pytest.raises(KeyError):
+        # This is the expected behavior. Since localStorage was set directly and
+        # not through the DataStore, the DataStore doesn't know about it.
+        template.format(**ds)
+
+    # WHEN we set the value through the DataStore directly AFTER the Datastore has been
+    # instantiated
+    localStorage.setItem("foo", "bar")
+
+    # EXPECT the key to not be in the DataStore since it was set directly on localStorage
+    with pytest.raises(KeyError):
+        # This is the expected behavior. Since localStorage was set directly and
+        # not through the DataStore, the DataStore doesn't know about it.
+        template.format(**ds)
+
+    # WHEN we set the value through the DataStore directly...
+    ds["foo"] = "bar"
+    # EXPECT the key to be in the DataStore
+    template.format(**ds)
 
 def test_datastore_init_with_values():
     """
