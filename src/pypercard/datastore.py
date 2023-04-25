@@ -190,11 +190,3 @@ class DataStore:
         Checks if a key is in the datastore.
         """
         return key in self.keys()
-
-    def _can_serialize_from_storage(self, key):
-        """ Returns True if the key can be serialized from storage and false otherwise """
-        try:
-            val = self[key]
-            return True
-        except json.decoder.JSONDecodeError:
-            return False
