@@ -59,7 +59,8 @@ class DataStore:
         """
         Removes all items from the data store.
         """
-        return self.store.clear()
+        self._keys = []
+        return self._keys
 
     def copy(self):
         """
@@ -79,8 +80,7 @@ class DataStore:
         """
         Yield over the key/value pairs in the data store.
         """
-        for i in range(0, len(self)):
-            key = self.store.key(i)
+        for key in self._keys:
             value = self[key]
             yield (key, value)
 
@@ -88,10 +88,7 @@ class DataStore:
         """
         Returns a list of keys stored by the user.
         """
-        result = []
-        for i in range(0, len(self)):
-            result.append(self.store.key(i))
-        return result
+        return self._keys
 
     def pop(self, key, default=None):
         """
@@ -183,7 +180,7 @@ class DataStore:
         """
         Return an iterator over the keys.
         """
-        return self._keys()
+        return self._keys
 
     def __contains__(self, key):
         """
