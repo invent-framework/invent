@@ -180,7 +180,8 @@ class DataStore:
         """
         Return an iterator over the keys.
         """
-        return self._keys
+        for key in self._keys:
+            yield key
 
     def __contains__(self, key):
         """
