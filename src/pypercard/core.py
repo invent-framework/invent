@@ -831,7 +831,7 @@ class App:
         card.
         """
 
-        def acceptor(machine, input_):
+        def acceptor(machine, transition, input_):
             """
             Accepts a timeout event on the card.
             """
@@ -848,7 +848,7 @@ class App:
 
             return False
 
-        def target(machine, input_):
+        def target(machine, transition, input_):
             """
             Returns the name of the card to transition to.
 
@@ -880,7 +880,7 @@ class App:
         Create a transition that is triggered by a DOM event.
         """
 
-        def acceptor(machine, input_):
+        def acceptor(machine, transition, input_):
             """
             Accepts a DOM event named `dom_event_name`.
 
@@ -912,7 +912,7 @@ class App:
 
             return True
 
-        def target(machine, input_):
+        def target(machine, transition, input_):
             """
             Return the name of the card to transition to.
             """
@@ -940,8 +940,8 @@ class App:
 
         state = State(
             name=card.name,
-            on_enter=[lambda machine: self.show_card(card)],
-            on_exit=[lambda machine: self.hide_card(card)],
+            on_enter=[lambda machine, state: self.show_card(card)],
+            on_exit=[lambda machine, state: self.hide_card(card)],
         )
 
         transitions = []
