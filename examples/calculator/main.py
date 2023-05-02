@@ -12,7 +12,6 @@ ds = DataStore()
 ds["calculation"] = []  # Holds the calculation specification.
 
 calc_app = App(datastore=ds)
-calc_app.start()
 
 
 # A set of valid arithmetic operations.
@@ -88,3 +87,6 @@ def handle_button(app, card, click_event):
         calculation.append(val)
         display.value = val
         app.datastore["calculation"] = calculation
+
+
+calc_app.start()

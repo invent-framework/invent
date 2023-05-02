@@ -34,6 +34,7 @@ def hello(app, card):
 
 @app.transition(["beach", "landed"], "click", query=".to_patio")
 def to_patio(app, card):
+    print("YES")
     if app.datastore["open"]:
         return "patio_open"
     return "patio_closed"

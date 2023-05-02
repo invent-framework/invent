@@ -251,7 +251,7 @@ class Card:
 
             else:
                 target_elements = self.get_elements(transition["selector"])
-
+            print(transition["selector"])    
             for element in target_elements:
 
                 def handler(evt):

@@ -3,7 +3,8 @@
 PyperCard uses [PyScript](https://pyscript.com/), a browser based Python
 platform.
 
-It means that getting PyperCard is simply an addition to some HTML.
+It means that getting PyperCard is as simple as adding a few lines to some
+HTML.
 
 This ensures PyperCard is installed as a module in your browser-based Python
 environment.
@@ -75,6 +76,8 @@ as the `src` of the `<py-script>` tag (as PyScript.com does):
 ```HTML
 <py-script src="./main.py"></py-script>
 ```
+
+Write the Python code for your PyperCard app in `main.py`.
 
 That's it!
 
