@@ -25,39 +25,24 @@ class Machine:
 
     def __init__(
         self,
-        model,
+        model=None,
         states=None,
         transitions=None,
-        state_name="",
+        initial_state_name="",
         history=None,
         context=None,
     ):
         """Constructor."""
 
-        # For convenience, we allow each state to be passed as either:-
-        #
-        # a) A State instance.
-        # b) A tuple of constructor arguments for the State class.
-        self.states = [
-            state if isinstance(state, State) else State(*state)
-            for state in states or []
-        ]
-
-        # For convenience, we allow each transition to be passed as either:-
-        #
-        # a) A Transition instance.
-        # b) A tuple of constructor arguments for the Transition class.
-        self.transitions = [
-            transition
-            if isinstance(transition, Transition)
-            else Transition(*transition)
-            for transition in transitions or []
-        ]
-
         self.model = model
-        self.state_name = state_name
+        self.states = states or []
+        self.transitions = transitions or []
+        self.initial_state_name = initial_state_name
         self.history = history or []
         self.context = context or {}
+
+        # The name of the current state.
+        self.state_name = None
 
         # Make it quicker to lookup states by name :)
         self._states_by_name = {state.name: state for state in self.states}
@@ -66,7 +51,11 @@ class Machine:
     def current_state(self):
         """Return the current state."""
 
-        return self._states_by_name[self.state_name]
+        state = self._states_by_name.get(self.state_name)
+        if not state:
+            raise ValueError(f"No such state: {self.state_name}")
+
+        return state
 
     @property
     def is_done(self):
@@ -100,8 +89,8 @@ class Machine:
     def goto(self, state_name, run_hooks=True):
         """Goto a specific state.
 
-        This calls any on exit hooks on the current state and any on enter
-        hooks on the target state.
+        If `run_hooks` is True (the default), then this calls any on exit hooks
+        on the current state and any on enter hooks on the target state.
 
         """
 
@@ -126,13 +115,12 @@ class Machine:
         Return either:-
 
         1) the name of the state we transitioned to.
-        2) an empty string if a transition accepted the input but didn't move
-           state.
-        3) null if no transition accepted the input.
+        2) an empty string if either no transition accepted the input, or one
+           did accept it but chose to stay on the current state.
 
         """
+
         if self.is_done:
-            self.pprint()
             raise ValueError(
                 f"Machine is already done but got input: {input_}"
             )
@@ -147,7 +135,6 @@ class Machine:
                     return self._do_transition(transition, input_)
 
         # No transition handled the input.
-        # print('No transition handled input:', input_)
         return ""
 
     def history_pop_previous(self):
@@ -174,9 +161,18 @@ class Machine:
     def start(self, state_name=None):
         """Start the machine."""
 
-        # If no start state was specified then use the first one in the list
-        # of states.
-        self.state_name = state_name or self.state_name or self.states[0].name
+        if len(self.states) == 0:
+            raise ValueError("Can't start a machine without any states!")
+
+        # The name of the state to start in is determined by the following
+        # (in order of precedence):
+        #
+        # 1) The state name passed into this method.
+        # 2) The initial state name passed in at construction time.
+        # 3) The name of the first state in the machine's list of states.
+        self.state_name = (
+            state_name or self.initial_state_name or self.states[0].name
+        )
 
         self._enter_state(self.current_state)
 
@@ -257,19 +253,17 @@ class State:
             f"on_enter={self.on_enter}, on_exit={self.on_exit})"
         )
 
-    # TODO: async?
     def call_on_enter_hooks(self, machine):
         """Call all on_enter hooks."""
 
         for hook in self.on_enter:
-            hook(machine)
+            hook(machine, self)
 
-    # TODO: async?
     def call_on_exit_hooks(self, machine):
         """Call all on_exit hooks."""
 
         for hook in self.on_exit:
-            hook(machine)
+            hook(machine, self)
 
 
 class Transition:
@@ -292,9 +286,14 @@ class Transition:
         """
 
         self.source = source
+
+        # The acceptor can be specified as an `Acceptor` instance or just a
+        # callable that takes 3 arguments: the machine, a transition and the
+        # input value.
         self.acceptor = (
             acceptor if isinstance(acceptor, Acceptor) else Acceptor(acceptor)
         )
+
         self.target = target
         self.context_object_name = context_object_name
         self.before = before or []
@@ -316,7 +315,7 @@ class Transition:
 
         """
 
-        return self.acceptor.accepts(machine, input_)
+        return self.acceptor.accepts(machine, self, input_)
 
     def get_context_object(self, machine, input_):
         """Return the object to add to the machine's context iff this
@@ -327,29 +326,27 @@ class Transition:
 
         """
 
-        return self.acceptor.get_context_object(machine, input_)
+        return self.acceptor.get_context_object(machine, self, input_)
 
     def get_target(self, machine, input_):
         """Get the target state name."""
 
         if callable(self.target):
-            return self.target(machine, input_)
+            return self.target(machine, self, input_)
 
         return self.target
 
-    # TODO: async?
     def call_before_hooks(self, machine, input_):
         """Call any before hooks."""
 
         for hook in self.before:
-            hook(machine, input_)
+            hook(machine, self, input_)
 
-    # TODO: async?
     def call_after_hooks(self, machine, input_):
         """Call any before hooks."""
 
         for hook in self.after:
-            hook(machine, input_)
+            hook(machine, self, input_)
 
 
 class Acceptor:
@@ -368,7 +365,7 @@ class Acceptor:
             f'({self.fn.__name__ if self.fn is not None else ""})'
         )
 
-    def accepts(self, machine, input_):
+    def accepts(self, machine, transition, input_):
         """Return True iff the specified input is accepted.
 
         If no function 'fn' is specified this defaults to returning true (i.e.
@@ -379,11 +376,11 @@ class Acceptor:
         # If the 'fn' attribute is set call that. This allows to us to
         # implement acceptors without the need for subclassing.
         if self.fn is not None:
-            return self.fn(machine, input_)
+            return self.fn(machine, transition, input_)
 
         return True
 
-    def get_context_object(self, machine, input_):
+    def get_context_object(self, machine, transition, input_):
         """Return the object to add to the machine's context iff this acceptor
         accepts!"""
 
