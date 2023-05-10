@@ -39,8 +39,10 @@ class DataStore:
         """
         The underlying `Storage` object is an instance of `Window.localStorage`
         (it persists between browser opening/closing). Any `**kwargs` are added
-        to the dictionary.
+        to the dictionary. All keys are silently prepended with the value of
+        self.namespace.
         """
+        self.namespace = "pypercard"
         self.store = localStorage
         if kwargs:
             self.update(kwargs.items())
@@ -69,8 +71,7 @@ class DataStore:
         """
         Yield over the key/value pairs in the data store.
         """
-        for i in range(0, len(self)):
-            key = self.store.key(i)
+        for key in self.keys():
             value = self[key]
             yield (key, value)
 
@@ -79,8 +80,11 @@ class DataStore:
         Returns a list of keys stored by the user.
         """
         result = []
-        for i in range(0, len(self)):
-            result.append(self.store.key(i))
+        for i in range(0, self.store.length):
+            key = self.store.key(i)
+            if key.startswith(self.namespace):
+                real_key = key[len(self.namespace):]
+                result.append(real_key)
         return result
 
     def pop(self, key, default=None):
@@ -128,23 +132,28 @@ class DataStore:
         Return a list of the values stored in the data store.
         """
         result = []
-        for i in range(0, len(self)):
-            key = self.store.key(i)
+        for key in self.keys():
             result.append(self[key])
         return result
+
+    def _namespace_key(self, key):
+        """
+        Convenience method to create a properly namespaced key.
+        """
+        return f"{self.namespace}{key}"
 
     def __len__(self):
         """
         The number of items in the data store.
         """
-        return self.store.length
+        return len(self.keys()) 
 
     def __getitem__(self, key):
         """
         Get and JSON deserialize the item stored against the given key.
         """
         if key in self:
-            return json.loads(self.store.getItem(key))
+            return json.loads(self.store.getItem(self._namespace_key(key)))
         else:
             raise KeyError(key)
 
@@ -154,14 +163,14 @@ class DataStore:
 
         The underlying JavaScript Storage only stored values as strings.
         """
-        return self.store.setItem(key, json.dumps(value))
+        return self.store.setItem(self._namespace_key(key), json.dumps(value))
 
     def __delitem__(self, key):
         """
         Delete the item stored against the given key.
         """
         if key in self:
-            return self.store.removeItem(key)
+            return self.store.removeItem(self._namespace_key(key))
         else:
             raise KeyError(key)
 
