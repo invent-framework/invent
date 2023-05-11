@@ -19,7 +19,15 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 import json
-from js import localStorage
+
+
+try:
+    from js import localStorage
+except ImportError:
+    # If the browser's localStorage isn't available, fall back to a Python
+    # dict. Such a situation may arise in certain security contexts or if the
+    # app is served inside an iFrame.
+    localStorage = {}
 
 
 class DataStore:
