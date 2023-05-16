@@ -25,9 +25,31 @@ try:
     from js import localStorage
 except ImportError:
     # If the browser's localStorage isn't available, fall back to a Python
-    # dict. Such a situation may arise in certain security contexts or if the
-    # app is served inside an iFrame.
-    localStorage = {}
+    # dict based solution. Such a situation may arise in certain security
+    # contexts or if the app is served inside an iFrame.
+
+    class _FakeStorage(dict):
+        """
+        A Python dict with some JavaScript method shims.
+        """
+
+        @property
+        def length(self):
+            return len(self)
+
+        def key(self, i):
+            return list(self.keys())[i]
+
+        def getItem(self, key):
+            return self[key]
+
+        def setItem(self, key, value):
+            self[key] = value
+
+        def removeItem(self, key):
+            del self[key]
+
+    localStorage = _FakeStorage()
 
 
 class DataStore:
