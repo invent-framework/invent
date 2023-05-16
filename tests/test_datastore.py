@@ -21,6 +21,17 @@ def test_datastore_init_with_values():
     assert len(ds) == 2
 
 
+def test_datastore_namespace_key():
+    """
+    Ensure the expected namespaced key is created.
+    """
+    ds = pypercard.DataStore()
+    assert ds.namespace == "pypercard"
+    ds.namespace = "test"
+    result = ds._namespace_key("foo")
+    assert result == "testfoo"
+
+
 def test_datastore_clear():
     """
     The clear method empties the datastore.
