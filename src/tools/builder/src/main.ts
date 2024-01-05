@@ -1,10 +1,12 @@
 import { createApp } from 'vue'
-import App from './App.vue'
+import App from './app.vue'
 import router from './router'
 import "@/assets/tailwind.css"
+import { LocalizationUtilities } from './utilities/localization-utilities'
 
-const app = createApp(App)
 
-app.use(router)
-
-app.mount('#app')
+LocalizationUtilities.loadPreferredLanguageAsync().then(() => {
+    createApp(App)
+        .use(router)
+        .mount('#app');
+});
