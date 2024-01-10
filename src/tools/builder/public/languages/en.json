@@ -1,5 +1,9 @@
 {
     "editor": {
-        "editor": "Hello world"
+        "add-widget": "Add Widget"
+    },
+    "add-widget": {
+        "submit": "Submit",
+        "cancel": "Cancel"
     }
 }
