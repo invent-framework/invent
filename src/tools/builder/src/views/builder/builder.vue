@@ -26,9 +26,9 @@
 
 <script setup lang="ts">
 import BuilderDesktopLayout from '@/layouts/builder-desktop-layout/builder-desktop-layout.vue';
-import { EditorModel } from './editor-model';
+import { BuilderModel } from './builder-model';
 
-const view: EditorModel = new EditorModel();
+const view: BuilderModel = new BuilderModel();
 
 view.init();
 </script>

@@ -3,14 +3,14 @@ import { ViewModelBase } from "../base-classes/view-model-base";
 import { BuilderUtilities } from "@/utilities/builder-utilities";
 
 /**
- * View model for the editor view.
+ * View model for the builder view.
  */
-export class EditorModel extends ViewModelBase {
+export class BuilderModel extends ViewModelBase {
     /**
 	 * Specifies the localization namespace to use for getting localized text values.
 	 */
 	protected getLocalizationNamespace(): string {
-		return "editor";
+		return "builder";
 	}
 
 	public init(): void {
