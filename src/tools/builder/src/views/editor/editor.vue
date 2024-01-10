@@ -3,7 +3,7 @@
         <template #sidebar>
             <ib-v-stack :spacing="6">
                 <ib-h-stack align-y="center" justify-content="between">
-                    <ib-heading label="Pages" />
+                    <ib-heading :label="view.getText('pages')" />
                     <ib-button 
                         :label="view.getText('add-page')" 
                         @click="view.onAddClicked()" 

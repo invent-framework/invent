@@ -1,6 +1,7 @@
 {
     "editor": {
-        "add-page": "Add Page"
+        "add-page": "Add Page",
+        "pages": "Pages"
     },
     "add-widget": {
         "submit": "Submit",
