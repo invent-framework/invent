@@ -3,6 +3,7 @@
  */
 export enum ModalName {
 	AddWidget = "AddWidget",
+	AddPage = "AddPage",
 }
 
 /**
@@ -10,3 +11,4 @@ export enum ModalName {
  */
 export type Modal = 
  | "AddWidget"
+ | "AddPage"

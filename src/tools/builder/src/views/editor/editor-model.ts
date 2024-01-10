@@ -13,6 +13,10 @@ export class EditorModel extends ViewModelBase {
 		return "editor";
 	}
 
+	public init(): void {
+		BuilderUtilities.createApp();
+	}
+
 	public onAddWidgetClicked(): void {
 		ModalUtilities.showModal({
 			modal: "AddWidget"
@@ -24,6 +28,12 @@ export class EditorModel extends ViewModelBase {
 	 * Adds a step to the tutorial.
 	 */
 	public onAddClicked(): void {
-		ModalUtilities
+		ModalUtilities.showModal({
+			modal: "AddPage"
+		});
+	}
+
+	public getPages(): object {
+		return BuilderUtilities.app.value.pages;
 	}
 }

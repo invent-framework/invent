@@ -1,9 +1,16 @@
 {
     "editor": {
-        "add-widget": "Add Widget"
+        "add-page": "Add Page"
     },
     "add-widget": {
         "submit": "Submit",
+        "cancel": "Cancel"
+    },
+    "add-page": {
+        "add-page": "Add Page",
+        "name": "Name",
+        "enter-page-name": "Enter your new page's unique name.",
+        "add": "Add",
         "cancel": "Cancel"
     }
 }
