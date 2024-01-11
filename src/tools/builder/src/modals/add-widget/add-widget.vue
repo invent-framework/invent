@@ -33,8 +33,4 @@ import { modal } from "./add-widget-model";
 onMounted(() => {
   modal.init();
 })
-
-defineProps<{
-	position: any,
-}>();
 </script>

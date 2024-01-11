@@ -7,7 +7,7 @@
         v-for="button in buttons"
         :key="button.key"
       >
-        <eb-button
+        <ib-button
           v-if="button.visible !== false"
           :label="button.label"
           :icon="button.icon"

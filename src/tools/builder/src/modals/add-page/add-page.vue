@@ -45,8 +45,4 @@ const modal: AddPage = new AddPage();
 onMounted(() => {
   modal.init();
 })
-
-defineProps<{
-	position: any,
-}>();
 </script>

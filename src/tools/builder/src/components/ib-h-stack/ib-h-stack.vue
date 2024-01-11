@@ -12,7 +12,7 @@ defineProps<{
 	spacing?: number;
 	alignX?: string;
 	alignY?: string;
-	justifyContent?: number;
+	justifyContent?: string;
 	paddingT?: number;
 	paddingB?: number;
 	paddingL?: number;
