@@ -15,11 +15,16 @@
                         v-for="(page, key) in view.getPages()" 
                         :key="key" 
                         :label="key" 
-                        color="gray"
+                        color="transparent"
                         is-full-width 
+                        @click="view.onPageClicked(key)"
                     />
                 </ib-v-stack>
             </ib-v-stack>
+        </template>
+
+        <template #content>
+            <page-editor />
         </template>
     </builder-desktop-layout> 
 </template>
@@ -27,6 +32,9 @@
 <script setup lang="ts">
 import BuilderDesktopLayout from '@/layouts/builder-desktop-layout/builder-desktop-layout.vue';
 import { BuilderModel } from './builder-model';
+
+// Components
+import PageEditor from "./components/page-editor/page-editor.vue";
 
 const view: BuilderModel = new BuilderModel();
 

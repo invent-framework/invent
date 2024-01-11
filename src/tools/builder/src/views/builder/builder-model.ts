@@ -36,4 +36,8 @@ export class BuilderModel extends ViewModelBase {
 	public getPages(): object {
 		return BuilderUtilities.app.value.pages;
 	}
+
+	public onPageClicked(key: string): void {
+		BuilderUtilities.setActivePage(key);
+	}
 }

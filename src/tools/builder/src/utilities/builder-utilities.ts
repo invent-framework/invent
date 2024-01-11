@@ -8,6 +8,8 @@ export class BuilderUtilities {
 		pages: {}
 	});
 
+	public static activePage: Ref<string | undefined> = ref();
+
 	public static createApp(): void {
 		this.app.value = {
 			pages: {}
@@ -20,5 +22,13 @@ export class BuilderUtilities {
 				widgets: []
 			}
 		}
+	}
+
+	public static setActivePage(key: string) {
+		this.activePage.value = key;
+	}
+
+	public static getPage(key: string): object {
+		return this.app.value.pages[key];
 	}
 }
