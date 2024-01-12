@@ -1,0 +1,16 @@
+{
+    "files":{
+        "{INVENT}": "./src/invent",
+        "{TO}": "./invent",
+        "{INVENT}/pubsub.py": "{TO}/pubsub.py",
+        "{INVENT}/__init__.py": "{TO}/__init__.py",
+        "{INVENT}/__main__.py": "{TO}/__main__.py",
+        "{TESTS}": "./tests",
+        "{TESTS}/__init__.py": "{TESTS}/__init__.py",
+        "{TESTS}/conftest.py": "{TESTS}/conftest.py",
+        "{TESTS}/test_pubsub.py": "{TESTS}/test_pubsub.py"
+    },
+    "packages": [
+        "pytest"
+    ]
+}

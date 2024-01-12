@@ -1,10 +1,12 @@
-# PyperCard - A Pythonic HyperCard for Beginner Programmers
+# Invent - an app framework for beginners
 
-View this repository [via GitHub pages](https://pyscript.github.io/pypercard/).
+View this repository
+[via GitHub pages](https://invent-framework.github.io/invent/).
 
-This project's documentation can be found [here](https://pypercard.rtfd.io).
+This project's documentation can be found
+[here](https://invent-framework.rtfd.io).
 
-This project started in 2019 as a re-implementation of 
+This project started in 2019 as "PyperCard" ~ a re-implementation of 
 [Adafruit's CircuitPython PYOA](https://github.com/adafruit/Adafruit_CircuitPython_PYOA)
 module, but for non-CircuitPython computing environments. It was originally
 written using the [Kivy](https://kivy.org/) framework for cross-platform
@@ -14,23 +16,23 @@ purposes with the wonderful
 [Young Coders' Meetup](https://twitter.com/YCM_UK), development stalled because
 of the COVID pandemic.
 
-However, PyperCard is back in active development _with some significant
-changes_:
+The project name has since been changed to "Invent" to remove any HyperCard
+related expectations. There are further significant changes:
 
 * [PyScript](https://pyscript.net/) replaces Kivy as the underlying
   cross-platform framework for generating and running the user interface.
 * [Nicholas](https://github.com/ntoll), the original developer and maintainer
-  of PyperCard, has been hired by [Anaconda Inc](https://anaconda.com/) to work
-  on PyScript, and so his work on this project is sponsored by his employer
-  (hence the copyright changes).
+  of Invent/PyperCard, has been hired by [Anaconda Inc](https://anaconda.com/)
+  to work on PyScript, and so his work on this project is sponsored by his
+  employer.
 * Ownership of the repository has been transferred to the
-  [pyscript organisation](https://github.com/pyscript) on GitHub (the old
-  repository will automatically redirect to the new one).
+  [invent framework organisation](https://github.com/invent-framework) on
+  GitHub (the old repository will automatically redirect to the new one).
 * Since this is a complete rewrite, the license has been changed from MIT
   to Apache2.
 
 All the assets relating to the old version of the project can still be found
-in the [old branch](https://github.com/pyscript/pypercard/tree/old) in this
+in the [old branch](https://github.com/invent-framework/invent/tree/old) in this
 repository.
 
 ## Developer setup
@@ -38,7 +40,7 @@ repository.
 Git clone the repository:
 
 ```
-git clone https://github.com/ntoll/pypercard.git
+git clone https://github.com/invent-framework/invent.git
 ```
 
 (Recommended) Upgrade local pip:
@@ -65,7 +67,6 @@ make lint - check the code for obvious errors with flake8.
 make lint-all - check all code for obvious errors with flake8.
 make serve - serve the project at: http://0.0.0.0:8000/
 make test - while serving the app, run the test suite in browser.
-make docs - use Sphinx to create project documentation.
 make dist - build the module as a package.
 make publish-test - upload the package to the PyPI test instance.
 make publish-live - upload the package to the PyPI LIVE instance.
@@ -77,9 +78,7 @@ To run the test suite:
 $ make serve
 ```
 
-Then visit
-[http://localhost:8000/](http://localhost:8000/) and click the "Run the test
-suite" button, or, in another console with the code still serving, `make test`.
+Then visit [http://localhost:8000/](http://localhost:8000/).
 
 The tests should open in your browser, and pass. ;-)
 
@@ -87,23 +86,4 @@ The tests should open in your browser, and pass. ;-)
 
 ## Example applications
 
-Several example applications, demonstrating various different aspects of
-PyperCard can be found in the `examples` subdirectory of this repository.
-
-They are, in order of complexity (simple first):
-
-* [hello](https://pyscript.github.io/pypercard/examples/hello/) - it displays "Hello, world!" with PyperCard.
-* [hello interactive](https://pyscript.github.io/pypercard/examples/hello_interactive/) - a simple interactive application that prompts users to
-  enter their name, and click a button for a friendly greeting.
-* [temperatures](https://pyscript.github.io/pypercard/examples/temperature/) - convert between celsius and fahrenheit, whilst handling
-  errors.
-* [card carousel](https://pyscript.github.io/pypercard/examples/card_carousel/) - a demonstration of automatic advance to the next card
-  after N seconds.
-* [loosey goosey](https://pyscript.github.io/pypercard/examples/loosey_goosey/) - a goose based honking-as-a-service application to
-  demonstrate PyperCard's audio capabilities.
-* [turner](https://pyscript.github.io/pypercard/examples/turner/) - use the background properties of cards to display full screen
-  images of some of Turner's paintings, to the music of Bach.
-* [calculator](https://pyscript.github.io/pypercard/examples/calculator/) - a simple calculator demonstrating a recursive single card
-  app.
-* [alchemyst](https://pyscript.github.io/pypercard/examples/alchemyst/) - an atmospheric point and click adventure game in the style of
-  the classic Myst (built using the original HyperCard).
+Coming soon...

@@ -1,44 +1,43 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>PyperCard</title>
+    <title>Invent</title>
+
+    <!-- Recommended meta tags -->
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/water.css@2/out/water.css">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+    <!-- PyScript CSS -->
+    <link rel="stylesheet"
+      href="https://pyscript.net/releases/2024.1.1/core.css">
+
+    <!-- This script tag bootstraps PyScript -->
+    <script type="module"
+      src="https://pyscript.net/releases/2024.1.1/core.js"></script>
+    <style>
+    body {
+      font-family: Verdana, Geneva, Tahoma, sans-serif;
+    }
+    a, a:visited {
+      color: #004dcc;
+    }
+    h2 {
+      color: #0000008a;
+    }
+    </style>
 </head>
 <body>
-  <h1><img src="static/logo_small.png" alt="PyperCard logo" style="vertical-align: middle;"/> PyperCard</h1>
-  <h2>A Pythonic HyperCard for beginner programmers.</h2>
-  <img src="static/splash.png" alt="PyperCard splash banner"/>
-  <p>This project's full documentation can be found
-  <a href="https://pypercard.rtfd.io/" target="_blank">here</a>.</p>
-  <p>Since this project is browser based, many aspects of this repository can
-  be viewed online.</p>
-  <p>
-    <a href="tests.html"><button>Run the test suite</button></a>
-  </p>
-  <h2>Example applications</h2>
-  <ul>
-    <li><a href="examples/hello">Hello</a> - it displays "Hello, World!" with
-    PyperCard.</li>
-    <li><a href="examples/hello_interactive">Hello interactive</a> - a simple
-    interactive application that prompts users to enter their name, and click
-    a button for a friendly greeting.</li>
-    <li><a href="examples/temperature">Temperatures</a> - convert between celsius and fahrenheit,
-    whilst handling errors.</li>
-    <li><a href="examples/card_carousel">Card carousel</a> - a demonstration of
-    automatic advance to the next card after N seconds.</li>
-    <li><a href="examples/loosey_goosey">Loosey Goosey</a> - a goose based
-    honking-as-a-service application to demonstrate PyperCard's audio
-    capabilities.</li>
-    <li><a href="examples/turner">Turner's paintings</a> - use the background
-    properties of cards to display full screen images of some of Turner's
-    paintings, to the music of Bach.</li>
-    <li><a href="examples/calculator">Calculator</a> - a simple calculator demonstrating a
-    recursive single card app.</li>
-    <li><a href="examples/alchemyst">Alchemyst</a> - an atmospheric point and click adventure
-    game in the style of the classic Myst (built using the original
-    HyperCard).</li>
-  </ul>
+  <div style="margin: auto; width: 85%">
+    <img src="./static/logo_black.svg" style="height: 128px;"/>
+    <h2>Express yourself with code.</h2>
+    <p>
+      <a href="https://github.com/invent-framework/invent" target="_blank">Code</a> |
+      <a href="https://invent-framework.github.io/" target="_blank">Docs</a> |
+      <a href="https://discord.gg/TKyjvSynTP" target="_blank">Chat</a>
+    </p>
+    <p>Starting test suite...</p>
+    <script type="py" src="./static/main.py" config="./static/settings.json"
+      terminal></script>
+  </div>
 </body>
 </html>
