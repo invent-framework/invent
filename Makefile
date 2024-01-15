@@ -21,7 +21,6 @@ clean:
 tidy:
 	black -l 79 src/invent
 	black -l 79 tests
-	black -l 79 examples
 
 lint:
 	flake8 src/invent
@@ -30,7 +29,7 @@ lint-all:
 	flake8 src/invent tests/* examples/*
 
 serve:
-	python -m http.server
+	python utils/serve.py
 
 test:
 	python -m webbrowser http://localhost:8000/index.html

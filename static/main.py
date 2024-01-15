@@ -1,4 +1,5 @@
 import pytest
 
 
-pytest.main()
+pytest.main(["-v", "--cov=invent", "--cov-report", "term-missing", "tests/"])
+

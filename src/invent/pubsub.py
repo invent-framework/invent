@@ -111,7 +111,7 @@ def unsubscribe(handler, from_channel, when):
         channel_info = _pubsub.get(channel)
         if channel_info:
             for name in when:
-                if handler in channel_info[name]:
+                if name in channel_info and handler in channel_info[name]:
                     channel_info[name].remove(handler)
                 else:
                     raise ValueError(
