@@ -1,3 +1,5 @@
 import pytest
 
-pytest.main(["--color=no"])
+
+pytest.main(["-v", "--cov=invent", "--cov-report", "term-missing", "tests/"])
+

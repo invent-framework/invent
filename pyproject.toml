@@ -3,12 +3,12 @@ requires = ["hatchling"]
 build-backend = "hatchling.build"
 
 [project]
-name = "pypercard"
+name = "invent"
 dynamic = ["version"]
 authors = [
   { name="Nicholas H.Tollervey", email="ntoll@ntoll.org" },
 ]
-description = "PyperCard - A Pythonic HyperCard for Beginner Programmers"
+description = "Invent - an app framework for beginner programmers"
 readme = "README.md"
 requires-python = ">=3.7"
 classifiers = [
@@ -33,11 +33,19 @@ classifiers = [
 ]
 
 [project.urls]
-"Homepage" = "https://github.com/pyscript/pypercard"
-"Bug Tracker" = "https://github.com/pyscript/pypercard/issues"
+"Homepage" = "https://github.com/invent-framework/invent"
+"Bug Tracker" = "https://github.com/invent-framework/invent/issues"
 
 [tool.hatch.version]
-path = "src/pypercard/__about__.py"
+path = "src/invent/__about__.py"
+
+[tool.hatch.build.targets.sdist]
+only-include = [
+    "src/invent"
+]
 
 [tool.hatch.build.targets.wheel]
-packages = ["src/pypercard"]
+only-packages = true
+packages = [
+    "src/invent"
+]
