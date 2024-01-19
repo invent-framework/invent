@@ -90,6 +90,20 @@ def test_subscribe_and_publish_multi_channel_and_type():
     assert handler.call_count == 4
 
 
+def test_subscribe_is_idempotent():
+    """
+    Multiple calls to subscribe only ever result in a single subscription.
+    """
+    handler = mock.MagicMock()
+    invent.subscribe(handler, to_channel="testing", when="test")
+    invent.subscribe(handler, to_channel="testing", when="test")
+    m1 = invent.Message(message_type="test", data="Test")
+    invent.publish(m1, to_channel="testing")
+    # The handler is correctly subscribed because it has only been called once
+    # when a message is passed, despite being subscribed twice.
+    handler.assert_called_once_with(m1)
+
+
 def test_unsubscribe_single_channel_and_type():
     """
     Unsubscribing from a single channel / message type ensures the message

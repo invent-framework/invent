@@ -26,7 +26,7 @@ lint:
 	flake8 src/invent
 
 lint-all:
-	flake8 src/invent tests/* examples/*
+	flake8 src/invent tests/*
 
 serve:
 	python utils/serve.py

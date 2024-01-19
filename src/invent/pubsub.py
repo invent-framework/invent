@@ -76,8 +76,8 @@ def subscribe(handler, to_channel, when):
         if channel not in _pubsub:
             _pubsub[channel] = {}
         for name in when:
-            message_handlers = _pubsub[channel].get(name, [])
-            message_handlers.append(handler)
+            message_handlers = _pubsub[channel].get(name, set())
+            message_handlers.add(handler)
             _pubsub[channel][name] = message_handlers
 
 
