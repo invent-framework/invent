@@ -1,6 +1,5 @@
 import pytest
 from invent.ui import Button, core
-from pyscript import document
 
 
 def test_widget_init_defaults():
@@ -42,5 +41,5 @@ def test_widget_set_position_fill():
     container = core.Column(name="test_column")
     container.append(b)
     b.set_position(container)
-    assert w.element.style.width == "100%"
-    assert w.element.style.height == "100%"
+    assert b.element.style.width == "100%"
+    assert b.element.style.height == "100%"

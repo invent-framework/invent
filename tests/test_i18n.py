@@ -1,5 +1,4 @@
 import invent
-import pytest
 import json
 from unittest import mock
 from pyscript import window
@@ -63,6 +62,7 @@ def test_set_language():
         assert mock_publish.call_args_list[0][1]["to_channel"] == "i18n"
     invent.i18n.set_language(current_lang)
 
+
 def test_get_language():
     """
     Simply returns the current default language.
@@ -70,6 +70,7 @@ def test_get_language():
     assert invent.i18n.get_language() == window.navigator.language
     invent.i18n.set_language("foo")
     assert invent.i18n.get_language() == "foo"
+
 
 def test_():
     """

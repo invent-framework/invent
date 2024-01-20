@@ -18,7 +18,8 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 from pyscript import document
-#from pyscript.js_modules import showdown
+
+# from pyscript.js_modules import showdown
 from invent.ui import Widget
 
 
@@ -52,8 +53,8 @@ class TextBox(Widget):
         """
         if self.element:
             ...
-            #converter = showdown.Converter.new()
-            #self.element.innerHTML = converter.makeHtml(self.content)
+            # converter = showdown.Converter.new()
+            # self.element.innerHTML = converter.makeHtml(self.content)
 
     def render_into(self, container):
         self.element = document.createElement("div")
