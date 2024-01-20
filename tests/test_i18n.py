@@ -76,8 +76,23 @@ def test_():
     Ensure the _ utility function for translating strings on the fly works
     as expected.
     """
+    # Store this to reset at the end.
+    current_lang = invent.i18n.get_language()
+    # Clean state of no translations.
     invent.i18n.__translations = {}
+    # No translations, so just return the string.
     assert "hello" == invent._("hello")
+    # Load translations.
     invent.i18n.load()
+    # No translation for the default language (en).
+    invent.i18n.set_language("en")
+    # So just return the string.
     assert "hello" == invent._("hello")
+    # Pass in a language code, return the expected translation.
     assert "bonjour" == invent._("hello", "fr-FR")
+    # Set the default language to one that is supported.
+    invent.i18n.set_language("de")
+    # Return the expected translation given the supported default language.
+    assert "guten tag" == invent._("hello")
+    # Reset and clean up the default language to the user's default.
+    invent.i18n.set_language(current_lang)
