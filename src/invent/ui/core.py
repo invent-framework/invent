@@ -18,6 +18,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 from pyscript import document
+from invent.i18n import _
 from .utils import random_id
 
 
@@ -25,6 +26,272 @@ from .utils import random_id
 _VALID_HORIZONTALS = {"LEFT", "CENTER", "RIGHT"}
 #: Valid flags for vertical positions.
 _VALID_VERTICALS = {"TOP", "MIDDLE", "BOTTOM"}
+
+
+class ValidationError(ValueError):
+    """
+    Raised when a widget's property is set to an invalid value.
+    """
+
+    ...
+
+
+class Property:
+    """
+    An instance of a child of this class represents a property of a Widget.
+
+    This class implements the Python descriptor protocol. See:
+
+    https://docs.python.org/3/howto/descriptor.html
+
+    Using a Property class allows easier introspection and dynamic handling of
+    properties in a way that works with MicroPython.
+
+    Every property must have a human meaningful description of what it
+    represents for the widget, an optional default value and optional flag to
+    indicate if it is a required property.
+    """
+
+    def __init__(self, description, default_value=None, required=False):
+        """
+        All properties must have a description. They may have a default value
+        and flag indicating if it is a required property.
+        """
+        self.description = description
+        self.required = required
+        self.default_value = self.validate(default_value)
+
+    def __set_name__(self, owner, name):
+        """
+        Helps with the descriptor protocol, as it provides a name against
+        which to store the descriptor's value.
+        """
+        self.private_name = "_" + name
+
+    def __get__(self, obj, objtype=None):
+        """
+        Descriptor method to return the value associated with the property.
+        """
+        return getattr(obj, self.private_name, self.default_value)
+
+    def __set__(self, obj, value):
+        """
+        Descriptor method to set and validate the value to be associated with
+        the property.
+        """
+        setattr(obj, self.private_name, self.validate(value))
+
+    def validate(self, value):
+        """
+        Validate the incoming value of the property.
+        """
+        if self.required and value is None:
+            raise ValidationError(_("This property is required."))
+        return value
+
+    def as_dict(self, value):
+        """
+        Return a Python dictionary as a data structure representing all the
+        essential information about the property.
+        """
+        return {
+            "property_type": self.__class__.__name__,
+            "description": self.description,
+            "required": self.required,
+            "value": value,
+        }
+
+
+class NumericProperty(Property):
+    """
+    A numeric property, with an optional maximum and minimum, for a Widget.
+    """
+
+    def __init__(
+        self,
+        description,
+        default_value=None,
+        required=False,
+        minimum=None,
+        maximum=None,
+    ):
+        """
+        In addition to the Property related attributes, the min and max
+        define the bounds of a valid value. If set to None, these won't be
+        checked during validation.
+        """
+        self.minimum = minimum
+        self.maximum = maximum
+        super().__init__(description, default_value, required)
+
+    def validate(self, value):
+        """
+        The value must be a number (None is allowed if the property is not
+        required).
+
+        If set, the value must be between the minimum and maximum boundaries.
+        """
+        if not (value is None or isinstance(value, (int, float))):
+            raise ValidationError(_("The value must be a number."))
+        if value is not None:
+            if self.minimum and value < self.minimum:
+                raise ValidationError(
+                    _("The value is less than the minimum allowed."),
+                    value,
+                    self.minimum,
+                )
+            if self.maximum and value > self.maximum:
+                raise ValidationError(
+                    _("The value is greater than the maximum."),
+                    value,
+                    self.maximum,
+                )
+        return super().validate(value)
+
+    def as_dict(self, value):
+        """
+        Return a Python dictionary as a data structure representing all the
+        essential information about the property.
+        """
+        result = super().as_dict(value)
+        result["minimum"] = self.minimum
+        result["maximum"] = self.maximum
+        return result
+
+
+class IntegerProperty(NumericProperty):
+    """
+    An integer (whole number) property for a Widget.
+    """
+
+    def validate(self, value):
+        """
+        Ensure the property's value is an integer.
+        """
+        if isinstance(value, int):
+            return super().validate(value)
+        raise ValidationError(
+            _("The value must be an integer (whole number).")
+        )
+
+
+class FloatProperty(NumericProperty):
+    """
+    A floating point (a number with a decimal point) property for a Widget.
+    """
+
+    def validate(self, value):
+        """
+        Ensure the property's value is a floating point number.
+        """
+        if isinstance(value, float):
+            return super().validate(value)
+        raise ValidationError(
+            _("The value must be a float (a number with a decimal point).")
+        )
+
+
+class TextProperty(Property):
+    """
+    A textual property for a Widget.
+    """
+
+    def __init__(
+        self,
+        description,
+        default_value=None,
+        required=False,
+        min_length=None,
+        max_length=None,
+    ):
+        """
+        In addition to the Property related attributes, the min_length and
+        max_length define the bounds of the length of a valid value. If set to
+        None, these won't be checked during validation.
+        """
+        self.min_length = min_length
+        self.max_length = max_length
+        super().__init__(description, default_value, required)
+
+    def validate(self, value):
+        """
+        The value must be a string (or None if not a required property).
+
+        If set, the value must be between the minimum and maximum boundaries.
+        """
+        if not (value is None or isinstance(value, str)):
+            raise ValidationError(_("The value must be a string."))
+        if value is not None:
+            length = len(value)
+            if self.min_length and length < self.min_length:
+                raise ValidationError(
+                    _("The length of the value is less than minimum allowed.")
+                )
+            if self.max_length and length > self.max_length:
+                raise ValidationError(
+                    _("The length of the value is more than maximum allowed.")
+                )
+        return super().validate(value)
+
+    def as_dict(self, value):
+        """
+        Return a Python dictionary as a data structure representing all the
+        essential information about the property.
+        """
+        result = super().as_dict(value)
+        result["min_length"] = self.min_length
+        result["max_length"] = self.max_length
+        return result
+
+
+class BooleanProperty(Property):
+    """
+    A boolean (True/False) flag property for a Widget.
+    """
+
+    def validate(self, value):
+        """
+        Ensure the property's value is a boolean value (True / False).
+        """
+        if isinstance(value, bool) or value is None:
+            return super().validate(value)
+        raise ValidationError(
+            _("The value must be a boolean (True or False).")
+        )
+
+
+class ChoiceProperty(Property):
+    """
+    A property for a Widget whose value can only be from a pre-determined set
+    of choices.
+    """
+
+    def __init__(
+        self, description, choices, default_value=None, required=False
+    ):
+        """
+        In addition to the Property related attributes, the choices enumerate
+        a set of valid values.
+        """
+        self.choices = choices
+        super().__init__(description, default_value, required)
+
+    def validate(self, value):
+        """
+        Ensure the property's value is in the set of valid choices.
+        """
+        if value in self.choices or value is None:
+            return super().validate(value)
+        raise ValidationError(_("The value must be one of the valid choices."))
+
+    def as_dict(self, value):
+        """
+        Return a Python dictionary as a data structure representing all the
+        essential information about the property.
+        """
+        result = super().as_dict(value)
+        result["choices"] = self.choices
+        return result
 
 
 class Widget:
@@ -51,6 +318,36 @@ class Widget:
 
     def render_into(self, container):
         raise NotImplementedError()  # pragma: no cover
+
+    @property
+    def properties(self):
+        """
+        Returns a dictionary of properties associated with the widget. The key
+        is the property name, the value an instance of the relevant property
+        class.
+        """
+        return {
+            k: v
+            for k, v in self.__class__.__dict__.items()
+            if isinstance(v, Property)
+        }
+
+    def as_dict(self):
+        """
+        Return a Python dictionary as a data structure representing all the
+        essential information about the widget and its properties.
+        """
+        result = {
+            "name": self.name,
+            "id": self.id,
+            "channel": self.channel,
+            "position": self.position,
+            "properties": {},
+        }
+        breakpoint()
+        for name, prop in self.properties.items():
+            result["properties"][name] = prop.as_dict(getattr(self, name))
+        return result
 
     def set_position(self, container):
         """
