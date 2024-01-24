@@ -344,7 +344,6 @@ class Widget:
             "position": self.position,
             "properties": {},
         }
-        breakpoint()
         for name, prop in self.properties.items():
             result["properties"][name] = prop.as_dict(getattr(self, name))
         return result
