@@ -348,21 +348,16 @@ class Widget:
             result["properties"][name] = prop.as_dict(getattr(self, name))
         return result
 
-    def set_position(self, container):
+    def parse_position(self):
         """
-        Given the value of self.position, will adjust the CSS for the rendered
-        self.element, and its container, so the resulting HTML puts the element
-        into the expected position in the container.
+        Parse the self.position as: "VERTICAL-HORIZONTAL", "VERTICAL" or
+        "HORIZONTAL" values.
+
+        Valid values are defined in _VALID_VERTICALS and _VALID_HORIZONTALS.
+
+        Returns a tuple of (horizontal_position, vertical_position). Each
+        return value could be None.
         """
-        pos = self.position.upper()
-        if pos == "FILL":
-            # Fill the full extent of the container.
-            self.element.style.width = "100%"
-            self.element.style.height = "100%"
-            return
-        # Parse the position as: "VERTICAL-HORIZONTAL", "VERTICAL" or
-        # "HORIZONTAL" values.
-        # Valid values are defined in _VALID_VERTICALS and _VALID_HORIZONTALS.
         definition = pos.split("-")
         # Default values for the horizontal and vertical positions.
         horizontal_position = None
@@ -383,6 +378,22 @@ class Widget:
         if not (horizontal_position or vertical_position):
             # Bail out if we don't have a valid position state.
             raise ValueError(f"'{self.position}' is not a valid position.")
+        return (horizonal_position, vertical_position)
+
+    def set_position(self, container):
+        """
+        Given the value of self.position, will adjust the CSS for the rendered
+        self.element, and its container, so the resulting HTML puts the element
+        into the expected position in the container.
+        """
+        pos = self.position.upper()
+        if pos == "FILL":
+            # Fill the full extent of the container.
+            self.element.style.width = "100%"
+            self.element.style.height = "100%"
+            return
+        # Parse into horizontal and vertical positions.
+        horizontal_position, vertical_position = self.parse_position()
         # Check vertical position and adjust the container via CSS magic.
         if vertical_position == "TOP":
             container.style["align-self"] = "start"
@@ -397,11 +408,11 @@ class Widget:
             container.style["justify-self"] = "center"
         elif horizontal_position == "RIGHT":
             container.style["justify-self"] = "end"
-        # Ensure a unary vertical only position ensures a full horizontal fill.
+        # Ensure a vertical only position ensures a full horizontal fill.
         if not horizontal_position:
             container.style["justify-self"] = "stretch"
             self.element.style.width = "100%"
-        # Ensure a unary horizontal only position ensures a full vertical fill.
+        # Ensure a horizontal only position ensures a full vertical fill.
         if not vertical_position:
             container.style["align-self"] = "stretch"
             self.element.style.height = "100%"
