@@ -563,3 +563,23 @@ def test_widget_as_dict():
         == "ChoiceProperty"
     )
     assert result2["properties"]["favourite_colour"]["value"] == "coal"
+
+
+def test_widget_parse_position():
+    """
+    Any valid definition of a widget's position should result in the correct
+    horizontal and vertical values.
+    """
+    w = core.Widget(name="test widget")
+    for h in core._VALID_HORIZONTALS:
+        w.position = h
+        assert w.parse_position() == (None, h)
+        for v in core._VALID_VERTICALS:
+            w.position = v
+            assert w.parse_position() == (v, None)
+            w.position = f"{v}-{h}"
+            assert w.parse_position() == (v, h)
+    with pytest.raises(ValueError):
+        # Invalid position values result in a ValueError.
+        w.position = "NOT-VALID"
+        w.parse_position()

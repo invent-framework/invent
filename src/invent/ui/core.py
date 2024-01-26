@@ -36,6 +36,19 @@ class ValidationError(ValueError):
     ...
 
 
+class Event:
+    """
+    An instance of this class represents an event triggered in the life-cycle
+    of a Widget.
+    """
+
+    def __init__(self, name, **kwargs):
+        """
+        An event has a name.
+        """
+        ...  # TODO: Finish me.
+
+
 class Property:
     """
     An instance of a child of this class represents a property of a Widget.
@@ -52,11 +65,18 @@ class Property:
     indicate if it is a required property.
     """
 
+    _property_counter = 0
+
     def __init__(self, description, default_value=None, required=False):
         """
         All properties must have a description. They may have a default value
         and flag indicating if it is a required property.
         """
+        if not hasattr(self, "private_name"):
+            self.private_name = (
+                f"_{self.__class__.__name__.lower()}{self._property_counter}"
+            )
+            self._property_counter += 1
         self.description = description
         self.required = required
         self.default_value = self.validate(default_value)
@@ -355,10 +375,10 @@ class Widget:
 
         Valid values are defined in _VALID_VERTICALS and _VALID_HORIZONTALS.
 
-        Returns a tuple of (horizontal_position, vertical_position). Each
+        Returns a tuple of (vertical_position, horizontal_position). Each
         return value could be None.
         """
-        definition = pos.split("-")
+        definition = self.position.upper().split("-")
         # Default values for the horizontal and vertical positions.
         horizontal_position = None
         vertical_position = None
@@ -378,7 +398,7 @@ class Widget:
         if not (horizontal_position or vertical_position):
             # Bail out if we don't have a valid position state.
             raise ValueError(f"'{self.position}' is not a valid position.")
-        return (horizonal_position, vertical_position)
+        return (vertical_position, horizontal_position)
 
     def set_position(self, container):
         """
@@ -386,8 +406,7 @@ class Widget:
         self.element, and its container, so the resulting HTML puts the element
         into the expected position in the container.
         """
-        pos = self.position.upper()
-        if pos == "FILL":
+        if self.position.upper() == "FILL":
             # Fill the full extent of the container.
             self.element.style.width = "100%"
             self.element.style.height = "100%"

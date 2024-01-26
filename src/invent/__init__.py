@@ -19,8 +19,11 @@ limitations under the License.
 """
 from .pubsub import Message, subscribe, publish, unsubscribe
 from .datastore import DataStore
+from .page import Page
+from .app import App
 from .i18n import _
 from .media import Media, set_media_root, get_media_root
+from .utils import play_sound
 
 __all__ = [
     "Message",
@@ -29,11 +32,14 @@ __all__ = [
     "unsubscribe",
     "DataStore",
     "datastore",
+    "App",
+    "Page",
     "_",
     "Media",
     "media",
     "set_media_root",
     "get_media_root",
+    "play_sound",
 ]
 
 

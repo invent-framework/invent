@@ -20,6 +20,7 @@ limitations under the License.
 from .utils import random_id, sanitize
 from .core import Widget, Container, Column, Row
 from .widgets.button import Button
+from .widgets.image import Image
 from .widgets.textbox import TextBox
 from .widgets.textinput import TextInput
 
@@ -32,6 +33,7 @@ __all__ = [
     "Column",
     "Row",
     "Button",
+    "Image",
     "TextBox",
     "TextInput",
 ]

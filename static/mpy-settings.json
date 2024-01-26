@@ -1,0 +1,23 @@
+{
+    "files":{
+        "{INVENT}": "/src/invent",
+        "{TO}": "./invent",
+        "{INVENT}/pubsub.py": "{TO}/pubsub.py",
+        "{INVENT}/datastore.py": "{TO}/datastore.py",
+        "{INVENT}/app.py": "{TO}/app.py",
+        "{INVENT}/page.py": "{TO}/page.py",
+        "{INVENT}/i18n.py": "{TO}/i18n.py",
+        "{INVENT}/utils.py": "{TO}/utils.py",
+        "{INVENT}/__init__.py": "{TO}/__init__.py",
+        "{INVENT}/__about__.py": "{TO}/__about__.py",
+        "{INVENT}/ui/__init__.py": "{TO}/ui/__init__.py",
+        "{INVENT}/ui/utils.py": "{TO}/ui/utils.py",
+        "{INVENT}/ui/core.py": "{TO}/ui/core.py",
+        "{INVENT}/ui/widgets/__init__.py": "{TO}/ui/widgets/__init__.py",
+        "{INVENT}/ui/widgets/button.py": "{TO}/ui/widgets/button.py",
+        "{INVENT}/ui/widgets/image.py": "{TO}/ui/widgets/image.py",
+        "{INVENT}/ui/widgets/textbox.py": "{TO}/ui/widgets/textbox.py",
+        "{INVENT}/ui/widgets/textinput.py": "{TO}/ui/widgets/textinput.py"
+    }
+}
+
