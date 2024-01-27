@@ -21,7 +21,10 @@ from pyscript import document
 from .i18n import load, _
 
 
-__all__ = ["App"]
+__all__ = ["App", ]
+
+
+__app__ = None
 
 
 class App:
@@ -32,12 +35,31 @@ class App:
     """
 
     def __init__(self, name, icon=None, description=None, author=None, license=None, content=None):
+        global __app__
+        if __app__:
+            raise RuntimeError("There is already an app.")
+        __app__ = self
         self.name = name
         self.icon = icon
         self.description = description
         self.author = author
         self.license = license
         self.content = content or []
+        self._current_page = None
+
+    @classmethod
+    def app(cls):
+        global __app__
+        return __app__
+
+    def goto(self, page_name):
+        if self._current_page:
+            self._current_page.hide()
+        for page in self.content:
+            if page.name == page_name:
+                self._current_page = page
+                page.show()
+                break
 
     def go(self):
         """
@@ -50,6 +72,6 @@ class App:
             for page in self.content:
                 document.body.appendChild(page.render())
             # Show the first page.
-            self.content[0].show()
+            self.goto(self.content[0].name)
         else:
             raise ValueError("No pages in the app!")

@@ -23,7 +23,7 @@ from .page import Page
 from .app import App
 from .i18n import _
 from .media import Media, set_media_root, get_media_root
-from .utils import play_sound
+from .utils import play_sound, goto
 
 __all__ = [
     "Message",
@@ -40,6 +40,7 @@ __all__ = [
     "set_media_root",
     "get_media_root",
     "play_sound",
+    "goto",
 ]
 
 
