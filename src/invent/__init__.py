@@ -20,6 +20,7 @@ limitations under the License.
 from .pubsub import Message, subscribe, publish, unsubscribe
 from .datastore import DataStore
 from .i18n import _
+from .media import Media, set_media_root, get_media_root
 
 __all__ = [
     "Message",
@@ -29,8 +30,16 @@ __all__ = [
     "DataStore",
     "datastore",
     "_",
+    "Media",
+    "media",
+    "set_media_root",
+    "get_media_root",
 ]
 
 
 #: Default instance of the application's datastore.
 datastore = DataStore()
+
+
+#: The root from which all media files can be found.
+media = Media([], "media")

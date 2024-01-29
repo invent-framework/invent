@@ -5,6 +5,7 @@
         "{INVENT}/pubsub.py": "{TO}/pubsub.py",
         "{INVENT}/datastore.py": "{TO}/datastore.py",
         "{INVENT}/i18n.py": "{TO}/i18n.py",
+        "{INVENT}/media.py": "{TO}/media.py",
         "{INVENT}/__init__.py": "{TO}/__init__.py",
         "{INVENT}/__about__.py": "{TO}/__about__.py",
         "{INVENT}/ui/__init__.py": "{TO}/ui/__init__.py",
@@ -22,6 +23,7 @@
         "{TESTS}/test_pubsub.py": "{TESTSTO}/test_pubsub.py",
         "{TESTS}/test_datastore.py": "{TESTSTO}/test_datastore.py",
         "{TESTS}/test_i18n.py": "{TESTSTO}/test_i18n.py",
+        "{TESTS}/test_media.py": "{TESTSTO}/test_media.py",
         "{TESTS}/ui/__init__.py": "{TESTSTO}/ui/__init__.py",
         "{TESTS}/ui/test_utils.py": "{TESTSTO}/ui/test_utils.py",
         "{TESTS}/ui/test_core.py": "{TESTSTO}/ui/test_core.py"
