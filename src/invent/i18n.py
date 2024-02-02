@@ -26,7 +26,7 @@ from .pubsub import Message, publish
 
 
 __all__ = [
-    "load",
+    "load_translations",
     "set_language",
     "get_language",
     "_",
