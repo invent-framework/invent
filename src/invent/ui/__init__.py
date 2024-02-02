@@ -18,7 +18,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 from .utils import random_id, sanitize
-from .core import Widget, Container, Column, Row
+from .core import Widget, Container, Column, Row, from_datastore
 from .widgets.button import Button
 from .widgets.image import Image
 from .widgets.textbox import TextBox
@@ -32,6 +32,7 @@ __all__ = [
     "Container",
     "Column",
     "Row",
+    "from_datastore",
     "Button",
     "Image",
     "TextBox",

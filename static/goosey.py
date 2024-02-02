@@ -1,7 +1,12 @@
 import invent
-from invent.ui import Button, Image
+from invent.ui import Button, Image, from_datastore
 
 invent.set_media_root("static")
+invent.datastore.update({
+    "number_of_honks": 0,
+    "number_of_oinks": 0,
+})
+
 
 # User interface
 farmyard_app = invent.App(
@@ -24,6 +29,10 @@ farmyard_app = invent.App(
                     label="Visit Percy",
                     channel="navigate"
                 ),
+                invent.ui.TextBox(
+                    name="number_of_honks",
+                    text=from_datastore("number_of_honks"),
+                )
             ],
         ),
         invent.Page(
@@ -43,6 +52,10 @@ farmyard_app = invent.App(
                     label="Visit Lucy",
                     channel="navigate"
                 ),
+                invent.ui.TextBox(
+                    name="number_of_oinks",
+                    text=from_datastore("number_of_oinks"),
+                )
             ],
         )
     ],
@@ -51,10 +64,12 @@ farmyard_app = invent.App(
 
 # Handlers (stacks of blocks)
 def make_honk(message):
+    invent.datastore["number_of_honks"] = invent.datastore["number_of_honks"] + 1 
     invent.play_sound(invent.media.sounds.honk.mp3)
 
 
 def make_oink(message):
+    invent.datastore["number_of_oinks"] = invent.datastore["number_of_oinks"] + 1
     invent.play_sound(invent.media.sounds.oink.mp3)
 
 

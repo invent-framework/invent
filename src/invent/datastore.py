@@ -81,7 +81,7 @@ class DataStore:
         self.namespace = "invent"
         self.store = localStorage
         if kwargs:
-            self.update(kwargs.items())
+            self.update(kwargs)
 
     def clear(self):
         """
@@ -156,12 +156,17 @@ class DataStore:
         self[key] = value
         return value
 
-    def update(self, iterable):
+    def update(self, *args, **kwargs):
         """
         For each key/value pair in the iterable, insert them into the
         data store.
         """
-        for key, value in iterable:
+        new_items = {}
+        for arg in args:
+            if isinstance(arg, dict):
+               new_items.update(arg)
+        new_items.update(kwargs)
+        for key, value in new_items.items():
             self[key] = value
 
     def values(self):

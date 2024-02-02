@@ -2,20 +2,23 @@
 A minimal image.
 """
 from invent import publish, Message
+from invent.ui.core import Widget, TextProperty
 from pyscript import document
 
 
-class Image:
-    def __init__(self, image, channel):
-        self.image = image
-        self.channel = channel
-        self.element = None
+class Image(Widget):
+
+    image = TextProperty("The path to the image media.")
+
+    def __init__(self, image, name=None, channel=None):
+        super().__init__(name=name, channel=channel)
+        self.image = str(image)
 
     def touch(self, event):
         publish(Message("touch"), to_channel=self.channel)
 
     def render(self):
         self.element = document.createElement("img")
-        self.element.src = str(self.image)
+        self.element.src = self.image
         self.element.addEventListener("click", self.touch)
         return self.element

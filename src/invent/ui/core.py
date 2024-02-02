@@ -17,6 +17,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
+import invent
 from pyscript import document
 from invent.i18n import _
 from .utils import random_id
@@ -47,6 +48,19 @@ class Event:
         An event has a name.
         """
         ...  # TODO: Finish me.
+
+
+class from_datastore:
+    """
+    Instances of this class signal that a widget property is bound to a
+    datastore value.
+    """
+
+    def __init__(self, key):
+        """
+        The key identifies the value in the datastore.
+        """
+        self.key = key
 
 
 class Property:
@@ -99,6 +113,15 @@ class Property:
         Descriptor method to set and validate the value to be associated with
         the property.
         """
+        if isinstance(value, from_datastore):
+
+            def reactor(message, key=value.key):
+                if message.key == key:
+                    setattr(obj, self.private_name, self.validate(message.value))
+                    obj.render()
+
+            invent.subscribe(reactor, to_channel="datastore", when="store")
+            value = invent.datastore.get(value.key)
         setattr(obj, self.private_name, self.validate(value))
 
     def validate(self, value):
