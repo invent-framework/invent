@@ -7,6 +7,7 @@
         "{INVENT}/app.py": "{TO}/app.py",
         "{INVENT}/page.py": "{TO}/page.py",
         "{INVENT}/i18n.py": "{TO}/i18n.py",
+        "{INVENT}/media.py": "{TO}/media.py",
         "{INVENT}/utils.py": "{TO}/utils.py",
         "{INVENT}/__init__.py": "{TO}/__init__.py",
         "{INVENT}/__about__.py": "{TO}/__about__.py",

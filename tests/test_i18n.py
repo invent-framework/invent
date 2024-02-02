@@ -14,35 +14,35 @@ def test_state_after_import():
     assert invent.i18n.__translations == {}
 
 
-def test_load_from_default_location():
+def test_load_translations_from_default_location():
     """
-    The load method uses the translations.json file in the home directory by
-    default.
+    The load_translations method uses the translations.json file in the home
+    directory by default.
     """
     with open("./translations.json", "r") as tr:
         expected = json.load(tr)
-    invent.i18n.load()
+    invent.load_translations()
     assert invent.i18n.__translations == expected
 
 
-def test_load_from_given_location():
+def test_load_translations_from_given_location():
     """
-    The load method will use the referenced file for translations.
+    The load_translations method will use the referenced file for translations.
     """
     path = "translations.json"
     with open(path, "r") as tr:
         expected = json.load(tr)
-    invent.i18n.load(path)
+    invent.load_translations(path)
     assert invent.i18n.__translations == expected
 
 
-def test_load_from_bad_location_is_logged_to_console():
+def test_load_translations_from_bad_location_is_logged_to_console():
     """
     If the translations can't be loaded, this is logged for debugging purposes
     with the message from the Python exception.
     """
     with mock.patch("invent.i18n.window.console.error") as mock_error:
-        invent.i18n.load("no-such-file.json")
+        invent.load_translations("no-such-file.json")
         assert mock_error.called_once()
 
 
@@ -84,7 +84,7 @@ def test_():
     # No translations, so just return the string.
     assert "hello" == invent._("hello")
     # Load translations.
-    invent.i18n.load()
+    invent.load_translations()
     # No translation for the default language (en).
     invent.i18n.set_language("en")
     # So just return the string.

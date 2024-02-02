@@ -21,9 +21,9 @@ from .pubsub import Message, subscribe, publish, unsubscribe
 from .datastore import DataStore
 from .page import Page
 from .app import App
-from .i18n import _
+from .i18n import _, load_translations
 from .media import Media, set_media_root, get_media_root
-from .utils import play_sound, goto
+from .utils import play_sound, show_page
 
 __all__ = [
     "Message",
@@ -35,12 +35,13 @@ __all__ = [
     "App",
     "Page",
     "_",
+    "load_translations",
     "Media",
     "media",
     "set_media_root",
     "get_media_root",
     "play_sound",
-    "goto",
+    "show_page",
 ]
 
 

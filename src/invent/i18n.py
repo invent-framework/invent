@@ -43,7 +43,7 @@ __language = window.navigator.language
 __translations = {}
 
 
-def load(translations="./translations.json"):
+def load_translations(translations="./translations.json"):
     """
     Load the translations from the referenced JSON file.
 

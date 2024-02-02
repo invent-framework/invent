@@ -18,10 +18,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 from pyscript import document
-from .i18n import load, _
+from .i18n import load_translations, _
 
 
-__all__ = ["App", ]
+__all__ = [
+    "App",
+]
 
 
 __app__ = None
@@ -30,11 +32,20 @@ __app__ = None
 class App:
     """
     An instance of App is the root object for an Invent application. General
-    app related data hangs off an object of this type. E.g. name, author,
-    icon, description, license and other such things.
+    app related metadata hangs off an object of this type. E.g. name, author,
+    icon, description, license and other such things. In addition, the content
+    of Pages defines the UI tree.
     """
 
-    def __init__(self, name, icon=None, description=None, author=None, license=None, content=None):
+    def __init__(
+        self,
+        name,
+        icon=None,
+        description=None,
+        author=None,
+        license=None,
+        content=None,
+    ):
         global __app__
         if __app__:
             raise RuntimeError("There is already an app.")
@@ -52,7 +63,7 @@ class App:
         global __app__
         return __app__
 
-    def goto(self, page_name):
+    def show_page(self, page_name):
         if self._current_page:
             self._current_page.hide()
         for page in self.content:
@@ -66,12 +77,12 @@ class App:
         Start the universe.
         """
         # Load the i18n stuff.
-        load()
+        load_translations()
         # Render all the pages to the DOM.
         if self.content:
             for page in self.content:
                 document.body.appendChild(page.render())
             # Show the first page.
-            self.goto(self.content[0].name)
+            self.show_page(self.content[0].name)
         else:
-            raise ValueError("No pages in the app!")
+            raise ValueError(_("No pages in the app!"))

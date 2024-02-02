@@ -1,6 +1,7 @@
 import invent
 from invent.ui import Button, Image
 
+invent.set_media_root("static")
 
 # User interface
 farmyard_app = invent.App(
@@ -10,7 +11,7 @@ farmyard_app = invent.App(
             name="Honk",
             content = [
                 invent.ui.Image(
-                    "/static/goose.png",
+                    invent.media.images.goose.png,
                     channel="honk"
                 ),
                 invent.ui.Button(
@@ -29,7 +30,7 @@ farmyard_app = invent.App(
             name="Oink",
             content = [
                 invent.ui.Image(
-                    "/static/pig.png",
+                    invent.media.images.pig.png,
                     channel="oink"
                 ),
                 invent.ui.Button(
@@ -50,18 +51,18 @@ farmyard_app = invent.App(
 
 # Handlers (stacks of blocks)
 def make_honk(message):
-    invent.play_sound("/static/honk.mp3")  # invent.media.sounds.honk.mp3)
+    invent.play_sound(invent.media.sounds.honk.mp3)
 
 
 def make_oink(message):
-    invent.play_sound("/static/oink.mp3")  # invent.media.sounds.honk.mp3)
+    invent.play_sound(invent.media.sounds.oink.mp3)
 
 
 def move_page(message):
     if message.button == "to_goose":
-        invent.goto("Honk")
+        invent.show_page("Honk")
     elif message.button == "to_pig":
-        invent.goto("Oink")
+        invent.show_page("Oink")
 
 
 # Pubsub (???)

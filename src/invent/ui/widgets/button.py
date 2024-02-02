@@ -6,7 +6,6 @@ from pyscript import document
 
 
 class Button:
-
     def __init__(self, name, label, channel):
         self.name = name
         self.label = label
@@ -14,11 +13,8 @@ class Button:
         self.element = None
 
     def click(self, event):
-        publish(
-            Message("press", button=self.name),
-            to_channel=self.channel
-        )
-    
+        publish(Message("press", button=self.name), to_channel=self.channel)
+
     def render(self):
         self.element = document.createElement("button")
         self.element.id = self.name
