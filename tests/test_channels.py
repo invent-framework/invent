@@ -20,31 +20,31 @@ def test_message_attributes():
     assert m.data == "foo"
 
 
-def test_message_type():
+def test_subject():
     """
-    The message's _type is the message_type passed in as the first argument
+    The message's _subject is the subject passed in as the first argument
     when instantiating the Message class.
     """
     m = invent.Message("message", data="test")
-    assert m._type == "message"
+    assert m._subject == "message"
 
 
-def test_subscribe_and_publish_single_channel_and_type():
+def test_subscribe_and_publish_single_channel_and_subject():
     """
-    Subscribe to a single channel and message type with a handler.
+    Subscribe to a single channel and message subject with a handler.
 
     Ensure it works because the handler is called when the expected message is
     published to the right channel.
     """
     handler = mock.MagicMock()
     invent.subscribe(handler, to_channel="testing", when="test")
-    m1 = invent.Message(message_type="test", data="Test")
+    m1 = invent.Message(subject="test", data="Test")
     # This should succeed and cause the handler to fire.
     invent.publish(m1, to_channel="testing")
     # This will not succeed, because it's the wrong channel.
     invent.publish(m1, to_channel="wrong_channel")
     # This will not succeed, because it's the wrong message type.
-    m2 = invent.Message(message_type="wrong_type", data="Test")
+    m2 = invent.Message(subject="wrong_type", data="Test")
     invent.publish(m2, to_channel="testing")
     # The handler is correctly subscribed because it has only been called for
     # the single occassion when both the channel and message type matched the
@@ -52,7 +52,7 @@ def test_subscribe_and_publish_single_channel_and_type():
     handler.assert_called_once_with(m1)
 
 
-def test_subscribe_and_publish_multi_channel_and_type():
+def test_subscribe_and_publish_multi_channel_and_subject():
     """
     Subscribe to multiple channels and message types with a single handler.
 
@@ -71,8 +71,8 @@ def test_subscribe_and_publish_multi_channel_and_type():
             "test2",
         ],
     )
-    m1 = invent.Message(message_type="test1", data="Test")
-    m2 = invent.Message(message_type="test2", data="Test")
+    m1 = invent.Message(subject="test1", data="Test")
+    m2 = invent.Message(subject="test2", data="Test")
     # These should succeed and cause the handler to fire four times.
     invent.publish(m1, to_channel="testing1")
     invent.publish(m1, to_channel="testing2")
@@ -97,21 +97,21 @@ def test_subscribe_is_idempotent():
     handler = mock.MagicMock()
     invent.subscribe(handler, to_channel="testing", when="test")
     invent.subscribe(handler, to_channel="testing", when="test")
-    m1 = invent.Message(message_type="test", data="Test")
+    m1 = invent.Message(subject="test", data="Test")
     invent.publish(m1, to_channel="testing")
     # The handler is correctly subscribed because it has only been called once
     # when a message is passed, despite being subscribed twice.
     handler.assert_called_once_with(m1)
 
 
-def test_unsubscribe_single_channel_and_type():
+def test_unsubscribe_single_channel_and_subject():
     """
     Unsubscribing from a single channel / message type ensures the message
     handler is no longer called when a matching message is sent to the channel.
     """
     handler = mock.MagicMock()
     invent.subscribe(handler, to_channel="testing", when="test")
-    m = invent.Message(message_type="test", data="Test")
+    m = invent.Message(subject="test", data="Test")
     # This should succeed and cause the handler to fire.
     invent.publish(m, to_channel="testing")
     # Unsubscribe.
@@ -122,7 +122,7 @@ def test_unsubscribe_single_channel_and_type():
     handler.assert_called_once_with(m)
 
 
-def test_unsubscribe_multi_channel_and_type():
+def test_unsubscribe_multi_channel_and_subject():
     """
     Unsubscribing from multiple channels / message types ensures the message
     handler is no longer called when matching messages are sent to the
@@ -140,8 +140,8 @@ def test_unsubscribe_multi_channel_and_type():
             "test2",
         ],
     )
-    m1 = invent.Message(message_type="test1", data="Test")
-    m2 = invent.Message(message_type="test2", data="Test")
+    m1 = invent.Message(subject="test1", data="Test")
+    m2 = invent.Message(subject="test2", data="Test")
     # These should succeed and cause the handler to fire four times.
     invent.publish(m1, to_channel="testing1")
     invent.publish(m1, to_channel="testing2")
@@ -170,7 +170,7 @@ def test_unsubscribe_multi_channel_and_type():
     assert handler.call_count == 4
 
 
-def test_unsubscribe_missing_message_type():
+def test_unsubscribe_missing_subject():
     """
     Unsubscribing from a channel but missing a valid message type results in
     an error.

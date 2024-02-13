@@ -2,7 +2,7 @@
     "files":{
         "{INVENT}": "/src/invent",
         "{TO}": "./invent",
-        "{INVENT}/pubsub.py": "{TO}/pubsub.py",
+        "{INVENT}/channels.py": "{TO}/channels.py",
         "{INVENT}/datastore.py": "{TO}/datastore.py",
         "{INVENT}/app.py": "{TO}/app.py",
         "{INVENT}/page.py": "{TO}/page.py",

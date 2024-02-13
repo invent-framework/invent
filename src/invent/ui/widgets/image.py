@@ -7,7 +7,6 @@ from pyscript import document
 
 
 class Image(Widget):
-
     image = TextProperty("The path to the image media.")
 
     def __init__(self, image, name=None, channel=None):

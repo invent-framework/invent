@@ -117,7 +117,9 @@ class Property:
 
             def reactor(message, key=value.key):
                 if message.key == key:
-                    setattr(obj, self.private_name, self.validate(message.value))
+                    setattr(
+                        obj, self.private_name, self.validate(message.value)
+                    )
                     obj.render()
 
             invent.subscribe(reactor, to_channel="datastore", when="store")

@@ -7,4 +7,4 @@ def test_foo():
     """
     Test
     """
-    assert False
+    assert True

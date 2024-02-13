@@ -20,7 +20,7 @@ limitations under the License.
 """
 import json
 from pyscript import window
-from .pubsub import Message, publish
+from .channels import Message, publish
 
 
 class _FakeStorage(dict):
@@ -164,7 +164,7 @@ class DataStore:
         new_items = {}
         for arg in args:
             if isinstance(arg, dict):
-               new_items.update(arg)
+                new_items.update(arg)
         new_items.update(kwargs)
         for key, value in new_items.items():
             self[key] = value
@@ -205,15 +205,15 @@ class DataStore:
 
         The underlying JavaScript Storage only stored values as strings.
 
-        Publishes a "store" message, with the key/value, on the "datastore"
-        channel.
+        Publishes a message whose type is the item's key, along with the new
+        value, to the "store-data" channel.
         """
         result = self.store.setItem(
             self._namespace_key(key), json.dumps(value)
         )
         publish(
-            Message(message_type="store", key=key, value=value),
-            to_channel="datastore",
+            Message(subject=key, value=value),
+            to_channel="store-data",
         )
         return result
 
@@ -221,14 +221,12 @@ class DataStore:
         """
         Delete the item stored against the given key.
 
-        Publishes a "delete" message, with the key, on the "datastore"
-        channel.
+        Publishes a message whose type is the item's the key, to the
+        "delete-data" channel.
         """
         if key in self:
             result = self.store.removeItem(self._namespace_key(key))
-            publish(
-                Message(message_type="delete", key=key), to_channel="datastore"
-            )
+            publish(Message(subject=key), to_channel="delete-data")
             return result
         else:
             raise KeyError(key)

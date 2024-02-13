@@ -7,7 +7,6 @@ from pyscript import document
 
 
 class TextBox(Widget):
-    
     text = Property("The content to display.")
 
     def __init__(self, text, name=None):

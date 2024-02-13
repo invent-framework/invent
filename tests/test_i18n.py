@@ -57,7 +57,7 @@ def test_set_language():
         assert invent.i18n.__language == "foo"
         assert invent.i18n.get_language() == "foo"
         msg = mock_publish.call_args_list[0][0][0]
-        assert msg._type == "set_language"
+        assert msg._subject == "set_language"
         assert msg.to_language == "foo"
         assert mock_publish.call_args_list[0][1]["to_channel"] == "i18n"
     invent.i18n.set_language(current_lang)

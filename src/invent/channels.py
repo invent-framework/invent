@@ -28,24 +28,26 @@ __all__ = [
 
 
 # Defines how channels / messages are linked to handler functions.
-_pubsub = {}
+_channels = {}
 
 
 class Message:
     """
     Represents any Invent related messages sent to channels.
 
-    The message's type ("click", "slide", "whatever") becomes the
+    The message's subject ("click", "slide", "whatever") becomes the
     thing to which to listen for (i.e. the "when" when subscribing).
     """
 
-    def __init__(self, message_type, **kwargs):
-        self._type = message_type
+    # TODO: type -> subject
+
+    def __init__(self, subject, **kwargs):
+        self._subject = subject
         for k, v in kwargs.items():
             setattr(self, k, v)
 
     def __str__(self):
-        result = self._type + " "
+        result = self._subject + " "
         result += str(
             {k: v for k, v in self.__dict__.items() if not k.startswith("_")}
         )
@@ -54,11 +56,11 @@ class Message:
 
 def subscribe(handler, to_channel, when):
     """
-    Subscribe an event handler to a channel[s] to handle when a certain type of
-    message[s] is received.
+    Subscribe an event handler to a channel[s] to handle when a certain sort of
+    message[s] is received (identified by subject).
 
     The to_channel and when arguments can be either individual strings or a
-    list of strings to indicate the channel[s] and message types (when).
+    list of strings to indicate the channel[s] and message subjects (when).
 
     E.g.
 
@@ -73,12 +75,12 @@ def subscribe(handler, to_channel, when):
             when,
         ]
     for channel in to_channel:
-        if channel not in _pubsub:
-            _pubsub[channel] = {}
+        if channel not in _channels:
+            _channels[channel] = {}
         for name in when:
-            message_handlers = _pubsub[channel].get(name, set())
+            message_handlers = _channels[channel].get(name, set())
             message_handlers.add(handler)
-            _pubsub[channel][name] = message_handlers
+            _channels[channel][name] = message_handlers
 
 
 def publish(message, to_channel):
@@ -97,19 +99,19 @@ def publish(message, to_channel):
             to_channel,
         ]
     for channel in to_channel:
-        channel_info = _pubsub.get(channel, {})
-        if message._type in channel_info:
-            for handler in channel_info[message._type]:
+        channel_info = _channels.get(channel, {})
+        if message._subject in channel_info:
+            for handler in channel_info[message._subject]:
                 handler(message)
 
 
 def unsubscribe(handler, from_channel, when):
     """
     Unsubscribe a handler from a channel[s] to stop it handling when a certain
-    message[s] is received.
+    message[s] is received (identified by subject).
 
     The from_channel and when arguments can be either individual strings or a
-    list of strings to indicate the channel[s] and message types (when).
+    list of strings to indicate the channel[s] and message subjects (when).
 
     E.g.
 
@@ -124,7 +126,7 @@ def unsubscribe(handler, from_channel, when):
             when,
         ]
     for channel in from_channel:
-        channel_info = _pubsub.get(channel)
+        channel_info = _channels.get(channel)
         if channel_info:
             for name in when:
                 if name in channel_info and handler in channel_info[name]:

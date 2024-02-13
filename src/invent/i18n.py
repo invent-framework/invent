@@ -22,7 +22,7 @@ limitations under the License.
 """
 import json
 from pyscript import window
-from .pubsub import Message, publish
+from .channels import Message, publish
 
 
 __all__ = [
@@ -89,7 +89,7 @@ def set_language(to_language):
     global __language
     __language = to_language
     publish(
-        Message(message_type="set_language", to_language=to_language),
+        Message(subject="set_language", to_language=to_language),
         to_channel="i18n",
     )
 

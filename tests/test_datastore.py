@@ -40,7 +40,7 @@ def test_datastore_default_init():
 
 def test_datastore_init_with_values():
     """
-    If the persist flag on __init__ is True, sessionStorage is used.
+    Initialise the dictionary with key/value arguments.
     """
     ds = invent.DataStore(foo="bar", baz="qux")
     assert ds["foo"] == "bar"
@@ -213,7 +213,7 @@ def test_datastore_update():
     """
     Given an iterable of key/value pairs, insert them into the datastore.
     """
-    to_insert = (("a", 1), ("b", 2))
+    to_insert = {"a": 1, "b": 2}
     ds = invent.DataStore()
     ds.update(to_insert)
     assert len(ds) == 2
@@ -262,11 +262,10 @@ def test_datastore_get_set_del_item():
         msg = call_args[0][0]
         # It's the expected "store" message with the key/value pair that was
         # just stored.
-        assert msg._type == "store"
-        assert msg.key == "a"
+        assert msg._subject == "a"
         assert msg.value == 1
         # The message was also published to the expected "datastore" channel.
-        assert call_args[1]["to_channel"] == "datastore"
+        assert call_args[1]["to_channel"] == "store-data"
         # Reset mock.
         mock_publish.reset_mock()
         # Check the stored value is actually in the datastore.
@@ -280,10 +279,9 @@ def test_datastore_get_set_del_item():
         msg = call_args[0][0]
         # It's the expected "store" message with the key pair that was just
         # stored.
-        assert msg._type == "delete"
-        assert msg.key == "a"
+        assert msg._subject == "a"
         # The message was also published to the expected "datastore" channel.
-        assert call_args[1]["to_channel"] == "datastore"
+        assert call_args[1]["to_channel"] == "delete-data"
     with pytest.raises(KeyError):
         # Deleting via a non-existent key raises a KeyError.
         del ds["a"]

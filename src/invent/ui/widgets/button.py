@@ -7,7 +7,6 @@ from pyscript import document
 
 
 class Button(Widget):
-    
     label = TextProperty("The text on the button.")
 
     def __init__(self, name, label, channel):
