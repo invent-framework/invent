@@ -1,7 +1,7 @@
 import invent
 from invent.ui import Button, Image, from_datastore
 
-invent.set_media_root("static")
+invent.set_media_root("/static")
 invent.datastore.update({
     "number_of_honks": 0,
     "number_of_oinks": 0,
@@ -81,9 +81,9 @@ def move_page(message):
 
 
 # Pubsub (???)
-invent.pubsub.subscribe(make_honk, to_channel="honk", when=["press", "touch"])
-invent.pubsub.subscribe(make_oink, to_channel="oink", when=["press", "touch"])
-invent.pubsub.subscribe(move_page, to_channel="navigate", when=["press",])
+invent.subscribe(make_honk, to_channel="honk", when=["press", "touch"])
+invent.subscribe(make_oink, to_channel="oink", when=["press", "touch"])
+invent.subscribe(move_page, to_channel="navigate", when=["press",])
 
 
 # GO!

@@ -437,7 +437,7 @@ def test_widget_init_defaults():
     assert len(w.id[7:]) == 10
     # The default position is top left.
     assert w.position == "TOP-LEFT"
-    # The default pubsub channel for widget related messages is the same as
+    # The default channel for widget related messages is the same as
     # the widget's id.
     assert w.channel == w.id
 

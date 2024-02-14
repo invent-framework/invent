@@ -116,13 +116,13 @@ class Property:
         if isinstance(value, from_datastore):
 
             def reactor(message, key=value.key):
-                if message.key == key:
+                if message._subject == key:
                     setattr(
                         obj, self.private_name, self.validate(message.value)
                     )
                     obj.render()
 
-            invent.subscribe(reactor, to_channel="datastore", when="store")
+            invent.subscribe(reactor, to_channel="store-data", when=value.key)
             value = invent.datastore.get(value.key)
         setattr(obj, self.private_name, self.validate(value))
 
