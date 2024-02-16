@@ -8,6 +8,7 @@ all:
 	@echo "make lint - check the code for obvious errors with flake8."
 	@echo "make lint-all - check all code for obvious errors with flake8."
 	@echo "make serve - serve the project at: http://0.0.0.0:8000/"
+	@echo "make widgets - generate the JSON definition of available widgets."
 	@echo "make test - while serving the app, run the test suite in browser."
 	@echo "make dist - build the module as a package."
 	@echo "make publish-test - upload the package to the PyPI test instance."
@@ -21,6 +22,7 @@ clean:
 tidy:
 	black -l 79 src/invent
 	black -l 79 tests
+	black -l 79 utils 
 
 lint:
 	flake8 src/invent
@@ -30,6 +32,9 @@ lint-all:
 
 serve:
 	python utils/serve.py
+
+widgets:
+	PYTHONPATH="src" python utils/export_widgets.py
 
 test:
 	python -m webbrowser http://localhost:8000/index.html

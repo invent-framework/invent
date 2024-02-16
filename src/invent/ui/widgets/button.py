@@ -1,6 +1,7 @@
 """
 A minimal button.
 """
+
 from invent import publish, Message
 from invent.ui.core import Widget, TextProperty
 from pyscript import document

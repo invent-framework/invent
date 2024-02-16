@@ -17,7 +17,9 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
+
 import invent
+import inspect
 from pyscript import document
 from invent.i18n import _
 from .utils import random_id
@@ -112,18 +114,27 @@ class Property:
         """
         Descriptor method to set and validate the value to be associated with
         the property.
+
+        If the value is from_datastore, then a reactor function is defined to
+        handle when the referenced value in the datastore changes. The reactor
+        function ensures the widget is re-rendered (i.e. appears reactive) when
+        the associated value is updated.
         """
         if isinstance(value, from_datastore):
 
             def reactor(message, key=value.key):
-                if message._subject == key:
-                    setattr(
-                        obj, self.private_name, self.validate(message.value)
-                    )
-                    obj.render()
+                """
+                Set the value in the widget and re-render to ensure the update
+                is visible to the user.
+                """
+                setattr(obj, self.private_name, self.validate(message.value))
+                obj.render()
 
+            # Subscribe to store events for the specified key.
             invent.subscribe(reactor, to_channel="store-data", when=value.key)
-            value = invent.datastore.get(value.key)
+            # Update value to the actual value from the datastore.
+            value = invent.datastore.get(value.key, self.default_value)
+        # Set the value in the widget.
         setattr(obj, self.private_name, self.validate(value))
 
     def validate(self, value):
@@ -134,7 +145,7 @@ class Property:
             raise ValidationError(_("This property is required."))
         return value
 
-    def as_dict(self, value):
+    def as_dict(self):
         """
         Return a Python dictionary as a data structure representing all the
         essential information about the property.
@@ -143,7 +154,7 @@ class Property:
             "property_type": self.__class__.__name__,
             "description": self.description,
             "required": self.required,
-            "value": value,
+            "default_value": self.default_value,
         }
 
 
@@ -193,12 +204,12 @@ class NumericProperty(Property):
                 )
         return super().validate(value)
 
-    def as_dict(self, value):
+    def as_dict(self):
         """
         Return a Python dictionary as a data structure representing all the
         essential information about the property.
         """
-        result = super().as_dict(value)
+        result = super().as_dict()
         result["minimum"] = self.minimum
         result["maximum"] = self.maximum
         return result
@@ -278,12 +289,12 @@ class TextProperty(Property):
                 )
         return super().validate(value)
 
-    def as_dict(self, value):
+    def as_dict(self):
         """
         Return a Python dictionary as a data structure representing all the
         essential information about the property.
         """
-        result = super().as_dict(value)
+        result = super().as_dict()
         result["min_length"] = self.min_length
         result["max_length"] = self.max_length
         return result
@@ -329,12 +340,12 @@ class ChoiceProperty(Property):
             return super().validate(value)
         raise ValidationError(_("The value must be one of the valid choices."))
 
-    def as_dict(self, value):
+    def as_dict(self):
         """
         Return a Python dictionary as a data structure representing all the
         essential information about the property.
         """
-        result = super().as_dict(value)
+        result = super().as_dict()
         result["choices"] = self.choices
         return result
 
@@ -349,9 +360,18 @@ class Widget:
     * An indication of the widget's preferred position (default: top left).
     * A render_into function that takes the widget's container and renders
       itself as an HTML element into the container.
+    * TODO: A react_to function, that updates the rendered element with new
+      attribute values.
     * An optional channel name to which it broadcasts its messages (defaults to
-      the id)
+      the id).
     """
+
+    name = TextProperty(
+        "The meaningful name of the widget instance.",
+    )
+    id = TextProperty("The id of the widget instance in the DOM.")
+    channel = TextProperty("The channel[s] to which the widget broadcasts.")
+    position = TextProperty("The widget's preferred position.")
 
     def __init__(self, name, id=None, position="TOP-LEFT", channel=None):
         self.name = name
@@ -364,34 +384,28 @@ class Widget:
     def render_into(self, container):
         raise NotImplementedError()  # pragma: no cover
 
-    @property
-    def properties(self):
+    @classmethod
+    def properties(cls):
         """
         Returns a dictionary of properties associated with the widget. The key
         is the property name, the value an instance of the relevant property
         class.
         """
-        return {
-            k: v
-            for k, v in self.__class__.__dict__.items()
-            if isinstance(v, Property)
-        }
+        result = {}
+        for name, value in inspect.getmembers_static(cls):
+            if isinstance(value, Property):
+                result[name] = value
+        return dict(sorted(result.items()))
 
-    def as_dict(self):
+    @classmethod
+    def as_dict(cls):
         """
         Return a Python dictionary as a data structure representing all the
         essential information about the widget and its properties.
         """
-        result = {
-            "name": self.name,
-            "id": self.id,
-            "channel": self.channel,
-            "position": self.position,
-            "properties": {},
+        return {
+            name: prop.as_dict() for name, prop in cls.properties().items()
         }
-        for name, prop in self.properties.items():
-            result["properties"][name] = prop.as_dict(getattr(self, name))
-        return result
 
     def parse_position(self):
         """

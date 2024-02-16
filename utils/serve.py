@@ -18,5 +18,5 @@ class MyHTTPRequestHandler(server.SimpleHTTPRequestHandler):
         server.SimpleHTTPRequestHandler.end_headers(self)
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
     server.test(HandlerClass=MyHTTPRequestHandler)

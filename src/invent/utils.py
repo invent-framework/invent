@@ -1,6 +1,7 @@
 """
 Utility functions.
 """
+
 from invent import App
 from pyscript import window
 

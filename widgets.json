@@ -1,0 +1,160 @@
+{
+  "Button": {
+    "channel": {
+      "property_type": "TextProperty",
+      "description": "The channel[s] to which the widget broadcasts.",
+      "required": false,
+      "default_value": null,
+      "min_length": null,
+      "max_length": null
+    },
+    "id": {
+      "property_type": "TextProperty",
+      "description": "The id of the widget instance in the DOM.",
+      "required": false,
+      "default_value": null,
+      "min_length": null,
+      "max_length": null
+    },
+    "label": {
+      "property_type": "TextProperty",
+      "description": "The text on the button.",
+      "required": false,
+      "default_value": null,
+      "min_length": null,
+      "max_length": null
+    },
+    "name": {
+      "property_type": "TextProperty",
+      "description": "The meaningful name of the widget instance.",
+      "required": false,
+      "default_value": null,
+      "min_length": null,
+      "max_length": null
+    },
+    "position": {
+      "property_type": "TextProperty",
+      "description": "The widget's preferred position.",
+      "required": false,
+      "default_value": null,
+      "min_length": null,
+      "max_length": null
+    }
+  },
+  "Image": {
+    "channel": {
+      "property_type": "TextProperty",
+      "description": "The channel[s] to which the widget broadcasts.",
+      "required": false,
+      "default_value": null,
+      "min_length": null,
+      "max_length": null
+    },
+    "id": {
+      "property_type": "TextProperty",
+      "description": "The id of the widget instance in the DOM.",
+      "required": false,
+      "default_value": null,
+      "min_length": null,
+      "max_length": null
+    },
+    "image": {
+      "property_type": "TextProperty",
+      "description": "The path to the image media.",
+      "required": false,
+      "default_value": null,
+      "min_length": null,
+      "max_length": null
+    },
+    "name": {
+      "property_type": "TextProperty",
+      "description": "The meaningful name of the widget instance.",
+      "required": false,
+      "default_value": null,
+      "min_length": null,
+      "max_length": null
+    },
+    "position": {
+      "property_type": "TextProperty",
+      "description": "The widget's preferred position.",
+      "required": false,
+      "default_value": null,
+      "min_length": null,
+      "max_length": null
+    }
+  },
+  "TextBox": {
+    "channel": {
+      "property_type": "TextProperty",
+      "description": "The channel[s] to which the widget broadcasts.",
+      "required": false,
+      "default_value": null,
+      "min_length": null,
+      "max_length": null
+    },
+    "id": {
+      "property_type": "TextProperty",
+      "description": "The id of the widget instance in the DOM.",
+      "required": false,
+      "default_value": null,
+      "min_length": null,
+      "max_length": null
+    },
+    "name": {
+      "property_type": "TextProperty",
+      "description": "The meaningful name of the widget instance.",
+      "required": false,
+      "default_value": null,
+      "min_length": null,
+      "max_length": null
+    },
+    "position": {
+      "property_type": "TextProperty",
+      "description": "The widget's preferred position.",
+      "required": false,
+      "default_value": null,
+      "min_length": null,
+      "max_length": null
+    },
+    "text": {
+      "property_type": "Property",
+      "description": "The content to display.",
+      "required": false,
+      "default_value": null
+    }
+  },
+  "TextInput": {
+    "channel": {
+      "property_type": "TextProperty",
+      "description": "The channel[s] to which the widget broadcasts.",
+      "required": false,
+      "default_value": null,
+      "min_length": null,
+      "max_length": null
+    },
+    "id": {
+      "property_type": "TextProperty",
+      "description": "The id of the widget instance in the DOM.",
+      "required": false,
+      "default_value": null,
+      "min_length": null,
+      "max_length": null
+    },
+    "name": {
+      "property_type": "TextProperty",
+      "description": "The meaningful name of the widget instance.",
+      "required": false,
+      "default_value": null,
+      "min_length": null,
+      "max_length": null
+    },
+    "position": {
+      "property_type": "TextProperty",
+      "description": "The widget's preferred position.",
+      "required": false,
+      "default_value": null,
+      "min_length": null,
+      "max_length": null
+    }
+  }
+}

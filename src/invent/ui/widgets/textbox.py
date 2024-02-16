@@ -1,6 +1,7 @@
 """
 A minimal area of the UI containing textual content.
 """
+
 from invent import publish, Message
 from invent.ui.core import Widget, Property
 from pyscript import document

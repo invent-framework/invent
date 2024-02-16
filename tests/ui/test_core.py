@@ -2,6 +2,14 @@ import pytest
 from invent.ui import core
 
 
+def test_from_datastore():
+    """
+    Ensure this signal class has just a key attribute.
+    """
+    fds = core.from_datastore("foo")
+    assert fds.key == "foo"
+
+
 def test_property_init():
     """
     The property is initialised with a description, and optional value
@@ -55,11 +63,11 @@ def test_property_as_dict():
     structure and attributes is returned.
     """
     p = core.Property("A test property", default_value="test", required=True)
-    assert p.as_dict("test") == {
+    assert p.as_dict() == {
         "property_type": "Property",
         "description": "A test property",
         "required": True,
-        "value": "test",
+        "default_value": "test",
     }
 
 
@@ -175,11 +183,11 @@ def test_numeric_property_as_dict():
     np = core.NumericProperty(
         "A test property", default_value=150, minimum=100
     )
-    assert np.as_dict(150) == {
+    assert np.as_dict() == {
         "property_type": "NumericProperty",
         "description": "A test property",
         "required": False,
-        "value": 150,
+        "default_value": 150,
         "minimum": 100,
         "maximum": None,
     }
@@ -323,11 +331,11 @@ def test_text_property_as_dict():
     structure and attributes is returned.
     """
     tp = core.TextProperty("A test property", max_length=10)
-    assert tp.as_dict(None) == {
+    assert tp.as_dict() == {
         "property_type": "TextProperty",
         "description": "A test property",
         "required": False,
-        "value": None,
+        "default_value": None,
         "min_length": None,
         "max_length": 10,
     }
@@ -416,11 +424,11 @@ def test_choice_property_as_dict():
             3,
         ],
     )
-    assert cp.as_dict(None) == {
+    assert cp.as_dict() == {
         "property_type": "ChoiceProperty",
         "description": "A test property",
         "required": False,
-        "value": None,
+        "default_value": None,
         "choices": [1, 2, 3],
     }
 
@@ -482,13 +490,14 @@ def test_widget_properties():
     mw.foo = "baz"
     mw.numberwang = -1
     mw.favourite_colour = "black"
+    properties = mw.properties()
 
     assert mw.foo == "baz"
     assert mw.numberwang == -1
     assert mw.favourite_colour == "black"
-    assert isinstance(mw.properties["foo"], core.TextProperty)
-    assert isinstance(mw.properties["numberwang"], core.IntegerProperty)
-    assert isinstance(mw.properties["favourite_colour"], core.ChoiceProperty)
+    assert isinstance(properties["foo"], core.TextProperty)
+    assert isinstance(properties["numberwang"], core.IntegerProperty)
+    assert isinstance(properties["favourite_colour"], core.ChoiceProperty)
 
 
 def test_widget_as_dict():
@@ -508,6 +517,7 @@ def test_widget_as_dict():
         )
         favourite_colour = core.ChoiceProperty(
             "Best colour.",
+            default_value="black",
             choices=[
                 "black",
                 "very very dark grey",
@@ -516,53 +526,21 @@ def test_widget_as_dict():
             ],
         )
 
-    mw = MyWidget(name="test widget")
-    mw.foo = "baz"
-    mw.numberwang = -1
-    mw.favourite_colour = "black"
-
-    mw2 = MyWidget(name="another test widget")
-    mw2.foo = "qux"
-    mw2.numberwang = 666
-    mw2.favourite_colour = "coal"
-
-    result = mw.as_dict()
-    assert result["name"] == "test widget"
-    assert result["id"] == mw.id
-    assert result["channel"] == mw.channel
-    assert result["position"] == mw.position
-    assert len(result["properties"]) == 3
-    assert result["properties"]["foo"]["property_type"] == "TextProperty"
-    assert result["properties"]["foo"]["value"] == "baz"
-    assert (
-        result["properties"]["numberwang"]["property_type"]
-        == "IntegerProperty"
-    )
-    assert result["properties"]["numberwang"]["value"] == -1
-    assert (
-        result["properties"]["favourite_colour"]["property_type"]
-        == "ChoiceProperty"
-    )
-    assert result["properties"]["favourite_colour"]["value"] == "black"
-
-    result2 = mw2.as_dict()
-    assert result2["name"] == "another test widget"
-    assert result2["id"] == mw2.id
-    assert result2["channel"] == mw2.channel
-    assert result2["position"] == mw2.position
-    assert len(result2["properties"]) == 3
-    assert result2["properties"]["foo"]["property_type"] == "TextProperty"
-    assert result2["properties"]["foo"]["value"] == "qux"
-    assert (
-        result2["properties"]["numberwang"]["property_type"]
-        == "IntegerProperty"
-    )
-    assert result2["properties"]["numberwang"]["value"] == 666
-    assert (
-        result2["properties"]["favourite_colour"]["property_type"]
-        == "ChoiceProperty"
-    )
-    assert result2["properties"]["favourite_colour"]["value"] == "coal"
+    result = MyWidget.as_dict()
+    assert result["name"]["property_type"] == "TextProperty"
+    assert result["name"]["default_value"] is None
+    assert result["id"]["property_type"] == "TextProperty"
+    assert result["id"]["default_value"] is None
+    assert result["channel"]["property_type"] == "TextProperty"
+    assert result["channel"]["default_value"] is None
+    assert result["position"]["property_type"] == "TextProperty"
+    assert result["position"]["default_value"] is None
+    assert result["foo"]["property_type"] == "TextProperty"
+    assert result["foo"]["default_value"] == "bar"
+    assert result["numberwang"]["property_type"] == "IntegerProperty"
+    assert result["numberwang"]["default_value"] == 42
+    assert result["favourite_colour"]["property_type"] == "ChoiceProperty"
+    assert result["favourite_colour"]["default_value"] == "black"
 
 
 def test_widget_parse_position():
