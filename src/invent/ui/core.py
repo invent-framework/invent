@@ -390,12 +390,22 @@ class Widget:
         Returns a dictionary of properties associated with the widget. The key
         is the property name, the value an instance of the relevant property
         class.
+
+        Implementation detail: we branch on interpreter type because of the
+        different behaviour of `getmembers`.
         """
-        result = {}
-        for name, value in inspect.getmembers_static(cls):
-            if isinstance(value, Property):
-                result[name] = value
-        return dict(sorted(result.items()))
+        if invent.is_micropython:
+            result = {}
+            for name, _ in inspect.getmembers(cls):
+                value = getattr(cls, name)
+                if isinstance(value, Property):
+                    result[name] = value
+            return result
+        return {
+            name: value
+            for name, value in inspect.getmembers_static(cls)
+            if isinstance(value, Property)
+        }
 
     @classmethod
     def as_dict(cls):

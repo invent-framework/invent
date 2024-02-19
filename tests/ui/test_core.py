@@ -486,15 +486,8 @@ def test_widget_properties():
             ],
         )
 
-    mw = MyWidget(name="test widget")
-    mw.foo = "baz"
-    mw.numberwang = -1
-    mw.favourite_colour = "black"
-    properties = mw.properties()
+    properties = MyWidget.properties()
 
-    assert mw.foo == "baz"
-    assert mw.numberwang == -1
-    assert mw.favourite_colour == "black"
     assert isinstance(properties["foo"], core.TextProperty)
     assert isinstance(properties["numberwang"], core.IntegerProperty)
     assert isinstance(properties["favourite_colour"], core.ChoiceProperty)

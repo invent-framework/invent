@@ -18,6 +18,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
+import sys
 from .channels import Message, subscribe, publish, unsubscribe
 from .datastore import DataStore
 from .page import Page
@@ -43,6 +44,7 @@ __all__ = [
     "get_media_root",
     "play_sound",
     "show_page",
+    "is_micropython",
 ]
 
 
@@ -52,3 +54,7 @@ datastore = DataStore()
 
 #: The root from which all media files can be found.
 media = Media([], "media")
+
+
+#: A flag to show if MicroPython is the current Python interpreter.
+is_micropython = "MicroPython" in sys.version
