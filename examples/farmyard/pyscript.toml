@@ -6,7 +6,7 @@
 #
 # Invent.
 #
-"{INVENT}" = "https://mchilvers.pyscriptapps.com/invent/latest/invent/"
+"{INVENT}" = "/src/invent"
 "{INVENT_TO}" = "./invent"
 "{INVENT}/__init__.py"="{INVENT_TO}/__init__.py"
 "{INVENT}/__about__.py"="{INVENT_TO}/__about__.py"
