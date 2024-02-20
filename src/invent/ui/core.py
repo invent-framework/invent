@@ -90,9 +90,9 @@ class Property:
         """
         if not hasattr(self, "private_name"):
             self.private_name = (
-                f"_{self.__class__.__name__.lower()}{self._property_counter}"
+                f"_{self.__class__.__name__.lower()}{type(self)._property_counter}"
             )
-            self._property_counter += 1
+            type(self)._property_counter += 1
         self.description = description
         self.required = required
         self.default_value = self.validate(default_value)
