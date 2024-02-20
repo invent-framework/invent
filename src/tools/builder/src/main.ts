@@ -8,11 +8,12 @@ import Components from "@/components";
 import Modals from "@/modals";
 import "@/data/providers/icon-provider";
 
-
-LocalizationUtilities.loadPreferredLanguageAsync().then(() => {
-    createApp(App)
-        .use(router)
-        .use(Components)
-        .use(Modals)
-        .mount('#app');
+addEventListener('mpy:done', () => {
+    LocalizationUtilities.loadPreferredLanguageAsync().then(() => {
+        createApp(App)
+            .use(router)
+            .use(Components)
+            .use(Modals)
+            .mount('#app');
+    });
 });
