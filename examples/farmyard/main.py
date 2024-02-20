@@ -1,7 +1,7 @@
 import invent
 from invent.ui import Button, Image, from_datastore
 
-invent.set_media_root("/static")
+invent.set_media_root(".")
 invent.datastore.update({
     "number_of_honks": 0,
     "number_of_oinks": 0,
