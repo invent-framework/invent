@@ -53,7 +53,7 @@ class Message:
         return result
 
 
-def subscribe(handler, to_channel, when):
+def subscribe(handler, to_channel, when_subject):
     """
     Subscribe an event handler to a channel[s] to handle when a certain sort of
     message[s] is received (identified by subject).
@@ -69,14 +69,14 @@ def subscribe(handler, to_channel, when):
         to_channel = [
             to_channel,
         ]
-    if isinstance(when, str):
-        when = [
-            when,
+    if isinstance(when_subject, str):
+        when_subject = [
+            when_subject,
         ]
     for channel in to_channel:
         if channel not in _channels:
             _channels[channel] = {}
-        for name in when:
+        for name in when_subject:
             message_handlers = _channels[channel].get(name, set())
             message_handlers.add(handler)
             _channels[channel][name] = message_handlers
@@ -104,7 +104,7 @@ def publish(message, to_channel):
                 handler(message)
 
 
-def unsubscribe(handler, from_channel, when):
+def unsubscribe(handler, from_channel, when_subject):
     """
     Unsubscribe a handler from a channel[s] to stop it handling when a certain
     message[s] is received (identified by subject).
@@ -120,14 +120,14 @@ def unsubscribe(handler, from_channel, when):
         from_channel = [
             from_channel,
         ]
-    if isinstance(when, str):
-        when = [
-            when,
+    if isinstance(when_subject, str):
+        when_subject = [
+            when_subject,
         ]
     for channel in from_channel:
         channel_info = _channels.get(channel)
         if channel_info:
-            for name in when:
+            for name in when_subject:
                 if name in channel_info and handler in channel_info[name]:
                     channel_info[name].remove(handler)
                 else:

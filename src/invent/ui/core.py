@@ -131,7 +131,7 @@ class Property:
                 obj.render()
 
             # Subscribe to store events for the specified key.
-            invent.subscribe(reactor, to_channel="store-data", when=value.key)
+            invent.subscribe(reactor, to_channel="store-data", when_subject=value.key)
             # Update value to the actual value from the datastore.
             value = invent.datastore.get(value.key, self.default_value)
         # Set the value in the widget.

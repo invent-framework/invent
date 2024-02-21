@@ -19,7 +19,9 @@ limitations under the License.
 """
 
 from pyscript import document
-from .i18n import load_translations, _
+
+import invent
+from ..i18n import load_translations, _
 
 
 __all__ = [
@@ -41,6 +43,7 @@ class App:
     def __init__(
         self,
         name,
+        media_root=".",
         icon=None,
         description=None,
         author=None,
@@ -58,6 +61,8 @@ class App:
         self.license = license
         self.content = content or []
         self._current_page = None
+
+        invent.set_media_root(media_root)
 
     @classmethod
     def app(cls):

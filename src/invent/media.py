@@ -26,7 +26,7 @@ __all__ = [
 
 
 #: The URL root from which the Media class builds the full path.
-__root__ = ""
+__root__ = "."
 
 
 def set_media_root(root):

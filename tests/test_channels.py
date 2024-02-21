@@ -37,7 +37,7 @@ def test_subscribe_and_publish_single_channel_and_subject():
     published to the right channel.
     """
     handler = mock.MagicMock()
-    invent.subscribe(handler, to_channel="testing", when="test")
+    invent.subscribe(handler, to_channel="testing", when_subject="test")
     m1 = invent.Message(subject="test", data="Test")
     # This should succeed and cause the handler to fire.
     invent.publish(m1, to_channel="testing")
@@ -66,7 +66,7 @@ def test_subscribe_and_publish_multi_channel_and_subject():
             "testing1",
             "testing2",
         ],
-        when=[
+        when_subject=[
             "test1",
             "test2",
         ],
@@ -95,8 +95,8 @@ def test_subscribe_is_idempotent():
     Multiple calls to subscribe only ever result in a single subscription.
     """
     handler = mock.MagicMock()
-    invent.subscribe(handler, to_channel="testing", when="test")
-    invent.subscribe(handler, to_channel="testing", when="test")
+    invent.subscribe(handler, to_channel="testing", when_subject="test")
+    invent.subscribe(handler, to_channel="testing", when_subject="test")
     m1 = invent.Message(subject="test", data="Test")
     invent.publish(m1, to_channel="testing")
     # The handler is correctly subscribed because it has only been called once
@@ -110,12 +110,12 @@ def test_unsubscribe_single_channel_and_subject():
     handler is no longer called when a matching message is sent to the channel.
     """
     handler = mock.MagicMock()
-    invent.subscribe(handler, to_channel="testing", when="test")
+    invent.subscribe(handler, to_channel="testing", when_subject="test")
     m = invent.Message(subject="test", data="Test")
     # This should succeed and cause the handler to fire.
     invent.publish(m, to_channel="testing")
     # Unsubscribe.
-    invent.unsubscribe(handler, from_channel="testing", when="test")
+    invent.unsubscribe(handler, from_channel="testing", when_subject="test")
     # The handler should not fire.
     invent.publish(m, to_channel="testing")
     # The handler should only have been called once.
@@ -135,7 +135,7 @@ def test_unsubscribe_multi_channel_and_subject():
             "testing1",
             "testing2",
         ],
-        when=[
+        when_subject=[
             "test1",
             "test2",
         ],
@@ -154,7 +154,7 @@ def test_unsubscribe_multi_channel_and_subject():
             "testing1",
             "testing2",
         ],
-        when=[
+        when_subject=[
             "test1",
             "test2",
         ],
@@ -176,10 +176,10 @@ def test_unsubscribe_missing_subject():
     an error.
     """
     handler = mock.MagicMock()
-    invent.subscribe(handler, to_channel="testing", when="test")
+    invent.subscribe(handler, to_channel="testing", when_subject="test")
     # Unsubscribe should fail with a ValueError.
     with pytest.raises(ValueError):
-        invent.unsubscribe(handler, from_channel="testing", when="wrong_type")
+        invent.unsubscribe(handler, from_channel="testing", when_subject="wrong_type")
 
 
 def test_unsubscribe_missing_channel():
@@ -189,4 +189,4 @@ def test_unsubscribe_missing_channel():
     handler = mock.MagicMock()
     # Unsubscribe should fail with a ValueError.
     with pytest.raises(ValueError):
-        invent.unsubscribe(handler, from_channel="testing", when="test")
+        invent.unsubscribe(handler, from_channel="testing", when_subject="test")

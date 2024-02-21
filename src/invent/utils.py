@@ -2,7 +2,7 @@
 Utility functions.
 """
 
-from invent import App
+from invent.ui import App
 from pyscript import window
 
 

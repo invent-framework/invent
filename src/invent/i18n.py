@@ -74,7 +74,7 @@ def load_translations(translations="./translations.json"):
         with open(translations, "r") as tr:
             __translations = json.load(tr)
     except Exception as ex:
-        window.console.error(str(ex))
+        window.console.warn(str(ex))
     for language in window.navigator.languages:  # pragma: no cover
         if language in __translations:
             set_language(language)

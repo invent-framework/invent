@@ -21,10 +21,9 @@ limitations under the License.
 import sys
 from .channels import Message, subscribe, publish, unsubscribe
 from .datastore import DataStore
-from .page import Page
-from .app import App
 from .i18n import _, load_translations
 from .media import Media, set_media_root, get_media_root
+from .ui.app import App
 from .utils import play_sound, show_page
 
 __all__ = [
@@ -34,8 +33,6 @@ __all__ = [
     "unsubscribe",
     "DataStore",
     "datastore",
-    "App",
-    "Page",
     "_",
     "load_translations",
     "Media",
@@ -45,6 +42,7 @@ __all__ = [
     "play_sound",
     "show_page",
     "is_micropython",
+    "go"
 ]
 
 
@@ -58,3 +56,8 @@ media = Media([], "media")
 
 #: A flag to show if MicroPython is the current Python interpreter.
 is_micropython = "MicroPython" in sys.version
+
+
+#: Start the app.
+def go():
+    App.app().go()

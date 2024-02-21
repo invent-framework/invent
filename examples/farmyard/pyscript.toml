@@ -1,24 +1,20 @@
 [files]
 #
-# Project.
-#
-"./translations.json"="./translations.json"
-#
 # Invent.
 #
 "{INVENT}" = "/src/invent"
 "{INVENT_TO}" = "./invent"
 "{INVENT}/__init__.py"="{INVENT_TO}/__init__.py"
 "{INVENT}/__about__.py"="{INVENT_TO}/__about__.py"
-"{INVENT}/app.py"="{INVENT_TO}/app.py"
 "{INVENT}/channels.py"="{INVENT_TO}/channels.py"
 "{INVENT}/datastore.py"="{INVENT_TO}/datastore.py"
 "{INVENT}/i18n.py"="{INVENT_TO}/i18n.py"
 "{INVENT}/media.py"="{INVENT_TO}/media.py"
-"{INVENT}/page.py"="{INVENT_TO}/page.py"
 "{INVENT}/utils.py"="{INVENT_TO}/utils.py"
 "{INVENT}/ui/__init__.py"="{INVENT_TO}/ui/__init__.py"
+"{INVENT}/ui/app.py"="{INVENT_TO}/ui/app.py"
 "{INVENT}/ui/core.py"="{INVENT_TO}/ui/core.py"
+"{INVENT}/ui/page.py"="{INVENT_TO}/ui/page.py"
 "{INVENT}/ui/utils.py"="{INVENT_TO}/ui/utils.py"
 "{INVENT}/ui/widgets/__init__.py"="{INVENT_TO}/ui/widgets/__init__.py"
 "{INVENT}/ui/widgets/button.py"="{INVENT_TO}/ui/widgets/button.py"

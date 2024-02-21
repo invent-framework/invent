@@ -1,27 +1,21 @@
 import invent
-from invent.ui import Button, Image, from_datastore
-
-invent.set_media_root(".")
-invent.datastore.update({
-    "number_of_honks": 0,
-    "number_of_oinks": 0,
-})
+from invent.ui import from_datastore
 
 
-# User interface
-farmyard_app = invent.App(
+# User interface.
+invent.ui.App(
     name="Loosey Goosey",
-    content = [
-        invent.Page(
+    content=[
+        invent.ui.Page(
             name="Honk",
-            content = [
+            content=[
                 invent.ui.Image(
                     invent.media.images.goose.png,
                     channel="honk"
                 ),
                 invent.ui.Button(
                     name="button honk",
-                    label="HONK!",
+                    label="HONK!!!",
                     channel="honk"
                 ),
                 invent.ui.Button(
@@ -35,9 +29,9 @@ farmyard_app = invent.App(
                 )
             ],
         ),
-        invent.Page(
+        invent.ui.Page(
             name="Oink",
-            content = [
+            content=[
                 invent.ui.Image(
                     invent.media.images.pig.png,
                     channel="oink"
@@ -62,7 +56,13 @@ farmyard_app = invent.App(
 )
 
 
-# Handlers (stacks of blocks)
+# Datastore.
+invent.datastore.update(number_of_honks=0)
+if "number_of_oinks" not in invent.datastore:
+    invent.datastore.update(number_of_oinks=0)
+
+
+# Code (stacks of blocks).
 def make_honk(message):
     invent.datastore["number_of_honks"] = invent.datastore["number_of_honks"] + 1 
     invent.play_sound(invent.media.sounds.honk.mp3)
@@ -79,12 +79,11 @@ def move_page(message):
     elif message.button == "to_pig":
         invent.show_page("Oink")
 
-
-# Pubsub (???)
-invent.subscribe(make_honk, to_channel="honk", when=["press", "touch"])
-invent.subscribe(make_oink, to_channel="oink", when=["press", "touch"])
-invent.subscribe(move_page, to_channel="navigate", when=["press",])
+# Channels.
+invent.subscribe(make_honk, to_channel="honk", when_subject=["press", "touch"])
+invent.subscribe(make_oink, to_channel="oink", when_subject=["press", "touch"])
+invent.subscribe(move_page, to_channel="navigate", when_subject=["press",])
 
 
 # GO!
-farmyard_app.go()
+invent.go()
