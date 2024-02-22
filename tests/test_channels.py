@@ -179,7 +179,9 @@ def test_unsubscribe_missing_subject():
     invent.subscribe(handler, to_channel="testing", when_subject="test")
     # Unsubscribe should fail with a ValueError.
     with pytest.raises(ValueError):
-        invent.unsubscribe(handler, from_channel="testing", when_subject="wrong_type")
+        invent.unsubscribe(
+            handler, from_channel="testing", when_subject="wrong_type"
+        )
 
 
 def test_unsubscribe_missing_channel():
@@ -189,4 +191,6 @@ def test_unsubscribe_missing_channel():
     handler = mock.MagicMock()
     # Unsubscribe should fail with a ValueError.
     with pytest.raises(ValueError):
-        invent.unsubscribe(handler, from_channel="testing", when_subject="test")
+        invent.unsubscribe(
+            handler, from_channel="testing", when_subject="test"
+        )

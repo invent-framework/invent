@@ -45,11 +45,7 @@ class Event:
     of a Widget.
     """
 
-    def __init__(self, name, **kwargs):
-        """
-        An event has a name.
-        """
-        ...  # TODO: Finish me.
+    ...
 
 
 class from_datastore:
@@ -90,7 +86,8 @@ class Property:
         """
         if not hasattr(self, "private_name"):
             self.private_name = (
-                f"_{self.__class__.__name__.lower()}{type(self)._property_counter}"
+                f"_{self.__class__.__name__.lower()}"
+                f"{type(self)._property_counter}"
             )
             type(self)._property_counter += 1
         self.description = description
@@ -131,7 +128,9 @@ class Property:
                 obj.render()
 
             # Subscribe to store events for the specified key.
-            invent.subscribe(reactor, to_channel="store-data", when_subject=value.key)
+            invent.subscribe(
+                reactor, to_channel="store-data", when_subject=value.key
+            )
             # Update value to the actual value from the datastore.
             value = invent.datastore.get(value.key, self.default_value)
         # Set the value in the widget.
@@ -396,7 +395,7 @@ class Widget:
         """
         if invent.is_micropython:
             result = {}
-            for name, _ in inspect.getmembers(cls):
+            for name, member in inspect.getmembers(cls):
                 value = getattr(cls, name)
                 if isinstance(value, Property):
                     result[name] = value

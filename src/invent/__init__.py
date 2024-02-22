@@ -42,7 +42,7 @@ __all__ = [
     "play_sound",
     "show_page",
     "is_micropython",
-    "go"
+    "go",
 ]
 
 
