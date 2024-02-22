@@ -14,7 +14,7 @@
     <ib-modal-footer align="right">
       <ib-button
         :label="modal.getText('submit')"
-        color="blue"
+        color="purple"
       />
 
       <ib-button

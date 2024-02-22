@@ -8,27 +8,43 @@ export class BuilderUtilities {
 		pages: {}
 	});
 
-	public static activePage: Ref<string | undefined> = ref();
+	public static activePage: Ref<any> = ref();
 
 	public static createApp(): void {
 		this.app.value = {
-			pages: {}
+			pages: {
+				"Page 1": {
+					container: {
+						type: "column",
+						children: []
+					}
+				}
+			}
 		}
 	}
 
 	public static addPage(key: string) {
 		if (this.app.value){
 			this.app.value.pages[key] = {
-				widgets: []
+				container: {
+					type: "column",
+					children: []
+				}
 			}
 		}
 	}
 
-	public static setActivePage(key: string) {
-		this.activePage.value = key;
+	public static setActivePage(page: any) {
+		this.activePage.value = page;
 	}
 
-	public static getPage(key: string): object {
-		return this.app.value.pages[key];
+	public static widgets: Array<any> = [
+		{
+			type: "button"
+		}
+	]
+
+	public static addWidget(widget: any, position: any) {
+		position.append(widget);
 	}
 }

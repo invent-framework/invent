@@ -27,7 +27,7 @@ export class BuilderModel extends ViewModelBase {
 	 * Called when the add button is clicked.
 	 * Adds a step to the tutorial.
 	 */
-	public onAddClicked(): void {
+	public onAddPageClicked(): void {
 		ModalUtilities.showModal({
 			modal: "AddPage"
 		});
@@ -37,7 +37,7 @@ export class BuilderModel extends ViewModelBase {
 		return BuilderUtilities.app.value.pages;
 	}
 
-	public onPageClicked(key: string): void {
-		BuilderUtilities.setActivePage(key);
+	public onPageClicked(page: any): void {
+		BuilderUtilities.setActivePage(page);
 	}
 }

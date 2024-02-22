@@ -12,9 +12,5 @@ export class PageEditorModel extends ComponentModelBase {
 		return "page-editor";
 	}
 
-	public getActivePage(): object | undefined {
-		if (BuilderUtilities.activePage.value){
-			return BuilderUtilities.getPage(BuilderUtilities.activePage.value);
-		}
-	}
+	public activePage: any = BuilderUtilities.activePage;
 }

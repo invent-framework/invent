@@ -15,7 +15,7 @@ class IbButtonModel extends ComponentModelBase {
 	/**
 	 * Returns list of classes for a specific button variant
 	 */
-	public variants: Function = cva(["inline-flex", "items-center", "border", "text-sm", "font-medium", "rounded-md", "outline-none", "focus:ring-2", "focus:ring-offset-2", "transition-all", "dark:highlight-white/5", "dark:focus:ring-offset-gray-900"], {
+	public variants: Function = cva(["inline-flex", "items-center", "border", "text-sm", "font-medium", "rounded-md", "outline-none", "focus:ring-2", "focus:ring-offset-2", "transition-all", "dark:highlight-white/5", "dark:focus:ring-offset-gray-900", "flex-none"], {
 		variants: {
 			align: {
 				left: "justify-start",
@@ -28,7 +28,7 @@ class IbButtonModel extends ComponentModelBase {
 				"normal": ["text-sm", "py-2.5", "px-4"]
 			},
 			color: {
-				blue: ["bg-blue-500", "text-white", "focus:ring-blue-400", "hover:bg-blue-400", "border-transparent"],
+				purple: ["bg-violet-500", "text-white", "focus:ring-violet-400", "hover:bg-violet-400", "border-transparent"],
 				white: ["bg-white", "text-gray-700", "focus:ring-gray-300", "hover:bg-gray-50", "border-gray-300", "dark:bg-darkGray-900", "dark:border-darkGray-800", "dark:text-darkGray-200", "dark:hover:bg-darkGray-800"],
 				green: ["bg-green-500", "text-white", "focus:ring-green-400", "hover:bg-green-400", "border-transparent"],
 				navy: ["bg-navy-500", "text-white", "focus:ring-navy-400", "hover:bg-navy-400", "border-transparent"],
@@ -47,7 +47,7 @@ class IbButtonModel extends ComponentModelBase {
 		defaultVariants: {
 			align: "center",
 			size: "normal",
-			color: "blue"
+			color: "purple"
 		}
 	});
 

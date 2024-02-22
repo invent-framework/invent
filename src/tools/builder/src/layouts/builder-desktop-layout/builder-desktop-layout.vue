@@ -1,11 +1,18 @@
 <template>
   <div class="h-screen w-screen bg-gray-100 flex flex-col overflow-hidden dark:bg-darkGray-950">
-    <builder-desktop-header :buttons="headerButtons" />
+    <div class="py-3 px-4 w-full bg-white border-b flex items-center flex-none">
+      <slot name="header" />
+    </div>
+
+    <div class="h-16 px-4 w-full bg-white flex items-center border-b">
+      <slot name="toolbar" />
+    </div>
     
     <div class="h-full w-full flex overflow-hidden">
       <div class="h-full w-72 bg-white border-r border-gray-200 flex-none p-4">
         <slot name="sidebar" />
       </div>
+
       <div class="h-full w-full flex">
         <div
           class="relative h-full w-full flex flex-col overflow-y-auto"
@@ -20,16 +27,10 @@
           <slot name="context" />
         </div>
       </div>
+
+      <div class="h-full w-72 bg-white border-r border-gray-200 flex-none p-4">
+        <slot name="settings" />
+      </div>
     </div>
   </div>
 </template>
-
-<script setup lang="ts">
-import BuilderDesktopHeader from "./components/builder-desktop-header/builder-desktop-header.vue";
-
-defineProps<{
-	headerButtons: Array<object>;
-}>();
-
-defineEmits(["onProjectButtonClicked"]);
-</script>

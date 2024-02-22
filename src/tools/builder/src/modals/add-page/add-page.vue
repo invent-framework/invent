@@ -23,7 +23,6 @@
     <ib-modal-footer align="right">
       <ib-button
         :label="modal.getText('add')"
-        color="blue"
         @click="modal.onAddPageClicked()"
       />
 

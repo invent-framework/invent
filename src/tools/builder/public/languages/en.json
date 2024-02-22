@@ -1,7 +1,8 @@
 {
     "builder": {
-        "add-page": "Add Page",
-        "pages": "Pages"
+        "widgets": "Widgets",
+        "add": "Add",
+        "settings": "Settings"
     },
     "add-widget": {
         "submit": "Submit",

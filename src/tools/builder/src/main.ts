@@ -6,6 +6,7 @@ import { LocalizationUtilities } from './utilities/localization-utilities'
 
 import Components from "@/components";
 import Modals from "@/modals";
+import InventWidgets from "@/views/builder/components/page-editor/widgets";
 import "@/data/providers/icon-provider";
 
 addEventListener('mpy:done', () => {
@@ -14,6 +15,7 @@ addEventListener('mpy:done', () => {
             .use(router)
             .use(Components)
             .use(Modals)
+            .use(InventWidgets)
             .mount('#app');
     });
 });
