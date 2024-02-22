@@ -1,0 +1,18 @@
+{
+    "builder": {
+        "widgets": "Widgets",
+        "add": "Add",
+        "settings": "Settings"
+    },
+    "add-widget": {
+        "submit": "Submit",
+        "cancel": "Cancel"
+    },
+    "add-page": {
+        "add-page": "Add Page",
+        "name": "Name",
+        "enter-page-name": "Enter your new page's unique name.",
+        "add": "Add",
+        "cancel": "Cancel"
+    }
+}
