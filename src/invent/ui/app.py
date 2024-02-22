@@ -17,7 +17,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-
+import json
 from pyscript import document
 
 import invent
@@ -71,13 +71,15 @@ class App:
 
         return dict(
             name=self.name,
-            media_root=self.media_root,
             icon=self.icon,
             description=self.description,
             author=self.author,
             license=self.license,
             content=[item.as_dict() for item in self.content]
         )
+
+    def as_json(self):
+        return json.dumps(self.as_dict())
 
     @classmethod
     def app(cls):

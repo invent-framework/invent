@@ -98,10 +98,7 @@ class Property:
         and flag indicating if it is a required property.
         """
         if not hasattr(self, "private_name"):
-            self.private_name = (
-                f"_{self.__class__.__name__.lower()}"
-                f"{type(self)._property_counter}"
-            )
+            self.private_name = f"_{self.__class__.__name__.lower()}{type(self)._property_counter}"
             type(self)._property_counter += 1
         self.description = description
         self.required = required
@@ -386,6 +383,8 @@ class Widget:
     position = TextProperty("The widget's preferred position.")
 
     def __init__(self, name, id=None, position="TOP-LEFT", channel=None):
+        # TODO: auto-generate lowercase of widget class name + incrementing
+        # counter.
         self.name = name
         self.id = id if id else random_id()
         self.channel = channel if channel else self.id
@@ -427,6 +426,15 @@ class Widget:
         """
         return {
             name: prop.as_dict() for name, prop in cls.properties().items()
+        }
+
+    def as_dict(self):
+        """
+        Return a dict representation of the state of this widget.
+        """
+        return {
+            key: getattr(self, key)
+            for key in type(self).properties()
         }
 
     def parse_position(self):

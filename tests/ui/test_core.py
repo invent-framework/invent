@@ -493,7 +493,7 @@ def test_widget_properties():
     assert isinstance(properties["favourite_colour"], core.ChoiceProperty)
 
 
-def test_widget_as_dict():
+def test_widget_blueprint():
     """
     A JSON serializable data structure representing the widget and its
     properties is returned.
@@ -519,7 +519,7 @@ def test_widget_as_dict():
             ],
         )
 
-    result = MyWidget.as_dict()
+    result = MyWidget.blueprint()
     assert result["name"]["property_type"] == "TextProperty"
     assert result["name"]["default_value"] is None
     assert result["id"]["property_type"] == "TextProperty"
@@ -534,6 +534,38 @@ def test_widget_as_dict():
     assert result["numberwang"]["default_value"] == 42
     assert result["favourite_colour"]["property_type"] == "ChoiceProperty"
     assert result["favourite_colour"]["default_value"] == "black"
+
+
+def test_widget_as_dict():
+    """
+    Ensure the expected state of the widget is returned as a Python dictionary.
+    """
+
+    class MyWidget(core.Widget):
+        """
+        A test widget.
+        """
+
+        foo = core.TextProperty("This is a foo", default_value="bar")
+        numberwang = core.IntegerProperty(
+            "That's numberwang!", default_value=42
+        )
+        favourite_colour = core.ChoiceProperty(
+            "Best colour.",
+            default_value="black",
+            choices=[
+                "black",
+                "very very dark grey",
+                "deeply off white",
+                "coal",
+            ],
+        )
+
+    w = MyWidget("a test widget")
+    result = w.as_dict()
+    assert result["foo"] == "bar"
+    assert result["numberwang"] == 42
+    assert result["favourite_colour"] == "black"
 
 
 def test_widget_parse_position():
