@@ -64,6 +64,21 @@ class App:
 
         invent.set_media_root(media_root)
 
+    def as_dict(self):
+        """
+        Return a dictionary representation of the object.
+        """
+
+        return dict(
+            name=self.name,
+            media_root=self.media_root,
+            icon=self.icon,
+            description=self.description,
+            author=self.author,
+            license=self.license,
+            content=[item.as_dict() for item in self.content]
+        )
+
     @classmethod
     def app(cls):
         global __app__

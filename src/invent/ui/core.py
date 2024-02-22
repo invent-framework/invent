@@ -408,7 +408,7 @@ class Widget:
         }
 
     @classmethod
-    def as_dict(cls):
+    def blueprint(cls):
         """
         Return a Python dictionary as a data structure representing all the
         essential information about the widget and its properties.

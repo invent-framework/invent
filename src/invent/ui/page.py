@@ -34,6 +34,16 @@ class Page:
         self.content = content
         self.element = None
 
+    def as_dict(self):
+        """
+        Return a dictionary representation of the object.
+        """
+
+        return dict(
+            name=self.name,
+            content=[item.as_dict() for item in self.content]
+        )
+
     def render(self):
         """
         Returns an HTML element to insert into the DOM.
