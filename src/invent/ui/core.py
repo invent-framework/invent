@@ -39,13 +39,26 @@ class ValidationError(ValueError):
     ...
 
 
-class Event:
+class Message:
     """
-    An instance of this class represents an event triggered in the life-cycle
-    of a Widget.
+    An instance of this class represents a message triggered in the life-cycle
+    of a Widget. The name of the message becomes its subject.
+
+    E.g.:
+
+    click = Message("Sent when the widget it clicked.")
+    hold = Message()
+    double_click = Message()
+
+    Message instances may have an optional description to explain their intent
+    (and used in the visual builder).
     """
 
-    ...
+    def __init__(self, description=None):
+        """
+        Messages may have an optional description.
+        """
+        self.description = description
 
 
 class from_datastore:
