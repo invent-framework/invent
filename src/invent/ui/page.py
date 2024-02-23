@@ -40,8 +40,7 @@ class Page:
         """
 
         return dict(
-            name=self.name,
-            content=[item.as_dict() for item in self.content]
+            name=self.name, content=[item.as_dict() for item in self.content]
         )
 
     def render(self):

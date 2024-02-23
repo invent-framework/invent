@@ -1,5 +1,18 @@
 import pytest
+from pyscript import document
+from unittest import mock
 from invent.ui import core
+
+
+def test_message_specification():
+    """
+    MessageSpecifications may have a description and key/value descriptions
+    of the content of such messages.
+    """
+    ms = core.MessageSpecification("This is a test", foo="A foo to handle")
+    assert ms.description == "This is a test"
+    assert "foo" in ms.content
+    assert ms.content["foo"] == "A foo to handle"
 
 
 def test_from_datastore():
@@ -55,6 +68,23 @@ def test_property_required_field_needs_default_value():
     # Cannot instantiate with None value either.
     with pytest.raises(core.ValidationError):
         FakeWidget(test=None)
+
+
+def test_property_from_datastore():
+    """
+    If the property is set a value from_datastore, the expected reactor
+    function is subscribed to the correct datastore key.
+    """
+
+    class FakeWidget:
+        my_property = core.Property("A test property")
+
+    fw = FakeWidget()
+    with mock.patch("invent.subscribe") as mock_sub:
+        fw.my_property = core.from_datastore("test")
+        assert mock_sub.call_args[1]["to_channel"] == "store-data"
+        assert mock_sub.call_args[1]["when_subject"] == "test"
+        assert mock_sub.call_count == 1
 
 
 def test_property_as_dict():
@@ -433,6 +463,24 @@ def test_choice_property_as_dict():
     }
 
 
+def test_component_init_with_given_values():
+    """
+    Given a name and id, these are reflected in the resulting object.
+    """
+    c = core.Component(name="test1", id="12345")
+    assert c.name == "test1"
+    assert c.id == "12345"
+
+
+def test_component_init_with_no_values():
+    """
+    Initialisation with no defaults ensures they are generated for the user.
+    """
+    c = core.Component()
+    assert c.name == "component1"
+    assert c.id is not None
+
+
 def test_widget_init_defaults():
     """
     Ensure an instance of a Widget class has a default id, position and
@@ -586,3 +634,67 @@ def test_widget_parse_position():
         # Invalid position values result in a ValueError.
         w.position = "NOT-VALID"
         w.parse_position()
+
+
+def test_widget_set_position_fill():
+    """
+    Ensure the widget's element has the CSS width and height set to the
+    expected value of 100%.
+    """
+    w = core.Widget(position="FILL")
+    w.element = document.createElement("div")
+    container = document.createElement("div")
+    w.set_position(container)
+    assert w.element.style.width == "100%"
+    assert w.element.style.height == "100%"
+
+
+def test_widget_set_position():
+    """
+    The widget's container has the expected alignment/justify value set for
+    each combination of the valid horizontal and vertical positions.
+    """
+    expected_vertical = {
+        "TOP": "start",
+        "MIDDLE": "center",
+        "BOTTOM": "end",
+        "": "stretch",
+    }
+    expected_horizontal = {
+        "LEFT": "start",
+        "CENTER": "center",
+        "RIGHT": "end",
+        "": "stretch",
+    }
+    for h_key, h_val in expected_horizontal.items():
+        for v_key, v_val in expected_vertical.items():
+            w = core.Widget()
+            w.element = document.createElement("div")
+            container = document.createElement("div")
+            if v_key and h_key:
+                w.position = f"{v_key}-{h_key}"
+            else:
+                w.position = f"{v_key}{h_key}"
+            # Ignore NoneNone
+            if w.position:
+                w.set_position(container)
+                if v_key:
+                    assert (
+                        container.style.getPropertyValue("align-self") == v_val
+                    )
+                else:
+                    assert (
+                        container.style.getPropertyValue("align-self") == v_val
+                    )
+                    assert w.element.style.height == "100%"
+                if h_key:
+                    assert (
+                        container.style.getPropertyValue("justify-self")
+                        == h_val
+                    )
+                else:
+                    assert (
+                        container.style.getPropertyValue("justify-self")
+                        == h_val
+                    )
+                    assert w.element.style.width == "100%"

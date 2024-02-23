@@ -39,26 +39,34 @@ class ValidationError(ValueError):
     ...
 
 
-class Message:
+class MessageSpecification:
     """
-    An instance of this class represents a message triggered in the life-cycle
-    of a Widget. The name of the message becomes its subject.
+    An instance of this class represents a message potentially triggered in
+    the life-cycle of a Widget object. The name assigned in the parent class
+    definition should become the message's subject (an implementation detail
+    left to the author of the Widget class).
 
     E.g.:
 
-    click = Message("Sent when the widget it clicked.")
-    hold = Message()
-    double_click = Message()
+    click = MessageSubject("Sent when the widget it clicked.")
+    hold = MessageSubject(
+        "The button is held down",
+        duration="The amount of time the button was held down",
+    )
+    double_click = MessageSubject()
 
-    Message instances may have an optional description to explain their intent
+    Instances may have an optional description to explain their intent, and
+    key/value pairs describing the fields in the content of the message.
     (and used in the visual builder).
     """
 
-    def __init__(self, description=None):
+    def __init__(self, description=None, **kwargs):
         """
-        Messages may have an optional description.
+        Messages may have an optional description and key/value pairs
+        describing the expected content of such a message.
         """
         self.description = description
+        self.content = kwargs
 
 
 class from_datastore:
@@ -129,7 +137,7 @@ class Property:
         """
         if isinstance(value, from_datastore):
 
-            def reactor(message, key=value.key):
+            def reactor(message, key=value.key):  # pragma: no cover
                 """
                 Set the value in the widget and re-render to ensure the update
                 is visible to the user.
@@ -359,40 +367,31 @@ class ChoiceProperty(Property):
         return result
 
 
-class Widget:
+class Component:
     """
-    All widgets have these things:
+    A base class for all user interface components (Widget, Container).
 
-    * A mandatory unique human friendly name that's meaningful in the context
-      of the application.
-    * A unique id (if none is given, one is automatically generated).
-    * An indication of the widget's preferred position (default: top left).
-    * A render_into function that takes the widget's container and renders
-      itself as an HTML element into the container.
-    * TODO: A react_to function, that updates the rendered element with new
-      attribute values.
-    * An optional channel name to which it broadcasts its messages (defaults to
-      the id).
+    Ensures they all have optional names and ids. If they're not given, will
+    auto-generate them for the user.
     """
+
+    _object_counter = 0
 
     name = TextProperty(
         "The meaningful name of the widget instance.",
     )
     id = TextProperty("The id of the widget instance in the DOM.")
-    channel = TextProperty("The channel[s] to which the widget broadcasts.")
-    position = TextProperty("The widget's preferred position.")
 
-    def __init__(self, name, id=None, position="TOP-LEFT", channel=None):
-        # TODO: auto-generate lowercase of widget class name + incrementing
-        # counter.
-        self.name = name
+    def __init__(self, name=None, id=None):
+        self.name = name if name else type(self)._generate_name()
         self.id = id if id else random_id()
-        self.channel = channel if channel else self.id
-        self.position = position
-        # Reference to the HTML element (once rendered).
-        self.element = None
 
-    def render_into(self, container):
+    @classmethod
+    def _generate_name(cls):
+        cls._object_counter += 1
+        return f"{cls.__name__.lower()}{cls._object_counter}"
+
+    def render(self, container):
         raise NotImplementedError()  # pragma: no cover
 
     @classmethod
@@ -405,7 +404,7 @@ class Widget:
         Implementation detail: we branch on interpreter type because of the
         different behaviour of `getmembers`.
         """
-        if invent.is_micropython:
+        if invent.is_micropython:  # pragma: no cover
             result = {}
             for name, member in inspect.getmembers(cls):
                 value = getattr(cls, name)
@@ -432,10 +431,32 @@ class Widget:
         """
         Return a dict representation of the state of this widget.
         """
-        return {
-            key: getattr(self, key)
-            for key in type(self).properties()
-        }
+        return {key: getattr(self, key) for key in type(self).properties()}
+
+
+class Widget(Component):
+    """
+    All widgets have these things:
+
+    * A unique human friendly name that's meaningful in the context of the
+      application (if none is given, one is automatically generated).
+    * A unique id (if none is given, one is automatically generated).
+    * An indication of the widget's preferred position (default: top left).
+    * A render function that takes the widget's container and renders
+      itself as an HTML element into the container.
+    * An optional channel name to which it broadcasts its messages (defaults to
+      the id).
+    """
+
+    channel = TextProperty("The channel[s] to which the widget broadcasts.")
+    position = TextProperty("The widget's preferred position.")
+
+    def __init__(self, name=None, id=None, position="TOP-LEFT", channel=None):
+        super().__init__(name, id)
+        self.channel = channel if channel else self.id
+        self.position = position
+        # Reference to the HTML element (once rendered).
+        self.element = None
 
     def parse_position(self):
         """
@@ -481,37 +502,37 @@ class Widget:
             self.element.style.height = "100%"
             return
         # Parse into horizontal and vertical positions.
-        horizontal_position, vertical_position = self.parse_position()
+        vertical_position, horizontal_position = self.parse_position()
         # Check vertical position and adjust the container via CSS magic.
         if vertical_position == "TOP":
-            container.style["align-self"] = "start"
+            container.style.setProperty("align-self", "start")
         elif vertical_position == "MIDDLE":
-            container.style["align-self"] = "center"
+            container.style.setProperty("align-self", "center")
         elif vertical_position == "BOTTOM":
-            container.style["align-self"] = "end"
+            container.style.setProperty("align-self", "end")
         # Check the horizontal position and adjust the container.
         if horizontal_position == "LEFT":
-            container.style["justify-self"] = "start"
+            container.style.setProperty("justify-self", "start")
         elif horizontal_position == "CENTER":
-            container.style["justify-self"] = "center"
+            container.style.setProperty("justify-self", "center")
         elif horizontal_position == "RIGHT":
-            container.style["justify-self"] = "end"
+            container.style.setProperty("justify-self", "end")
         # Ensure a vertical only position ensures a full horizontal fill.
         if not horizontal_position:
-            container.style["justify-self"] = "stretch"
+            container.style.setProperty("justify-self", "stretch")
             self.element.style.width = "100%"
         # Ensure a horizontal only position ensures a full vertical fill.
         if not vertical_position:
-            container.style["align-self"] = "stretch"
+            container.style.setProperty("align-self", "stretch")
             self.element.style.height = "100%"
 
 
-class Container(list):
+class Container(Component):
     """
     All containers have these things:
 
-    * A mandatory unique human friendly name that's meaningful in the context
-      of the application.
+    * A unique human friendly name that's meaningful in the context of the
+      application (if none is given, one is automatically generated).
     * A unique id (if none is given, one is automatically generated).
     * Is a list of children (that are either widgets or further containers).
     * A notion of relative width/height to the containing element (defaults
@@ -521,9 +542,42 @@ class Container(list):
       insert the children into the container in the correct manner.
     """
 
+    width = IntegerProperty(
+        "The default width of the container.",
+        default_value=100,
+        maximum=100,
+        minimum=0,
+    )
+    height = IntegerProperty(
+        "The default height of the container.",
+        default_value=100,
+        maximum=100,
+        minimum=0,
+    )
+    background_color = TextProperty("The color of the container's background.")
+    border_color = TextProperty("The color of the container's border.")
+    border_width = ChoiceProperty(
+        "The size of the container's border.",
+        choices=["None", "XS", "S", "M", "L", "XL"],
+    )
+    border_style = ChoiceProperty(
+        "The style of the container's border.",
+        choices=[
+            "None",
+            "Dotted",
+            "Dashed",
+            "Solid",
+            "Double",
+            "Groove",
+            "Ridge",
+            "Inset",
+            "Outset",
+        ],
+    )
+
     def __init__(
         self,
-        name,
+        name=None,
         id=None,
         children=None,
         width=100,
@@ -533,10 +587,9 @@ class Container(list):
         border_width=None,
         border_style=None,
     ):
-        self.name = name
+        super().__init__(name, id)
         # To reference the div in the DOM that renders this container.
         self._container = None
-        self.id = id if id else random_id()
         self.parent = None
         self.width = width
         self.height = height
@@ -564,10 +617,12 @@ class Container(list):
             self._container.style.display = "grid"
         self._container.style.height = f"{self.height}%"
         self._container.style.width = f"{self.width}%"
-        self._container.style["background-color"] = self.background_color
-        self._container.style["border-color"] = self.border_color
-        self._container.style["border-width"] = self.border_width
-        self._container.style["border-style"] = self.border_style
+        self._container.style.setProperty(
+            "background-color", self.background_color
+        )
+        self._container.style.setProperty("border-color", self.border_color)
+        self._container.style.setProperty("border-width", self.border_width)
+        self._container.style.setProperty("border-style", self.border_style)
         # TODO: Add children via sub-class.
         return self._container
 
@@ -581,9 +636,9 @@ class Column(Container):
         super().render()
         for counter, child in enumerate(self, start=1):
             child_container = document.createElement("div")
-            child_container.style["grid-column"] = 1
-            child_container.style["grid-row"] = counter
-            child.render_into(child_container)
+            child_container.style.setProperty("grid-column", 1)
+            child_container.style.setProperty("grid-row", counter)
+            child.render(child_container)
             self._container.appendChild(child_container)
         return self._container
 
@@ -597,8 +652,8 @@ class Row(Container):
         super().render()
         for counter, child in enumerate(self, start=1):
             child_container = document.createElement("div")
-            child_container.style["grid-column"] = counter
-            child_container.style["grid-row"] = 1
-            child.render_into(child_container)
+            child_container.setProperty("grid-column", counter)
+            child_container.setProperty("grid-row", 1)
+            child.render(child_container)
             self._container.appendChild(child_container)
         return self._container
