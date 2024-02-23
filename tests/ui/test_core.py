@@ -4,15 +4,57 @@ from unittest import mock
 from invent.ui import core
 
 
-def test_message_specification():
+def test_message_blueprint():
     """
-    MessageSpecifications may have a description and key/value descriptions
-    of the content of such messages.
+    MessageBlueprints have a description and key/value descriptions of the
+    content of the messages they send.
+
+    class MyWidget(Widget):
+
+        name = TextProperty()
+        hold = MessageBlueprint(
+            "When the button is held",
+            duration="For how long the button was pressed.",
+        )
+
+        def _handle_hold(self, event):
+            self.publish("hold", duration=event.duration)
+
+        def render(self, container):
+            if not self.element:
+                self.element = document.createElement("button")
+            self.element.addEventListener("click", self._handle_hold)
     """
-    ms = core.MessageSpecification("This is a test", foo="A foo to handle")
-    assert ms.description == "This is a test"
-    assert "foo" in ms.content
-    assert ms.content["foo"] == "A foo to handle"
+    mbp = core.MessageBlueprint("This is a test", foo="A foo to handle")
+    assert mbp.description == "This is a test"
+    assert "foo" in mbp.content
+    assert mbp.content["foo"] == "A foo to handle"
+
+
+def test_message_blueprint_create_message():
+    """
+    A MessageBlueprint creates the expected message.
+    """
+    mbp = core.MessageBlueprint("This is a test", foo="A foo to handle")
+    # Cannot include fields that have not been specified.
+    with pytest.raises(ValueError):
+        mbp.create_message("subject", baz="This will fail")
+    msg = mbp.create_message("subject", foo="Foo to you")
+    assert msg._subject == "subject"
+    assert msg.foo == "Foo to you"
+
+
+def test_message_blueprint_as_dict():
+    """
+    The expected dictionary definition of a MessageBlueprint is generated.
+    """
+    mbp = core.MessageBlueprint("This is a test", foo="A foo to handle")
+    assert mbp.as_dict() == {
+        "description": "This is a test",
+        "content": {
+            "foo": "A foo to handle",
+        },
+    }
 
 
 def test_from_datastore():
@@ -477,7 +519,7 @@ def test_component_init_with_no_values():
     Initialisation with no defaults ensures they are generated for the user.
     """
     c = core.Component()
-    assert c.name == "component1"
+    assert c.name == "Component 1"
     assert c.id is not None
 
 
@@ -567,21 +609,31 @@ def test_widget_blueprint():
             ],
         )
 
+        @classmethod
+        def preview(cls):
+            return "<button>Click me!</button>"
+
     result = MyWidget.blueprint()
-    assert result["name"]["property_type"] == "TextProperty"
-    assert result["name"]["default_value"] is None
-    assert result["id"]["property_type"] == "TextProperty"
-    assert result["id"]["default_value"] is None
-    assert result["channel"]["property_type"] == "TextProperty"
-    assert result["channel"]["default_value"] is None
-    assert result["position"]["property_type"] == "TextProperty"
-    assert result["position"]["default_value"] is None
-    assert result["foo"]["property_type"] == "TextProperty"
-    assert result["foo"]["default_value"] == "bar"
-    assert result["numberwang"]["property_type"] == "IntegerProperty"
-    assert result["numberwang"]["default_value"] == 42
-    assert result["favourite_colour"]["property_type"] == "ChoiceProperty"
-    assert result["favourite_colour"]["default_value"] == "black"
+    assert result["properties"]["name"]["property_type"] == "TextProperty"
+    assert result["properties"]["name"]["default_value"] is None
+    assert result["properties"]["id"]["property_type"] == "TextProperty"
+    assert result["properties"]["id"]["default_value"] is None
+    assert result["properties"]["channel"]["property_type"] == "TextProperty"
+    assert result["properties"]["channel"]["default_value"] is None
+    assert result["properties"]["position"]["property_type"] == "TextProperty"
+    assert result["properties"]["position"]["default_value"] is None
+    assert result["properties"]["foo"]["property_type"] == "TextProperty"
+    assert result["properties"]["foo"]["default_value"] == "bar"
+    assert (
+        result["properties"]["numberwang"]["property_type"]
+        == "IntegerProperty"
+    )
+    assert result["properties"]["numberwang"]["default_value"] == 42
+    assert (
+        result["properties"]["favourite_colour"]["property_type"]
+        == "ChoiceProperty"
+    )
+    assert result["properties"]["favourite_colour"]["default_value"] == "black"
 
 
 def test_widget_as_dict():
@@ -611,9 +663,9 @@ def test_widget_as_dict():
 
     w = MyWidget("a test widget")
     result = w.as_dict()
-    assert result["foo"] == "bar"
-    assert result["numberwang"] == 42
-    assert result["favourite_colour"] == "black"
+    assert result["properties"]["foo"] == "bar"
+    assert result["properties"]["numberwang"] == 42
+    assert result["properties"]["favourite_colour"] == "black"
 
 
 def test_widget_parse_position():

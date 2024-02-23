@@ -39,25 +39,25 @@ class ValidationError(ValueError):
     ...
 
 
-class MessageSpecification:
+class MessageBlueprint:
     """
-    An instance of this class represents a message potentially triggered in
-    the life-cycle of a Widget object. The name assigned in the parent class
-    definition should become the message's subject (an implementation detail
-    left to the author of the Widget class).
+    An instance of this class represents a type of message potentially
+    triggered in the life-cycle of a Widget object. The name assigned in the
+    parent class definition should become the message's subject (an
+    implementation detail left to the author of the Widget class).
 
     E.g.:
 
-    click = MessageSubject("Sent when the widget it clicked.")
-    hold = MessageSubject(
+    click = MessageBlueprint("Sent when the widget it clicked.")
+    hold = MessageBlueprint(
         "The button is held down",
         duration="The amount of time the button was held down",
     )
-    double_click = MessageSubject()
+    double_click = MessageBlueprint()
 
     Instances may have an optional description to explain their intent, and
-    key/value pairs describing the fields in the content of the message.
-    (and used in the visual builder).
+    key/value pairs describing the fields in the content of the message,
+    and used in the visual builder.
     """
 
     def __init__(self, description=None, **kwargs):
@@ -67,6 +67,28 @@ class MessageSpecification:
         """
         self.description = description
         self.content = kwargs
+
+    def create_message(self, name, **kwargs):
+        """
+        Returns an actual message to send to channels with the given content.
+
+        Validates kwargs match the fields described in the blueprint's content
+        specification.
+        """
+        for k in kwargs:
+            if k not in self.content:
+                raise ValueError(_("Unknown field in message content: ") + k)
+        return invent.Message(name, **kwargs)
+
+    def as_dict(self):
+        """
+        Return a dictionary representation of the meta-data contained within
+        this class.
+        """
+        return {
+            "description": self.description,
+            "content": self.content,
+        }
 
 
 class from_datastore:
@@ -389,9 +411,13 @@ class Component:
     @classmethod
     def _generate_name(cls):
         cls._object_counter += 1
-        return f"{cls.__name__.lower()}{cls._object_counter}"
+        return f"{cls.__name__} {cls._object_counter}"
 
     def render(self, container):
+        raise NotImplementedError()  # pragma: no cover
+
+    @classmethod
+    def preview(cls):
         raise NotImplementedError()  # pragma: no cover
 
     @classmethod
@@ -418,20 +444,54 @@ class Component:
         }
 
     @classmethod
+    def message_blueprints(cls):
+        """
+        Returns a dictionary of the message blueprints that define the sort of
+        messages a widget may send during its lifetime.
+        """
+        if invent.is_micropython:  # pragma: no cover
+            result = {}
+            for name, member in inspect.getmembers(cls):
+                value = getattr(cls, name)
+                if isinstance(value, MessageBlueprint):
+                    result[name] = value
+            return result
+        return {
+            name: value
+            for name, value in inspect.getmembers_static(cls)
+            if isinstance(value, MessageBlueprint)
+        }
+
+    @classmethod
     def blueprint(cls):
         """
         Return a Python dictionary as a data structure representing all the
         essential information about the widget and its properties.
         """
         return {
-            name: prop.as_dict() for name, prop in cls.properties().items()
+            "properties": {
+                name: prop.as_dict() for name, prop in cls.properties().items()
+            },
+            "message_blueprints": {
+                key: value for key, value in cls.message_blueprints().items()
+            },
+            "preview": cls.preview(),
         }
 
     def as_dict(self):
         """
         Return a dict representation of the state of this widget.
         """
-        return {key: getattr(self, key) for key in type(self).properties()}
+        properties = {
+            key: getattr(self, key) for key in type(self).properties()
+        }
+        return {
+            "properties": properties,
+            "message_blueprints": {
+                key: value
+                for key, value in type(self).message_blueprints().items()
+            },
+        }
 
 
 class Widget(Component):
@@ -457,6 +517,15 @@ class Widget(Component):
         self.position = position
         # Reference to the HTML element (once rendered).
         self.element = None
+
+    def publish(self, blueprint, **kwargs):
+        """
+        Given the name of one of the class's MessageBlueprints, publish the
+        a message to all the widget's channels with the message content
+        defined in kwargs.
+        """
+        message = getattr(self, blueprint).create_message(**kwargs)
+        invent.publish(message, to_channel=self.channel)
 
     def parse_position(self):
         """

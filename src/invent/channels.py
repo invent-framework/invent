@@ -38,8 +38,6 @@ class Message:
     thing to which to listen for (i.e. the "when" when subscribing).
     """
 
-    # TODO: type -> subject
-
     def __init__(self, subject, **kwargs):
         self._subject = subject
         for k, v in kwargs.items():
