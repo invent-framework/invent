@@ -1,3 +1,11 @@
+"""
+TODO:
+
+* Test coercion of property values.
+* Test on_FOO_changed.
+* Work out story for render with containers.
+"""
+
 import pytest
 from pyscript import document
 from unittest import mock
@@ -792,3 +800,9 @@ def test_widget_set_position():
                         == h_val
                     )
                     assert w.element.style.width == "100%"
+
+
+def test_container_init():
+    """
+    A default initialisation results in the expected default state.
+    """

@@ -127,12 +127,6 @@ class Property:
         All properties must have a description. They may have a default value
         and flag indicating if it is a required property.
         """
-        if not hasattr(self, "private_name"):
-            self.private_name = (
-                f"_{self.__class__.__name__.lower()}" +
-                f"{type(self)._property_counter}"
-            )
-            type(self)._property_counter += 1
         self.description = description
         self.required = required
         self.default_value = self.validate(default_value)
@@ -160,15 +154,20 @@ class Property:
         function ensures the widget is re-rendered (i.e. appears reactive) when
         the associated value is updated.
         """
+
         if isinstance(value, from_datastore):
 
             def reactor(message, key=value.key):  # pragma: no cover
                 """
-                Set the value in the widget and re-render to ensure the update
-                is visible to the user.
+                Set the value in the widget and call the optional
+                "on_FOO_changed" to ensure the update is visible to the user.
                 """
-                setattr(obj, self.private_name, self.validate(message.value))
-                obj.render()
+                valid_value = self.validate(message.value)
+                setattr(obj, self.private_name, valid_value)
+                change_fn = "on" + self.private_name + "_changed"
+                on_changed = getattr(obj, change_fn, None)
+                if on_changed:
+                    on_changed()
 
             # Subscribe to store events for the specified key.
             invent.subscribe(
@@ -179,10 +178,17 @@ class Property:
         # Set the value in the widget.
         setattr(obj, self.private_name, self.validate(value))
 
+    def coerce(self, value):
+        """
+        Return value as an acceptable type (or raise a TypeError).
+        """
+        return value  # pragma: no cover
+
     def validate(self, value):
         """
         Validate the incoming value of the property.
         """
+        value = self.coerce(value)
         if self.required and value is None:
             raise ValidationError(_("This property is required."))
         return value
@@ -229,6 +235,7 @@ class NumericProperty(Property):
 
         If set, the value must be between the minimum and maximum boundaries.
         """
+        value = super().validate(value)
         if not (value is None or isinstance(value, (int, float))):
             raise ValidationError(_("The value must be a number."))
         if value is not None:
@@ -244,7 +251,7 @@ class NumericProperty(Property):
                     value,
                     self.maximum,
                 )
-        return super().validate(value)
+        return value
 
     def as_dict(self):
         """
@@ -311,14 +318,21 @@ class TextProperty(Property):
         self.max_length = max_length
         super().__init__(description, default_value, required)
 
+    def coerce(self, value):
+        """
+        Coerce to a string.
+        """
+        return str(value)
+
     def validate(self, value):
         """
         The value must be a string (or None if not a required property).
 
         If set, the value must be between the minimum and maximum boundaries.
         """
-        if not (value is None or isinstance(value, str)):
-            raise ValidationError(_("The value must be a string."))
+        value = super().validate(value)
+        if value is not None and not isinstance(value, str):
+            raise ValidationError(_("The value must be a string:") + value)
         if value is not None:
             length = len(value)
             if self.min_length and length < self.min_length:
@@ -329,7 +343,7 @@ class TextProperty(Property):
                 raise ValidationError(
                     _("The length of the value is more than maximum allowed.")
                 )
-        return super().validate(value)
+        return value
 
     def as_dict(self):
         """
@@ -408,6 +422,9 @@ class Component:
     id = TextProperty("The id of the widget instance in the DOM.")
 
     def __init__(self, name=None, id=None):
+        if invent.is_micropython:
+            for name, prop in type(self).properties().items():
+                prop.__set_name__(self, name)
         self.name = name if name else type(self)._generate_name()
         self.id = id if id else random_id()
 
@@ -703,7 +720,7 @@ class Container(Component):
         """
         Delete like a list.
         """
-        del self.content(item)
+        del self.content[item]
 
     def render(self):
         """
@@ -727,11 +744,17 @@ class Container(Component):
                 "background-color", self.background_color
             )
         if self.border_color:
-            self._container.style.setProperty("border-color", self.border_color)
+            self._container.style.setProperty(
+                "border-color", self.border_color
+            )
         if self.border_width:
-            self._container.style.setProperty("border-width", self.border_width)
+            self._container.style.setProperty(
+                "border-width", self.border_width
+            )
         if self.border_style:
-            self._container.style.setProperty("border-style", self.border_style)
+            self._container.style.setProperty(
+                "border-style", self.border_style
+            )
         # TODO: Add children via sub-class.
         return self._container
 

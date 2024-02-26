@@ -13,6 +13,7 @@ class Image(Widget):
     def __init__(self, image, name=None, channel=None):
         super().__init__(name=name, channel=channel)
         self.image = str(image)
+        self.render()
 
     def touch(self, event):
         publish(Message("touch"), to_channel=self.channel)
@@ -21,4 +22,3 @@ class Image(Widget):
         self.element = document.createElement("img")
         self.element.src = self.image
         self.element.addEventListener("click", self.touch)
-        return self.element

@@ -1,4 +1,5 @@
 import invent
+from pyscript import window 
 
 
 # Datastore ############################################################################
@@ -61,7 +62,7 @@ invent.ui.App(
                 ),
                 invent.ui.TextBox(
                     name="number_of_honks",
-                    text=invent.ui.from_datastore("number_of_honks"),
+                    text=invent.ui.from_datastore("number_of_honks")
                 )
             ],
         ),

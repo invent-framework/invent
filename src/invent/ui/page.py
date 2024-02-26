@@ -50,8 +50,9 @@ class Page:
         self.element = document.createElement("div")
         self.element.id = self.name
         self.hide()
+        # TODO: FIX THIS FOR CONTAINERS (cols / rows)
         for item in self.content:
-            self.element.appendChild(item.render())
+            self.element.appendChild(item.element)
         return self.element
 
     def show(self):

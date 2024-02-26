@@ -15,13 +15,16 @@ class Button(Widget):
         self.name = name
         self.label = label
         self.channel = channel
+        self.render()
 
     def click(self, event):
         publish(Message("press", button=self.name), to_channel=self.channel)
 
+    def on_label_changed(self):
+        self.element.innerText = self.label
+
     def render(self):
         self.element = document.createElement("button")
-        self.element.id = self.name
-        self.element.innerText = self.label
         self.element.addEventListener("click", self.click)
-        return self.element
+        self.element.id = self.id
+        self.element.innerText = self.label
