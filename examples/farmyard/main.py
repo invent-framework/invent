@@ -46,23 +46,27 @@ invent.ui.App(
         invent.ui.Page(
             name="Honk",
             content=[
-                invent.ui.Image(
-                    invent.media.images.goose.png,
-                    channel="honk"
-                ),
-                invent.ui.Button(
-                    name="button honk",
-                    label="HONK!",
-                    channel="honk"
-                ),
-                invent.ui.Button(
-                    name="to_pig",
-                    label="Visit Percy",
-                    channel="navigate"
-                ),
-                invent.ui.TextBox(
-                    name="number_of_honks",
-                    text=invent.ui.from_datastore("number_of_honks")
+                invent.ui.Column(
+                    content = [
+                        invent.ui.Image(
+                            invent.media.images.goose.png,
+                            channel="honk"
+                        ),
+                        invent.ui.Button(
+                            name="button honk",
+                            label="HONK!",
+                            channel="honk"
+                        ),
+                        invent.ui.Button(
+                            name="to_pig",
+                            label="Visit Percy",
+                            channel="navigate"
+                        ),
+                        invent.ui.TextBox(
+                            name="number_of_honks",
+                            text=invent.ui.from_datastore("number_of_honks")
+                        )
+                    ]
                 )
             ],
         ),

@@ -425,6 +425,9 @@ class Component:
         if invent.is_micropython:
             for name, prop in type(self).properties().items():
                 prop.__set_name__(self, name)
+        # TODO: automagically grab values from kwargs and inflate properties,
+        # then call self.render to create self.element.
+        # Then set the element's id to self.id
         self.name = name if name else type(self)._generate_name()
         self.id = id if id else random_id()
 
@@ -674,7 +677,7 @@ class Container(Component):
         self,
         name=None,
         id=None,
-        children=None,
+        content=None,
         width=100,
         height=100,
         background_color=None,
@@ -684,9 +687,7 @@ class Container(Component):
     ):
         super().__init__(name, id)
         # An ordered list of child components.
-        self.content = []
-        # To reference the div in the DOM that renders this container.
-        self._container = None
+        self.content = content or []
         # To reference the container's parent in the DOM tree.
         self.parent = None
         # Component property settings.
@@ -696,6 +697,7 @@ class Container(Component):
         self.border_color = border_color
         self.border_width = border_width
         self.border_style = border_style
+        self.render()
 
     def append(self, item):
         """
@@ -731,32 +733,32 @@ class Container(Component):
         for how to add their children in a way that reflects the way they
         layout their widgets.
         """
-        if not self._container:
-            self._container = document.createElement("div")
-            self._container.id = self.id
-            self._container.style.display = "grid"
+        self.element = document.createElement("div")
+        self.element.id = self.id
+        self.element.style.display = "grid"
+        # TODO: Make these dynamic from on_FOO_updated.
         if self.height:
-            self._container.style.height = f"{self.height}%"
+            self.element.style.height = f"{self.height}%"
         if self.width:
-            self._container.style.width = f"{self.width}%"
+            self.element.style.width = f"{self.width}%"
         if self.background_color:
-            self._container.style.setProperty(
+            self.element.style.setProperty(
                 "background-color", self.background_color
             )
         if self.border_color:
-            self._container.style.setProperty(
+            self.element.style.setProperty(
                 "border-color", self.border_color
             )
         if self.border_width:
-            self._container.style.setProperty(
+            self.element.style.setProperty(
                 "border-width", self.border_width
             )
         if self.border_style:
-            self._container.style.setProperty(
+            self.element.style.setProperty(
                 "border-style", self.border_style
             )
         # TODO: Add children via sub-class.
-        return self._container
+        return self.element
 
     def as_dict(self):
         """
@@ -778,9 +780,10 @@ class Column(Container):
             child_container = document.createElement("div")
             child_container.style.setProperty("grid-column", 1)
             child_container.style.setProperty("grid-row", counter)
-            child.render(child_container)
-            self._container.appendChild(child_container)
-        return self._container
+            child_container.appendChild(child.element)
+            child.set_position(child_container)
+            self.element.appendChild(child_container)
+        return self.element
 
 
 class Row(Container):
@@ -794,6 +797,7 @@ class Row(Container):
             child_container = document.createElement("div")
             child_container.setProperty("grid-column", counter)
             child_container.setProperty("grid-row", 1)
-            child.render(child_container)
-            self._container.appendChild(child_container)
-        return self._container
+            child_container.appendChild(child.element)
+            child.set_position(child_container)
+            self.element.appendChild(child_container)
+        return self.element
