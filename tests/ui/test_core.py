@@ -521,40 +521,14 @@ def test_component_init_with_no_values():
     c = core.Component()
     assert c.name == "Component 1"
     assert c.id is not None
+    c2 = core.Component()
+    assert c2.name == "Component 2"
+    assert c2.id is not None
 
 
-def test_widget_init_defaults():
+def test_component_properties():
     """
-    Ensure an instance of a Widget class has a default id, position and
-    channel.
-    """
-    w = core.Widget(name="test")
-    # There is a default id of the expected default "shape".
-    assert w.id is not None
-    assert w.id.startswith("invent-")
-    assert len(w.id[7:]) == 10
-    # The default position is top left.
-    assert w.position == "TOP-LEFT"
-    # The default channel for widget related messages is the same as
-    # the widget's id.
-    assert w.channel == w.id
-
-
-def test_widget_init_override():
-    """
-    It's possible to override the default values for id, position and channel.
-    """
-    w = core.Widget(
-        name="test", id="foo", position="FILL", channel="test_channel"
-    )
-    assert w.id == "foo"
-    assert w.position == "FILL"
-    assert w.channel == "test_channel"
-
-
-def test_widget_properties():
-    """
-    A widget's properties are available in a dictionary.
+    A component's (widget's) properties are available in a dictionary.
     """
 
     class MyWidget(core.Widget):
@@ -583,10 +557,28 @@ def test_widget_properties():
     assert isinstance(properties["favourite_colour"], core.ChoiceProperty)
 
 
-def test_widget_blueprint():
+def test_component_message_blueprints():
     """
-    A JSON serializable data structure representing the widget and its
-    properties is returned.
+    A component's (widget's) message blueprints are available in a dictionary.
+    """
+
+    class MyWidget(core.Widget):
+        """
+        A test widget.
+        """
+
+        ping = core.MessageBlueprint(
+            "Send a ping.", strength="The strength of the ping."
+        )
+
+    mbp = MyWidget.message_blueprints()
+    assert isinstance(mbp["ping"], core.MessageBlueprint)
+
+
+def test_component_blueprint():
+    """
+    A JSON serializable data structure representing the component (widget) and
+    its properties is returned.
     """
 
     class MyWidget(core.Widget):
@@ -636,9 +628,10 @@ def test_widget_blueprint():
     assert result["properties"]["favourite_colour"]["default_value"] == "black"
 
 
-def test_widget_as_dict():
+def test_component_as_dict():
     """
-    Ensure the expected state of the widget is returned as a Python dictionary.
+    Ensure the expected state of the component (widget) is returned as a Python
+    dictionary.
     """
 
     class MyWidget(core.Widget):
@@ -663,9 +656,58 @@ def test_widget_as_dict():
 
     w = MyWidget("a test widget")
     result = w.as_dict()
+    assert result["type"] == "MyWidget"
     assert result["properties"]["foo"] == "bar"
     assert result["properties"]["numberwang"] == 42
     assert result["properties"]["favourite_colour"] == "black"
+
+
+def test_widget_init_defaults():
+    """
+    Ensure an instance of a Widget class has a default id, position and
+    channel.
+    """
+    w = core.Widget(name="test")
+    # There is a default id of the expected default "shape".
+    assert w.id is not None
+    assert w.id.startswith("invent-")
+    assert len(w.id[7:]) == 10
+    # The default position is top left.
+    assert w.position == "TOP-LEFT"
+    # The default channel for widget related messages is the same as
+    # the widget's id.
+    assert w.channel == w.id
+
+
+def test_widget_init_override():
+    """
+    It's possible to override the default values for id, position and channel.
+    """
+    w = core.Widget(
+        name="test", id="foo", position="FILL", channel="test_channel"
+    )
+    assert w.id == "foo"
+    assert w.position == "FILL"
+    assert w.channel == "test_channel"
+
+
+def test_widget_publish():
+    """
+    A widget knows what channels to publish any messages to, from
+    MessageBlueprints.
+    """
+
+    class MyWidget(core.Widget):
+
+        ping = core.MessageBlueprint(
+            "Send a ping.", strength="Strength of ping"
+        )
+
+    with mock.patch("invent.publish") as mock_publish:
+        w = MyWidget()
+        w.publish("ping", strength=100)
+        x = 2
+        assert mock_publish.call_count == 1
 
 
 def test_widget_parse_position():

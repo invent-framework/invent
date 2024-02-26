@@ -50,8 +50,8 @@ class MessageBlueprint:
 
     click = MessageBlueprint("Sent when the widget it clicked.")
     hold = MessageBlueprint(
-        "The button is held down",
-        duration="The amount of time the button was held down",
+        "The button is held down.",
+        duration="The amount of time the button was held down.",
     )
     double_click = MessageBlueprint()
 
@@ -128,7 +128,10 @@ class Property:
         and flag indicating if it is a required property.
         """
         if not hasattr(self, "private_name"):
-            self.private_name = f"_{self.__class__.__name__.lower()}{type(self)._property_counter}"
+            self.private_name = (
+                f"_{self.__class__.__name__.lower()}" +
+                f"{type(self)._property_counter}"
+            )
             type(self)._property_counter += 1
         self.description = description
         self.required = required
@@ -423,9 +426,9 @@ class Component:
     @classmethod
     def properties(cls):
         """
-        Returns a dictionary of properties associated with the widget. The key
-        is the property name, the value an instance of the relevant property
-        class.
+        Returns a dictionary of properties associated with the component. The
+        key is the property name, the value an instance of the relevant
+        property class.
 
         Implementation detail: we branch on interpreter type because of the
         different behaviour of `getmembers`.
@@ -447,7 +450,10 @@ class Component:
     def message_blueprints(cls):
         """
         Returns a dictionary of the message blueprints that define the sort of
-        messages a widget may send during its lifetime.
+        messages a component may send during its lifetime.
+
+        Implementation detail: we branch on interpreter type because of the
+        different behaviour of `getmembers`.
         """
         if invent.is_micropython:  # pragma: no cover
             result = {}
@@ -466,7 +472,8 @@ class Component:
     def blueprint(cls):
         """
         Return a Python dictionary as a data structure representing all the
-        essential information about the widget and its properties.
+        essential information about the components, its properties, message
+        blueprints and preview.
         """
         return {
             "properties": {
@@ -480,12 +487,14 @@ class Component:
 
     def as_dict(self):
         """
-        Return a dict representation of the state of this widget.
+        Return a dict representation of the state of this component's
+        properties and message blueprints.
         """
         properties = {
             key: getattr(self, key) for key in type(self).properties()
         }
         return {
+            "type": type(self).__name__,
             "properties": properties,
             "message_blueprints": {
                 key: value
@@ -524,7 +533,7 @@ class Widget(Component):
         a message to all the widget's channels with the message content
         defined in kwargs.
         """
-        message = getattr(self, blueprint).create_message(**kwargs)
+        message = getattr(self, blueprint).create_message(blueprint, **kwargs)
         invent.publish(message, to_channel=self.channel)
 
     def parse_position(self):
@@ -627,12 +636,12 @@ class Container(Component):
     border_color = TextProperty("The color of the container's border.")
     border_width = ChoiceProperty(
         "The size of the container's border.",
-        choices=["None", "XS", "S", "M", "L", "XL"],
+        choices=[None, "XS", "S", "M", "L", "XL"],
     )
     border_style = ChoiceProperty(
         "The style of the container's border.",
         choices=[
-            "None",
+            None,
             "Dotted",
             "Dashed",
             "Solid",
@@ -657,9 +666,13 @@ class Container(Component):
         border_style=None,
     ):
         super().__init__(name, id)
+        # An ordered list of child components.
+        self.content = []
         # To reference the div in the DOM that renders this container.
         self._container = None
+        # To reference the container's parent in the DOM tree.
         self.parent = None
+        # Component property settings.
         self.width = width
         self.height = height
         self.background_color = background_color
@@ -668,8 +681,29 @@ class Container(Component):
         self.border_style = border_style
 
     def append(self, item):
+        """
+        Append like a list.
+        """
         item.parent = self
-        super().append(item)
+        self.content.append(item)
+
+    def __getitem__(self, index):
+        """
+        Index items like a list.
+        """
+        return self.content[index]
+
+    def __iter__(self):
+        """
+        Iterate like a list.
+        """
+        return iter(self.content)
+
+    def __delete__(self, item):
+        """
+        Delete like a list.
+        """
+        del self.content(item)
 
     def render(self):
         """
@@ -684,16 +718,30 @@ class Container(Component):
             self._container = document.createElement("div")
             self._container.id = self.id
             self._container.style.display = "grid"
-        self._container.style.height = f"{self.height}%"
-        self._container.style.width = f"{self.width}%"
-        self._container.style.setProperty(
-            "background-color", self.background_color
-        )
-        self._container.style.setProperty("border-color", self.border_color)
-        self._container.style.setProperty("border-width", self.border_width)
-        self._container.style.setProperty("border-style", self.border_style)
+        if self.height:
+            self._container.style.height = f"{self.height}%"
+        if self.width:
+            self._container.style.width = f"{self.width}%"
+        if self.background_color:
+            self._container.style.setProperty(
+                "background-color", self.background_color
+            )
+        if self.border_color:
+            self._container.style.setProperty("border-color", self.border_color)
+        if self.border_width:
+            self._container.style.setProperty("border-width", self.border_width)
+        if self.border_style:
+            self._container.style.setProperty("border-style", self.border_style)
         # TODO: Add children via sub-class.
         return self._container
+
+    def as_dict(self):
+        """
+        Return a dict representation of the container, including the ordered
+        content of children.
+        """
+        result = super().as_dict()
+        result["content"] = [child.as_dict for child in self.content]
 
 
 class Column(Container):
@@ -703,7 +751,7 @@ class Column(Container):
 
     def render(self):
         super().render()
-        for counter, child in enumerate(self, start=1):
+        for counter, child in enumerate(self.content, start=1):
             child_container = document.createElement("div")
             child_container.style.setProperty("grid-column", 1)
             child_container.style.setProperty("grid-row", counter)
@@ -719,7 +767,7 @@ class Row(Container):
 
     def render(self):
         super().render()
-        for counter, child in enumerate(self, start=1):
+        for counter, child in enumerate(self.content, start=1):
             child_container = document.createElement("div")
             child_container.setProperty("grid-column", counter)
             child_container.setProperty("grid-row", 1)
