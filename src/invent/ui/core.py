@@ -428,6 +428,7 @@ class Component:
         # TODO: automagically grab values from kwargs and inflate properties,
         # then call self.render to create self.element.
         # Then set the element's id to self.id
+        # Then call self.update() to do the on_<FOO>_changed calls.
         self.name = name if name else type(self)._generate_name()
         self.id = id if id else random_id()
 
@@ -781,7 +782,8 @@ class Column(Container):
             child_container.style.setProperty("grid-column", 1)
             child_container.style.setProperty("grid-row", counter)
             child_container.appendChild(child.element)
-            child.set_position(child_container)
+            if isinstance(child, Widget):
+                child.set_position(child_container)
             self.element.appendChild(child_container)
         return self.element
 
@@ -795,9 +797,10 @@ class Row(Container):
         super().render()
         for counter, child in enumerate(self.content, start=1):
             child_container = document.createElement("div")
-            child_container.setProperty("grid-column", counter)
-            child_container.setProperty("grid-row", 1)
+            child_container.style.setProperty("grid-column", counter)
+            child_container.style.setProperty("grid-row", 1)
             child_container.appendChild(child.element)
-            child.set_position(child_container)
+            if isinstance(child, Widget):
+                child.set_position(child_container)
             self.element.appendChild(child_container)
         return self.element

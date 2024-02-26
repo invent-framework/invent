@@ -10,8 +10,8 @@ from pyscript import document
 class TextBox(Widget):
     text = TextProperty("The content to display.")
 
-    def __init__(self, text, name=None):
-        super().__init__(name=name)
+    def __init__(self, text, name=None, position=None):
+        super().__init__(name=name, position=position)
         self.text = text
         self.render()
 

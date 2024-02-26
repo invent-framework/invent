@@ -10,8 +10,8 @@ from pyscript import document
 class Button(Widget):
     label = TextProperty("The text on the button.")
 
-    def __init__(self, name, label, channel):
-        super().__init__(name=name, channel=channel)
+    def __init__(self, name, label, channel, position="TOP-LEFT"):
+        super().__init__(name=name, channel=channel, position=position)
         self.name = name
         self.label = label
         self.channel = channel

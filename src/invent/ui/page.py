@@ -48,6 +48,8 @@ class Page:
         Returns an HTML element to insert into the DOM.
         """
         self.element = document.createElement("div")
+        self.element.classList.add("paper")
+        self.element.classList.add("container")
         self.element.id = self.name
         self.hide()
         # TODO: FIX THIS FOR CONTAINERS (cols / rows)

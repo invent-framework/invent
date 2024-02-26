@@ -52,10 +52,13 @@ invent.ui.App(
                             invent.media.images.goose.png,
                             channel="honk"
                         ),
+                        invent.ui.Row(
+                        content = [
                         invent.ui.Button(
                             name="button honk",
                             label="HONK!",
-                            channel="honk"
+                            channel="honk",
+                            position="FILL",
                         ),
                         invent.ui.Button(
                             name="to_pig",
@@ -64,8 +67,10 @@ invent.ui.App(
                         ),
                         invent.ui.TextBox(
                             name="number_of_honks",
-                            text=invent.ui.from_datastore("number_of_honks")
-                        )
+                            text=invent.ui.from_datastore("number_of_honks"),
+                            position="BOTTOM-LEFT",
+                        )]
+                        ),
                     ]
                 )
             ],
