@@ -1,5 +1,4 @@
 import { ComponentModelBase } from "@/components/base-classes/component-model-base";
-import { BuilderUtilities } from "@/utilities/builder-utilities";
 
 /**
  *  Model for the page editor component.
@@ -11,6 +10,4 @@ export class PageEditorModel extends ComponentModelBase {
 	protected getLocalizationNamespace(): string {
 		return "page-editor";
 	}
-
-	public activePage: any = BuilderUtilities.activePage;
 }

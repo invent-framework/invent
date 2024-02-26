@@ -1,50 +1,37 @@
-import { ref, type Ref } from "vue";
+import type { WidgetPropertiesModel } from "@/data/models/widget-properties-model";
+import type { WidgetsModel } from "@/data/models/widgets-model";
+import { view as builder } from '@/views/builder/builder-model';
 
  /**
  * Utility functions for the builder.
  */
 export class BuilderUtilities {	
-	public static app: Ref<any> = ref({
-		pages: {}
-	});
+	public static builder(): any {
+		return (window as any).builder;
+	} 
 
-	public static activePage: Ref<any> = ref();
-
-	public static createApp(): void {
-		this.app.value = {
-			pages: {
-				"Page 1": {
-					container: {
-						type: "column",
-						children: []
-					}
-				}
-			}
-		}
+	public static getPages() {
+		return JSON.parse(this.builder().get_pages());
 	}
 
-	public static addPage(key: string) {
-		if (this.app.value){
-			this.app.value.pages[key] = {
-				container: {
-					type: "column",
-					children: []
-				}
-			}
-		}
+	public static addPage(name: string) {
+		this.builder().add_page(name);
+		builder.getPages();
 	}
 
-	public static setActivePage(page: any) {
-		this.activePage.value = page;
+	public static getAvailableWidgets(): WidgetsModel {
+		return JSON.parse(this.builder().get_available_widgets());
 	}
 
-	public static widgets: Array<any> = [
-		{
-			type: "button"
-		}
-	]
+	public static addWidget(): string {
+		return this.builder().add_widget_to_page("page-editor");
+	}
 
-	public static addWidget(widget: any, position: any) {
-		position.append(widget);
+	public static getWidgetProperties(widgetRef: string): WidgetPropertiesModel {
+		return JSON.parse(this.builder().get_widget_properties(widgetRef));
+	}
+
+	public static updateWidgetProperty(widgetRef: string, value: string) {
+		this.builder().update_widget_property(widgetRef, value);
 	}
 }

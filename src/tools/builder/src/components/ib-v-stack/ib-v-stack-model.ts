@@ -81,7 +81,7 @@ class IbVStackModel extends ComponentModelBase {
 			},
 			overflow: {
 				auto: ["overflow-y-auto", "overflow-x-hidden"],
-				hidden: "overflow-y-hidden"
+				hidden: "overflow-hidden"
 			}
 		},
 		defaultVariants: {

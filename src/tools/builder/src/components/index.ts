@@ -10,6 +10,7 @@ import IbIcon from "./ib-icon/ib-icon.vue";
 import IbHeading from "./ib-heading/ib-heading.vue";
 import IbVStack from "./ib-v-stack/ib-v-stack.vue";
 import IbHStack from "./ib-h-stack/ib-h-stack.vue";
+import IbSlideout from "./id-slideout/ib-slideout.vue";
 
 /**
  * Export & install application components for use globally
@@ -26,5 +27,6 @@ export default {
 		app.component("IbHeading", IbHeading);
 		app.component("IbVStack", IbVStack);
 		app.component("IbHStack", IbHStack);
+		app.component("IbSlideout", IbSlideout);
 	}
 };
