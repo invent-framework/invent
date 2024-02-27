@@ -331,7 +331,9 @@ class TextProperty(Property):
         """
         Coerce to a string.
         """
-        return str(value)
+        # Don't coerce None because None may be a valid value.
+        if value is not None:
+            return str(value)
 
     def validate(self, value):
         """
@@ -757,17 +759,11 @@ class Container(Component):
                 "background-color", self.background_color
             )
         if self.border_color:
-            self.element.style.setProperty(
-                "border-color", self.border_color
-            )
+            self.element.style.setProperty("border-color", self.border_color)
         if self.border_width:
-            self.element.style.setProperty(
-                "border-width", self.border_width
-            )
+            self.element.style.setProperty("border-width", self.border_width)
         if self.border_style:
-            self.element.style.setProperty(
-                "border-style", self.border_style
-            )
+            self.element.style.setProperty("border-style", self.border_style)
         # TODO: Add children via sub-class.
         return self.element
 

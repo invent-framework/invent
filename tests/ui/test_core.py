@@ -317,9 +317,9 @@ def test_text_property_value_is_string():
     widget.text = "test"
     # As is None.
     widget.text = None
-    # Fail for anything else.
-    with pytest.raises(core.ValidationError):
-        widget.text = 123
+    # Coerce for any other non-string value.
+    widget.text = 123
+    assert widget.text == "123"
 
 
 def test_text_property_value_is_required_string():
