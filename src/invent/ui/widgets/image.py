@@ -10,8 +10,8 @@ from pyscript import document
 class Image(Widget):
     image = TextProperty("The path to the image media.")
 
-    def __init__(self, image, name=None, channel=None):
-        super().__init__(name=name, channel=channel)
+    def __init__(self, image, name=None, channel=None, position="FILL"):
+        super().__init__(name=name, channel=channel, position=position)
         self.image = str(image)
         self.render()
 

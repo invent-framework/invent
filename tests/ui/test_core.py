@@ -29,8 +29,7 @@ def test_message_blueprint():
             self.publish("hold", duration=event.duration)
 
         def render(self, container):
-            if not self.element:
-                self.element = document.createElement("button")
+            self.element = document.createElement("button")
             self.element.addEventListener("click", self._handle_hold)
     """
     mbp = core.MessageBlueprint("This is a test", foo="A foo to handle")

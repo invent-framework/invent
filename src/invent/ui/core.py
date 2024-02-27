@@ -33,7 +33,7 @@ _VALID_VERTICALS = {"TOP", "MIDDLE", "BOTTOM"}
 
 class ValidationError(ValueError):
     """
-    Raised when a widget's property is set to an invalid value.
+    Raised when a component's property is set to an invalid value.
     """
 
     ...
@@ -56,14 +56,14 @@ class MessageBlueprint:
     double_click = MessageBlueprint()
 
     Instances may have an optional description to explain their intent, and
-    key/value pairs describing the fields in the content of the message,
-    and used in the visual builder.
+    key/value pairs describing the fields in the content of the message. This
+    metadata is used in the visual builder.
     """
 
     def __init__(self, description=None, **kwargs):
         """
         Messages may have an optional description and key/value pairs
-        describing the expected content of such a message.
+        describing the expected content of future messages.
         """
         self.description = description
         self.content = kwargs
@@ -78,6 +78,9 @@ class MessageBlueprint:
         for k in kwargs:
             if k not in self.content:
                 raise ValueError(_("Unknown field in message content: ") + k)
+        for k in self.content:
+            if k not in kwargs:
+                raise ValueError(_("Field missing from message content:") + k)
         return invent.Message(name, **kwargs)
 
     def as_dict(self):
@@ -93,8 +96,11 @@ class MessageBlueprint:
 
 class from_datastore:
     """
-    Instances of this class signal that a widget property is bound to a
-    datastore value.
+    Instances of this class signal that a property is bound to a datastore
+    value.
+
+    Implementation detail: snake case is used for this class, rather than the
+    orthodox capitalised camel case, for aesthetic reasons. ;-)
     """
 
     def __init__(self, key):
@@ -151,7 +157,7 @@ class Property:
 
         If the value is from_datastore, then a reactor function is defined to
         handle when the referenced value in the datastore changes. The reactor
-        function ensures the widget is re-rendered (i.e. appears reactive) when
+        function ensures the widget is updated (i.e. appears reactive) when
         the associated value is updated.
         """
 
@@ -164,6 +170,8 @@ class Property:
                 """
                 valid_value = self.validate(message.value)
                 setattr(obj, self.private_name, valid_value)
+                # If the change handler exists on the object, call it to update
+                # the widget.
                 change_fn = "on" + self.private_name + "_changed"
                 on_changed = getattr(obj, change_fn, None)
                 if on_changed:
@@ -180,7 +188,8 @@ class Property:
 
     def coerce(self, value):
         """
-        Return value as an acceptable type (or raise a TypeError).
+        Return value as an acceptable type (or raise an exception while doing
+        so).
         """
         return value  # pragma: no cover
 
@@ -421,7 +430,7 @@ class Component:
     )
     id = TextProperty("The id of the widget instance in the DOM.")
 
-    def __init__(self, name=None, id=None):
+    def __init__(self, name=None, id=None, position="FILL"):
         if invent.is_micropython:
             for name, prop in type(self).properties().items():
                 prop.__set_name__(self, name)
@@ -431,6 +440,7 @@ class Component:
         # Then call self.update() to do the on_<FOO>_changed calls.
         self.name = name if name else type(self)._generate_name()
         self.id = id if id else random_id()
+        self.position = position
 
     @classmethod
     def _generate_name(cls):
@@ -523,40 +533,6 @@ class Component:
             },
         }
 
-
-class Widget(Component):
-    """
-    All widgets have these things:
-
-    * A unique human friendly name that's meaningful in the context of the
-      application (if none is given, one is automatically generated).
-    * A unique id (if none is given, one is automatically generated).
-    * An indication of the widget's preferred position (default: top left).
-    * A render function that takes the widget's container and renders
-      itself as an HTML element into the container.
-    * An optional channel name to which it broadcasts its messages (defaults to
-      the id).
-    """
-
-    channel = TextProperty("The channel[s] to which the widget broadcasts.")
-    position = TextProperty("The widget's preferred position.")
-
-    def __init__(self, name=None, id=None, position="TOP-LEFT", channel=None):
-        super().__init__(name, id)
-        self.channel = channel if channel else self.id
-        self.position = position
-        # Reference to the HTML element (once rendered).
-        self.element = None
-
-    def publish(self, blueprint, **kwargs):
-        """
-        Given the name of one of the class's MessageBlueprints, publish the
-        a message to all the widget's channels with the message content
-        defined in kwargs.
-        """
-        message = getattr(self, blueprint).create_message(blueprint, **kwargs)
-        invent.publish(message, to_channel=self.channel)
-
     def parse_position(self):
         """
         Parse the self.position as: "VERTICAL-HORIZONTAL", "VERTICAL" or
@@ -626,6 +602,39 @@ class Widget(Component):
             self.element.style.height = "100%"
 
 
+class Widget(Component):
+    """
+    All widgets have these things:
+
+    * A unique human friendly name that's meaningful in the context of the
+      application (if none is given, one is automatically generated).
+    * A unique id (if none is given, one is automatically generated).
+    * An indication of the widget's preferred position (default: top left).
+    * A render function that takes the widget's container and renders
+      itself as an HTML element into the container.
+    * An optional channel name to which it broadcasts its messages (defaults to
+      the id).
+    """
+
+    channel = TextProperty("The channel[s] to which the widget broadcasts.")
+    position = TextProperty("The widget's preferred position.")
+
+    def __init__(self, name=None, id=None, position="TOP-LEFT", channel=None):
+        super().__init__(name, id, position)
+        self.channel = channel if channel else self.id
+        # Reference to the HTML element (once rendered).
+        self.element = None
+
+    def publish(self, blueprint, **kwargs):
+        """
+        Given the name of one of the class's MessageBlueprints, publish the
+        a message to all the widget's channels with the message content
+        defined in kwargs.
+        """
+        message = getattr(self, blueprint).create_message(blueprint, **kwargs)
+        invent.publish(message, to_channel=self.channel)
+
+
 class Container(Component):
     """
     All containers have these things:
@@ -679,6 +688,7 @@ class Container(Component):
         name=None,
         id=None,
         content=None,
+        position="FILL",
         width=100,
         height=100,
         background_color=None,
@@ -686,7 +696,7 @@ class Container(Component):
         border_width=None,
         border_style=None,
     ):
-        super().__init__(name, id)
+        super().__init__(name, id, position)
         # An ordered list of child components.
         self.content = content or []
         # To reference the container's parent in the DOM tree.
@@ -782,8 +792,7 @@ class Column(Container):
             child_container.style.setProperty("grid-column", 1)
             child_container.style.setProperty("grid-row", counter)
             child_container.appendChild(child.element)
-            if isinstance(child, Widget):
-                child.set_position(child_container)
+            child.set_position(child_container)
             self.element.appendChild(child_container)
         return self.element
 
@@ -800,7 +809,6 @@ class Row(Container):
             child_container.style.setProperty("grid-column", counter)
             child_container.style.setProperty("grid-row", 1)
             child_container.appendChild(child.element)
-            if isinstance(child, Widget):
-                child.set_position(child_container)
+            child.set_position(child_container)
             self.element.appendChild(child_container)
         return self.element
