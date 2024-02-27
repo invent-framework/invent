@@ -33,9 +33,6 @@ lint-all:
 serve:
 	python utils/serve.py
 
-widgets:
-	PYTHONPATH="src" python utils/export_widgets.py
-
 test:
 	python -m webbrowser http://localhost:8000/index.html
 
