@@ -1,5 +1,6 @@
 import type { WidgetPropertiesModel } from "@/data/models/widget-properties-model";
 import type { WidgetsModel } from "@/data/models/widgets-model";
+import type { WidgetModel } from "@/data/models/widget-model";
 
 /**
  * View state for the builder view.
@@ -11,9 +12,11 @@ export class BuilderState {
 
 	public pages: any;
 
-	public activePage: string = "Page 1";
+	public activePageName: string = "Page 1";
 
-	public activeWidget: string = "";
+	public activeWidgetId: string = "";
+
+	public activeWidgetBlueprint: WidgetModel | undefined;
 
 	public activeWidgetProperties: WidgetPropertiesModel | undefined;
 

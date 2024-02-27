@@ -34,7 +34,7 @@ export class BuilderUtilities {
 		));
 	}
 
-	public static updateWidgetProperty(widgetRef: string, value: string) {
-		this.builder().update_widget_property(widgetRef, value);
+	public static updateWidgetProperty(widgetBlueprint: WidgetModel | undefined, widgetRef: string, key: string, value: string) {
+		this.builder().update_widget_property(widgetBlueprint, widgetRef, key, value);
 	}
 }

@@ -160,12 +160,20 @@ class Builder:
         window.x = json.dumps(properties)
         return json.dumps(properties)
     
-    def update_widget_property(self, widget_id, value):
+    def update_widget_property(self, widget_blueprint, widget_id, key, value):
         """
         Update a property on a widget (that has already been added to the page).
         """
 
-        window.console.log(f"update_widget_property: {widget_id}, {value}")
+        window.console.log(f"update_widget_property: {widget_blueprint}, {widget_id}, {key} {value}")
+
+        component = self._get_widget_by_id(widget_id)
+        setattr(component, key, value)
+
+        method = getattr(component, f"on_{key}_changed", None)
+        if method:
+            method()
+
 
     # Internal #########################################################################
 

@@ -77,12 +77,12 @@
         </template>
 
         <template #content>
-            <page-editor />
+            <page-editor class="mt-1" />
         </template>
 
         <template #settings>
             <ib-v-stack v-if="view.state.activeWidgetProperties" :spacing="4">
-                <ib-heading :label="view.state.activeWidget" size="lg" color="gray" />
+                <ib-heading :label="view.state.activeWidgetId" size="lg" color="gray" />
 
                 <template v-for="(property, key) in view.state.activeWidgetProperties" :key="key">
                     <ib-input 
@@ -91,7 +91,7 @@
                         type="text"
                         :required="property.required" 
                         v-model="property.value"
-                        @input="view.updateWidgetProperty($event)"
+                        @input="view.updateWidgetProperty(key, $event)"
                     />
                 </template>
             </ib-v-stack>

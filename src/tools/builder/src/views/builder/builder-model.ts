@@ -39,12 +39,12 @@ export class BuilderModel extends ViewModelBase {
 
 	public onWidgetPreviewClicked(widgetBlueprint: WidgetModel): void {
 		const widgetElement: HTMLElement = BuilderUtilities.addWidgetToPage(
-			this.state.activePage, widgetBlueprint
+			this.state.activePageName, widgetBlueprint
 		);
 
 		if (widgetElement){
 			widgetElement.addEventListener("click", () => {
-				this.state.activeWidget = widgetElement.id;
+				this.state.activeWidgetId = widgetElement.id;
 				this.openPropertiesForWidget(widgetBlueprint, widgetElement.id);
 			});
 		}
@@ -66,17 +66,22 @@ export class BuilderModel extends ViewModelBase {
 	}
 
 	public onPageClicked(page: any): void {
-		this.state.activePage = page;
+		this.state.activePageName = page;
 	}
 
 	public openPropertiesForWidget(widgetBlueprint: WidgetModel, widgetRef: string): void {
 		this.state.activeWidgetProperties = BuilderUtilities.getWidgetProperties(
 			widgetBlueprint, widgetRef
 		);
+		this.state.activeWidgetBlueprint = widgetBlueprint;
 	}
 
-	public updateWidgetProperty(value: string) {
-		BuilderUtilities.updateWidgetProperty(this.state.activeWidget, value);
+	public updateWidgetProperty(key: string, value: string) {
+		window.console.log(this.state.activeWidgetProperties);
+		window.console.log(this.state.activeWidgetBlueprint);
+		BuilderUtilities.updateWidgetProperty(
+			this.state.activeWidgetBlueprint, this.state.activeWidgetId, key, value
+		);
 	}
 
 	public getSidebarTabColor(key: string): string { 
