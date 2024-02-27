@@ -30,7 +30,7 @@ class Button(Widget):
 
     def render(self):
         element = document.createElement("button")
-        element.addEventListener("click", self.click)
         element.id = self.id
         element.innerText = self.label
+        element.addEventListener("click", self.click)
         return element

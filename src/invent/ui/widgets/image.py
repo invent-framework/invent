@@ -10,8 +10,8 @@ from pyscript import document
 class Image(Widget):
     image = TextProperty("The path to the image media.", default_value="http://placekitten.com/200/200")
 
-    def __init__(self, image=None, **kwargs):
-        super().__init__(**kwargs)
+    def __init__(self, name=None, id=None, position="TOP-LEFT", channel=None, image=None):
+        super().__init__(name=name, id=id, position=position, channel=channel)
 
         if image is not None:
             self.image = str(image)
@@ -27,6 +27,7 @@ class Image(Widget):
 
     def render(self):
         element = document.createElement("img")
+        element.id = self.id
         element.src = self.image
         element.addEventListener("click", self.touch)
         return element
