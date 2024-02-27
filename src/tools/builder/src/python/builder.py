@@ -3,7 +3,7 @@
 
 import invent
 from invent.ui.core import Component
-from invent.ui.widgets import AVAILABLE_WIDGETS
+from invent.ui import AVAILABLE_COMPONENTS
 import json
 from pyscript import document, window
 
@@ -22,15 +22,6 @@ class Builder:
                 )
             ]
         )
-
-        # Used to lookup widget classes by name.
-        #
-        # e.g. {'Button' : <class Button>}
-        self._widget_klasses = {
-            widget_klass.__name__: widget_klass
-
-            for widget_klass in AVAILABLE_WIDGETS
-        }
 
     # App ##############################################################################
 
@@ -109,7 +100,7 @@ class Builder:
         blueprints = {
             widget_klass_name: widget_klass.blueprint()
 
-            for widget_klass_name, widget_klass in self._widget_klasses.items()
+            for widget_klass_name, widget_klass in AVAILABLE_COMPONENTS.items()
         }
 
         return json.dumps(blueprints)
@@ -126,7 +117,7 @@ class Builder:
         if page is None:
             raise ValueError(f"No such page: {page_name}")
 
-        widget_klass = self._widget_klasses.get(widget_blueprint.name)
+        widget_klass = AVAILABLE_COMPONENTS.get(widget_blueprint.name)
         if widget_klass is None:
             raise ValueError(f"No such widget: {widget_blueprint.name}")
 
@@ -146,18 +137,19 @@ class Builder:
         """
         Return a dictionary of properties from a widget reference.
         """
-        widget_klass = self._widget_klasses.get(widget_blueprint.name)
-        if widget_klass is None:
-            raise ValueError(f"No such widget blueprint: {widget_blueprint.name}")
+        component_klass = AVAILABLE_COMPONENTS.get(widget_blueprint.name)
+        if component_klass is None:
+            raise ValueError(f"No such component: {widget_blueprint.name}")
 
         widget = self._get_widget_by_id(widget_id)
         if widget is None:
             raise ValueError(f"No such widget: {widget_id}")
 
-        properties = widget_klass.blueprint()["properties"]
+        properties = component_klass.blueprint()["properties"]
         for name, value in properties.items():
             value["value"] = getattr(widget, name)
 
+        window.x = json.dumps(properties)
         return json.dumps(properties)
     
     def update_widget_property(self, widget_id, value):

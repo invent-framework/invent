@@ -422,8 +422,8 @@ class Component:
 
     def __init__(self, name=None, id=None):
         if invent.is_micropython:
-            for name, prop in type(self).properties().items():
-                prop.__set_name__(self, name)
+            for property_name, property_obj in type(self).properties().items():
+                property_obj.__set_name__(self, property_name)
         # TODO: automagically grab values from kwargs and inflate properties,
         # then call self.render to create self.element.
         # Then set the element's id to self.id
@@ -551,10 +551,10 @@ class Widget(Component):
     channel = TextProperty("The channel[s] to which the widget broadcasts.")
     position = TextProperty("The widget's preferred position.")
 
-    def __init__(self, id=None, name=None, position="TOP-LEFT", channel=None):
-        super().__init__(name, id)
-        self.channel = channel if channel else self.id
+    def __init__(self, name=None, id=None, position="TOP-LEFT", channel=None):
+        super().__init__(name=name, id=id)
         self.position = position
+        self.channel = channel if channel else self.name
         # Reference to the HTML element (once rendered).
         self.element = None
 
