@@ -46,9 +46,13 @@ def test_message_blueprint_create_message():
     # Cannot include fields that have not been specified.
     with pytest.raises(ValueError):
         mbp.create_message("subject", baz="This will fail")
+    # Can include all the fields.
     msg = mbp.create_message("subject", foo="Foo to you")
     assert msg._subject == "subject"
     assert msg.foo == "Foo to you"
+    # Cannot miss an expected field.
+    with pytest.raises(ValueError):
+        mbp.create_message("subject")
 
 
 def test_message_blueprint_as_dict():
@@ -533,6 +537,14 @@ def test_component_init_with_no_values():
     assert c2.id is not None
 
 
+def test_component_get_component_by_id():
+    """
+    Once a component is created, it's possible to retrieve it directly via id.
+    """
+    c = core.Component()
+    assert core.Component.get_component_by_id(c.id) == c
+
+
 def test_component_properties():
     """
     A component's (widget's) properties are available in a dictionary.
@@ -682,8 +694,8 @@ def test_widget_init_defaults():
     # The default position is top left.
     assert w.position == "TOP-LEFT"
     # The default channel for widget related messages is the same as
-    # the widget's id.
-    assert w.channel == w.id
+    # the widget's name.
+    assert w.channel == "test"
 
 
 def test_widget_init_override():

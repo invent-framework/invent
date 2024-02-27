@@ -342,8 +342,6 @@ class TextProperty(Property):
         If set, the value must be between the minimum and maximum boundaries.
         """
         value = super().validate(value)
-        if value is not None and not isinstance(value, str):
-            raise ValidationError(_("The value must be a string:") + value)
         if value is not None:
             length = len(value)
             if self.min_length and length < self.min_length:
@@ -429,10 +427,12 @@ class Component:
     _component_counter = 0
 
     id = TextProperty("The id of the widget instance in the DOM.")
-    name = TextProperty("The meaningful name of the widget instance.",)
+    name = TextProperty(
+        "The meaningful name of the widget instance.",
+    )
 
     def __init__(self, name=None, id=None, position="FILL"):
-        if invent.is_micropython:
+        if invent.is_micropython:  # pragma: no cover
             for property_name, property_obj in type(self).properties().items():
                 property_obj.__set_name__(self, property_name)
         # TODO: automagically grab values from kwargs and inflate properties,
@@ -453,9 +453,9 @@ class Component:
     @classmethod
     def get_component_by_id(cls, component_id):
         """
-        Return the component with the specified id or None if no such component exists.
+        Return the component with the specified id or None if no such
+        component exists.
         """
-
         return Component._components_by_id.get(component_id)
 
     def render(self, container):

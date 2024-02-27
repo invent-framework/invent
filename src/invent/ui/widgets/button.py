@@ -10,7 +10,9 @@ from pyscript import document
 class Button(Widget):
     label = TextProperty("The text on the button.", default_value="Click Me")
 
-    def __init__(self, name=None, id=None, position="TOP-LEFT", channel=None, label=None):
+    def __init__(
+        self, name=None, id=None, position="TOP-LEFT", channel=None, label=None
+    ):
         super().__init__(name=name, id=id, position=position, channel=channel)
 
         if label is not None:
