@@ -94,7 +94,7 @@ class MessageBlueprint:
         }
 
 
-class from_datastore:
+class from_datastore: # NOQA
     """
     Instances of this class signal that a property is bound to a datastore
     value.
@@ -162,20 +162,13 @@ class Property:
         """
 
         if isinstance(value, from_datastore):
-
-            def reactor(message, key=value.key):  # pragma: no cover
+            def reactor(message):  # pragma: no cover
                 """
                 Set the value in the widget and call the optional
                 "on_FOO_changed" to ensure the update is visible to the user.
                 """
-                valid_value = self.validate(message.value)
-                setattr(obj, self.private_name, valid_value)
-                # If the change handler exists on the object, call it to update
-                # the widget.
-                change_fn = "on" + self.private_name + "_changed"
-                on_changed = getattr(obj, change_fn, None)
-                if on_changed:
-                    on_changed()
+                setattr(obj, self.private_name, self.validate(message.value))
+                self._call_on_changed(obj, self.private_name)
 
             # Subscribe to store events for the specified key.
             invent.subscribe(
@@ -183,8 +176,18 @@ class Property:
             )
             # Update value to the actual value from the datastore.
             value = invent.datastore.get(value.key, self.default_value)
+
         # Set the value in the widget.
         setattr(obj, self.private_name, self.validate(value))
+        self._call_on_changed(obj, self.private_name)
+
+    def _call_on_changed(self, obj, property_name):
+        """
+        Call the object's on_changed handler for the specified property if it exists.
+        """
+        on_changed = getattr(obj, "on" + property_name + "_changed", None)
+        if on_changed:
+            on_changed()
 
     def coerce(self, value):
         """
@@ -445,6 +448,14 @@ class Component:
 
         Component._components_by_id[self.id] = self
 
+    def on_id_changed(self):
+        if hasattr(self, "element"):
+            self.element.id = self.id
+
+    def on_name_changed(self):
+        if hasattr(self, "element"):
+            self.element.name = self.name
+
     @classmethod
     def _generate_name(cls):
         cls._component_counter += 1
@@ -545,9 +556,47 @@ class Component:
             },
         }
 
+
+class Widget(Component):
+    """
+    All widgets have these things:
+
+    * A unique human friendly name that's meaningful in the context of the
+      application (if none is given, one is automatically generated).
+    * A unique id (if none is given, one is automatically generated).
+    * An indication of the widget's preferred position (default: top left).
+    * A render function that takes the widget's container and renders
+      itself as an HTML element into the container.
+    * An optional channel name to which it broadcasts its messages (defaults to
+      the id).
+    """
+
+    channel = TextProperty("The channel[s] to which the widget broadcasts.")
+    position = TextProperty("The widget's preferred position.")
+
+    def __init__(self, name=None, id=None, position="TOP-LEFT", channel=None):
+        super().__init__(name=name, id=id)
+        self.position = position
+        self.channel = channel if channel else self.name
+        # Reference to the HTML element (once rendered).
+        self.element = None
+
+    def on_position_changed(self):
+        if hasattr(self, "element"):
+            self.set_position(self.element.parentElement)
+
+    def publish(self, blueprint, **kwargs):
+        """
+        Given the name of one of the class's MessageBlueprints, publish
+        a message to all the widget's channels with the message content
+        defined in kwargs.
+        """
+        message = getattr(self, blueprint).create_message(blueprint, **kwargs)
+        invent.publish(message, to_channel=self.channel)
+
     def parse_position(self):
         """
-        Parse the self.position as: "VERTICAL-HORIZONTAL", "VERTICAL" or
+        Parse "self.position" as: "VERTICAL-HORIZONTAL", "VERTICAL" or
         "HORIZONTAL" values.
 
         Valid values are defined in _VALID_VERTICALS and _VALID_HORIZONTALS.
@@ -579,17 +628,35 @@ class Component:
 
     def set_position(self, container):
         """
-        Given the value of self.position, will adjust the CSS for the rendered
-        self.element, and its container, so the resulting HTML puts the element
+        Given the value of "self.position", will adjust the CSS for the rendered
+        "self.element", and its container, so the resulting HTML puts the element
         into the expected position in the container.
         """
+
+        # Reset...
+        def reset():
+            self.element.style.removeProperty("width")
+            self.element.style.removeProperty("height")
+            container.style.removeProperty("align-self")
+            container.style.removeProperty("justify-self")
+
         if self.position.upper() == "FILL":
+            reset()
             # Fill the full extent of the container.
             self.element.style.width = "100%"
             self.element.style.height = "100%"
             return
+
         # Parse into horizontal and vertical positions.
-        vertical_position, horizontal_position = self.parse_position()
+        try:
+            vertical_position, horizontal_position = self.parse_position()
+            reset()
+
+        except ValueError:
+            from pyscript import window
+            window.console.log("You suck!")
+            return
+
         # Check vertical position and adjust the container via CSS magic.
         if vertical_position == "TOP":
             container.style.setProperty("align-self", "start")
@@ -612,40 +679,6 @@ class Component:
         if not vertical_position:
             container.style.setProperty("align-self", "stretch")
             self.element.style.height = "100%"
-
-
-class Widget(Component):
-    """
-    All widgets have these things:
-
-    * A unique human friendly name that's meaningful in the context of the
-      application (if none is given, one is automatically generated).
-    * A unique id (if none is given, one is automatically generated).
-    * An indication of the widget's preferred position (default: top left).
-    * A render function that takes the widget's container and renders
-      itself as an HTML element into the container.
-    * An optional channel name to which it broadcasts its messages (defaults to
-      the id).
-    """
-
-    channel = TextProperty("The channel[s] to which the widget broadcasts.")
-    position = TextProperty("The widget's preferred position.")
-
-    def __init__(self, name=None, id=None, position="TOP-LEFT", channel=None):
-        super().__init__(name=name, id=id)
-        self.position = position
-        self.channel = channel if channel else self.name
-        # Reference to the HTML element (once rendered).
-        self.element = None
-
-    def publish(self, blueprint, **kwargs):
-        """
-        Given the name of one of the class's MessageBlueprints, publish the
-        a message to all the widget's channels with the message content
-        defined in kwargs.
-        """
-        message = getattr(self, blueprint).create_message(blueprint, **kwargs)
-        invent.publish(message, to_channel=self.channel)
 
 
 class Container(Component):
@@ -753,9 +786,9 @@ class Container(Component):
         Return a div element representing the container (set with the expected
         height and width).
 
-        Sub classes should call this, then override with the specific details
+        Subclasses should call this, then override with the specific details
         for how to add their children in a way that reflects the way they
-        layout their widgets.
+        lay out their widgets.
         """
         self.element = document.createElement("div")
         self.element.id = self.id

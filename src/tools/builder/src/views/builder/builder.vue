@@ -82,7 +82,7 @@
 
         <template #settings>
             <ib-v-stack v-if="view.state.activeWidgetProperties" :spacing="4">
-                <ib-heading :label="view.state.activeWidgetId" size="lg" color="gray" />
+                <ib-heading label="Settings" size="lg" color="gray" />
 
                 <template v-for="(property, key) in view.state.activeWidgetProperties" :key="key">
                     <ib-input 

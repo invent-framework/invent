@@ -13,10 +13,8 @@ class Image(Widget):
         default_value="http://placekitten.com/200/200",
     )
 
-    def __init__(
-        self, name=None, id=None, position="FILL", channel=None, image=None
-    ):
-        super().__init__(name=name, id=id, position=position, channel=channel)
+    def __init__(self, image=None, position="FILL", **kwargs):
+        super().__init__(position=position, **kwargs)
 
         if image is not None:
             self.image = str(image)
@@ -36,3 +34,7 @@ class Image(Widget):
         element.src = self.image
         element.addEventListener("click", self.touch)
         return element
+
+    def on_image_changed(self):
+        if self.element:
+            self.element.src = self.image

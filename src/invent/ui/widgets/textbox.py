@@ -2,23 +2,31 @@
 A minimal area of the UI containing textual content.
 """
 
-from invent import publish, Message
 from invent.ui.core import Widget, TextProperty
 from pyscript import document
 
 
 class TextBox(Widget):
-    text = TextProperty("The content to display.")
+    text = TextProperty("The content to display.", default_value="Text")
 
-    def __init__(self, text, name=None, position="TOP-LEFT"):
-        super().__init__(name=name, position=position)
-        self.text = text
-        self.render()
+    def __init__(self, text=None, **kwargs):
+        super().__init__(**kwargs)
+
+        if text is not None:
+            self.text = text
+
+        self.element = self.render()
+
+    @classmethod
+    def preview(cls):
+        return "<div>TextBox</div>"
 
     def on_text_changed(self):
-        self.element.innerText = self.text
+        if self.element:
+            self.element.innerText = self.text
 
     def render(self):
-        self.element = document.createElement("div")
-        self.element.id = self.id
-        self.on_text_changed()
+        element = document.createElement("div")
+        element.id = self.id
+        element.innerText = self.text
+        return element
