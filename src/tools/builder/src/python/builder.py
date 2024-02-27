@@ -126,10 +126,17 @@ class Builder:
 
         page.append(component)
 
-        target = document.getElementById(parent_id)
+        iframe = document.getElementById("page-editor")
+
+        if parent_id is None:
+            target = iframe.contentWindow.document.getElementById('yeah-this-is-the-place')
+
+        else:
+            target = iframe.contentWindow.document.getElementById(parent_id)
+
         target.appendChild(component.element)
 
-        return component.id
+        return component.element
 
     def delete_widget_from_page(self, widget_id):
         ...

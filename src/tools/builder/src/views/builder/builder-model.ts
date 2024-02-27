@@ -6,6 +6,7 @@ import { reactive } from "vue";
 import type { WidgetPropertiesModel } from "@/data/models/widget-properties-model";
 import type { WidgetModel } from "@/data/models/widget-model";
 
+
 /**
  * View model for the builder view.
  */
@@ -37,16 +38,14 @@ export class BuilderModel extends ViewModelBase {
 	}
 
 	public onWidgetPreviewClicked(widgetBlueprint: WidgetModel): void {
-		const widgetId: string = BuilderUtilities.addWidgetToPage(
+		const widgetElement: HTMLElement = BuilderUtilities.addWidgetToPage(
 			this.state.activePage, widgetBlueprint
 		);
 
-		const widgetElement: HTMLElement | null = document.getElementById(widgetId);
-
 		if (widgetElement){
 			widgetElement.addEventListener("click", () => {
-				this.state.activeWidget = widgetId;
-				this.openPropertiesForWidget(widgetBlueprint, widgetId);
+				this.state.activeWidget = widgetElement.id;
+				this.openPropertiesForWidget(widgetBlueprint, widgetElement.id);
 			});
 		}
 		this.state.isAddWidgetVisible = false;

@@ -24,8 +24,8 @@ export class BuilderUtilities {
 		return JSON.parse(this.builder().get_available_components());
 	}
 
-	public static addWidgetToPage(activePageName: string , widgetBlueprint: WidgetModel): string {
-		return this.builder().add_widget_to_page(activePageName, widgetBlueprint, "page-editor");
+	public static addWidgetToPage(activePageName: string , widgetBlueprint: WidgetModel): HTMLElement {
+		return this.builder().add_widget_to_page(activePageName, widgetBlueprint);
 	}
 
 	public static getWidgetProperties(widgetBlueprint: WidgetModel, widgetRef: string): WidgetPropertiesModel {
