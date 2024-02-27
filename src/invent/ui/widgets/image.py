@@ -10,7 +10,7 @@ from pyscript import document
 class Image(Widget):
     image = TextProperty("The path to the image media.", default_value="http://placekitten.com/200/200")
 
-    def __init__(self, name=None, id=None, position="TOP-LEFT", channel=None, image=None):
+    def __init__(self, name=None, id=None, position="FILL", channel=None, image=None):
         super().__init__(name=name, id=id, position=position, channel=channel)
 
         if image is not None:

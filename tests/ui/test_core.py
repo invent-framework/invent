@@ -29,8 +29,7 @@ def test_message_blueprint():
             self.publish("hold", duration=event.duration)
 
         def render(self, container):
-            if not self.element:
-                self.element = document.createElement("button")
+            self.element = document.createElement("button")
             self.element.addEventListener("click", self._handle_hold)
     """
     mbp = core.MessageBlueprint("This is a test", foo="A foo to handle")
@@ -318,9 +317,9 @@ def test_text_property_value_is_string():
     widget.text = "test"
     # As is None.
     widget.text = None
-    # Fail for anything else.
-    with pytest.raises(core.ValidationError):
-        widget.text = 123
+    # Coerce for any other non-string value.
+    widget.text = 123
+    assert widget.text == "123"
 
 
 def test_text_property_value_is_required_string():
