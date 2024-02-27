@@ -69,9 +69,9 @@ class Builder:
 
     # Widgets ##########################################################################
 
-    def get_available_widgets(self):
+    def get_available_components(self):
         """
-        Return a dictionary of available widget blueprints by name.
+        Return a dictionary of available component blueprints by name.
 
         e.g.
 
@@ -98,9 +98,9 @@ class Builder:
 
         """
         blueprints = {
-            widget_klass_name: widget_klass.blueprint()
+            component_klass_name: component_klass.blueprint()
 
-            for widget_klass_name, widget_klass in AVAILABLE_COMPONENTS.items()
+            for component_klass_name, component_klass in AVAILABLE_COMPONENTS.items()
         }
 
         return json.dumps(blueprints)
@@ -112,23 +112,24 @@ class Builder:
 
         window.console.log(f"page_name: {page_name}")
         window.console.log(f"widget_blueprint: {widget_blueprint}")
+        window.console.log(f"parent_id: {parent_id}")
 
         page = self._get_page_by_name(page_name)
         if page is None:
             raise ValueError(f"No such page: {page_name}")
 
-        widget_klass = AVAILABLE_COMPONENTS.get(widget_blueprint.name)
-        if widget_klass is None:
+        component_klass = AVAILABLE_COMPONENTS.get(widget_blueprint.name)
+        if component_klass is None:
             raise ValueError(f"No such widget: {widget_blueprint.name}")
 
-        widget = widget_klass()
+        component = component_klass()
 
-        page.append(widget)
+        page.append(component)
 
         target = document.getElementById(parent_id)
-        target.appendChild(widget.element)
+        target.appendChild(component.element)
 
-        return widget.id
+        return component.id
 
     def delete_widget_from_page(self, widget_id):
         ...

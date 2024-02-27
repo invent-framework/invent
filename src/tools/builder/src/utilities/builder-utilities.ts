@@ -20,8 +20,8 @@ export class BuilderUtilities {
 		builder.getPages();
 	}
 
-	public static getAvailableWidgets(): WidgetsModel {
-		return JSON.parse(this.builder().get_available_widgets());
+	public static getAvailableComponents(): WidgetsModel {
+		return JSON.parse(this.builder().get_available_components());
 	}
 
 	public static addWidgetToPage(activePageName: string , widgetBlueprint: WidgetModel): string {

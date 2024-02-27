@@ -25,32 +25,28 @@ export class BuilderModel extends ViewModelBase {
 
 	public init(): void {
 		this.getPages();
-		this.getAvailableWidgets();
+		this.getAvailableComponents();
 	}
 
 	/**
 	 * Widgets.
 	 */
 
-	public onAddWidgetClicked(): void {
-		this.state.isAddWidgetVisible = true;
+	public getAvailableComponents(): void {
+		this.state.widgets = BuilderUtilities.getAvailableComponents();
 	}
 
-	public getAvailableWidgets(): void {
-		this.state.widgets = BuilderUtilities.getAvailableWidgets();
-	}
-
-	public onWidgetClicked(widgetBlueprint: WidgetModel): void {
-		const widgetRef: string = BuilderUtilities.addWidgetToPage(
+	public onWidgetPreviewClicked(widgetBlueprint: WidgetModel): void {
+		const widgetId: string = BuilderUtilities.addWidgetToPage(
 			this.state.activePage, widgetBlueprint
 		);
 
-		const widgetElement: HTMLElement | null = document.getElementById(widgetRef);
+		const widgetElement: HTMLElement | null = document.getElementById(widgetId);
 
 		if (widgetElement){
 			widgetElement.addEventListener("click", () => {
-				this.state.activeWidget = widgetRef;
-				this.openPropertiesForWidget(widgetBlueprint, widgetRef);
+				this.state.activeWidget = widgetId;
+				this.openPropertiesForWidget(widgetBlueprint, widgetId);
 			});
 		}
 		this.state.isAddWidgetVisible = false;
