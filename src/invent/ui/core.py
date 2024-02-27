@@ -414,12 +414,11 @@ class Component:
     auto-generate them for the user.
     """
 
-    _object_counter = 0
+    _components_by_id = {}
+    _component_counter = 0
 
-    name = TextProperty(
-        "The meaningful name of the widget instance.",
-    )
     id = TextProperty("The id of the widget instance in the DOM.")
+    name = TextProperty("The meaningful name of the widget instance.",)
 
     def __init__(self, name=None, id=None):
         if invent.is_micropython:
@@ -432,10 +431,20 @@ class Component:
         self.name = name if name else type(self)._generate_name()
         self.id = id if id else random_id()
 
+        Component._components_by_id[self.id] = self
+
     @classmethod
     def _generate_name(cls):
-        cls._object_counter += 1
-        return f"{cls.__name__} {cls._object_counter}"
+        cls._component_counter += 1
+        return f"{cls.__name__} {cls._component_counter}"
+
+    @classmethod
+    def get_component_by_id(cls, component_id):
+        """
+        Return the component with the specified id or None if no such component exists.
+        """
+
+        return Component._components_by_id.get(component_id)
 
     def render(self, container):
         raise NotImplementedError()  # pragma: no cover
@@ -497,6 +506,7 @@ class Component:
         blueprints and preview.
         """
         return {
+            "name": cls.__name__,
             "properties": {
                 name: prop.as_dict() for name, prop in cls.properties().items()
             },
@@ -541,7 +551,7 @@ class Widget(Component):
     channel = TextProperty("The channel[s] to which the widget broadcasts.")
     position = TextProperty("The widget's preferred position.")
 
-    def __init__(self, name=None, id=None, position="TOP-LEFT", channel=None):
+    def __init__(self, id=None, name=None, position="TOP-LEFT", channel=None):
         super().__init__(name, id)
         self.channel = channel if channel else self.id
         self.position = position

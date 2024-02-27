@@ -31,7 +31,7 @@ class Page:
 
     def __init__(self, name, content=None):
         self.name = name
-        self.content = content
+        self.content = content or []
         self.element = None
 
     def as_dict(self):
@@ -42,6 +42,12 @@ class Page:
         return dict(
             name=self.name, content=[item.as_dict() for item in self.content]
         )
+
+    def append(self, component):
+        """
+        Append a component to the page.
+        """
+        self.content.append(component)
 
     def render(self):
         """

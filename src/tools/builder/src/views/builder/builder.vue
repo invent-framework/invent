@@ -70,7 +70,7 @@
                         v-for="widget in view.state.widgets" 
                         :key="widget.preview" 
                         :preview="widget.preview"
-                        @click="view.onWidgetClicked()"
+                        @click="view.onWidgetClicked(widget)"
                     />
                 </ib-v-stack>
             </ib-v-stack>

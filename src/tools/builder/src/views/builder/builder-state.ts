@@ -11,7 +11,7 @@ export class BuilderState {
 
 	public pages: any;
 
-	public activePage: string = "Page1";
+	public activePage: string = "Page 1";
 
 	public activeWidget: string = "";
 
