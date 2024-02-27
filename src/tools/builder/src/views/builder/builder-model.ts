@@ -4,6 +4,7 @@ import { BuilderUtilities } from "@/utilities/builder-utilities";
 import { BuilderState } from "./builder-state";
 import { reactive } from "vue";
 import type { WidgetPropertiesModel } from "@/data/models/widget-properties-model";
+import type { WidgetModel } from "@/data/models/widget-model";
 
 /**
  * View model for the builder view.
@@ -39,14 +40,17 @@ export class BuilderModel extends ViewModelBase {
 		this.state.widgets = BuilderUtilities.getAvailableWidgets();
 	}
 
-	public onWidgetClicked(): void {
-		const widgetRef: string = BuilderUtilities.addWidget();
+	public onWidgetClicked(widgetBlueprint: WidgetModel): void {
+		const widgetRef: string = BuilderUtilities.addWidgetToPage(
+			this.state.activePage, widgetBlueprint
+		);
+
 		const widgetElement: HTMLElement | null = document.getElementById(widgetRef);
 
 		if (widgetElement){
 			widgetElement.addEventListener("click", () => {
 				this.state.activeWidget = widgetRef;
-				this.openPropertiesForWidget(widgetRef);
+				this.openPropertiesForWidget(widgetBlueprint, widgetRef);
 			});
 		}
 		this.state.isAddWidgetVisible = false;
@@ -70,8 +74,10 @@ export class BuilderModel extends ViewModelBase {
 		this.state.activePage = page;
 	}
 
-	public openPropertiesForWidget(widgetRef: string): void {
-		this.state.activeWidgetProperties = BuilderUtilities.getWidgetProperties(widgetRef);
+	public openPropertiesForWidget(widgetBlueprint: WidgetModel, widgetRef: string): void {
+		this.state.activeWidgetProperties = BuilderUtilities.getWidgetProperties(
+			widgetBlueprint, widgetRef
+		);
 	}
 
 	public updateWidgetProperty(value: string) {

@@ -8,14 +8,19 @@ from pyscript import document
 
 
 class Button(Widget):
-    label = TextProperty("The text on the button.")
+    label = TextProperty("The text on the button.", default_value="Click Me")
 
-    def __init__(self, name, label, channel, position="TOP-LEFT"):
-        super().__init__(name=name, channel=channel, position=position)
-        self.name = name
-        self.label = label
-        self.channel = channel
-        self.render()
+    def __init__(self, name=None, id=None, position="TOP-LEFT", channel=None, label=None):
+        super().__init__(name=name, id=id, position=position, channel=channel)
+
+        if label is not None:
+            self.label = label
+
+        self.element = self.render()
+
+    @classmethod
+    def preview(cls):
+        return "<button>Button</button>"
 
     def click(self, event):
         publish(Message("press", button=self.name), to_channel=self.channel)
@@ -24,7 +29,8 @@ class Button(Widget):
         self.element.innerText = self.label
 
     def render(self):
-        self.element = document.createElement("button")
-        self.element.addEventListener("click", self.click)
-        self.element.id = self.id
-        self.element.innerText = self.label
+        element = document.createElement("button")
+        element.addEventListener("click", self.click)
+        element.id = self.id
+        element.innerText = self.label
+        return element

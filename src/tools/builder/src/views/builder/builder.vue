@@ -70,7 +70,7 @@
                         v-for="widget in view.state.widgets" 
                         :key="widget.preview" 
                         :preview="widget.preview"
-                        @click="view.onWidgetClicked()"
+                        @click="view.onWidgetClicked(widget)"
                     />
                 </ib-v-stack>
             </ib-v-stack>
@@ -87,7 +87,8 @@
                 <template v-for="(property, key) in view.state.activeWidgetProperties" :key="key">
                     <ib-input 
                         v-if="property.property_type === 'TextProperty'" 
-                        :label="key" 
+                        :label="key"
+                        type="text"
                         :required="property.required" 
                         v-model="property.value"
                         @input="view.updateWidgetProperty($event)"

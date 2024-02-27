@@ -18,6 +18,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
+from ..i18n import _
 from .app import App
 from .core import Widget, Container, Column, Row, from_datastore
 from .page import Page
@@ -44,9 +45,10 @@ __all__ = [
     "TextInput",
 ]
 
-_COMPONENTS = [
-    Button,
-    Image,
-    TextBox,
-    TextInput,  # Row, Column etc...
-]
+
+AVAILABLE_COMPONENTS = {
+    _("Button"): Button,
+    _("Image"): Image,
+    #TextBox,
+    #TextInput,  # Row, Column etc...
+}
