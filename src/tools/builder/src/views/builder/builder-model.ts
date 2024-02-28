@@ -3,8 +3,8 @@ import { ViewModelBase } from "../base-classes/view-model-base";
 import { BuilderUtilities } from "@/utilities/builder-utilities";
 import { BuilderState } from "./builder-state";
 import { reactive } from "vue";
-import type { WidgetPropertiesModel } from "@/data/models/widget-properties-model";
 import type { WidgetModel } from "@/data/models/widget-model";
+import type { PageModel } from "@/data/models/page-model";
 
 
 /**
@@ -26,6 +26,7 @@ export class BuilderModel extends ViewModelBase {
 
 	public init(): void {
 		this.getPages();
+		this.setDefaultPage();
 		this.getAvailableComponents();
 	}
 
@@ -39,7 +40,7 @@ export class BuilderModel extends ViewModelBase {
 
 	public onWidgetPreviewClicked(widgetBlueprint: WidgetModel): void {
 		const widgetElement: HTMLElement = BuilderUtilities.addWidgetToPage(
-			this.state.activePageName, widgetBlueprint
+			this.state.activePage, widgetBlueprint
 		);
 
 		if (widgetElement){
@@ -57,16 +58,34 @@ export class BuilderModel extends ViewModelBase {
 	 */
 	public onAddPageClicked(): void {
 		ModalUtilities.showModal({
-			modal: "AddPage"
+			modal: "AddPage",
+			options: {
+				onAddPage: (pageName: string) => {
+					const page: PageModel = BuilderUtilities.addPage(pageName);
+					this.getPages();
+					this.setActivePage(page);
+					ModalUtilities.closeModal();
+				}
+			}
 		});
 	}
 
-	public getPages(): any {
+	public getPages(): void {
 		this.state.pages = BuilderUtilities.getPages();
 	}
 
-	public onPageClicked(page: any): void {
-		this.state.activePageName = page;
+	public setActivePage(page: PageModel): void {
+		this.state.activePage = page;
+	}
+
+	public setDefaultPage(): void {
+		if (this.state.pages){
+			this.setActivePage(this.state.pages[0])
+		}
+	}
+
+	public onPageClicked(page: PageModel): void {
+		this.setActivePage(page);
 	}
 
 	public openPropertiesForWidget(widgetBlueprint: WidgetModel, widgetRef: string): void {
@@ -86,6 +105,10 @@ export class BuilderModel extends ViewModelBase {
 
 	public getSidebarTabColor(key: string): string { 
 		return this.state.activeSidebarTab === key ? 'gray' : 'transparent';
+	}
+
+	public getPageButtonColor(page: PageModel): string { 
+		return this.state.activePage && this.state.activePage.id === page.id ? 'gray' : 'transparent';
 	}
 }
 

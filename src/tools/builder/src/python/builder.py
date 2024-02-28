@@ -105,18 +105,16 @@ class Builder:
 
         return json.dumps(blueprints)
 
-    def add_widget_to_page(self, page_name, widget_blueprint, parent_id=None):
+    def add_widget_to_page(self, page, widget_blueprint, parent_id=None):
         """
         Create a widget from a blueprint and add it to the specified page.
         """
 
-        window.console.log(f"page_name: {page_name}")
-        window.console.log(f"widget_blueprint: {widget_blueprint}")
-        window.console.log(f"parent_id: {parent_id}")
+        window.console.log(f"page: {page}")
 
-        page = self._get_page_by_name(page_name)
+        page = self._get_page_by_id(page.id)
         if page is None:
-            raise ValueError(f"No such page: {page_name}")
+            raise ValueError(f"No such page: {page.name}")
 
         component_klass = AVAILABLE_COMPONENTS.get(widget_blueprint.name)
         if component_klass is None:
@@ -126,7 +124,7 @@ class Builder:
 
         page.append(component)
 
-        iframe = document.getElementById("page-editor")
+        iframe = document.getElementById(page.id)
 
         if parent_id is None:
             target = iframe.contentWindow.document.getElementById('yeah-this-is-the-place')
@@ -171,13 +169,13 @@ class Builder:
 
     # Internal #########################################################################
 
-    def _get_page_by_name(self, page_name):
+    def _get_page_by_id(self, page_id):
         """
-        Return the page with the specified name or None if no such page exists.
+        Return the page with the specified id or None if no such page exists.
         """
 
         for page in self._app.content:
-            if page.name == page_name:
+            if page.id == page_id:
                 break
 
         else:

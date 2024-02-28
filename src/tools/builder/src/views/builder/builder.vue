@@ -9,7 +9,7 @@
                             :key="key" 
                             :label="page.name" 
                             size="sm" 
-                            color="gray" 
+                            :color="view.getPageButtonColor(page)" 
                             @click="view.onPageClicked(page)"
                         />
                     </ib-h-stack>
@@ -51,14 +51,6 @@
         </template>
 
         <template #sidebar>
-            <!-- <ib-h-stack align-y="center" justify-content="between">
-                <ib-heading :label="view.getText('widgets')" size="lg" color="gray" />
-                <ib-button 
-                    :icon="['fas', 'plus']" 
-                    size="xs"
-                    @click="view.onAddWidgetClicked()" 
-                />
-            </ib-h-stack> -->
             <ib-v-stack :spacing="4">
                 <ib-h-stack is-full-width>
                     <ib-button label="Widgets" size="sm" :color="view.getSidebarTabColor('widgets')" class="w-1/2" />
@@ -77,7 +69,11 @@
         </template>
 
         <template #content>
-            <page-editor class="mt-1" />
+            <page-editor 
+                class="mt-1" 
+                :pages="view.state.pages"  
+                :activePage="view.state.activePage"
+            />
         </template>
 
         <template #settings>

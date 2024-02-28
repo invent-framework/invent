@@ -23,7 +23,7 @@
     <ib-modal-footer align="right">
       <ib-button
         :label="modal.getText('add')"
-        @click="modal.onAddPageClicked()"
+        @click="onAddPage(modal.state.data['name'])"
       />
 
       <ib-button
@@ -37,9 +37,13 @@
 
 <script setup lang="ts">
 import { onMounted } from "vue";
-import { AddPage } from "./add-page-model";
+import { AddPageModel } from "./add-page-model";
 
-const modal: AddPage = new AddPage();
+const modal: AddPageModel = new AddPageModel();
+
+defineProps<{
+  onAddPage: Function
+}>();
 
 onMounted(() => {
   modal.init();

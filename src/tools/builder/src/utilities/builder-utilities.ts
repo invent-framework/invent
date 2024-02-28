@@ -1,7 +1,7 @@
 import type { WidgetPropertiesModel } from "@/data/models/widget-properties-model";
 import type { WidgetsModel } from "@/data/models/widgets-model";
-import { view as builder } from '@/views/builder/builder-model';
 import type { WidgetModel } from "@/data/models/widget-model";
+import type { PageModel } from "@/data/models/page-model";
 
  /**
  * Utility functions for the builder.
@@ -11,21 +11,21 @@ export class BuilderUtilities {
 		return (window as any).builder;
 	} 
 
-	public static getPages() {
+	public static getPages(): Array<PageModel> {
 		return JSON.parse(this.builder().get_pages());
 	}
 
-	public static addPage(name: string) {
-		this.builder().add_page(name);
-		builder.getPages();
+	public static addPage(name: string): PageModel {
+		return JSON.parse(this.builder().add_page(name));
+
 	}
 
 	public static getAvailableComponents(): WidgetsModel {
 		return JSON.parse(this.builder().get_available_components());
 	}
 
-	public static addWidgetToPage(activePageName: string , widgetBlueprint: WidgetModel): HTMLElement {
-		return this.builder().add_widget_to_page(activePageName, widgetBlueprint);
+	public static addWidgetToPage(activePage: PageModel | undefined , widgetBlueprint: WidgetModel): HTMLElement {
+		return this.builder().add_widget_to_page(activePage, widgetBlueprint);
 	}
 
 	public static getWidgetProperties(widgetBlueprint: WidgetModel, widgetRef: string): WidgetPropertiesModel {
