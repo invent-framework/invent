@@ -19,6 +19,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
+
 from .utils import random_id
 from pyscript import document
 
@@ -39,9 +40,10 @@ class Page:
         """
         Return a dictionary representation of the object.
         """
-
         return dict(
-            name=self.name, content=[item.as_dict() for item in self.content]
+            name=self.name,
+            id=self.id,
+            content=[item.as_dict() for item in self.content],
         )
 
     def append(self, component):
