@@ -710,6 +710,11 @@ class Container(Component):
         maximum=100,
         minimum=0,
     )
+    gap = ChoiceProperty(
+        "The gap between items in the container",
+        choices=[None, "XS", "S", "M", "L", "XL"],
+        default_value="M"
+    )
     background_color = TextProperty("The color of the container's background.")
     border_color = TextProperty("The color of the container's border.")
     border_width = ChoiceProperty(
@@ -739,6 +744,7 @@ class Container(Component):
         position="FILL",
         width=100,
         height=100,
+        gap="M",
         background_color=None,
         border_color=None,
         border_width=None,
@@ -757,6 +763,23 @@ class Container(Component):
         self.border_width = border_width
         self.border_style = border_style
         self.render()
+        self.gap = gap
+
+    def on_gap_changed(self):
+        """
+        Set the gap between elements in the container.
+        """
+        sizes = {
+            "XS": "2px",
+            "S": "4px",
+            "M": "8px",
+            "L": "16px",
+            "XL": "32px",
+        }
+        size = "0px"
+        if self.gap is not None:
+            size = sizes[self.gap.upper()]
+        self.element.style.setProperty("gap", size)
 
     def append(self, item):
         """
