@@ -26,7 +26,8 @@ class Button(Widget):
         publish(Message("press", button=self.name), to_channel=self.channel)
 
     def on_label_changed(self):
-        self.element.innerText = self.label
+        if self.element:
+            self.element.innerText = self.label
 
     def render(self):
         element = document.createElement("button")
