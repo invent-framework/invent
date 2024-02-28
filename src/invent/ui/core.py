@@ -242,6 +242,28 @@ class NumericProperty(Property):
         self.maximum = maximum
         super().__init__(description, default_value, required)
 
+    def coerce(self, value):
+        """
+        Try to convert to some sort of valid numeric value.
+        """
+        # Don't attempt to coerce None, since it could be a valid value.
+        if value is None:
+            return None
+
+        # Try int() then float() and handle the resulting situation.
+        result = None
+        try:
+            result = int(value)
+        except ValueError:
+            pass  # Try float
+        try:
+            result = float(value)
+        except ValueError:
+            pass  # Handle below
+        if result:
+            return result
+        raise ValueError(_("Not a valid number: ") + value)
+
     def validate(self, value):
         """
         The value must be a number (None is allowed if the property is not
@@ -249,9 +271,7 @@ class NumericProperty(Property):
 
         If set, the value must be between the minimum and maximum boundaries.
         """
-        value = super().validate(value)
-        if not (value is None or isinstance(value, (int, float))):
-            raise ValidationError(_("The value must be a number."))
+        value = super().validate(self.coerce(value))
         if value is not None:
             if self.minimum and value < self.minimum:
                 raise ValidationError(
@@ -283,15 +303,17 @@ class IntegerProperty(NumericProperty):
     An integer (whole number) property for a Widget.
     """
 
+    def coerce(self, value):
+        """
+        Convert to an int.
+        """
+        return int(value)
+
     def validate(self, value):
         """
         Ensure the property's value is an integer.
         """
-        if isinstance(value, int):
-            return super().validate(value)
-        raise ValidationError(
-            _("The value must be an integer (whole number).")
-        )
+        return super().validate(self.coerce(value))
 
 
 class FloatProperty(NumericProperty):
@@ -713,7 +735,7 @@ class Container(Component):
     gap = ChoiceProperty(
         "The gap between items in the container",
         choices=[None, "XS", "S", "M", "L", "XL"],
-        default_value="M"
+        default_value="M",
     )
     background_color = TextProperty("The color of the container's background.")
     border_color = TextProperty("The color of the container's border.")
@@ -861,6 +883,10 @@ class Column(Container):
             self.element.appendChild(child_container)
         return self.element
 
+    @classmethod
+    def preview(cls):
+        return "<div>☐<br/>☐<br/>☐</div>"
+
 
 class Row(Container):
     """
@@ -877,3 +903,7 @@ class Row(Container):
             child.set_position(child_container)
             self.element.appendChild(child_container)
         return self.element
+
+    @classmethod
+    def preview(cls):
+        return "<div>☐☐☐</div>"
