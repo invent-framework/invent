@@ -47,6 +47,8 @@ __all__ = [
 
 
 AVAILABLE_COMPONENTS = {
+    _("Column"): Column,
+    _("Row"): Row,
     _("Button"): Button,
     _("Image"): Image,
     _("TextBox"): TextBox,
