@@ -4,6 +4,7 @@ TODO:
 * Test coercion of property values.
 * Test on_FOO_changed.
 * Work out story for render with containers.
+* Only call on_FOO_changed when there's a self.element.
 """
 
 import pytest
@@ -182,8 +183,12 @@ def test_numeric_property_must_be_a_number():
     widget.number = 42
     # The value can be a float.
     widget.number = 3.141
+    # The value can be coerced to an int.
+    widget.number = "1"
+    # The value can be coerced into a float.
+    widget.number = "1.234"
     # The value cannot be anything else.
-    with pytest.raises(core.ValidationError):
+    with pytest.raises(ValueError):
         widget.number = "test"
 
 
@@ -280,20 +285,49 @@ def test_integer_property():
     """
     An integer property can only have an integer value.
     """
-    ip = core.IntegerProperty("A test property", default_value=123)
-    assert ip.default_value == 123
-    with pytest.raises(core.ValidationError):
-        core.IntegerProperty("A test property", default_value=1.23)
+
+    class FakeWidget(core.Widget):
+
+        integer = core.IntegerProperty(
+            "A test integer property", default_value=123
+        )
+
+        def __init__(self, val):
+            self.integer = val
+
+    fw = FakeWidget(123)
+    assert fw.integer == 123
+    # coercion works.
+    fw.integer = "123"
+    assert fw.integer == 123
+    # Anything else causes a ValueError
+    with pytest.raises(ValueError):
+        fw.integer = "forty two"
 
 
 def test_float_property():
     """
     A float property can only have a floating point value.
     """
-    fp = core.FloatProperty("A test property", default_value=1.23)
-    assert fp.default_value == 1.23
-    with pytest.raises(core.ValidationError):
-        core.FloatProperty("A test property", default_value=123)
+
+    class FakeWidget(core.Widget):
+
+        val = core.FloatProperty("A test float property", default_value=1.23)
+
+        def __init__(self, val):
+            self.val = val
+
+    fw = FakeWidget(123.4)
+    assert fw.val == 123.4
+    # Integers become floats.
+    fw.val = 123
+    assert fw.val == 123.0
+    # coercion works.
+    fw.val = "123.4"
+    assert fw.val == 123.4
+    # Anything else causes a ValueError
+    with pytest.raises(ValueError):
+        fw.val = "forty two"
 
 
 def test_text_property_defaults():
@@ -445,9 +479,9 @@ def test_boolean_property_values():
     # Cannot use None if a required property.
     with pytest.raises(core.ValidationError):
         widget.flag = None
-    # Must be a boolean value.
-    with pytest.raises(core.ValidationError):
-        widget.flag = 1
+    # Coercion to boolean works.
+    widget.flag = 1
+    assert widget.flag is True
 
     # Check behaviour of BooleanProperty if not a required field.
     class FakeWidgetNotRequired:
@@ -461,9 +495,9 @@ def test_boolean_property_values():
     widget.flag = True
     # Can use None if NOT a required property.
     widget.flag = None
-    # Must be a boolean value.
-    with pytest.raises(core.ValidationError):
-        widget.flag = 1
+    # Coercion works.
+    widget.flag = 1
+    assert widget.flag is True
 
 
 def test_choice_property_validation():

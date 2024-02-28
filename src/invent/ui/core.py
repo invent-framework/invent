@@ -321,15 +321,17 @@ class FloatProperty(NumericProperty):
     A floating point (a number with a decimal point) property for a Widget.
     """
 
+    def coerce(self, value):
+        """
+        Convert to a float.
+        """
+        return float(value)
+
     def validate(self, value):
         """
         Ensure the property's value is a floating point number.
         """
-        if isinstance(value, float):
-            return super().validate(value)
-        raise ValidationError(
-            _("The value must be a float (a number with a decimal point).")
-        )
+        return super().validate(self.coerce(value))
 
 
 class TextProperty(Property):
@@ -359,8 +361,7 @@ class TextProperty(Property):
         Coerce to a string.
         """
         # Don't coerce None because None may be a valid value.
-        if value is not None:
-            return str(value)
+        return str(value) if value is not None else None
 
     def validate(self, value):
         """
@@ -368,7 +369,7 @@ class TextProperty(Property):
 
         If set, the value must be between the minimum and maximum boundaries.
         """
-        value = super().validate(value)
+        value = super().validate(self.coerce(value))
         if value is not None:
             length = len(value)
             if self.min_length and length < self.min_length:
@@ -397,15 +398,14 @@ class BooleanProperty(Property):
     A boolean (True/False) flag property for a Widget.
     """
 
+    def coerce(self, value):
+        return bool(value) if value is not None else None
+
     def validate(self, value):
         """
         Ensure the property's value is a boolean value (True / False).
         """
-        if isinstance(value, bool) or value is None:
-            return super().validate(value)
-        raise ValidationError(
-            _("The value must be a boolean (True or False).")
-        )
+        return super().validate(self.coerce(value))
 
 
 class ChoiceProperty(Property):
