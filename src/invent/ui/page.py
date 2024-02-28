@@ -19,7 +19,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
-
+from .utils import random_id
 from pyscript import document
 
 
@@ -29,8 +29,9 @@ class Page:
     widgets to achieve some aim.
     """
 
-    def __init__(self, name, content=None):
+    def __init__(self, name, id=None, content=None):
         self.name = name
+        self.id = id or random_id()
         self.content = content or []
         self.element = None
 
@@ -56,7 +57,8 @@ class Page:
         self.element = document.createElement("div")
         self.element.classList.add("paper")
         self.element.classList.add("container")
-        self.element.id = self.name
+        self.element.id = self.id
+        self.element.setAttribute("name", "Page: " + self.name)
         self.hide()
         # TODO: FIX THIS FOR CONTAINERS (cols / rows)
         for item in self.content:
