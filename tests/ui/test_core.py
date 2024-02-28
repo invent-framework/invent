@@ -735,6 +735,9 @@ def test_widget_parse_position():
     horizontal and vertical values.
     """
     w = core.Widget(name="test widget")
+    w.element = document.createElement("div")
+    container = document.createElement("div")
+    container.appendChild(w.element)
     for h in core._VALID_HORIZONTALS:
         w.position = h
         assert w.parse_position() == (None, h)
@@ -757,6 +760,7 @@ def test_widget_set_position_fill():
     w = core.Widget(position="FILL")
     w.element = document.createElement("div")
     container = document.createElement("div")
+    container.appendChild(w.element)
     w.set_position(container)
     assert w.element.style.width == "100%"
     assert w.element.style.height == "100%"
@@ -784,6 +788,7 @@ def test_widget_set_position():
             w = core.Widget()
             w.element = document.createElement("div")
             container = document.createElement("div")
+            container.appendChild(w.element)
             if v_key and h_key:
                 w.position = f"{v_key}-{h_key}"
             else:

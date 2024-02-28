@@ -94,7 +94,7 @@ class MessageBlueprint:
         }
 
 
-class from_datastore: # NOQA
+class from_datastore:  # NOQA
     """
     Instances of this class signal that a property is bound to a datastore
     value.
@@ -162,6 +162,7 @@ class Property:
         """
 
         if isinstance(value, from_datastore):
+
             def reactor(message):  # pragma: no cover
                 """
                 Set the value in the widget and call the optional
@@ -183,7 +184,8 @@ class Property:
 
     def _call_on_changed(self, obj, property_name):
         """
-        Call the object's on_changed handler for the specified property if it exists.
+        Call the object's on_changed handler for the specified property if it
+        exists.
         """
         on_changed = getattr(obj, "on" + property_name + "_changed", None)
         if on_changed:
@@ -556,6 +558,92 @@ class Component:
             },
         }
 
+    def parse_position(self):
+        """
+        Parse "self.position" as: "VERTICAL-HORIZONTAL", "VERTICAL" or
+        "HORIZONTAL" values.
+
+        Valid values are defined in _VALID_VERTICALS and _VALID_HORIZONTALS.
+
+        Returns a tuple of (vertical_position, horizontal_position). Each
+        return value could be None.
+        """
+        definition = self.position.upper().split("-")
+        # Default values for the horizontal and vertical positions.
+        horizontal_position = None
+        vertical_position = None
+        if len(definition) == 1:
+            # Unary position (e.g. "TOP" or "CENTER")
+            unary_position = definition[0]
+            if unary_position in _VALID_HORIZONTALS:
+                horizontal_position = unary_position
+            elif unary_position in _VALID_VERTICALS:
+                vertical_position = unary_position
+        elif len(definition) == 2:
+            # Binary position (e.g. "TOP-CENTER" or "BOTTOM-RIGHT")
+            if definition[0] in _VALID_VERTICALS:
+                vertical_position = definition[0]
+            if definition[1] in _VALID_HORIZONTALS:
+                horizontal_position = definition[1]
+        if not (horizontal_position or vertical_position):
+            # Bail out if we don't have a valid position state.
+            raise ValueError(f"'{self.position}' is not a valid position.")
+        return (vertical_position, horizontal_position)
+
+    def set_position(self, container):
+        """
+        Given the value of "self.position", will adjust the CSS for the
+        rendered "self.element", and its container, so the resulting HTML puts
+        the element into the expected position in the container.
+        """
+
+        # Reset...
+        def reset():
+            self.element.style.removeProperty("width")
+            self.element.style.removeProperty("height")
+            container.style.removeProperty("align-self")
+            container.style.removeProperty("justify-self")
+
+        if self.position.upper() == "FILL":
+            reset()
+            # Fill the full extent of the container.
+            self.element.style.width = "100%"
+            self.element.style.height = "100%"
+            return
+
+        # Parse into horizontal and vertical positions.
+        try:
+            vertical_position, horizontal_position = self.parse_position()
+            reset()
+        except ValueError:
+            from pyscript import window
+
+            window.console.log("You suck!")
+            return
+
+        # Check vertical position and adjust the container via CSS magic.
+        if vertical_position == "TOP":
+            container.style.setProperty("align-self", "start")
+        elif vertical_position == "MIDDLE":
+            container.style.setProperty("align-self", "center")
+        elif vertical_position == "BOTTOM":
+            container.style.setProperty("align-self", "end")
+        # Check the horizontal position and adjust the container.
+        if horizontal_position == "LEFT":
+            container.style.setProperty("justify-self", "start")
+        elif horizontal_position == "CENTER":
+            container.style.setProperty("justify-self", "center")
+        elif horizontal_position == "RIGHT":
+            container.style.setProperty("justify-self", "end")
+        # Ensure a vertical only position ensures a full horizontal fill.
+        if not horizontal_position:
+            container.style.setProperty("justify-self", "stretch")
+            self.element.style.width = "100%"
+        # Ensure a horizontal only position ensures a full vertical fill.
+        if not vertical_position:
+            container.style.setProperty("align-self", "stretch")
+            self.element.style.height = "100%"
+
 
 class Widget(Component):
     """
@@ -593,92 +681,6 @@ class Widget(Component):
         """
         message = getattr(self, blueprint).create_message(blueprint, **kwargs)
         invent.publish(message, to_channel=self.channel)
-
-    def parse_position(self):
-        """
-        Parse "self.position" as: "VERTICAL-HORIZONTAL", "VERTICAL" or
-        "HORIZONTAL" values.
-
-        Valid values are defined in _VALID_VERTICALS and _VALID_HORIZONTALS.
-
-        Returns a tuple of (vertical_position, horizontal_position). Each
-        return value could be None.
-        """
-        definition = self.position.upper().split("-")
-        # Default values for the horizontal and vertical positions.
-        horizontal_position = None
-        vertical_position = None
-        if len(definition) == 1:
-            # Unary position (e.g. "TOP" or "CENTER")
-            unary_position = definition[0]
-            if unary_position in _VALID_HORIZONTALS:
-                horizontal_position = unary_position
-            elif unary_position in _VALID_VERTICALS:
-                vertical_position = unary_position
-        elif len(definition) == 2:
-            # Binary position (e.g. "TOP-CENTER" or "BOTTOM-RIGHT")
-            if definition[0] in _VALID_VERTICALS:
-                vertical_position = definition[0]
-            if definition[1] in _VALID_HORIZONTALS:
-                horizontal_position = definition[1]
-        if not (horizontal_position or vertical_position):
-            # Bail out if we don't have a valid position state.
-            raise ValueError(f"'{self.position}' is not a valid position.")
-        return (vertical_position, horizontal_position)
-
-    def set_position(self, container):
-        """
-        Given the value of "self.position", will adjust the CSS for the rendered
-        "self.element", and its container, so the resulting HTML puts the element
-        into the expected position in the container.
-        """
-
-        # Reset...
-        def reset():
-            self.element.style.removeProperty("width")
-            self.element.style.removeProperty("height")
-            container.style.removeProperty("align-self")
-            container.style.removeProperty("justify-self")
-
-        if self.position.upper() == "FILL":
-            reset()
-            # Fill the full extent of the container.
-            self.element.style.width = "100%"
-            self.element.style.height = "100%"
-            return
-
-        # Parse into horizontal and vertical positions.
-        try:
-            vertical_position, horizontal_position = self.parse_position()
-            reset()
-
-        except ValueError:
-            from pyscript import window
-            window.console.log("You suck!")
-            return
-
-        # Check vertical position and adjust the container via CSS magic.
-        if vertical_position == "TOP":
-            container.style.setProperty("align-self", "start")
-        elif vertical_position == "MIDDLE":
-            container.style.setProperty("align-self", "center")
-        elif vertical_position == "BOTTOM":
-            container.style.setProperty("align-self", "end")
-        # Check the horizontal position and adjust the container.
-        if horizontal_position == "LEFT":
-            container.style.setProperty("justify-self", "start")
-        elif horizontal_position == "CENTER":
-            container.style.setProperty("justify-self", "center")
-        elif horizontal_position == "RIGHT":
-            container.style.setProperty("justify-self", "end")
-        # Ensure a vertical only position ensures a full horizontal fill.
-        if not horizontal_position:
-            container.style.setProperty("justify-self", "stretch")
-            self.element.style.width = "100%"
-        # Ensure a horizontal only position ensures a full vertical fill.
-        if not vertical_position:
-            container.style.setProperty("align-self", "stretch")
-            self.element.style.height = "100%"
 
 
 class Container(Component):
