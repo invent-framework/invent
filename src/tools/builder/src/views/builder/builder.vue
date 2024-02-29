@@ -4,14 +4,15 @@
             <ib-h-stack is-full-width :spacing="4" align-y="center" justify-content="between">
                 <ib-h-stack :spacing="4">
                     <ib-h-stack :spacing="4" class="max-w-72 overflow-x-auto">
-                        <ib-button 
+                        <!-- <ib-button 
                             v-for="(page, key) in view.state.pages" 
                             :key="key" 
                             :label="page.name" 
                             size="sm" 
                             :color="view.getPageButtonColor(page)" 
                             @click="view.onPageClicked(page)"
-                        />
+                        /> -->
+                        {{ view.state.pages }}
                     </ib-h-stack>
 
                     <ib-button 

@@ -72,6 +72,7 @@ export class BuilderModel extends ViewModelBase {
 
 	public getPages(): void {
 		this.state.pages = BuilderUtilities.getPages();
+		console.log(BuilderUtilities.getPages())
 	}
 
 	public setActivePage(page: PageModel): void {
