@@ -2,9 +2,10 @@ import { ModalUtilities } from "@/utilities/modal-utilities";
 import { ViewModelBase } from "../base-classes/view-model-base";
 import { BuilderUtilities } from "@/utilities/builder-utilities";
 import { BuilderState } from "./builder-state";
-import { reactive } from "vue";
+import { nextTick, reactive } from "vue";
 import type { WidgetModel } from "@/data/models/widget-model";
 import type { PageModel } from "@/data/models/page-model";
+import * as Blockly from 'blockly/core';
 
 
 /**
@@ -106,6 +107,10 @@ export class BuilderModel extends ViewModelBase {
 		return this.state.activeSidebarTab === key ? 'gray' : 'transparent';
 	}
 
+	public getEditorTabColor(key: string): string { 
+		return this.state.activeEditorTab === key ? 'gray' : 'transparent';
+	}
+
 	public getPageButtonColor(page: PageModel): string { 
 		return this.state.activePage && this.state.activePage.id === page.id ? 'gray' : 'transparent';
 	}
@@ -113,6 +118,16 @@ export class BuilderModel extends ViewModelBase {
 	// Drag and Drop Prototype
 	public onDragStart(event: DragEvent, widget: WidgetModel) {
 		event.dataTransfer?.setData("widget", JSON.stringify(widget));
+	}
+
+	public onEditorTabClicked(tab: string) {
+		this.state.activeEditorTab = tab;
+
+		if (tab === "blocks"){
+			nextTick(() => {
+				Blockly.svgResize(Blockly.getMainWorkspace() as Blockly.WorkspaceSvg);
+			});
+		}
 	}
 }
 

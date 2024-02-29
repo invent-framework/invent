@@ -9,17 +9,7 @@
     </div>
 
     <div class="h-full w-full flex bg-gray-100 overflow-hidden">
-      <div class="h-full w-72 overflow-y-auto overflow-x-hidden bg-white border-r border-gray-200 p-4 flex-none">
-        <slot name="sidebar" />
-      </div>
-
-      <div class="h-full w-full flex">
-        <slot name="content" />
-      </div>
-
-      <div class="h-full w-72 overflow-y-auto overflow-x-hidden bg-white border-r border-gray-200 p-4 flex-none">
-        <slot name="settings" />
-      </div>
+      <slot name="content" />
     </div>
   </div>
 </template>

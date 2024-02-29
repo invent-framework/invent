@@ -22,4 +22,6 @@ export class BuilderState {
 	public activeWidgetProperties: WidgetPropertiesModel | undefined;
 
 	public activeSidebarTab: string = "widgets";
+
+	public activeEditorTab: string = "design";
 }
