@@ -13,14 +13,6 @@ class Image(Widget):
         default_value="http://placekitten.com/200/200",
     )
 
-    def __init__(self, image=None, position="FILL", **kwargs):
-        super().__init__(position=position, **kwargs)
-
-        if image is not None:
-            self.image = str(image)
-
-        self.element = self.render()
-
     @classmethod
     def preview(cls):
         return '<img src="http://placekitten.com/200/200">'
@@ -36,5 +28,4 @@ class Image(Widget):
         return element
 
     def on_image_changed(self):
-        if self.element:
-            self.element.src = self.image
+        self.element.src = self.image

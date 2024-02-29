@@ -1,12 +1,3 @@
-"""
-TODO:
-
-* Test coercion of property values.
-* Test on_FOO_changed.
-* Work out story for render with containers.
-* Only call on_FOO_changed when there's a self.element.
-"""
-
 import pytest
 from pyscript import document
 from unittest import mock

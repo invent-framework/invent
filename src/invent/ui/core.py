@@ -29,6 +29,15 @@ from .utils import random_id
 _VALID_HORIZONTALS = {"LEFT", "CENTER", "RIGHT"}
 #: Valid flags for vertical positions.
 _VALID_VERTICALS = {"TOP", "MIDDLE", "BOTTOM"}
+#: T-shirt sizes used to indicate relative sizes of things.
+_TSHIRT_SIZES = (
+    None,
+    "XS",
+    "S",
+    "M",
+    "L",
+    "XL",
+)
 
 
 class ValidationError(ValueError):
@@ -148,7 +157,12 @@ class Property:
         """
         Descriptor method to return the value associated with the property.
         """
-        return getattr(obj, self.private_name, self.default_value)
+        result = getattr(obj, self.private_name, self.default_value)
+        if self.private_name == "_position":
+            from pyscript import window
+            window.console.log("Default value: " + str(self.default_value))
+            window.console.log("Actual value:" + str(result))
+        return result
 
     def __set__(self, obj, value):
         """
@@ -251,17 +265,16 @@ class NumericProperty(Property):
             return None
 
         # Try int() then float() and handle the resulting situation.
-        result = None
         try:
             result = int(value)
+            return result
         except ValueError:
             pass  # Try float
         try:
             result = float(value)
+            return result
         except ValueError:
             pass  # Handle below
-        if result:
-            return result
         raise ValueError(_("Not a valid number: ") + value)
 
     def validate(self, value):
@@ -362,6 +375,7 @@ class TextProperty(Property):
         """
         # Don't coerce None because None may be a valid value.
         return str(value) if value is not None else None
+        return str(value)
 
     def validate(self, value):
         """
@@ -457,28 +471,38 @@ class Component:
     name = TextProperty(
         "The meaningful name of the widget instance.",
     )
+    position = TextProperty(
+        "The component's position inside it's parent.", default_value="THIS ONE!"
+    )
 
-    def __init__(self, name=None, id=None, position="FILL"):
+    def __init__(self, **kwargs):
         if invent.is_micropython:  # pragma: no cover
+            # When in MicroPython, ensure all the properties have a reference
+            # to their name within this class.
             for property_name, property_obj in type(self).properties().items():
                 property_obj.__set_name__(self, property_name)
-        # TODO: automagically grab values from kwargs and inflate properties,
-        # then call self.render to create self.element.
-        # Then set the element's id to self.id
-        # Then call self.update() to do the on_<FOO>_changed calls.
-        self.name = name if name else type(self)._generate_name()
-        self.id = id if id else random_id()
-        self.position = position
-
+        self.element = self.render()
+        self.update(**kwargs)
         Component._components_by_id[self.id] = self
 
+    def update(self, **kwargs):
+        """
+        Given the **kwargs dict, iterate of the items and if the key identifies
+        a property on this class, set the property's value to the associated
+        value in the dict.
+        """
+        for k, v in kwargs.items():
+            if hasattr(self, k):
+                setattr(self, k, v)
+
     def on_id_changed(self):
-        if hasattr(self, "element"):
-            self.element.id = self.id
+        self.element.id = self.id
 
     def on_name_changed(self):
-        if hasattr(self, "element"):
-            self.element.name = self.name
+        if self.name:
+            self.element.setAttribute("name", self.name)
+        else:
+            self.element.removeAttribute("name")
 
     @classmethod
     def _generate_name(cls):
@@ -493,7 +517,7 @@ class Component:
         """
         return Component._components_by_id.get(component_id)
 
-    def render(self, container):
+    def render(self):
         raise NotImplementedError()  # pragma: no cover
 
     @classmethod
@@ -638,9 +662,6 @@ class Component:
             vertical_position, horizontal_position = self.parse_position()
             reset()
         except ValueError:
-            from pyscript import window
-
-            window.console.log("You suck!")
             return
 
         # Check vertical position and adjust the container via CSS magic.
@@ -681,18 +702,13 @@ class Widget(Component):
       the id).
     """
 
-    channel = TextProperty("The channel[s] to which the widget broadcasts.")
+    channel = TextProperty(
+        "A comma separated list of channels to which the widget broadcasts."
+    )
     position = TextProperty("The widget's preferred position.")
 
-    def __init__(self, name=None, id=None, position="TOP-LEFT", channel=None):
-        super().__init__(name=name, id=id)
-        self.position = position
-        self.channel = channel if channel else self.name
-        # Reference to the HTML element (once rendered).
-        self.element = None
-
     def on_position_changed(self):
-        if hasattr(self, "element"):
+        if self.element.parentElement:
             self.set_position(self.element.parentElement)
 
     def publish(self, blueprint, **kwargs):
@@ -701,8 +717,15 @@ class Widget(Component):
         a message to all the widget's channels with the message content
         defined in kwargs.
         """
+        # Ensure self.channel is treated as a comma-separated list of channel
+        # names.
+        channels = [
+            channel.strip()
+            for channel in self.channel.split(",")
+            if channel.strip()
+        ]
         message = getattr(self, blueprint).create_message(blueprint, **kwargs)
-        invent.publish(message, to_channel=self.channel)
+        invent.publish(message, to_channel=channels)
 
 
 class Container(Component):
@@ -734,14 +757,14 @@ class Container(Component):
     )
     gap = ChoiceProperty(
         "The gap between items in the container",
-        choices=[None, "XS", "S", "M", "L", "XL"],
+        choices=_TSHIRT_SIZES,
         default_value="M",
     )
     background_color = TextProperty("The color of the container's background.")
     border_color = TextProperty("The color of the container's border.")
     border_width = ChoiceProperty(
         "The size of the container's border.",
-        choices=[None, "XS", "S", "M", "L", "XL"],
+        choices=_TSHIRT_SIZES,
     )
     border_style = ChoiceProperty(
         "The style of the container's border.",
@@ -758,38 +781,60 @@ class Container(Component):
         ],
     )
 
-    def __init__(
-        self,
-        name=None,
-        id=None,
-        content=None,
-        position="FILL",
-        width=100,
-        height=100,
-        gap="M",
-        background_color=None,
-        border_color=None,
-        border_width=None,
-        border_style=None,
-    ):
-        super().__init__(name, id, position)
+    def __init__(self, content=None, **kwargs):
         # An ordered list of child components.
         self.content = content or []
         # To reference the container's parent in the DOM tree.
         self.parent = None
-        # Component property settings.
-        self.width = width
-        self.height = height
-        self.background_color = background_color
-        self.border_color = border_color
-        self.border_width = border_width
-        self.border_style = border_style
-        self.render()
-        self.gap = gap
+        super().__init__(**kwargs)
+
+    def on_height_changed(self):
+        self.element.style.height = f"{self.height}%"
+
+    def on_width_changed(self):
+        self.element.style.width = f"{self.width}%"
+
+    def on_background_color_changed(self):
+        if self.background_color:
+            self.element.style.setProperty(
+                "background-color", self.background_color
+            )
+        else:
+            self.element.style.removeProperty("background-color")
+
+    def on_border_color_changed(self):
+        if self.border_color:
+            self.element.style.setProperty("border-color", self.border_color)
+        else:
+            self.element.style.removeProperty("border-color")
+
+    def on_border_width_changed(self):
+        """
+        Set the border with (transliating from t-shirt sizes).
+        """
+        sizes = {
+            "XS": "2px",
+            "S": "4px",
+            "M": "8px",
+            "L": "16px",
+            "XL": "32px",
+        }
+        if self.gap is not None:
+            size = sizes[self.border_width.upper()]
+            self.element.style.setProperty("border-width", size)
+        else:
+            self.element.style.removeProperty("border-width")
+
+    def on_border_style_changed(self):
+        if self.border_style:
+            self.element.style.setProperty("border-style", self.border_style)
+        else:
+            self.element.style.removeProperty("border-style")
 
     def on_gap_changed(self):
         """
-        Set the gap between elements in the container.
+        Set the gap between elements in the container (translating from t-shirt
+        sizes).
         """
         sizes = {
             "XS": "2px",
@@ -837,26 +882,11 @@ class Container(Component):
         for how to add their children in a way that reflects the way they
         lay out their widgets.
         """
-        self.element = document.createElement("div")
-        self.element.id = self.id
-        self.element.style.display = "grid"
-        # TODO: Make these dynamic from on_FOO_updated.
-        if self.height:
-            self.element.style.height = f"{self.height}%"
-        if self.width:
-            self.element.style.width = f"{self.width}%"
-        if self.background_color:
-            self.element.style.setProperty(
-                "background-color", self.background_color
-            )
-        if self.border_color:
-            self.element.style.setProperty("border-color", self.border_color)
-        if self.border_width:
-            self.element.style.setProperty("border-width", self.border_width)
-        if self.border_style:
-            self.element.style.setProperty("border-style", self.border_style)
-        # TODO: Add children via sub-class.
-        return self.element
+        element = document.createElement("div")
+        element.style.display = "grid"
+        # Implementation detail: add child elements in the child class's own
+        # render method. See Column and Row classes for examples of this.
+        return element
 
     def as_dict(self):
         """
@@ -873,15 +903,15 @@ class Column(Container):
     """
 
     def render(self):
-        super().render()
+        element = super().render()
         for counter, child in enumerate(self.content, start=1):
             child_container = document.createElement("div")
             child_container.style.setProperty("grid-column", 1)
             child_container.style.setProperty("grid-row", counter)
             child_container.appendChild(child.element)
             child.set_position(child_container)
-            self.element.appendChild(child_container)
-        return self.element
+            element.appendChild(child_container)
+        return element
 
     @classmethod
     def preview(cls):
@@ -894,15 +924,15 @@ class Row(Container):
     """
 
     def render(self):
-        super().render()
+        element = super().render()
         for counter, child in enumerate(self.content, start=1):
             child_container = document.createElement("div")
             child_container.style.setProperty("grid-column", counter)
             child_container.style.setProperty("grid-row", 1)
             child_container.appendChild(child.element)
             child.set_position(child_container)
-            self.element.appendChild(child_container)
-        return self.element
+            element.appendChild(child_container)
+        return element
 
     @classmethod
     def preview(cls):

@@ -10,14 +10,6 @@ from pyscript import document
 class Button(Widget):
     label = TextProperty("The text on the button.", default_value="Click Me")
 
-    def __init__(self, label=None, **kwargs):
-        super().__init__(**kwargs)
-
-        if label is not None:
-            self.label = label
-
-        self.element = self.render()
-
     @classmethod
     def preview(cls):
         return "<button>Button</button>"
@@ -26,8 +18,7 @@ class Button(Widget):
         publish(Message("press", button=self.name), to_channel=self.channel)
 
     def on_label_changed(self):
-        if self.element:
-            self.element.innerText = self.label
+        self.element.innerText = self.label
 
     def render(self):
         element = document.createElement("button")

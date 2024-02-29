@@ -113,6 +113,7 @@ invent.ui.App(
                                     name="to_goose",
                                     label="Visit Lucy",
                                     channel="navigate",
+                                    position="FILL",
                                 ),
                                 invent.ui.TextBox(
                                     name="number_of_oinks",
