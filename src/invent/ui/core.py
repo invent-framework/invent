@@ -705,7 +705,6 @@ class Widget(Component):
     channel = TextProperty(
         "A comma separated list of channels to which the widget broadcasts."
     )
-    position = TextProperty("The widget's preferred position.")
 
     def on_position_changed(self):
         if self.element.parentElement:
