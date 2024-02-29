@@ -852,15 +852,12 @@ class Container(Component):
         """
         Append like a list.
         """
+
         item.parent = self
         self.content.append(item)
 
-        child_container = document.createElement("div")
-        child_container.style.setProperty("grid-column", len(self.content)+1)
-        child_container.style.setProperty("grid-row", 1)
-        child_container.appendChild(item.element)
-        item.set_position(child_container)
-        self.element.appendChild(child_container)
+        # Actually adding of the element is done in concrete classes.
+        ...
 
     def __getitem__(self, index):
         """
@@ -891,6 +888,10 @@ class Container(Component):
         """
         element = document.createElement("div")
         element.style.display = "grid"
+
+        # Render the containers children.
+        self.render_children(element)
+
         # Implementation detail: add child elements in the child class's own
         # render method. See Column and Row classes for examples of this.
         return element
@@ -909,20 +910,35 @@ class Column(Container):
     A vertical container box.
     """
 
-    def render(self):
-        element = super().render()
-        for counter, child in enumerate(self.content, start=1):
-            child_container = document.createElement("div")
-            child_container.style.setProperty("grid-column", 1)
-            child_container.style.setProperty("grid-row", counter)
-            child_container.appendChild(child.element)
-            child.set_position(child_container)
-            element.appendChild(child_container)
-        return element
-
     @classmethod
     def preview(cls):
         return "<div>☐<br/>☐<br/>☐</div>"
+
+    def append(self, item):
+        """
+        Append like a list.
+        """
+
+        # Update the object model...
+        super().append(item)
+
+        # Update the element...
+        self.element.appendChild(self._wrap_child(item, len(self.content)))
+
+    def render_children(self, element):
+        for counter, child in enumerate(self.content, start=1):
+            element.appendChild(self._wrap_child(child, counter))
+
+    def _wrap_child(self, child, index):
+        """Wrap the child element in a div with grid styles set appropriately."""
+
+        child_wrapper = document.createElement("div")
+        child_wrapper.style.setProperty("grid-column", 1)
+        child_wrapper.style.setProperty("grid-row", index)
+        child_wrapper.appendChild(child.element)
+        child.set_position(child_wrapper)
+
+        return child_wrapper
 
 
 class Row(Container):
@@ -930,17 +946,29 @@ class Row(Container):
     A horizontal container box.
     """
 
-    def render(self):
-        element = super().render()
-        for counter, child in enumerate(self.content, start=1):
-            child_container = document.createElement("div")
-            child_container.style.setProperty("grid-column", counter)
-            child_container.style.setProperty("grid-row", 1)
-            child_container.appendChild(child.element)
-            child.set_position(child_container)
-            element.appendChild(child_container)
-        return element
-
     @classmethod
     def preview(cls):
         return "<div>☐☐☐</div>"
+
+    def append(self, item):
+        """
+        Append like a list.
+        """
+
+        super().append(item)
+        self.element.appendChild(self._wrap_child(item, len(self.content)))
+
+    def render_children(self, element):
+        for index, child in enumerate(self.content, start=1):
+            element.appendChild(self._wrap_child(child, index))
+
+    def _wrap_child(self, child, index):
+        """Wrap the child element in a div with grid styles set appropriately."""
+
+        child_wrapper = document.createElement("div")
+        child_wrapper.style.setProperty("grid-column", index)
+        child_wrapper.style.setProperty("grid-row", 1)
+        child_wrapper.appendChild(child.element)
+        child.set_position(child_wrapper)
+
+        return child_wrapper
