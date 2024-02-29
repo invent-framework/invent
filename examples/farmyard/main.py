@@ -19,7 +19,7 @@ def make_honk(message):
     )
     invent.play_sound(invent.media.sounds.honk.mp3)
 
-    # Add a pig...
+    # Add a goose...
     geese = Component.get_component_by_id("geese")
     geese.append(invent.ui.TextBox(text="🪿"))
 
@@ -31,7 +31,6 @@ def make_oink(message):
     invent.play_sound(invent.media.sounds.oink.mp3)
 
     # Add a pig...
-    from invent.ui.core import Component
     pigs = Component.get_component_by_id("pigs")
     pigs.append(invent.ui.TextBox(text="🐖"))
 
