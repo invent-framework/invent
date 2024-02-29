@@ -25,8 +25,11 @@ def make_oink(message):
     )
     invent.play_sound(invent.media.sounds.oink.mp3)
 
-    textbox = invent.ui.TextBox(text="🐖")
-    invent.ui.App.app().content[1].append(textbox)
+    # Add a piggy...
+    from invent.ui.core import Component
+    piggies = Component.get_component_by_id("piggies")
+    piggies.append(invent.ui.TextBox(text="🐖"))
+
 
 def move_page(message):
     if message.button == "to_goose":
@@ -124,6 +127,12 @@ invent.ui.App(
                                     ),
                                     position="MIDDLE-CENTER",
                                 ),
+                            ],
+                        ),
+                        invent.ui.Row(
+                            id="piggies",
+                            position="CENTER",
+                            content=[
                             ],
                         ),
                     ]

@@ -855,7 +855,12 @@ class Container(Component):
         item.parent = self
         self.content.append(item)
 
-        self.element.appendChild(item.element)
+        child_container = document.createElement("div")
+        child_container.style.setProperty("grid-column", len(self.content)+1)
+        child_container.style.setProperty("grid-row", 1)
+        child_container.appendChild(item.element)
+        item.set_position(child_container)
+        self.element.appendChild(child_container)
 
     def __getitem__(self, index):
         """
