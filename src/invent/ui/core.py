@@ -483,6 +483,12 @@ class Component:
                 property_obj.__set_name__(self, property_name)
         self.element = self.render()
         self.update(**kwargs)
+        if not self.id:
+            self.id = random_id()
+
+        if not self.name:
+            self.name = type(self)._generate_name()
+
         Component._components_by_id[self.id] = self
 
     def update(self, **kwargs):
@@ -853,6 +859,8 @@ class Container(Component):
         """
         item.parent = self
         self.content.append(item)
+
+        self.element.appendChild(item.element)
 
     def __getitem__(self, index):
         """

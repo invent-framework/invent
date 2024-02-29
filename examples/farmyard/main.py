@@ -25,6 +25,8 @@ def make_oink(message):
     )
     invent.play_sound(invent.media.sounds.oink.mp3)
 
+    textbox = invent.ui.TextBox(text="🐖")
+    invent.ui.App.app().content[1].append(textbox)
 
 def move_page(message):
     if message.button == "to_goose":

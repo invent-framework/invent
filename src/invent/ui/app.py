@@ -105,7 +105,7 @@ class App:
         # Render all the pages to the DOM.
         if self.content:
             for page in self.content:
-                document.body.appendChild(page.render())
+                document.body.appendChild(page.element)
             # Show the first page.
             self.show_page(self.content[0].name)
         else:

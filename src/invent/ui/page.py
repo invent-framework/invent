@@ -22,61 +22,33 @@ limitations under the License.
 
 from .utils import random_id
 from pyscript import document
+from .core import Column
 
 
-class Page:
+class Page(Column):
     """
     Only one page at a time is displayed on the screen. Pages contain related
     widgets to achieve some aim.
     """
 
-    def __init__(self, name, id=None, content=None):
-        self.name = name
-        self.id = id or random_id()
-        self.content = content or []
-        self.element = None
-
-    def as_dict(self):
-        """
-        Return a dictionary representation of the object.
-        """
-        return dict(
-            name=self.name,
-            id=self.id,
-            content=[item.as_dict() for item in self.content],
-        )
-
-    def append(self, component):
-        """
-        Append a component to the page.
-        """
-        self.content.append(component)
-
     def render(self):
         """
         Returns an HTML element to insert into the DOM.
         """
-        self.element = document.createElement("div")
-        self.element.classList.add("paper")
-        self.element.classList.add("container")
-        self.element.id = self.id
-        self.element.setAttribute("name", "Page: " + self.name)
-        self.hide()
-        # TODO: FIX THIS FOR CONTAINERS (cols / rows)
-        for item in self.content:
-            self.element.appendChild(item.element)
-        return self.element
+        element = super().render()
+        element.classList.add("paper")
+        element.classList.add("container")
+        element.style.display = "None"
+        return element
 
     def show(self):
         """
         Make the page visible to the user.
         """
-        if self.element:
-            self.element.style.display = "block"
+        self.element.style.display = "block"
 
     def hide(self):
         """
         Hide the page from the user.
         """
-        if self.element:
-            self.element.style.display = "None"  # Hidden by default.
+        self.element.style.display = "None"  # Hidden by default.
