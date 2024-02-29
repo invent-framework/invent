@@ -127,7 +127,7 @@ class Builder:
         iframe = document.getElementById(page.id)
 
         if parent_id is None:
-            target = iframe.contentWindow.document.getElementById('yeah-this-is-the-place')
+            target = iframe.contentWindow.document.getElementById('container')
 
         else:
             target = iframe.contentWindow.document.getElementById(parent_id)

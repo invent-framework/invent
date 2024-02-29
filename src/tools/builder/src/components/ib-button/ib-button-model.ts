@@ -15,7 +15,7 @@ class IbButtonModel extends ComponentModelBase {
 	/**
 	 * Returns list of classes for a specific button variant
 	 */
-	public variants: Function = cva(["inline-flex", "items-center", "border", "text-sm", "font-medium", "rounded-md", "outline-none", "focus:ring-2", "focus:ring-offset-2", "transition-all", "dark:highlight-white/5", "dark:focus:ring-offset-gray-900", "flex-none"], {
+	public variants: Function = cva(["inline-flex", "items-center", "border", "text-sm", "font-medium", "rounded-md", "outline-none", "focus:ring-2", "focus:ring-offset-2", "transition-all", "dark:highlight-white/5", "dark:focus:ring-offset-gray-900"], {
 		variants: {
 			align: {
 				left: "justify-start",

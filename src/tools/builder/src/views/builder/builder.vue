@@ -51,20 +51,15 @@
         </template>
 
         <template #sidebar>
-            <ib-v-stack :spacing="4">
-                <ib-h-stack is-full-width>
-                    <ib-button label="Widgets" size="sm" :color="view.getSidebarTabColor('widgets')" class="w-1/2" />
-                    <ib-button label="Layout" size="sm" :color="view.getSidebarTabColor('layout')" class="w-1/2" />
-                </ib-h-stack>
-
-                <ib-v-stack :spacing="4" v-if="view.state.widgets" overflow="hidden">
-                    <widget-preview 
-                        v-for="widget in view.state.widgets" 
-                        :key="widget.preview" 
-                        :preview="widget.preview"
-                        @click="view.onWidgetPreviewClicked(widget)"
-                    />
-                </ib-v-stack>
+            <ib-v-stack :spacing="4" v-if="view.state.widgets">
+                <widget-preview 
+                    v-for="widget in view.state.widgets" 
+                    :key="widget.preview" 
+                    :preview="widget.preview"
+                    @click="view.addWidgetToPage(widget)"
+                    :draggable="true"
+                    @dragstart="view.onDragStart($event, widget)"
+                />
             </ib-v-stack>
         </template>
 
@@ -73,6 +68,7 @@
                 class="mt-1" 
                 :pages="view.state.pages"  
                 :activePage="view.state.activePage"
+                :add-widget-to-page="(widget: WidgetModel) => { view.addWidgetToPage(widget) }"
             />
         </template>
 
@@ -102,6 +98,7 @@ import { view } from './builder-model';
 // Components
 import PageEditor from "./components/page-editor/page-editor.vue";
 import WidgetPreview from "./components/widget-preview/widget-preview.vue";
+import type { WidgetModel } from '@/data/models/widget-model';
 
 view.init();
 </script>

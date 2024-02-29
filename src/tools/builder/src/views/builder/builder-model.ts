@@ -38,18 +38,17 @@ export class BuilderModel extends ViewModelBase {
 		this.state.widgets = BuilderUtilities.getAvailableComponents();
 	}
 
-	public onWidgetPreviewClicked(widgetBlueprint: WidgetModel): void {
+	public addWidgetToPage(widget: WidgetModel) {
 		const widgetElement: HTMLElement = BuilderUtilities.addWidgetToPage(
-			this.state.activePage, widgetBlueprint
+			this.state.activePage, widget
 		);
 
 		if (widgetElement){
 			widgetElement.addEventListener("click", () => {
 				this.state.activeWidgetId = widgetElement.id;
-				this.openPropertiesForWidget(widgetBlueprint, widgetElement.id);
+				this.openPropertiesForWidget(widget, widgetElement.id);
 			});
 		}
-		this.state.isAddWidgetVisible = false;
 	}
 
 	/**
@@ -109,6 +108,11 @@ export class BuilderModel extends ViewModelBase {
 
 	public getPageButtonColor(page: PageModel): string { 
 		return this.state.activePage && this.state.activePage.id === page.id ? 'gray' : 'transparent';
+	}
+
+	// Drag and Drop Prototype
+	public onDragStart(event: DragEvent, widget: WidgetModel) {
+		event.dataTransfer?.setData("widget", JSON.stringify(widget));
 	}
 }
 
