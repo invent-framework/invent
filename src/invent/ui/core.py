@@ -157,12 +157,7 @@ class Property:
         """
         Descriptor method to return the value associated with the property.
         """
-        result = getattr(obj, self.private_name, self.default_value)
-        if self.private_name == "_position":
-            from pyscript import window
-            window.console.log("Default value: " + str(self.default_value))
-            window.console.log("Actual value:" + str(result))
-        return result
+        return getattr(obj, self.private_name, self.default_value)
 
     def __set__(self, obj, value):
         """
