@@ -4,6 +4,84 @@ Where "variety" currently means "as python code" :)
 
 """
 
+DATASTORE = """
+# Datastore ############################################################################
+
+
+invent.datastore.setdefault("number_of_honks", 0)
+invent.datastore.setdefault("number_of_oinks", 0)
+"""
+
+
+BLOCKS = """
+# Code #################################################################################
+
+
+def make_honk(message):
+    invent.datastore["number_of_honks"] = (
+        invent.datastore["number_of_honks"] + 1
+    )
+    invent.play_sound(invent.media.sounds.honk.mp3)
+
+
+def make_oink(message):
+    invent.datastore["number_of_oinks"] = (
+        invent.datastore["number_of_oinks"] + 1
+    )
+    invent.play_sound(invent.media.sounds.oink.mp3)
+
+
+def move_page(message):
+    if message.button == "to_goose":
+        invent.show_page("Honk")
+    elif message.button == "to_pig":
+        invent.show_page("Oink")
+
+
+def make_geese(value_from_datastore):
+    return [
+        invent.ui.TextBox(text="🪿")
+
+        for _ in range(value_from_datastore)
+    ]
+
+
+def make_pigs(value_from_datastore):
+    return [
+        invent.ui.TextBox(text="🐖")
+
+        for _ in range(value_from_datastore)
+    ]
+
+
+# Channels #############################################################################
+
+
+invent.subscribe(make_honk, to_channel="honk", when_subject=["press", "touch"])
+invent.subscribe(make_oink, to_channel="oink", when_subject=["press", "touch"])
+invent.subscribe(
+    move_page,
+    to_channel="navigate",
+    when_subject=[
+        "press",
+    ],
+)
+
+
+# User Interface #######################################################################
+
+"""
+
+########################################################################################
+
+APP_TEMPLATE = """
+import invent
+from invent.ui import *
+
+{datastore}
+{blocks}
+{ui}
+"""
 
 def as_python_code(app):
     """ Generate the *textual* Python code for the app."""
@@ -26,7 +104,13 @@ def as_python_code(app):
 
     lines.append(")")
 
-    return "\n".join(lines)
+    ui = "\n".join(lines)
+
+    return APP_TEMPLATE.format(
+        datastore=DATASTORE,
+        blocks=BLOCKS,
+        ui=ui
+    )
 
 
 # Internal #############################################################################
