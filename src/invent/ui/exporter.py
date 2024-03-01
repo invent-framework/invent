@@ -5,14 +5,6 @@ Where "variety" currently means "as python code" :)
 """
 
 
-import json
-from pyscript import window
-
-
-def log(obj):
-    window.console.log(json.dumps(obj))
-
-
 # TODO: This will be passed in from the builder :)
 IMPORTS = """
 import invent
