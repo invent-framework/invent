@@ -6,6 +6,13 @@ Where "variety" currently means "as python code" :)
 
 
 # TODO: This will be passed in from the builder :)
+IMPORTS = """
+import invent
+from invent.ui import *
+"""
+
+
+# TODO: This will be passed in from the builder :)
 DATASTORE = """
 invent.datastore.setdefault("number_of_honks", 0)
 invent.datastore.setdefault("number_of_oinks", 0)
@@ -65,8 +72,7 @@ invent.subscribe(
 ########################################################################################
 
 APP_TEMPLATE = """
-import invent
-from invent.ui import *
+{imports}
 
 # Datastore ############################################################################
 
@@ -91,6 +97,7 @@ def as_python_code(app):
     """ Generate the *textual* Python code for the app."""
 
     return APP_TEMPLATE.format(
+        imports=IMPORTS,
         datastore=DATASTORE,
         code=CODE,
         ui=_pretty_repr_ui(app)
@@ -106,6 +113,7 @@ def _pretty_repr_ui(app):
     lines = []
 
     # The first line of the component's constructor ####################################
+
     lines.append("App(")
 
     indent = "    "
