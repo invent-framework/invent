@@ -496,6 +496,11 @@ class Component:
             if hasattr(self, k):
                 setattr(self, k, v)
 
+        for property_name, property_obj in type(self).properties().items():
+            if property_name not in kwargs:
+                if property_obj.default_value is not None:
+                    setattr(self, property_name, property_obj.default_value)
+
     def on_id_changed(self):
         self.element.id = self.id
 
@@ -844,6 +849,7 @@ class Container(Component):
             "XL": "32px",
         }
         size = "0px"
+
         if self.gap is not None:
             size = sizes[self.gap.upper()]
         self.element.style.setProperty("gap", size)
@@ -889,12 +895,15 @@ class Container(Component):
         element = document.createElement("div")
         element.style.display = "grid"
 
-        # Render the containers children.
+        # Render the container's children.
         self.render_children(element)
 
         # Implementation detail: add child elements in the child class's own
         # render method. See Column and Row classes for examples of this.
         return element
+
+    def render_children(self, element):
+        raise NotImplementedError()
 
     def as_dict(self):
         """
