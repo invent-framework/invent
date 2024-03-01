@@ -24,6 +24,7 @@ from .core import Widget, Container, Column, Row, from_datastore
 from .page import Page
 from .utils import random_id, sanitize
 from .widgets.button import Button
+from .widgets.code import Code
 from .widgets.image import Image
 from .widgets.textbox import TextBox
 from .widgets.textinput import TextInput
@@ -33,6 +34,7 @@ __all__ = [
     "random_id",
     "sanitize",
     "App",
+    "Code",
     "Page",
     "Widget",
     "Container",
