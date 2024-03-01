@@ -4,6 +4,7 @@ Where "variety" currently means "as python code" :)
 
 """
 
+# TODO: Get this from the builder :)
 DATASTORE = """
 # Datastore ############################################################################
 
@@ -13,6 +14,7 @@ invent.datastore.setdefault("number_of_oinks", 0)
 """
 
 
+# TODO: Get this from the builder :)
 BLOCKS = """
 # Code #################################################################################
 
