@@ -13,9 +13,9 @@ invent.datastore.setdefault("number_of_oinks", 0)
 
 
 def navigate(message):
-    if message.button == "to_goose":
+    if message.button == "to_honk":
         invent.show_page("Honk")
-    elif message.button == "to_pig":
+    elif message.button == "to_oink":
         invent.show_page("Oink")
     elif message.button == "to_code":
         invent.show_page("Code")
@@ -85,7 +85,7 @@ app = invent.ui.App(
                                     position="FILL",
                                 ),
                                 invent.ui.Button(
-                                    name="to_pig",
+                                    name="to_oink",
                                     label="Visit Percy",
                                     channel="navigate",
                                     position="FILL",
@@ -133,7 +133,7 @@ app = invent.ui.App(
                                     channel="oink",
                                 ),
                                 invent.ui.Button(
-                                    name="to_goose",
+                                    name="to_honk",
                                     label="Visit Lucy",
                                     channel="navigate",
                                     position="FILL",
@@ -176,13 +176,13 @@ app.content.append(
             invent.ui.Row(
                 content=[
                     invent.ui.Button(
-                        name="to_goose",
+                        name="to_honk",
                         label="Visit Lucy",
                         channel="navigate",
                         position="FILL",
                     ),
                     invent.ui.Button(
-                        name="to_pig",
+                        name="to_oink",
                         label="Visit Percy",
                         channel="navigate",
                         position="FILL",
