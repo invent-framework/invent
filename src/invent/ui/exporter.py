@@ -149,7 +149,6 @@ def _pretty_repr_component(component, lines, indent=""):
 
     """
 
-    # The component's properties EXCEPT container contents - we deal with that last ####
     is_container = isinstance(component, Container)
 
     # The first line of the component's constructor ####################################
@@ -157,6 +156,8 @@ def _pretty_repr_component(component, lines, indent=""):
     # e.g. "Page("
 
     lines.append(f"{indent}{type(component).__name__}(")
+
+    # The component's properties EXCEPT container contents - we deal with that last ####
 
     indent += "    "
     for property_name, property_obj in type(component).properties().items():
