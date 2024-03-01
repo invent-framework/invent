@@ -117,9 +117,9 @@ def as_python_code(app):
 
 APP_TEMPLATE = """
 App(
-    name={name},
+    name='{name}',
     content=[
-        {pages}
+{pages}
     ],
 )
 """
@@ -128,14 +128,20 @@ App(
 def _pretty_repr_app(app):
     """Generate a pretty repr of the App's UI."""
 
-    lines = []
-    for page in app.content:
-        _pretty_repr_component(page, lines=lines, indent=" "*8)
-
     return APP_TEMPLATE.format(
         name=app.name,
-        pages="\n".join(lines),
+        pages=_pretty_repr_pages(app.content)
     )
+
+
+def _pretty_repr_pages(pages):
+    """Generate a pretty repr of the pages in an App's UI."""
+
+    lines = []
+    for page in pages:
+        _pretty_repr_component(page, lines=lines, indent=" "*8)
+
+    return "\n".join(lines)
 
 
 def _pretty_repr_component(component, lines, indent=""):
