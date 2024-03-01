@@ -143,30 +143,26 @@ def _pretty_repr_component(component, lines=None, indent=""):
     # The component's properties EXCEPT its content - we put that last #################
 
     indent += "    "
-
-    component_properties = type(component).properties()
-    for i, (property_name, property_obj) in enumerate(component_properties.items()):
-        # Put the content last in the list of properties...
+    for property_name, property_obj in type(component).properties().items():
+        # We put the content last in the list of properties... just because...
         if property_name == "content":
             continue
 
-        from_datastore = getattr(
-            component, property_obj.private_name + "_from_datastore", None
-        )
+        from_datastore = getattr(component, f"_{property_name}_from_datastore", None)
         if from_datastore:
-            line = _from_datastore_line(indent, from_datastore, property_name)
+            property_value = from_datastore
 
         else:
-            line = f"{indent}{property_name}={repr(getattr(component, property_name))},"
+            property_value = getattr(component, property_name)
 
-        lines.append(line)
+        lines.append(f"{indent}{property_name}={repr(property_value)},")
 
     # The component's CONTENT property (for Containers only) ###########################
 
-    if "content" in component_properties:
+    if hasattr(component, "content"):
         from_datastore = getattr(component, "_content_from_datastore", None)
         if from_datastore:
-            lines.append(_from_datastore_line(indent, from_datastore, "content"))
+            lines.append(f"{indent}content={repr(from_datastore)},")
 
         else:
             lines.append(f"{indent}content=[")
@@ -181,14 +177,3 @@ def _pretty_repr_component(component, lines=None, indent=""):
     lines.append(f"{indent[4:]}),")
 
     return lines
-
-
-def _from_datastore_line(indent, from_datastore, property_name):
-    """Create a line for a property that gets its value from the datastore."""
-
-    line = f"{indent}{property_name}=from_datastore('{from_datastore.key}'"
-    if from_datastore.via_function:
-        line += f", via_function={from_datastore.via_function.__name__}"
-    line += "),"
-
-    return line

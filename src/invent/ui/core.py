@@ -119,6 +119,16 @@ class from_datastore:  # NOQA
         self.key = key
         self.via_function = via_function
 
+    def __repr__(self):
+        """Create the expression for a property that gets its value from the datastore."""
+
+        expression = f"from_datastore('{self.key}'"
+        if self.via_function:
+            expression += f", via_function={self.via_function.__name__}"
+        expression += ")"
+
+        return expression
+
 
 class Property:
     """
