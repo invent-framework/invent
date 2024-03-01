@@ -178,10 +178,8 @@ def _pretty_repr_component(component, lines, indent=""):
 
         else:
             lines.append(f"{indent}content=[")
-
             for child in component.content:
                 _pretty_repr_component(child, lines=lines, indent=indent + "    ")
-
             lines.append(f"{indent}],")
 
     # The last line of the component's constructor e.g.")" :) ##########################
