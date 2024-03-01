@@ -5,6 +5,9 @@ Where "variety" currently means "as python code" :)
 """
 
 
+from invent.ui import Container
+
+
 # TODO: This will be passed in from the builder :)
 IMPORTS = """
 import invent
@@ -152,12 +155,13 @@ def _pretty_repr_component(component, lines, indent=""):
 
     lines.append(f"{indent}{type(component).__name__}(")
 
-    # The component's properties EXCEPT its content - we deal with that last ###########
+    # The component's properties EXCEPT container contents - we deal with that last ####
+    is_container = isinstance(component, Container)
 
     indent += "    "
     for property_name, property_obj in type(component).properties().items():
-        # We deal with the content last for the recursive case of child components.
-        if property_name == "content":
+        # Just in case a Widget defines a content property.
+        if is_container and property_name == "content":
             continue
 
         from_datastore = getattr(component, f"_{property_name}_from_datastore", None)
@@ -171,7 +175,7 @@ def _pretty_repr_component(component, lines, indent=""):
 
     # The component's CONTENT property (for Containers only) ###########################
 
-    if hasattr(component, "content"):
+    if is_container:
         from_datastore = getattr(component, "_content_from_datastore", None)
         if from_datastore:
             lines.append(f"{indent}content={repr(from_datastore)},")
