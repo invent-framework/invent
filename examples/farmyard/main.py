@@ -161,13 +161,15 @@ app = invent.ui.App(
 
 # GO! ##################################################################################
 
+
+invent.go()
+
+
 from invent.ui.exporter import as_python_code
 from pyscript import document, window
 
-result = as_python_code(app)[0]
+result = as_python_code(app)
 element = document.createElement("pre")
 element.style.textAlign = "left"
 element.innerHTML = result#[1:-1]
 document.body.appendChild(element)
-
-invent.go()

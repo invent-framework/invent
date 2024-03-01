@@ -8,20 +8,28 @@ Where "variety" currently means "as python code" :)
 def as_python_code(app):
     """ Generate the *textual* Python code for the app."""
 
-    chunks = []
-    for page in app.content:
-        chunks.append(_pretty_repr(page))
+    lines = []
 
-    return chunks
+    # The first line of the component's constructor ####################################
+    lines.append("App(")
+
+    indent = "    "
+    lines.append(f'{indent}name="{app.name}",')
+    lines.append(f"{indent}content=[")
+
+    for page in app.content:
+        _pretty_repr_lines(page, lines, indent+"    ")
+
+    lines.append(f"{indent}],")
+
+    # The last line of the component's constructor e.g.")" :) ##########################
+
+    lines.append(")")
+
+    return "\n".join(lines)
 
 
 # Internal #############################################################################
-
-
-def _pretty_repr(component):
-    """Generate a pretty repr of a component (the code to construct it)."""
-
-    return "\n".join(_pretty_repr_lines(component))
 
 
 def _pretty_repr_lines(component, lines=None, indent=""):
@@ -34,57 +42,61 @@ def _pretty_repr_lines(component, lines=None, indent=""):
 
     lines = lines or []
 
-    component_properties = type(component).properties()
-    component_is_container = "content" in component_properties
+    # The first line of the component's constructor ####################################
+    #
+    # e.g. "Page("
 
-    if component_is_container:
-        content_from_datastore = getattr(component, "_content_from_datastore", None)
-
-    #### The component class e.g. "Page("
     lines.append(f"{indent}{type(component).__name__}(")
+
+    # The component's properties EXCEPT its content - we put that last #################
 
     indent += "    "
 
-    #### The component's properties (other than it's content if it is a container.
+    component_properties = type(component).properties()
     for i, (property_name, property_obj) in enumerate(component_properties.items()):
         # Put the content last in the list of properties...
         if property_name == "content":
             continue
 
-        from_datastore = getattr(component, property_obj.private_name + "_from_datastore", None)
+        from_datastore = getattr(
+            component, property_obj.private_name + "_from_datastore", None
+        )
         if from_datastore:
-            line = f"{indent}{property_name}=from_datastore('{from_datastore.key}'"
-            if from_datastore.via_function:
-                line += f", via_function={from_datastore.via_function.__name__}"
-            line += ")"
+            line = _from_datastore_line(indent, from_datastore, property_name)
 
         else:
-            line = f"{indent}{property_name}={repr(getattr(component, property_name))}"
-
-        if i < len(component_properties) + 1:
-            line += ", "
+            line = f"{indent}{property_name}={repr(getattr(component, property_name))},"
 
         lines.append(line)
 
-    if component_is_container:
-        if not content_from_datastore:
+    # The component's CONTENT property (for Containers only) ###########################
+
+    if "content" in component_properties:
+        from_datastore = getattr(component, "_content_from_datastore", None)
+        if from_datastore:
+            lines.append(_from_datastore_line(indent, from_datastore, "content"))
+
+        else:
             lines.append(f"{indent}content=[")
 
             for child in component.content:
                 _pretty_repr_lines(child, lines, indent+"    ")
-                #if child is not component.content[-1]:
-                lines[-1] += ", "
 
-            lines.append(f"{indent}]")
+            lines.append(f"{indent}],")
 
-        else:
-            line = f"{indent}content=from_datastore('{content_from_datastore.key}'"
-            if content_from_datastore.via_function:
-                line += f", via_function={content_from_datastore.via_function.__name__}"
-            line += ")"
-            lines.append(line)
+    # The last line of the component's constructor e.g.")" :) ##########################
 
-    indent = indent[:-4]
-    lines.append(f"{indent})")
+    lines.append(f"{indent[4:]}),")
 
     return lines
+
+
+def _from_datastore_line(indent, from_datastore, property_name):
+    """Create a line for a property that gets its value from the datastore."""
+
+    line = f"{indent}{property_name}=from_datastore('{from_datastore.key}'"
+    if from_datastore.via_function:
+        line += f", via_function={from_datastore.via_function.__name__}"
+    line += "),"
+
+    return line

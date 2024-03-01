@@ -873,7 +873,7 @@ class Container(Component):
             "L": "16px",
             "XL": "32px",
         }
-        if self.gap is not None:
+        if self.border_width is not None:
             size = sizes[self.border_width.upper()]
             self.element.style.setProperty("border-width", size)
         else:
