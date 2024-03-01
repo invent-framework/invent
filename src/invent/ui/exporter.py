@@ -157,11 +157,13 @@ def _pretty_repr_component(component, lines, indent=""):
 
     lines.append(f"{indent}{type(component).__name__}(")
 
-    # The component's properties EXCEPT container contents - we deal with that last ####
+    # The component's properties #######################################################
 
     indent += "    "
     for property_name, property_obj in type(component).properties().items():
-        # Just in case a Widget defines a content property.
+        # If the component is a Container, we deal with its content last (for the
+        # recursive case). A Widget may well define its own custom "content" property
+        # though, so we handle that just like any other property.
         if is_container and property_name == "content":
             continue
 
