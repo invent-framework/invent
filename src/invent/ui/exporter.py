@@ -115,6 +115,8 @@ def as_python_code(app):
 # Internal #############################################################################
 
 
+# The {pages} indent looks weird in this template, but the indentation is handled in
+# the pretty repr functions :)
 APP_TEMPLATE = """
 App(
     name='{name}',
