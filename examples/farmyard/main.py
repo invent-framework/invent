@@ -13,10 +13,10 @@ invent.datastore.setdefault("number_of_oinks", 0)
 
 
 def navigate(message):
-    if message.button == "to_honk":
-        invent.show_page("Honk")
-    elif message.button == "to_oink":
-        invent.show_page("Oink")
+    if message.button == "to_lucy":
+        invent.show_page("Lucy")
+    elif message.button == "to_percy":
+        invent.show_page("Percy")
     elif message.button == "to_code":
         invent.show_page("Code")
 
@@ -66,7 +66,7 @@ app = invent.ui.App(
     name="Farmyard",
     content=[
         invent.ui.Page(
-            name="Honk",
+            name="Lucy",
             content=[
                 invent.ui.Column(
                     content=[
@@ -85,7 +85,7 @@ app = invent.ui.App(
                                     position="FILL",
                                 ),
                                 invent.ui.Button(
-                                    name="to_oink",
+                                    name="to_percy",
                                     label="Visit Percy",
                                     channel="navigate",
                                     position="FILL",
@@ -115,7 +115,7 @@ app = invent.ui.App(
             ],
         ),
         invent.ui.Page(
-            name="Oink",
+            name="Percy",
             content=[
                 invent.ui.Column(
                     content=[
@@ -133,7 +133,7 @@ app = invent.ui.App(
                                     channel="oink",
                                 ),
                                 invent.ui.Button(
-                                    name="to_honk",
+                                    name="to_lucy",
                                     label="Visit Lucy",
                                     channel="navigate",
                                     position="FILL",
@@ -176,13 +176,13 @@ app.content.append(
             invent.ui.Row(
                 content=[
                     invent.ui.Button(
-                        name="to_honk",
+                        name="to_lucy",
                         label="Visit Lucy",
                         channel="navigate",
                         position="FILL",
                     ),
                     invent.ui.Button(
-                        name="to_oink",
+                        name="to_percy",
                         label="Visit Percy",
                         channel="navigate",
                         position="FILL",
