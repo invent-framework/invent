@@ -152,7 +152,7 @@ def _pretty_repr_component(component, lines, indent=""):
 
     lines.append(f"{indent}{type(component).__name__}(")
 
-    # The component's properties EXCEPT its content - we put that last #################
+    # The component's properties EXCEPT its content - we deal with that last ###########
 
     indent += "    "
     for property_name, property_obj in type(component).properties().items():
