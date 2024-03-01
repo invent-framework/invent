@@ -1,8 +1,5 @@
 [files]
-#
-# Invent.
-#
-"{INVENT}" = "../../src/invent"
+"{INVENT}" = "https://mchilvers.pyscriptapps.com/invent/latest/invent/"
 "{INVENT_TO}" = "./invent"
 "{INVENT}/__init__.py"="{INVENT_TO}/__init__.py"
 "{INVENT}/__about__.py"="{INVENT_TO}/__about__.py"
@@ -13,9 +10,8 @@
 "{INVENT}/utils.py"="{INVENT_TO}/utils.py"
 "{INVENT}/ui/__init__.py"="{INVENT_TO}/ui/__init__.py"
 "{INVENT}/ui/app.py"="{INVENT_TO}/ui/app.py"
-"{INVENT}/ui/core.py"="{INVENT_TO}/ui/core.py"
-"{INVENT}/ui/exporter.py"="{INVENT_TO}/ui/exporter.py"
 "{INVENT}/ui/page.py"="{INVENT_TO}/ui/page.py"
+"{INVENT}/ui/core.py"="{INVENT_TO}/ui/core.py"
 "{INVENT}/ui/utils.py"="{INVENT_TO}/ui/utils.py"
 "{INVENT}/ui/widgets/__init__.py"="{INVENT_TO}/ui/widgets/__init__.py"
 "{INVENT}/ui/widgets/button.py"="{INVENT_TO}/ui/widgets/button.py"

@@ -52,5 +52,4 @@ AVAILABLE_COMPONENTS = {
     _("Button"): Button,
     _("Image"): Image,
     _("TextBox"): TextBox,
-    # TextInput,  # Row, Column etc...
 }

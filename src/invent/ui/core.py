@@ -172,21 +172,27 @@ class Property:
         """
 
         if isinstance(value, from_datastore):
-            function = value.via_function
-
+            via_function = value.via_function
             def reactor(message):  # pragma: no cover
                 """
                 Set the value in the widget and call the optional
                 "on_FOO_changed" to ensure the update is visible to the user.
                 """
-                if function:
-                    message_value = function(message.value)
+                if via_function:
+                    message_value = via_function(message.value)
 
                 else:
                     message_value = message.value
 
                 setattr(obj, self.private_name, self.validate(message_value))
+
                 self._call_on_changed(obj, self.private_name)
+
+            # Attach the "from_datastore" instance to the object.
+            setattr(obj, self.private_name + "_from_datastore", value)
+
+            from pyscript import window
+            window.console.log(f'Setting: {self.private_name + "_from_datastore"}')
 
             # Subscribe to store events for the specified key.
             invent.subscribe(
@@ -196,8 +202,8 @@ class Property:
             # Update value to the actual value from the datastore.
             value = invent.datastore.get(value.key, self.default_value)
 
-            if function is not None:
-                value = function(value)
+            if via_function is not None:
+                value = via_function(value)
 
         # Set the value in the widget.
         setattr(obj, self.private_name, self.validate(value))

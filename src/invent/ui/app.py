@@ -87,14 +87,26 @@ class App:
         global __app__
         return __app__
 
+    def get_page_by_name(self, page_name):
+        """Return the page with the specified name or None if no such page exists."""
+
+        for page in self.content:
+            if page.name == page_name:
+                break
+
+        else:
+            page = None
+
+        return page
+
     def show_page(self, page_name):
         if self._current_page:
             self._current_page.hide()
-        for page in self.content:
-            if page.name == page_name:
-                self._current_page = page
-                page.show()
-                break
+
+        page = self.get_page_by_name(page_name)
+        if page is not None:
+            self._current_page = page
+            page.show()
 
     def go(self):
         """

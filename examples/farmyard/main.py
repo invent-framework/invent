@@ -38,7 +38,7 @@ def make_geese(value_from_datastore):
     return [
         invent.ui.TextBox(text="🪿")
 
-        for i in range(value_from_datastore)
+        for _ in range(value_from_datastore)
     ]
 
 
@@ -46,7 +46,7 @@ def make_pigs(value_from_datastore):
     return [
         invent.ui.TextBox(text="🐖")
 
-        for i in range(value_from_datastore)
+        for _ in range(value_from_datastore)
     ]
 
 
@@ -67,7 +67,7 @@ invent.subscribe(
 # User Interface #######################################################################
 
 
-invent.ui.App(
+app = invent.ui.App(
     name="Farmyard",
     content=[
         invent.ui.Page(
@@ -161,5 +161,13 @@ invent.ui.App(
 
 # GO! ##################################################################################
 
+from invent.ui.exporter import as_python_code
+from pyscript import document, window
+
+result = as_python_code(app)[0]
+element = document.createElement("pre")
+element.style.textAlign = "left"
+element.innerHTML = result#[1:-1]
+document.body.appendChild(element)
 
 invent.go()
