@@ -4,21 +4,16 @@ Where "variety" currently means "as python code" :)
 
 """
 
-# TODO: Get this from the builder :)
+
+# TODO: This will be passed in from the builder :)
 DATASTORE = """
-# Datastore ############################################################################
-
-
 invent.datastore.setdefault("number_of_honks", 0)
 invent.datastore.setdefault("number_of_oinks", 0)
 """
 
 
-# TODO: Get this from the builder :)
-BLOCKS = """
-# Code #################################################################################
-
-
+# TODO: This will be passed in from the builder :)
+CODE = """
 def make_honk(message):
     invent.datastore["number_of_honks"] = (
         invent.datastore["number_of_honks"] + 1
@@ -56,9 +51,6 @@ def make_pigs(value_from_datastore):
     ]
 
 
-# Channels #############################################################################
-
-
 invent.subscribe(make_honk, to_channel="honk", when_subject=["press", "touch"])
 invent.subscribe(make_oink, to_channel="oink", when_subject=["press", "touch"])
 invent.subscribe(
@@ -68,10 +60,6 @@ invent.subscribe(
         "press",
     ],
 )
-
-
-# User Interface #######################################################################
-
 """
 
 ########################################################################################
@@ -80,13 +68,40 @@ APP_TEMPLATE = """
 import invent
 from invent.ui import *
 
+# Datastore ############################################################################
+
 {datastore}
-{blocks}
+
+# Code #################################################################################
+
+{code}
+
+# User Interface #######################################################################
+
 {ui}
+
+# GO! ##################################################################################
+
+invent.go()
+
 """
+
 
 def as_python_code(app):
     """ Generate the *textual* Python code for the app."""
+
+    return APP_TEMPLATE.format(
+        datastore=DATASTORE,
+        code=CODE,
+        ui=_pretty_repr_ui(app)
+    )
+
+
+# Internal #############################################################################
+
+
+def _pretty_repr_ui(app):
+    """Generate a pretty repr of the App's UI."""
 
     lines = []
 
@@ -98,7 +113,7 @@ def as_python_code(app):
     lines.append(f"{indent}content=[")
 
     for page in app.content:
-        _pretty_repr_lines(page, lines, indent+"    ")
+        _pretty_repr_component(page, lines, indent + "    ")
 
     lines.append(f"{indent}],")
 
@@ -106,19 +121,10 @@ def as_python_code(app):
 
     lines.append(")")
 
-    ui = "\n".join(lines)
-
-    return APP_TEMPLATE.format(
-        datastore=DATASTORE,
-        blocks=BLOCKS,
-        ui=ui
-    )
+    return "\n".join(lines)
 
 
-# Internal #############################################################################
-
-
-def _pretty_repr_lines(component, lines=None, indent=""):
+def _pretty_repr_component(component, lines=None, indent=""):
     """Generate a pretty repr as a LIST of lines of code.
 
     Creating it line-by-line makes it easier to format it nicely (with commas only
@@ -166,7 +172,7 @@ def _pretty_repr_lines(component, lines=None, indent=""):
             lines.append(f"{indent}content=[")
 
             for child in component.content:
-                _pretty_repr_lines(child, lines, indent+"    ")
+                _pretty_repr_component(child, lines, indent + "    ")
 
             lines.append(f"{indent}],")
 
