@@ -57,6 +57,11 @@
                     :color="view.getEditorTabColor('blocks')" 
                     @click="view.onEditorTabClicked('blocks')" 
                 />
+                <ib-button 
+                    label="Get Code" 
+                    size="sm" 
+                    @click="view.getPythonCode()" 
+                />
             </ib-h-stack>
         </template>
 

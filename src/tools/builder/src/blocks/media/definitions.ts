@@ -9,5 +9,5 @@ Blockly.Blocks['play_sound'] = {
       this.setNextStatement(true, null);
       this.setColour("#ca65cc");
     }
-  };
+};
   

@@ -6,6 +6,7 @@ import { nextTick, reactive } from "vue";
 import type { WidgetModel } from "@/data/models/widget-model";
 import type { PageModel } from "@/data/models/page-model";
 import * as Blockly from 'blockly/core';
+import { pythonGenerator } from 'blockly/python';
 
 
 /**
@@ -129,6 +130,10 @@ export class BuilderModel extends ViewModelBase {
 				Blockly.svgResize(Blockly.getMainWorkspace() as Blockly.WorkspaceSvg);
 			});
 		}
+	}
+
+	public getPythonCode(): void {
+		console.log(pythonGenerator.workspaceToCode(Blockly.getMainWorkspace()));
 	}
 }
 
