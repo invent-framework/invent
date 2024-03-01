@@ -40,7 +40,7 @@ class Page(Column):
             id=self.id,
             content=[item.as_dict() for item in self.content],
         )
-    
+
     def render(self):
         """
         Returns an HTML element to insert into the DOM.

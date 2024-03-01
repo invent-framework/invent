@@ -545,9 +545,16 @@ def test_component_init_with_given_values():
     """
     Given a name and id, these are reflected in the resulting object.
     """
-    c = core.Component(name="test1", id="12345")
-    assert c.name == "test1"
-    assert c.id == "12345"
+
+    class TestComponent(core.Component):
+
+        def render(self):
+            return document.createElement("div")
+
+    tc = core.TestComponent(name="test1", id="12345", position="TOP-LEFT")
+    assert tc.name == "test1"
+    assert tc.id == "12345"
+    assert tc.position == "TOP-LEFT"
 
 
 def test_component_init_with_no_values():

@@ -259,17 +259,21 @@ class NumericProperty(Property):
         if value is None:
             return None
 
-        # Try int() then float() and handle the resulting situation.
-        try:
-            result = int(value)
-            return result
-        except ValueError:
-            pass  # Try float
-        try:
-            result = float(value)
-            return result
-        except ValueError:
-            pass  # Handle below
+        # Best effort heuristics...
+        if "." in str(value):
+            # It could be a float.
+            try:
+                result = float(value)
+                return result
+            except ValueError:
+                pass  # Handle below
+        else:
+            # Let's try an int instead...
+            try:
+                result = int(value)
+                return result
+            except ValueError:
+                pass  # Handle below 
         raise ValueError(_("Not a valid number: ") + value)
 
     def validate(self, value):
@@ -467,7 +471,8 @@ class Component:
         "The meaningful name of the widget instance.",
     )
     position = TextProperty(
-        "The component's position inside it's parent.", default_value="THIS ONE!"
+        "The component's position inside it's parent.",
+        default_value="FILL",
     )
 
     def __init__(self, **kwargs):
