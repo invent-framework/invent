@@ -5,6 +5,14 @@ Where "variety" currently means "as python code" :)
 """
 
 
+import json
+from pyscript import window
+
+
+def log(obj):
+    window.console.log(json.dumps(obj))
+
+
 # TODO: This will be passed in from the builder :)
 IMPORTS = """
 import invent
@@ -71,7 +79,7 @@ invent.subscribe(
 
 ########################################################################################
 
-APP_TEMPLATE = """
+MAIN_PY_TEMPLATE = """
 {imports}
 
 # Datastore ############################################################################
@@ -84,7 +92,7 @@ APP_TEMPLATE = """
 
 # User Interface #######################################################################
 
-{ui}
+{app}
 
 # GO! ##################################################################################
 
@@ -96,51 +104,47 @@ invent.go()
 def as_python_code(app):
     """ Generate the *textual* Python code for the app."""
 
-    return APP_TEMPLATE.format(
+    return MAIN_PY_TEMPLATE.format(
         imports=IMPORTS,
         datastore=DATASTORE,
         code=CODE,
-        ui=_pretty_repr_ui(app)
+        app=_pretty_repr_app(app)
     )
 
 
 # Internal #############################################################################
 
 
-def _pretty_repr_ui(app):
+APP_TEMPLATE = """
+App(
+    name={name},
+    content=[
+        {pages}
+    ],
+)
+"""
+
+
+def _pretty_repr_app(app):
     """Generate a pretty repr of the App's UI."""
 
     lines = []
-
-    # The first line of the component's constructor ####################################
-
-    lines.append("App(")
-
-    indent = "    "
-    lines.append(f'{indent}name="{app.name}",')
-    lines.append(f"{indent}content=[")
-
     for page in app.content:
-        _pretty_repr_component(page, lines, indent + "    ")
+        _pretty_repr_component(page, lines=lines, indent=" "*8)
 
-    lines.append(f"{indent}],")
-
-    # The last line of the component's constructor e.g.")" :) ##########################
-
-    lines.append(")")
-
-    return "\n".join(lines)
+    return APP_TEMPLATE.format(
+        name=app.name,
+        pages="\n".join(lines),
+    )
 
 
-def _pretty_repr_component(component, lines=None, indent=""):
+def _pretty_repr_component(component, lines, indent=""):
     """Generate a pretty repr as a LIST of lines of code.
 
     Creating it line-by-line makes it easier to format it nicely (with commas only
     where necessary etc. :) ). Maybe we should just use a formatter :)
 
     """
-
-    lines = lines or []
 
     # The first line of the component's constructor ####################################
     #
@@ -176,7 +180,7 @@ def _pretty_repr_component(component, lines=None, indent=""):
             lines.append(f"{indent}content=[")
 
             for child in component.content:
-                _pretty_repr_component(child, lines, indent + "    ")
+                _pretty_repr_component(child, lines=lines, indent=indent + "    ")
 
             lines.append(f"{indent}],")
 
