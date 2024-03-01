@@ -19,10 +19,6 @@ def make_honk(message):
     )
     invent.play_sound(invent.media.sounds.honk.mp3)
 
-    # Add a goose...
-    geese = Component.get_component_by_id("geese")
-    geese.append(invent.ui.TextBox(text="🪿"))
-
 
 def make_oink(message):
     invent.datastore["number_of_oinks"] = (
@@ -30,16 +26,28 @@ def make_oink(message):
     )
     invent.play_sound(invent.media.sounds.oink.mp3)
 
-    # Add a pig...
-    pigs = Component.get_component_by_id("pigs")
-    pigs.append(invent.ui.TextBox(text="🐖"))
-
 
 def move_page(message):
     if message.button == "to_goose":
         invent.show_page("Honk")
     elif message.button == "to_pig":
         invent.show_page("Oink")
+
+
+def make_geese(value_from_datastore):
+    return [
+        invent.ui.TextBox(text="🪿")
+
+        for i in range(value_from_datastore)
+    ]
+
+
+def make_pigs(value_from_datastore):
+    return [
+        invent.ui.TextBox(text="🐖")
+
+        for i in range(value_from_datastore)
+    ]
 
 
 # Channels #############################################################################
@@ -99,6 +107,7 @@ invent.ui.App(
                         invent.ui.Row(
                             id="geese",
                             position="CENTER",
+                            content=invent.ui.from_datastore("number_of_honks", via_function=make_geese)
                         ),
                     ]
                 )
@@ -140,6 +149,7 @@ invent.ui.App(
                         invent.ui.Row(
                             id="pigs",
                             position="CENTER",
+                            content=invent.ui.from_datastore("number_of_oinks", via_function=make_pigs)
                         ),
                     ]
                 )

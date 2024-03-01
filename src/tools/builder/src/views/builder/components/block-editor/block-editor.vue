@@ -47,4 +47,8 @@ onMounted(() => {
 .blocklyFlyoutButton .blocklyText {
     @apply !text-sm !font-sans !font-medium cursor-pointer;
 }
+
+.zelos-renderer.classic-theme .blocklyText, .zelos-renderer.classic-theme .blocklyFlyoutLabelText {
+    @apply !font-sans !font-semibold;
+}
 </style>

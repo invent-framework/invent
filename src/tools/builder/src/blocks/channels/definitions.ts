@@ -4,16 +4,20 @@ Blockly.Blocks['subscribe'] = {
     init: function() {
       this.appendDummyInput()
           .appendField("Subscribe");
-      this.appendStatementInput("NAME")
+      this.appendStatementInput("on_subject")
           .setCheck(null);
       this.appendDummyInput()
-          .appendField("To Channel(s)")
-          .appendField(new Blockly.FieldTextInput(""), "channels");
+          .appendField("To Channel(s)");
+      this.appendValueInput("channels")
+          .setCheck(null);
+      this.appendEndRowInput();
       this.appendDummyInput()
-          .appendField("When Subject(s)")
-          .appendField(new Blockly.FieldTextInput(""), "subjects");
+          .appendField("When Subject(s)");
+      this.appendValueInput("subjects")
+          .setCheck(null);
       this.setPreviousStatement(true, null);
       this.setNextStatement(true, null);
       this.setColour("#FCC331");
     }
 };
+  

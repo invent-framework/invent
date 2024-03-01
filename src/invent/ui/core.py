@@ -112,11 +112,12 @@ class from_datastore:  # NOQA
     orthodox capitalised camel case, for aesthetic reasons. ;-)
     """
 
-    def __init__(self, key):
+    def __init__(self, key, via_function=None):
         """
         The key identifies the value in the datastore.
         """
         self.key = key
+        self.via_function = via_function
 
 
 class Property:
@@ -171,21 +172,32 @@ class Property:
         """
 
         if isinstance(value, from_datastore):
+            function = value.via_function
 
             def reactor(message):  # pragma: no cover
                 """
                 Set the value in the widget and call the optional
                 "on_FOO_changed" to ensure the update is visible to the user.
                 """
-                setattr(obj, self.private_name, self.validate(message.value))
+                if function:
+                    message_value = function(message.value)
+
+                else:
+                    message_value = message.value
+
+                setattr(obj, self.private_name, self.validate(message_value))
                 self._call_on_changed(obj, self.private_name)
 
             # Subscribe to store events for the specified key.
             invent.subscribe(
                 reactor, to_channel="store-data", when_subject=value.key
             )
+
             # Update value to the actual value from the datastore.
             value = invent.datastore.get(value.key, self.default_value)
+
+            if function is not None:
+                value = function(value)
 
         # Set the value in the widget.
         setattr(obj, self.private_name, self.validate(value))
@@ -421,6 +433,26 @@ class BooleanProperty(Property):
         return super().validate(self.coerce(value))
 
 
+class ContentProperty(Property):
+    """
+    A property specifically for the content of Containers.
+
+    """
+
+    def coerce(self, value):
+        if value is None:
+            return []
+
+        return list(value)
+
+    def validate(self, value):
+        """
+        Ensure the property's value is a boolean value (True / False).
+        """
+
+        return super().validate(self.coerce(value))
+
+
 class ChoiceProperty(Property):
     """
     A property for a Widget whose value can only be from a pre-determined set
@@ -500,6 +532,11 @@ class Component:
         for k, v in kwargs.items():
             if hasattr(self, k):
                 setattr(self, k, v)
+
+        for property_name, property_obj in type(self).properties().items():
+            if property_name not in kwargs:
+                if property_obj.default_value is not None:
+                    setattr(self, property_name, property_obj.default_value)
 
     def on_id_changed(self):
         self.element.id = self.id
@@ -748,6 +785,11 @@ class Container(Component):
       insert the children into the container in the correct manner.
     """
 
+    content = ContentProperty(
+        "The contents of the container",
+        default_value=None,
+    )
+
     width = IntegerProperty(
         "The default width of the container.",
         default_value=100,
@@ -786,12 +828,13 @@ class Container(Component):
         ],
     )
 
-    def __init__(self, content=None, **kwargs):
-        # An ordered list of child components.
-        self.content = content or []
+    def __init__(self, **kwargs):
         # To reference the container's parent in the DOM tree.
-        self.parent = None
         super().__init__(**kwargs)
+        self.parent = None
+
+    def on_content_changed(self):
+        self.render_children(self.element)
 
     def on_height_changed(self):
         self.element.style.height = f"{self.height}%"
@@ -849,6 +892,7 @@ class Container(Component):
             "XL": "32px",
         }
         size = "0px"
+
         if self.gap is not None:
             size = sizes[self.gap.upper()]
         self.element.style.setProperty("gap", size)
@@ -894,12 +938,15 @@ class Container(Component):
         element = document.createElement("div")
         element.style.display = "grid"
 
-        # Render the containers children.
+        # Render the container's children.
         self.render_children(element)
 
         # Implementation detail: add child elements in the child class's own
         # render method. See Column and Row classes for examples of this.
         return element
+
+    def render_children(self, element):
+        raise NotImplementedError()
 
     def as_dict(self):
         """
