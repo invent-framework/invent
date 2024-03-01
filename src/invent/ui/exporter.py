@@ -152,7 +152,7 @@ def _pretty_repr_component(component, lines=None, indent=""):
 
     indent += "    "
     for property_name, property_obj in type(component).properties().items():
-        # We put the content last in the list of properties... just because...
+        # We deal with the content last for the recursive case of child components.
         if property_name == "content":
             continue
 
