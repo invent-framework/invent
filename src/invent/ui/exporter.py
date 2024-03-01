@@ -176,7 +176,7 @@ def _pretty_repr_component(component, lines, indent=""):
 
         lines.append(f"{indent}{property_name}={repr(property_value)},")
 
-    # The component's CONTENT property (for Containers only) ###########################
+    # Container content ################################################################
 
     if is_container:
         from_datastore = getattr(component, "_content_from_datastore", None)
