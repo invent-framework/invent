@@ -153,7 +153,7 @@ def _pretty_repr_component(component, lines, indent=""):
     # The component's properties.
     _pretty_repr_component_properties(component, lines, indent+"    ")
 
-    # If the component is a Container, it's "content" property.
+    # If the component is a Container, its "content" property.
     if isinstance(component, Container):
         _pretty_repr_container_content_property(component, lines, indent+"    ")
 
