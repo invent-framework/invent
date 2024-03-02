@@ -165,21 +165,15 @@ def _pretty_repr_component(component, lines, indent=""):
         if is_container and property_name == "content":
             continue
 
-        from_datastore = getattr(
-            component, f"_{property_name}_from_datastore", None
-        )
-        if from_datastore:
-            property_value = from_datastore
-
-        else:
-            property_value = getattr(component, property_name)
+        from_datastore = _get_from_datastore(component, property_name)
+        property_value = from_datastore if from_datastore else getattr(component, property_name)
 
         lines.append(f"{indent}{property_name}={repr(property_value)},")
 
     # Container content ################################################################
 
     if is_container:
-        from_datastore = getattr(component, "_content_from_datastore", None)
+        from_datastore = _get_from_datastore(component, "content")
         if from_datastore:
             lines.append(f"{indent}content={repr(from_datastore)},")
 
@@ -196,3 +190,10 @@ def _pretty_repr_component(component, lines, indent=""):
     lines.append(f"{indent[4:]}),")
 
     return lines
+
+
+def _get_from_datastore(component, property_name):
+    """Return the "from_datastore" instance for a property or None if it is a simple/literal property."""
+
+    return getattr(component, f"_{property_name}_from_datastore", None)
+
