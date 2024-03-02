@@ -15,7 +15,7 @@ class Image(Widget):
 
     @classmethod
     def preview(cls):
-        return '<img src="http://placekitten.com/200/200">'
+        return '<img src="http://placekitten.com/250/100">'
 
     def touch(self, event):
         publish(Message("touch"), to_channel=self.channel)
