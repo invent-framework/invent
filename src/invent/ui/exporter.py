@@ -130,7 +130,7 @@ def _pretty_repr_app(app):
 
 
 def _pretty_repr_pages(pages):
-    """Generate a pretty repr of the pages in an App's UI."""
+    """Generate a pretty repr of the pages in an App."""
 
     lines = []
     for page in pages:
@@ -140,7 +140,7 @@ def _pretty_repr_pages(pages):
 
 
 def _pretty_repr_component(component, lines, indent=""):
-    """Generate a pretty repr as a LIST of lines of code.
+    """Generate a pretty repr of a Component.
 
     Creating it line-by-line makes it easier to format it nicely (with commas only
     where necessary etc. :) ). Maybe we should just use a formatter :)
@@ -191,9 +191,7 @@ def _pretty_repr_container_content_property(component, lines, indent):
     else:
         lines.append(f"{indent}content=[")
         for child in component.content:
-            _pretty_repr_component(
-                child, lines=lines, indent=indent + "    "
-            )
+            _pretty_repr_component(child, lines=lines, indent=indent + "    ")
         lines.append(f"{indent}],")
 
 
