@@ -4,7 +4,6 @@ Where "variety" currently means "as python code" :)
 
 """
 
-
 from invent.ui import Container
 
 
@@ -97,13 +96,13 @@ invent.go()
 
 
 def as_python_code(app):
-    """ Generate the *textual* Python code for the app."""
+    """Generate the *textual* Python code for the app."""
 
     return MAIN_PY_TEMPLATE.format(
         imports=IMPORTS,
         datastore=DATASTORE,
         code=CODE,
-        app=_pretty_repr_app(app)
+        app=_pretty_repr_app(app),
     )
 
 
@@ -126,8 +125,7 @@ def _pretty_repr_app(app):
     """Generate a pretty repr of the App's UI."""
 
     return APP_TEMPLATE.format(
-        name=app.name,
-        pages=_pretty_repr_pages(app.content)
+        name=app.name, pages=_pretty_repr_pages(app.content)
     )
 
 
@@ -136,7 +134,7 @@ def _pretty_repr_pages(pages):
 
     lines = []
     for page in pages:
-        _pretty_repr_component(page, lines=lines, indent=" "*8)
+        _pretty_repr_component(page, lines=lines, indent=" " * 8)
 
     return "\n".join(lines)
 
@@ -167,7 +165,9 @@ def _pretty_repr_component(component, lines, indent=""):
         if is_container and property_name == "content":
             continue
 
-        from_datastore = getattr(component, f"_{property_name}_from_datastore", None)
+        from_datastore = getattr(
+            component, f"_{property_name}_from_datastore", None
+        )
         if from_datastore:
             property_value = from_datastore
 
@@ -186,7 +186,9 @@ def _pretty_repr_component(component, lines, indent=""):
         else:
             lines.append(f"{indent}content=[")
             for child in component.content:
-                _pretty_repr_component(child, lines=lines, indent=indent + "    ")
+                _pretty_repr_component(
+                    child, lines=lines, indent=indent + "    "
+                )
             lines.append(f"{indent}],")
 
     # The last line of the component's constructor e.g.")" :) ##########################

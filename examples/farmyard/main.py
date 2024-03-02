@@ -36,19 +36,11 @@ def make_oink(message):
 
 
 def make_geese(number_of_honks):
-    return [
-        invent.ui.TextBox(text="🪿")
-
-        for _ in range(number_of_honks)
-    ]
+    return [invent.ui.TextBox(text="🪿") for _ in range(number_of_honks)]
 
 
 def make_pigs(number_of_oinks):
-    return [
-        invent.ui.TextBox(text="🐖")
-
-        for _ in range(number_of_oinks)
-    ]
+    return [invent.ui.TextBox(text="🐖") for _ in range(number_of_oinks)]
 
 
 # Channels #############################################################################
@@ -92,7 +84,9 @@ app = invent.ui.App(
                                 ),
                                 invent.ui.TextBox(
                                     name="number_of_honks",
-                                    text=invent.ui.from_datastore("number_of_honks"),
+                                    text=invent.ui.from_datastore(
+                                        "number_of_honks"
+                                    ),
                                     position="MIDDLE-CENTER",
                                 ),
                             ],
@@ -101,8 +95,8 @@ app = invent.ui.App(
                             id="geese",
                             position="CENTER",
                             content=invent.ui.from_datastore(
-                                "number_of_honks", via_function=make_geese
-                            )
+                                "number_of_honks", with_function=make_geese
+                            ),
                         ),
                         invent.ui.Button(
                             name="to_code",
@@ -140,7 +134,9 @@ app = invent.ui.App(
                                 ),
                                 invent.ui.TextBox(
                                     name="number_of_oinks",
-                                    text=invent.ui.from_datastore("number_of_oinks"),
+                                    text=invent.ui.from_datastore(
+                                        "number_of_oinks"
+                                    ),
                                     position="MIDDLE-CENTER",
                                 ),
                             ],
@@ -149,8 +145,8 @@ app = invent.ui.App(
                             id="pigs",
                             position="CENTER",
                             content=invent.ui.from_datastore(
-                                "number_of_oinks", via_function=make_pigs
-                            )
+                                "number_of_oinks", with_function=make_pigs
+                            ),
                         ),
                         invent.ui.Button(
                             name="to_code",
@@ -189,10 +185,8 @@ app.content.append(
                     ),
                 ]
             ),
-            invent.ui.Code(
-                code=exporter.as_python_code(app)
-            )
-        ]
+            invent.ui.Code(code=exporter.as_python_code(app)),
+        ],
     )
 )
 

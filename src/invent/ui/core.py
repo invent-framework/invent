@@ -112,19 +112,19 @@ class from_datastore:  # NOQA
     orthodox capitalised camel case, for aesthetic reasons. ;-)
     """
 
-    def __init__(self, key, via_function=None):
+    def __init__(self, key, with_function=None):
         """
         The key identifies the value in the datastore.
         """
         self.key = key
-        self.via_function = via_function
+        self.with_function = with_function
 
     def __repr__(self):
         """Create the expression for a property that gets its value from the datastore."""
 
         expression = f"from_datastore('{self.key}'"
-        if self.via_function:
-            expression += f", via_function={self.via_function.__name__}"
+        if self.with_function:
+            expression += f", with_function={self.with_function.__name__}"
         expression += ")"
 
         return expression
@@ -182,7 +182,8 @@ class Property:
         """
 
         if isinstance(value, from_datastore):
-            via_function = value.via_function
+            via_function = value.with_function
+
             def reactor(message):  # pragma: no cover
                 """
                 Set the value in the widget and call the optional
@@ -200,9 +201,6 @@ class Property:
 
             # Attach the "from_datastore" instance to the object.
             setattr(obj, self.private_name + "_from_datastore", value)
-
-            from pyscript import window
-            window.console.log(f'Setting: {self.private_name + "_from_datastore"}')
 
             # Subscribe to store events for the specified key.
             invent.subscribe(
@@ -301,7 +299,7 @@ class NumericProperty(Property):
                 result = int(value)
                 return result
             except ValueError:
-                pass  # Handle below 
+                pass  # Handle below
         raise ValueError(_("Not a valid number: ") + value)
 
     def validate(self, value):
@@ -402,7 +400,6 @@ class TextProperty(Property):
         """
         # Don't coerce None because None may be a valid value.
         return str(value) if value is not None else None
-        return str(value)
 
     def validate(self, value):
         """
@@ -465,7 +462,6 @@ class ContentProperty(Property):
         """
         Ensure the property's value is a boolean value (True / False).
         """
-
         return super().validate(self.coerce(value))
 
 
@@ -508,10 +504,13 @@ class Component:
     A base class for all user interface components (Widget, Container).
 
     Ensures they all have optional names and ids. If they're not given, will
-    auto-generate them for the user.
+    auto-generate them for the user. The position of the component determines
+    how it will be drawn in its parent.
     """
 
+    # Used for quick component look-up.
     _components_by_id = {}
+    # Used for generating unique component names.
     _component_counter = 0
 
     id = TextProperty("The id of the widget instance in the DOM.")
@@ -545,26 +544,50 @@ class Component:
         a property on this class, set the property's value to the associated
         value in the dict.
         """
+        # Set values from the **kwargs
         for k, v in kwargs.items():
             if hasattr(self, k):
                 setattr(self, k, v)
-
+        # Set values from the property's own default_values.
         for property_name, property_obj in type(self).properties().items():
             if property_name not in kwargs:
                 if property_obj.default_value is not None:
                     setattr(self, property_name, property_obj.default_value)
 
     def on_id_changed(self):
+        """
+        Automatically called to update the id of the HTML element associated
+        with the component.
+        """
         self.element.id = self.id
 
     def on_name_changed(self):
+        """
+        Automatically called to update the name attribute of the HTML element
+        associated with the component.
+        """
         if self.name:
             self.element.setAttribute("name", self.name)
         else:
             self.element.removeAttribute("name")
 
+    def on_position_changed(self):
+        """
+        Automatically called to update the position information relating to
+        the HTML element associated with the component.
+        """
+        if self.element.parentElement:
+            self.set_position(self.element.parentElement)
+
     @classmethod
     def _generate_name(cls):
+        """
+        Create a human friendly name for the component.
+
+        E.g.
+
+        "Button 1"
+        """
         cls._component_counter += 1
         return f"{cls.__name__} {cls._component_counter}"
 
@@ -577,10 +600,18 @@ class Component:
         return Component._components_by_id.get(component_id)
 
     def render(self):
+        """
+        In base classes, return the HTML element used to display the
+        component.
+        """
         raise NotImplementedError()  # pragma: no cover
 
     @classmethod
     def preview(cls):
+        """
+        In base classes, return the outerHTML to display in the menu of
+        available components.
+        """
         raise NotImplementedError()  # pragma: no cover
 
     @classmethod
@@ -648,7 +679,7 @@ class Component:
 
     def as_dict(self):
         """
-        Return a dict representation of the state of this component's
+        Return a dict representation of the state of this instance's
         properties and message blueprints.
         """
         properties = {
@@ -693,7 +724,7 @@ class Component:
         if not (horizontal_position or vertical_position):
             # Bail out if we don't have a valid position state.
             raise ValueError(f"'{self.position}' is not a valid position.")
-        return (vertical_position, horizontal_position)
+        return vertical_position, horizontal_position
 
     def set_position(self, container):
         """
@@ -702,8 +733,10 @@ class Component:
         the element into the expected position in the container.
         """
 
-        # Reset...
         def reset():
+            """
+            Reset the style state for the component and its parent container.
+            """
             self.element.style.removeProperty("width")
             self.element.style.removeProperty("height")
             container.style.removeProperty("align-self")
@@ -749,25 +782,26 @@ class Component:
 
 class Widget(Component):
     """
+    A widget is a UI component drawn onto the interface in some way.
+
     All widgets have these things:
 
     * A unique human friendly name that's meaningful in the context of the
       application (if none is given, one is automatically generated).
     * A unique id (if none is given, one is automatically generated).
-    * An indication of the widget's preferred position (default: top left).
+    * An indication of the widget's preferred position.
     * A render function that takes the widget's container and renders
       itself as an HTML element into the container.
-    * An optional channel name to which it broadcasts its messages (defaults to
-      the id).
+    * An optional indication of the channel[s] to which it broadcasts
+      messages (defaults to the id).
+    * A publish method that takes the name of a message blueprint, and
+      associated kwargs, and publishes it to the channel[s] set for the
+      widget.
     """
 
     channel = TextProperty(
         "A comma separated list of channels to which the widget broadcasts."
     )
-
-    def on_position_changed(self):
-        if self.element.parentElement:
-            self.set_position(self.element.parentElement)
 
     def publish(self, blueprint, **kwargs):
         """
