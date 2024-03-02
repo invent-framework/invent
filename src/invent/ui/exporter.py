@@ -147,22 +147,30 @@ def _pretty_repr_component(component, lines, indent=""):
 
     """
 
-    is_container = isinstance(component, Container)
-
-    # The first line of the component's constructor ####################################
-    #
-    # e.g. "Page("
-
+    # The first line of the component's constructor e.g. "Page(".
     lines.append(f"{indent}{type(component).__name__}(")
 
-    # The component's properties #######################################################
+    # The component's properties.
+    _pretty_repr_component_properties(component, lines, indent+"    ")
 
-    indent += "    "
+    # If the component, is a Container, it's "content" property.
+    if isinstance(component, Container):
+        _pretty_repr_container_content_property(component, lines, indent+"    ")
+
+    # The last line of the component's constructor e.g.")" :).
+    lines.append(f"{indent}),")
+
+    return lines
+
+
+def _pretty_repr_component_properties(component, lines, indent):
+    """Generate a pretty repr of a Component's properties."""
+
     for property_name, property_obj in type(component).properties().items():
-        # If the component is a Container, we deal with its content last (for the
+        # If the component is a Container, we deal with its content separately (for the
         # recursive case). A Widget may well define its own custom "content" property
         # though, so we handle that just like any other property.
-        if is_container and property_name == "content":
+        if isinstance(component, Container) and property_name == "content":
             continue
 
         from_datastore = _get_from_datastore(component, property_name)
@@ -170,30 +178,26 @@ def _pretty_repr_component(component, lines, indent=""):
 
         lines.append(f"{indent}{property_name}={repr(property_value)},")
 
-    # Container content ################################################################
 
-    if is_container:
-        from_datastore = _get_from_datastore(component, "content")
-        if from_datastore:
-            lines.append(f"{indent}content={repr(from_datastore)},")
+def _pretty_repr_container_content_property(component, lines, indent):
+    """
+    Generate a pretty repr of a Container's "content" property.
+    """
 
-        else:
-            lines.append(f"{indent}content=[")
-            for child in component.content:
-                _pretty_repr_component(
-                    child, lines=lines, indent=indent + "    "
-                )
-            lines.append(f"{indent}],")
+    from_datastore = _get_from_datastore(component, "content")
+    if from_datastore:
+        lines.append(f"{indent}content={repr(from_datastore)},")
 
-    # The last line of the component's constructor e.g.")" :) ##########################
-
-    lines.append(f"{indent[4:]}),")
-
-    return lines
+    else:
+        lines.append(f"{indent}content=[")
+        for child in component.content:
+            _pretty_repr_component(
+                child, lines=lines, indent=indent + "    "
+            )
+        lines.append(f"{indent}],")
 
 
 def _get_from_datastore(component, property_name):
     """Return the "from_datastore" instance for a property or None if it is a simple/literal property."""
 
     return getattr(component, f"_{property_name}_from_datastore", None)
-
