@@ -1,12 +1,12 @@
 """The Python-side of the Invent Builder."""
 
 
-import invent
-from invent.ui import exporter
-from invent.ui import AVAILABLE_COMPONENTS
-from invent.ui.core import Component
 import json
 from pyscript import document, window
+
+import invent
+from invent.ui import export
+from invent.ui import AVAILABLE_COMPONENTS
 
 
 class Builder:
@@ -178,7 +178,7 @@ class Builder:
         pyscript.toml files (in that order).
         """
 
-        index_html, main_py, pyscript_toml = exporter.as_pyscript_app(
+        index_html, main_py, pyscript_toml = export.as_pyscript_app(
             self._app, code=code
         )
 
