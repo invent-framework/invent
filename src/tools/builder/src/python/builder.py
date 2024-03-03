@@ -170,14 +170,19 @@ class Builder:
 
     # Import/export ####################################################################
 
-    def export_app_as_python_code(self, code) -> str:
-        """Export the app as Python code."""
+    def export_as_pyscript_app(self, code) -> str:
+        """
+        Export the Invent App as a PyScript app.
+
+        Returns a tuple containing the contents of index.html, main.py, and
+        pyscript.toml files (in that order).
+        """
 
         index_html, main_py, pyscript_toml = exporter.as_pyscript_app(
             self._app, code=code
         )
 
-        return main_py
+        return json.dumps((index_html, main_py, pyscript_toml))
 
     # Internal #########################################################################
 

@@ -42,4 +42,10 @@ export class BuilderUtilities {
 		return this.builder().export_app_as_python_code(code);
 	}
 
+	public static exportAsPyScriptApp(code: string): string {
+		return JSON.parse(
+			this.builder().export_as_pyscript_app(code)
+		);
+	}
+
 }
