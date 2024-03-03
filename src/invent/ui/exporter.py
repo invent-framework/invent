@@ -99,6 +99,28 @@ INDEX_HTML = """
 """
 
 
+MAIN_PY_TEMPLATE = """
+{imports}
+
+# Datastore ############################################################################
+
+{datastore}
+
+# Code #################################################################################
+
+{code}
+
+# User Interface #######################################################################
+
+{app}
+
+# GO! ##################################################################################
+
+invent.go()
+
+"""
+
+
 PYSCRIPT_TOML_TEMPLATE = """
 [files]
 #
@@ -128,30 +150,8 @@ PYSCRIPT_TOML_TEMPLATE = """
 """
 
 
-MAIN_PY_TEMPLATE = """
-{imports}
-
-# Datastore ############################################################################
-
-{datastore}
-
-# Code #################################################################################
-
-{code}
-
-# User Interface #######################################################################
-
-{app}
-
-# GO! ##################################################################################
-
-invent.go()
-
-"""
-
-
-def as_python_code(app, imports=IMPORTS, datastore=DATASTORE, code=CODE, to_psdc=True):
-    """Generate the *textual* Python code for the app."""
+def as_pyscript_app(app, imports=IMPORTS, datastore=DATASTORE, code=CODE, to_psdc=True):
+    """Generate the index.html, main.py and pyscript.toml files for an app."""
 
     # index.html
     index_html = INDEX_HTML
