@@ -132,13 +132,21 @@ export class BuilderModel extends ViewModelBase {
 		}
 	}
 
-	public getPythonCode(): void {
+	public async getPythonCode(): Promise<any> {
 		const code: string = pythonGenerator.workspaceToCode(Blockly.getMainWorkspace());
 		const result: any = BuilderUtilities.exportAsPyScriptApp(code);
-		console.log(result[0]);
-		console.log(result[1]);
-		console.log(result[2]);
 
+		console.log(result);
+		console.log(result["index.html"]);
+		console.log(result["main.py"]);
+		console.log(result["pyscript.toml"]);
+
+		// const response = await fetch(
+		// "https://pyscript.com/api/projects/healthz",
+		// {method: "GET"}
+		// );
+		// console.log(response.status);
+		// console.log(response.text());
 	}
 }
 

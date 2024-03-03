@@ -174,15 +174,27 @@ class Builder:
         """
         Export the Invent App as a PyScript app.
 
-        Returns a tuple containing the contents of index.html, main.py, and
-        pyscript.toml files (in that order).
+        Returns a dictionary containing the contents of index.html, main.py, and
+        pyscript.toml files in the form:
+
+        {
+            "index.html" : str,
+            "main.py": str,
+            "pyscript.toml": str
+        }
+
         """
 
         index_html, main_py, pyscript_toml = export.as_pyscript_app(
             self._app, code=code
         )
 
-        return json.dumps((index_html, main_py, pyscript_toml))
+        return json.dumps({
+            "index.html": index_html,
+            "main.py": main_py,
+            "pyscript.toml": pyscript_toml
+
+        })
 
     # Internal #########################################################################
 

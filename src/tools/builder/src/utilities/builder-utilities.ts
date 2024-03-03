@@ -47,5 +47,4 @@ export class BuilderUtilities {
 			this.builder().export_as_pyscript_app(code)
 		);
 	}
-
 }
