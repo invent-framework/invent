@@ -173,7 +173,9 @@ class Builder:
     def export_app_as_python_code(self, code) -> str:
         """Export the app as Python code."""
 
-        return exporter.as_python_code(self._app, code=code)
+        index_html, main_py, pyscript_toml = exporter.as_python_code(self._app, code=code)
+
+        return main_py
 
     # Internal #########################################################################
 

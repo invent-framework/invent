@@ -71,7 +71,62 @@ invent.subscribe(
 )
 """
 
-########################################################################################
+
+# Contents/templates for index.html, main.py and pyscript.toml files ###################
+
+
+INDEX_HTML = """
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <title>Invent</title>
+
+    <!-- Recommended meta tags -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width,initial-scale=1.0">
+
+    <!-- PyScript -->
+    <link rel="stylesheet" href="https://pyscript.net/releases/2024.1.1/core.css">
+    <script type="module" src="https://pyscript.net/releases/2024.1.1/core.js"></script>
+
+    <!-- App CSS Styles -->
+    <link rel="stylesheet" href="https://unpkg.com/papercss@1.9.2/dist/paper.min.css">
+</head>
+<body>
+  <script type="mpy" src="./main.py" config="./pyscript.toml"></script>
+</body>
+</html>
+"""
+
+
+PYSCRIPT_TOML_TEMPLATE = """
+[files]
+#
+# Invent.
+#
+"{{INVENT}}" = "{invent_src}"
+"{{INVENT_TO}}" = "./invent"
+"{{INVENT}}/__init__.py"="{{INVENT_TO}}/__init__.py"
+"{{INVENT}}/__about__.py"="{{INVENT_TO}}/__about__.py"
+"{{INVENT}}/channels.py"="{{INVENT_TO}}/channels.py"
+"{{INVENT}}/datastore.py"="{{INVENT_TO}}/datastore.py"
+"{{INVENT}}/i18n.py"="{{INVENT_TO}}/i18n.py"
+"{{INVENT}}/media.py"="{{INVENT_TO}}/media.py"
+"{{INVENT}}/utils.py"="{{INVENT_TO}}/utils.py"
+"{{INVENT}}/ui/__init__.py"="{{INVENT_TO}}/ui/__init__.py"
+"{{INVENT}}/ui/app.py"="{{INVENT_TO}}/ui/app.py"
+"{{INVENT}}/ui/core.py"="{{INVENT_TO}}/ui/core.py"
+"{{INVENT}}/ui/exporter.py"="{{INVENT_TO}}/ui/exporter.py"
+"{{INVENT}}/ui/page.py"="{{INVENT_TO}}/ui/page.py"
+"{{INVENT}}/ui/utils.py"="{{INVENT_TO}}/ui/utils.py"
+"{{INVENT}}/ui/widgets/__init__.py"="{{INVENT_TO}}/ui/widgets/__init__.py"
+"{{INVENT}}/ui/widgets/button.py"="{{INVENT_TO}}/ui/widgets/button.py"
+"{{INVENT}}/ui/widgets/code.py"="{{INVENT_TO}}/ui/widgets/code.py"
+"{{INVENT}}/ui/widgets/image.py"="{{INVENT_TO}}/ui/widgets/image.py"
+"{{INVENT}}/ui/widgets/textbox.py"="{{INVENT_TO}}/ui/widgets/textbox.py"
+"{{INVENT}}/ui/widgets/textinput.py"="{{INVENT_TO}}/ui/widgets/textinput.py"
+"""
+
 
 MAIN_PY_TEMPLATE = """
 {imports}
@@ -95,15 +150,23 @@ invent.go()
 """
 
 
-def as_python_code(app, imports=IMPORTS, datastore=DATASTORE, code=CODE):
+def as_python_code(app, imports=IMPORTS, datastore=DATASTORE, code=CODE, to_psdc=True):
     """Generate the *textual* Python code for the app."""
 
-    return MAIN_PY_TEMPLATE.format(
-        imports=imports,
-        datastore=datastore,
-        code=code,
-        app=_pretty_repr_app(app),
+    # index.html
+    index_html = INDEX_HTML
+
+    # main.py
+    main_py = MAIN_PY_TEMPLATE.format(
+        imports=imports, datastore=datastore, code=code, app=_pretty_repr_app(app)
     )
+
+    # pyscript.toml
+    pyscript_toml = PYSCRIPT_TOML_TEMPLATE.format(
+        invent_src="https://mchilvers.pyscriptapps.com/invent/latest/invent" if to_psdc else "../../src/invent"
+    )
+
+    return index_html, main_py, pyscript_toml
 
 
 # Internal #############################################################################
