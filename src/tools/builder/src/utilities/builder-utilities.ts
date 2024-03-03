@@ -37,4 +37,9 @@ export class BuilderUtilities {
 	public static updateWidgetProperty(widgetBlueprint: WidgetModel | undefined, widgetRef: string, key: string, value: string) {
 		this.builder().update_widget_property(widgetBlueprint, widgetRef, key, value);
 	}
+
+	public static exportAppAsPythonCode(code: string): string {
+		return this.builder().export_app_as_python_code(code);
+	}
+
 }

@@ -95,13 +95,13 @@ invent.go()
 """
 
 
-def as_python_code(app):
+def as_python_code(app, imports=IMPORTS, datastore=DATASTORE, code=CODE):
     """Generate the *textual* Python code for the app."""
 
     return MAIN_PY_TEMPLATE.format(
-        imports=IMPORTS,
-        datastore=DATASTORE,
-        code=CODE,
+        imports=imports,
+        datastore=datastore,
+        code=code,
         app=_pretty_repr_app(app),
     )
 

@@ -133,7 +133,8 @@ export class BuilderModel extends ViewModelBase {
 	}
 
 	public getPythonCode(): void {
-		console.log(pythonGenerator.workspaceToCode(Blockly.getMainWorkspace()));
+		const code: string = pythonGenerator.workspaceToCode(Blockly.getMainWorkspace());
+		console.log(BuilderUtilities.exportAppAsPythonCode(code));
 	}
 }
 

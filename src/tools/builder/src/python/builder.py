@@ -2,8 +2,9 @@
 
 
 import invent
-from invent.ui.core import Component
+from invent.ui import exporter
 from invent.ui import AVAILABLE_COMPONENTS
+from invent.ui.core import Component
 import json
 from pyscript import document, window
 
@@ -166,6 +167,13 @@ class Builder:
 
         component = self._get_widget_by_id(widget_id)
         setattr(component, property_name, value)
+
+    # Import/export ####################################################################
+
+    def export_app_as_python_code(self, code) -> str:
+        """Export the app as Python code."""
+
+        return exporter.as_python_code(self._app, code=code)
 
     # Internal #########################################################################
 
