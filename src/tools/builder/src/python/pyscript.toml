@@ -5,6 +5,9 @@
 #
 "{INVENT}" = "/invent"
 "{INVENT_TO}" = "./invent"
+#
+# invent
+#
 "{INVENT}/__init__.py"="{INVENT_TO}/__init__.py"
 "{INVENT}/__about__.py"="{INVENT_TO}/__about__.py"
 "{INVENT}/channels.py"="{INVENT_TO}/channels.py"
@@ -12,6 +15,9 @@
 "{INVENT}/i18n.py"="{INVENT_TO}/i18n.py"
 "{INVENT}/media.py"="{INVENT_TO}/media.py"
 "{INVENT}/utils.py"="{INVENT_TO}/utils.py"
+#
+# invent.ui
+#
 "{INVENT}/ui/__init__.py"="{INVENT_TO}/ui/__init__.py"
 "{INVENT}/ui/app.py"="{INVENT_TO}/ui/app.py"
 "{INVENT}/ui/core.py"="{INVENT_TO}/ui/core.py"
