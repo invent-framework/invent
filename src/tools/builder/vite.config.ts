@@ -12,5 +12,13 @@ export default defineConfig({
     alias: {
       '@': fileURLToPath(new URL('./src', import.meta.url))
     }
+  },
+  server: {
+    proxy: {
+      '/api/projects': {
+        target: 'https://pyscript-dev.com',
+        changeOrigin: true
+      }
+    }
   }
 })
