@@ -811,13 +811,14 @@ class Widget(Component):
         """
         # Ensure self.channel is treated as a comma-separated list of channel
         # names.
-        channels = [
-            channel.strip()
-            for channel in self.channel.split(",")
-            if channel.strip()
-        ]
-        message = getattr(self, blueprint).create_message(blueprint, **kwargs)
-        invent.publish(message, to_channel=channels)
+        if self.channel is not None:
+            channels = [
+                channel.strip()
+                for channel in self.channel.split(",")
+                if channel.strip()
+            ]
+            message = getattr(self, blueprint).create_message(blueprint, **kwargs)
+            invent.publish(message, to_channel=channels)
 
 
 class Container(Component):

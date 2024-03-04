@@ -2,7 +2,6 @@
 A minimal button.
 """
 
-from invent import publish, Message
 from invent.ui.core import Widget, TextProperty
 from pyscript import document
 
@@ -15,7 +14,7 @@ class Button(Widget):
         return "<button>Button</button>"
 
     def click(self, event):
-        publish(Message("press", button=self.name), to_channel=self.channel)
+        self.publish("press", button=self.name)
 
     def on_label_changed(self):
         self.element.innerText = self.label
