@@ -1,25 +1,16 @@
 
 
 <template>
-    <button class="h-32 w-full p-4 bg-gray-100 hover:bg-gray-200 transition-colors rounded-md cursor-grab">
-        <iframe :srcdoc="getSrcDoc()" class="h-full w-full bg-transparent pointer-events-none" />
-    </button>
+    <div class="p-4 bg-gray-100 rounded-md border text-center flex flex-col space-y-2 font-medium">
+        <div v-html="widget.properties.icon.default_value" class="text-3xl mx-auto" />
+        <span>{{ widget.name }}</span>
+    </div>
 </template>
 
 <script setup lang="ts">
-import type { Data } from '@/components/types';
+import type { WidgetModel } from '@/data/models/widget-model';
 
-const props: Data = defineProps<{
-    preview: string;
+defineProps<{
+    widget: WidgetModel;
 }>();
-
-function getSrcDoc(): string {
-    return `
-    <head>
-        <link rel="stylesheet" href="https://unpkg.com/papercss@1.9.2/dist/paper.min.css">
-    </head>
-    <body style="overflow:hidden;height:4.8rem;">
-        ${props.preview}
-    </body>`;
-}
 </script>

@@ -70,16 +70,16 @@
         <template #content >
             <div v-show="view.state.activeEditorTab === 'design'" class="h-full w-full flex">
                 <div class="h-full w-72 overflow-y-auto overflow-x-hidden bg-white border-r border-gray-200 p-4 flex-none">
-                    <ib-v-stack :spacing="4" v-if="view.state.widgets">
+                    <div class="grid grid-cols-2 gap-4" :spacing="4" v-if="view.state.widgets">
                         <widget-preview 
                             v-for="widget in view.state.widgets" 
-                            :key="widget.preview" 
-                            :preview="widget.preview"
+                            :key="widget.name" 
+                            :widget="widget"
                             @click="view.addWidgetToPage(widget)"
                             :draggable="true"
                             @dragstart="view.onDragStart($event, widget)"
                         />
-                    </ib-v-stack>
+                    </div>
                 </div>
 
                 <div class="h-full w-full flex">
