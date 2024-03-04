@@ -27,11 +27,24 @@
                         size="sm" 
                         color="gray" 
                     />
+                     
+                    <ib-button 
+                        label="Datastore" 
+                        size="sm" 
+                        color="transparent" 
+                    />
                     
                     <ib-button 
                         label="Media" 
                         size="sm" 
                         color="transparent" 
+                    />
+
+                    <ib-button 
+                        label="Publish" 
+                        size="sm" 
+                        :icon="['fas', 'rocket']"
+                        @click="view.getPythonCode()" 
                     />
                 </ib-h-stack>
             </ib-h-stack>
@@ -50,11 +63,6 @@
                     size="sm" 
                     :color="view.getEditorTabColor('blocks')" 
                     @click="view.onEditorTabClicked('blocks')" 
-                />
-                <ib-button 
-                    label="Get Code" 
-                    size="sm" 
-                    @click="view.getPythonCode()" 
                 />
             </ib-h-stack>
         </template>
