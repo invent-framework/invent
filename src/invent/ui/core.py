@@ -38,7 +38,7 @@ _TSHIRT_SIZES = (
     "L",
     "XL",
 )
-#: The default icon for a component.
+#: The default icon for a component. https://github.com/phosphor-icons/core
 _DEFAULT_ICON = '<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 256 256"><path fill="currentColor" d="M140 180a12 12 0 1 1-12-12a12 12 0 0 1 12 12M128 72c-22.06 0-40 16.15-40 36v4a8 8 0 0 0 16 0v-4c0-11 10.77-20 24-20s24 9 24 20s-10.77 20-24 20a8 8 0 0 0-8 8v8a8 8 0 0 0 16 0v-.72c18.24-3.35 32-17.9 32-35.28c0-19.85-17.94-36-40-36m104 56A104 104 0 1 1 128 24a104.11 104.11 0 0 1 104 104m-16 0a88 88 0 1 0-88 88a88.1 88.1 0 0 0 88-88"/></svg>'  # noqa
 
 
@@ -523,10 +523,6 @@ class Component:
         "The component's position inside it's parent.",
         default_value="FILL",
     )
-    icon = TextProperty(
-        "The component's SVG icon for the graphical builder.",
-        default_value=_DEFAULT_ICON,
-    )
 
     def __init__(self, **kwargs):
         if invent.is_micropython:  # pragma: no cover
@@ -618,7 +614,7 @@ class Component:
         In base classes, return the outerHTML to display in the menu of
         available components.
         """
-        raise NotImplementedError()  # pragma: no cover
+        return _DEFAULT_ICON
 
     @classmethod
     def properties(cls):
@@ -823,7 +819,9 @@ class Widget(Component):
                 for channel in self.channel.split(",")
                 if channel.strip()
             ]
-            message = getattr(self, blueprint).create_message(blueprint, **kwargs)
+            message = getattr(self, blueprint).create_message(
+                blueprint, **kwargs
+            )
             invent.publish(message, to_channel=channels)
 
 
@@ -1021,7 +1019,7 @@ class Column(Container):
 
     @classmethod
     def preview(cls):
-        return "<div>☐<br/>☐<br/>☐</div>"
+        return '<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 256 256"><path fill="currentColor" d="M104 32H64a16 16 0 0 0-16 16v160a16 16 0 0 0 16 16h40a16 16 0 0 0 16-16V48a16 16 0 0 0-16-16m0 176H64V48h40Zm88-176h-40a16 16 0 0 0-16 16v160a16 16 0 0 0 16 16h40a16 16 0 0 0 16-16V48a16 16 0 0 0-16-16m0 176h-40V48h40Z"/></svg>'  # noqa
 
     def append(self, item):
         """
@@ -1039,8 +1037,9 @@ class Column(Container):
             element.appendChild(self._wrap_child(child, counter))
 
     def _wrap_child(self, child, index):
-        """Wrap the child element in a div with grid styles set appropriately."""
-
+        """
+        Wrap the child element in a div with grid styles set appropriately.
+        """
         child_wrapper = document.createElement("div")
         child_wrapper.style.setProperty("grid-column", 1)
         child_wrapper.style.setProperty("grid-row", index)
@@ -1057,7 +1056,7 @@ class Row(Container):
 
     @classmethod
     def preview(cls):
-        return "<div>☐☐☐</div>"
+        return '<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 256 256"><path fill="currentColor" d="M208 136H48a16 16 0 0 0-16 16v40a16 16 0 0 0 16 16h160a16 16 0 0 0 16-16v-40a16 16 0 0 0-16-16m0 56H48v-40h160zm0-144H48a16 16 0 0 0-16 16v40a16 16 0 0 0 16 16h160a16 16 0 0 0 16-16V64a16 16 0 0 0-16-16m0 56H48V64h160z"/></svg>'  #noqa
 
     def append(self, item):
         """
@@ -1072,8 +1071,9 @@ class Row(Container):
             element.appendChild(self._wrap_child(child, index))
 
     def _wrap_child(self, child, index):
-        """Wrap the child element in a div with grid styles set appropriately."""
-
+        """
+        Wrap the child element in a div with grid styles set appropriately.
+        """
         child_wrapper = document.createElement("div")
         child_wrapper.style.setProperty("grid-column", index)
         child_wrapper.style.setProperty("grid-row", 1)

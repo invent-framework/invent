@@ -150,7 +150,9 @@ PYSCRIPT_TOML_TEMPLATE = """
 """
 
 
-def as_pyscript_app(app, imports=IMPORTS, datastore=DATASTORE, code=CODE, to_psdc=True):
+def as_pyscript_app(
+    app, imports=IMPORTS, datastore=DATASTORE, code=CODE, to_psdc=True
+):
     """Generate the index.html, main.py and pyscript.toml files for an app."""
 
     # index.html
@@ -158,12 +160,19 @@ def as_pyscript_app(app, imports=IMPORTS, datastore=DATASTORE, code=CODE, to_psd
 
     # main.py
     main_py = MAIN_PY_TEMPLATE.format(
-        imports=imports, datastore=datastore, code=code, app=_pretty_repr_app(app)
+        imports=imports,
+        datastore=datastore,
+        code=code,
+        app=_pretty_repr_app(app),
     )
 
     # pyscript.toml
     pyscript_toml = PYSCRIPT_TOML_TEMPLATE.format(
-        invent_src="https://mchilvers.pyscriptapps.com/invent/latest/invent" if to_psdc else "../../src/invent"
+        invent_src=(
+            "https://mchilvers.pyscriptapps.com/invent/latest/invent"
+            if to_psdc
+            else "../../src/invent"
+        )
     )
 
     return index_html, main_py, pyscript_toml
@@ -214,11 +223,13 @@ def _pretty_repr_component(component, lines, indent=""):
     lines.append(f"{indent}{type(component).__name__}(")
 
     # The component's properties.
-    _pretty_repr_component_properties(component, lines, indent+"    ")
+    _pretty_repr_component_properties(component, lines, indent + "    ")
 
     # If the component is a Container, its "content" property.
     if isinstance(component, Container):
-        _pretty_repr_container_content_property(component, lines, indent+"    ")
+        _pretty_repr_container_content_property(
+            component, lines, indent + "    "
+        )
 
     # The last line of the component's constructor e.g.")" :).
     lines.append(f"{indent}),")
@@ -237,7 +248,11 @@ def _pretty_repr_component_properties(component, lines, indent):
             continue
 
         from_datastore = _get_from_datastore(component, property_name)
-        property_value = from_datastore if from_datastore else getattr(component, property_name)
+        property_value = (
+            from_datastore
+            if from_datastore
+            else getattr(component, property_name)
+        )
 
         lines.append(f"{indent}{property_name}={repr(property_value)},")
 
