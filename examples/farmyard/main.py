@@ -1,5 +1,5 @@
 import invent
-from invent.ui import exporter
+from invent.ui import export
 
 
 # Datastore ############################################################################
@@ -185,7 +185,7 @@ app.content.append(
                     ),
                 ]
             ),
-            invent.ui.Code(code=exporter.as_python_code(app)),
+            invent.ui.Code(code=export.as_pyscript_app(app)[0]),
         ],
     )
 )
