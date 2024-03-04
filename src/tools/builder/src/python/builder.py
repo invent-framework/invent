@@ -6,6 +6,7 @@ from pyscript import document, window
 
 import invent
 from invent.ui import export
+from invent.ui.core import Container
 from invent.ui import AVAILABLE_COMPONENTS
 
 
@@ -153,6 +154,9 @@ class Builder:
         properties = component_klass.blueprint()["properties"]
         for name, value in properties.items():
             value["value"] = getattr(widget, name)
+
+        if issubclass(component_klass, Container):
+            properties.pop("content")
 
         window.x = json.dumps(properties)
         return json.dumps(properties)

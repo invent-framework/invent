@@ -43,11 +43,12 @@ export class BuilderModel extends ViewModelBase {
 
 	public addWidgetToPage(widget: WidgetModel) {
 		const widgetElement: HTMLElement = BuilderUtilities.addWidgetToPage(
-			this.state.activePage, widget
+			this.state.activePage, widget, undefined
 		);
 
 		if (widgetElement){
-			widgetElement.addEventListener("click", () => {
+			widgetElement.addEventListener("click", (event: Event) => {
+				event.stopPropagation();
 				this.state.activeWidgetId = widgetElement.id;
 				this.openPropertiesForWidget(widget, widgetElement.id);
 			});

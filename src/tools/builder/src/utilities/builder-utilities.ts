@@ -2,6 +2,7 @@ import type { WidgetPropertiesModel } from "@/data/models/widget-properties-mode
 import type { WidgetsModel } from "@/data/models/widgets-model";
 import type { WidgetModel } from "@/data/models/widget-model";
 import type { PageModel } from "@/data/models/page-model";
+import { view as builder } from "@/views/builder/builder-model";
 
  /**
  * Utility functions for the builder.
@@ -27,7 +28,7 @@ export class BuilderUtilities {
 		return JSON.parse(this.builder().get_available_components());
 	}
 
-	public static addWidgetToPage(activePage: PageModel | undefined , widgetBlueprint: WidgetModel, parentId: string): HTMLElement {
+	public static addWidgetToPage(activePage: PageModel | undefined , widgetBlueprint: WidgetModel, parentId: string | undefined): HTMLElement {
 		const widgetElement: HTMLElement = this.builder().add_widget_to_page(activePage, widgetBlueprint, parentId);
 
 		if (activePage && (widgetBlueprint.name === "Row" || widgetBlueprint.name === "Column")) {
@@ -44,8 +45,15 @@ export class BuilderUtilities {
 			widgetElement.addEventListener("drop", (event: DragEvent) => {
 				event.preventDefault();
 				widgetElement.classList.remove("drop-zone-active");
+				
 				const widgetToAdd: WidgetModel = JSON.parse(event.dataTransfer?.getData("widget") as string);
-				this.addWidgetToPage(activePage, widgetToAdd, widgetElement.id);
+				const widgetInRowColumn: HTMLElement = this.addWidgetToPage(activePage, widgetToAdd, widgetElement.id);
+				
+				widgetInRowColumn.addEventListener("click", (event: Event) => {
+					event.stopPropagation();
+					builder.state.activeWidgetId = widgetInRowColumn.id;
+					builder.openPropertiesForWidget(widgetToAdd, widgetInRowColumn.id);
+				})
 			});
 	
 		}
