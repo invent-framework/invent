@@ -11,6 +11,16 @@ Blockly.Blocks["inline_text"] = {
     }
 };
 
+Blockly.Blocks["inline_number"] = {
+    init: function(): void {
+        this.appendDummyInput()
+            .appendField(new Blockly.FieldNumber(1), "value");
+        this.setInputsInline(true);
+        this.setOutput(true, null);
+        this.setColour("#FFFFFF");
+    }
+};
+
 Blockly.Blocks["parameters"] = {
     color_: "",
     itemCount_: 0,

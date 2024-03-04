@@ -4,10 +4,10 @@
             v-for="page in pages" 
             v-show="activePage.id === page.id"
             :key="page.name" 
-            :id="page.id" 
-            :srcdoc="component.getSrcDoc()" 
+            :id="`${page.id}-editor`"
+            :srcdoc="component.getSrcDoc(page)" 
             class="w-full h-full"
-            @load="component.addDragAndDropEventListeners(pages, activePage, addWidgetToPage)"
+            @load="component.onPageLoad(pages, activePage, addWidgetToPage)"
         />
     </div>
 </template>

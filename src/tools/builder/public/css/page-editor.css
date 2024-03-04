@@ -1,0 +1,28 @@
+.drop-zone {
+    padding: 1rem;
+    width: 100%;
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    background-color: #f3f4f6;
+    border-width: 2px;
+    border-style: dashed;
+    border-color: rgb(209 213 219);
+    border-radius: 0.5rem;
+    text-align: center;
+}
+
+.drop-zone span {
+    font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
+    font-size: 0.875rem; 
+    line-height: 1.25rem; 
+    font-weight: 500;
+}
+
+.drop-zone-active {
+    background-color: #ede9fe;
+    border-color: #8b5cf6;
+}
+
+.drop-zone-active span {
+    color: #8b5cf6;
+}

@@ -15,17 +15,42 @@ export class BuilderUtilities {
 		return JSON.parse(this.builder().get_pages());
 	}
 
+	public static getPageElementById(pageId: string): HTMLElement {
+		return this.builder().get_page_element_by_id(pageId);
+	}
+
 	public static addPage(name: string): PageModel {
 		return JSON.parse(this.builder().add_page(name));
-
 	}
 
 	public static getAvailableComponents(): WidgetsModel {
 		return JSON.parse(this.builder().get_available_components());
 	}
 
-	public static addWidgetToPage(activePage: PageModel | undefined , widgetBlueprint: WidgetModel): HTMLElement {
-		return this.builder().add_widget_to_page(activePage, widgetBlueprint);
+	public static addWidgetToPage(activePage: PageModel | undefined , widgetBlueprint: WidgetModel, parentId: string): HTMLElement {
+		const widgetElement: HTMLElement = this.builder().add_widget_to_page(activePage, widgetBlueprint, parentId);
+
+		if (activePage && (widgetBlueprint.name === "Row" || widgetBlueprint.name === "Column")) {
+			widgetElement.addEventListener("dragover", (event: DragEvent) => {
+				event.preventDefault();
+				widgetElement.classList.add("drop-zone-active");
+			});
+	
+			widgetElement.addEventListener("dragleave", (event: DragEvent) => {
+				event.preventDefault();
+				widgetElement.classList.remove("drop-zone-active");
+			});
+	
+			widgetElement.addEventListener("drop", (event: DragEvent) => {
+				event.preventDefault();
+				widgetElement.classList.remove("drop-zone-active");
+				const widgetToAdd: WidgetModel = JSON.parse(event.dataTransfer?.getData("widget") as string);
+				this.addWidgetToPage(activePage, widgetToAdd, widgetElement.id);
+			});
+	
+		}
+
+		return widgetElement;
 	}
 
 	public static getWidgetProperties(widgetBlueprint: WidgetModel, widgetRef: string): WidgetPropertiesModel {

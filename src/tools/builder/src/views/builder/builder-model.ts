@@ -154,9 +154,9 @@ export class BuilderModel extends ViewModelBase {
 		// console.log(`Status: ${response.status}`);
 		// console.log(await response.json());
 
-		//const apiKey = "psdc_gAAAAABleI0zc55xr4UMlABZsWQX4i_tJ7XH7SvV8vXbzeC0F62HLvADCR-hXM5JZ30pkHrbRWOg-oJX7BXE-dMIaJq3DbDX38AjXPZmXKkBfeBtlZ0_S1MscTI_8cX4LLJREQb8Fd6-Wyi-4WesU97p2d_xgYIatUWNMptfHVgnOARJY8n6C-lD4U-5jPqhn9h1bHvLVZFC-az5RH4clE5mfwazJ09HjQ==";
+		// const apiKey = "psdc_gAAAAABleI0zc55xr4UMlABZsWQX4i_tJ7XH7SvV8vXbzeC0F62HLvADCR-hXM5JZ30pkHrbRWOg-oJX7BXE-dMIaJq3DbDX38AjXPZmXKkBfeBtlZ0_S1MscTI_8cX4LLJREQb8Fd6-Wyi-4WesU97p2d_xgYIatUWNMptfHVgnOARJY8n6C-lD4U-5jPqhn9h1bHvLVZFC-az5RH4clE5mfwazJ09HjQ==";
 
-		// response = await fetch(
+		// const response = await fetch(
 		// 	"https://pyscript-dev.com/api/projects/jdjdjdjjdjd/versions",
 		// 	{
 		// 		method: "GET",

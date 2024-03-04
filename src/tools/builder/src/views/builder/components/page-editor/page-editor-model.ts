@@ -1,6 +1,7 @@
 import { ComponentModelBase } from "@/components/base-classes/component-model-base";
 import type { PageModel } from "@/data/models/page-model";
 import type { WidgetModel } from "@/data/models/widget-model";
+import { BuilderUtilities } from "@/utilities/builder-utilities";
 
 /**
  *  Model for the page editor component.
@@ -13,31 +14,53 @@ class PageEditorModel extends ComponentModelBase {
 		return "page-editor";
 	}
 
-	public getSrcDoc() : string {
+	public getSrcDoc(page: PageModel) : string {
+		console.log(page);
 		return `
 			<html>
 				<head>
 				    <link rel="stylesheet" href="https://unpkg.com/papercss@1.9.2/dist/paper.min.css">
+				    <link rel="stylesheet" href="/css/page-editor.css">
 				</head>
 				<body>
-					<div id="container" class="paper container">
+					<div id="drop-zone-main" class="drop-zone">
+						<span>Drop Components Here</span>
 					</div>
 				</body>
 			</html>
 		`;
 	}
 
-	public addDragAndDropEventListeners(pages: Array<PageModel>, activePage: PageModel, addWidgetToPage: Function): void {
+	public onPageLoad(pages: Array<PageModel>, activePage: PageModel, addWidgetToPage: Function): void {
+		this.addDragAndDropEventListeners(pages, activePage, addWidgetToPage);
+
+		const pageEditor: HTMLIFrameElement = document.getElementById(`${activePage.id}-editor`) as HTMLIFrameElement;
+		const pageElement: HTMLElement = BuilderUtilities.getPageElementById(activePage.id);
+		pageElement.style.display = "grid";
+		pageEditor.contentDocument?.body.insertBefore(pageElement, pageEditor.contentDocument?.body.firstChild);
+	}
+
+	private addDragAndDropEventListeners(pages: Array<PageModel>, activePage: PageModel, addWidgetToPage: Function): void {
 		pages.forEach((page: PageModel) => {
-			const iframe: HTMLIFrameElement = document.getElementById(page.id) as HTMLIFrameElement;
+			const iframe: HTMLIFrameElement = document.getElementById(`${page.id}-editor`) as HTMLIFrameElement;
 			
 			if (iframe.contentDocument){
-				iframe.contentDocument.addEventListener("dragover", (event: DragEvent) => {
+				const dropZoneMain: HTMLDivElement = iframe.contentDocument.getElementById("drop-zone-main") as HTMLDivElement;
+
+				dropZoneMain.addEventListener("dragover", (event: DragEvent) => {
 					event.preventDefault();
+					dropZoneMain.classList.add("drop-zone-active");
 				});
 
-				iframe.contentDocument.addEventListener("drop", (event: DragEvent) => {
+				dropZoneMain.addEventListener("dragleave", (event: DragEvent) => {
 					event.preventDefault();
+					dropZoneMain.classList.remove("drop-zone-active");
+				});
+
+				dropZoneMain.addEventListener("drop", (event: DragEvent) => {
+					event.preventDefault();
+
+					dropZoneMain.classList.remove("drop-zone-active");
 
 					if (page.id === activePage.id){
 						const widget: WidgetModel = JSON.parse(event.dataTransfer?.getData("widget") as string);

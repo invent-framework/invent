@@ -27,13 +27,7 @@
                         size="sm" 
                         color="gray" 
                     />
-
-                    <ib-button 
-                        label="Datastore" 
-                        size="sm" 
-                        color="transparent" 
-                    />
-
+                    
                     <ib-button 
                         label="Media" 
                         size="sm" 

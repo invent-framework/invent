@@ -123,17 +123,15 @@ class Builder:
 
         component = component_klass()
 
-        page.append(component)
-
-        iframe = document.getElementById(page.id)
-
         if parent_id is None:
-            target = iframe.contentWindow.document.getElementById('container')
+            page.append(component)
 
         else:
-            target = iframe.contentWindow.document.getElementById(parent_id)
+            parent = self._get_widget_by_id(parent_id)
+            parent.append(component)
 
-        target.appendChild(component.element)
+        if widget_blueprint.name == "Column" or widget_blueprint.name == "Row":
+            component.element.classList.add("drop-zone")
 
         return component.element
 
@@ -167,6 +165,11 @@ class Builder:
 
         component = self._get_widget_by_id(widget_id)
         setattr(component, property_name, value)
+
+    def get_page_element_by_id(self, page_id):
+        result = self._get_page_by_id(page_id)
+        if result:
+            return result.element
 
     # Import/export ####################################################################
 

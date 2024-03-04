@@ -13,6 +13,9 @@ import "@/blocks/channels/generators";
 import "@/blocks/media/definitions";
 import "@/blocks/media/generators";
 
+import "@/blocks/datastore/definitions";
+import "@/blocks/datastore/generators";
+
 
 /**
  *  Model for the block editor component.
@@ -73,6 +76,57 @@ class BlockEditorModel extends ComponentModelBase {
 					{
 						kind: "block",
 						type: "play_sound"
+					}
+				]
+			},
+			{
+				kind: "category",
+				name: "Datastore",
+				colour: "#ff8c1b",
+				contents: [
+					{
+						kind: "block",
+						type: "set_datastore",
+						inputs: {
+							key: {
+								shadow: {
+									type: "inline_text",
+									fields: {
+										value: "key",
+									}
+								}
+							},
+							value: {
+								shadow: {
+									type: "inline_text",
+									fields: {
+										value: "value"
+									}
+								}
+							}
+						}
+					},
+					{
+						kind: "block",
+						type: "change_datastore_value_by",
+						inputs: {
+							key: {
+								shadow: {
+									type: "inline_text",
+									fields: {
+										value: "key",
+									}
+								}
+							},
+							value: {
+								shadow: {
+									type: "inline_number",
+									fields: {
+										value: 1
+									}
+								}
+							}
+						}
 					}
 				]
 			},

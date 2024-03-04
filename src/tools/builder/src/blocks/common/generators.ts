@@ -6,4 +6,10 @@ pythonGenerator.forBlock['inline_text'] = function(block: Blockly.Block) {
     const code = value;
     return [code, 0];  
 };
+
+pythonGenerator.forBlock['inline_number'] = function(block: Blockly.Block) {
+    const value: string = block.getFieldValue('value');
+    const code = value;
+    return [code, 0];  
+};
   
