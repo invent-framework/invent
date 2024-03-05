@@ -8,6 +8,9 @@ from pyscript import document
 
 class Button(Widget):
     label = TextProperty("The text on the button.", default_value="Click Me")
+    size = ChoiceField("The size of the button.", default_value="MEDIUM", choices=["LARGE", "MEDIUM", "SMALL"])
+    purpose = ChoiceField("The button's purpose.", default_value="DEFAULT", choices=["DEFAULT", "PRIMARY", "SECONDARY", "SUCCESS", "WARNING", "DANGER"])
+
     press = MessageBlueprint(
         "Sent when the button is pressed.",
         button="The button that was clicked.",
@@ -22,6 +25,33 @@ class Button(Widget):
 
     def on_label_changed(self):
         self.element.innerText = self.label
+
+    def on_size_changed(self):
+        # Reset
+        self.element.classList.remove("btn-large")
+        self.element.classList.remove("btn-small")
+        if self.size == "LARGE":
+            self.element.classList.add("btn-large")
+        elif self.size == "SMALL":
+            self.element.classList.add("btn-small")
+
+    def on_purpose_changed(self):
+        # Reset
+        self.element.classList.remove("btn-primary")
+        self.element.classList.remove("btn-secondary")
+        self.element.classList.remove("btn-success")
+        self.element.classList.remove("btn-warning")
+        self.element.classList.remove("btn-danger")
+        if self.purpose == "PRIMARY":
+            self.element.classList.add("btn-primary")
+        elif self.purpose == "SECONDARY":
+            self.element.classList.add("btn-secondary")
+        elif self.purpose == "SUCCESS":
+            self.element.classList.add("btn-success")
+        elif self.purpose == "WARNING":
+            self.element.classList.add("btn-warning")
+        elif self.purpose == "DANGER":
+            self.element.classList.add("btn-danger")
 
     def render(self):
         element = document.createElement("button")

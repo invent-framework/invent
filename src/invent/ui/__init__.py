@@ -28,6 +28,7 @@ from .widgets.code import Code
 from .widgets.image import Image
 from .widgets.textbox import TextBox
 from .widgets.textinput import TextInput
+from .widgets.slider import Slider
 
 
 __all__ = [
@@ -56,4 +57,5 @@ AVAILABLE_COMPONENTS = {
     _("TextBox"): TextBox,
     _("TextInput"): TextInput,
     _("Code"): Code,
+    _("Slider"): Slider,
 }
