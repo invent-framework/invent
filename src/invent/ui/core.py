@@ -349,7 +349,7 @@ class IntegerProperty(NumericProperty):
         """
         Convert to an int.
         """
-        return int(value)
+        return int(value) if value is not None else None
 
     def validate(self, value):
         """
@@ -367,7 +367,7 @@ class FloatProperty(NumericProperty):
         """
         Convert to a float.
         """
-        return float(value)
+        return float(value) if value is not None else None
 
     def validate(self, value):
         """
@@ -783,6 +783,17 @@ class Component:
         if not vertical_position:
             container.style.setProperty("align-self", "stretch")
             self.element.style.height = "100%"
+
+    def update_attribute(self, attribute_name, attribute_value):
+        """
+        Convenience method to update an HTML attribute on self.element. If
+        the attribute_value is false-y, the attribute is removed.
+        Otherwise, the named attribute is set to the given value.
+        """
+        if attribute_value:
+            self.element.setAttribute(attribute_name, str(attribute_value))
+        else:
+            self.element.removeAttribute(attribute_name)
 
 
 class Widget(Component):
