@@ -88,7 +88,9 @@ class App:
         return __app__
 
     def get_page_by_name(self, page_name):
-        """Return the page with the specified name or None if no such page exists."""
+        """
+        Return the page with the specified name or None if no such page exists.
+        """
 
         for page in self.content:
             if page.name == page_name:

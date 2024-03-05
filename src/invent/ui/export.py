@@ -72,10 +72,10 @@ invent.subscribe(
 """
 
 
-# Contents/templates for index.html, main.py and pyscript.toml files ###################
+# Contents/templates for index.html, main.py and pyscript.toml files ##########
 
 
-INDEX_HTML = """
+INDEX_HTML = """  # noqa
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -102,19 +102,19 @@ INDEX_HTML = """
 MAIN_PY_TEMPLATE = """
 {imports}
 
-# Datastore ############################################################################
+# Datastore ##################################################################
 
 {datastore}
 
-# Code #################################################################################
+# Code #######################################################################
 
 {code}
 
-# User Interface #######################################################################
+# User Interface #############################################################
 
 {app}
 
-# GO! ##################################################################################
+# GO! ########################################################################
 
 invent.go()
 
@@ -178,11 +178,11 @@ def as_pyscript_app(
     return index_html, main_py, pyscript_toml
 
 
-# Internal #############################################################################
+# Internal ###################################################################
 
 
-# The {pages} indentation looks weird in this template, but the actual indentation is
-# handled in the pretty repr functions :)
+# The {pages} indentation looks weird in this template, but the actual
+# indentation is handled in the pretty repr functions :)
 APP_TEMPLATE = """
 App(
     name='{name}',
@@ -214,8 +214,8 @@ def _pretty_repr_pages(pages):
 def _pretty_repr_component(component, lines, indent=""):
     """Generate a pretty repr of a Component.
 
-    Creating it line-by-line makes it easier to format it nicely (with commas only
-    where necessary etc. :) ). Maybe we should just use a formatter :)
+    Creating it line-by-line makes it easier to format it nicely (with commas
+    only where necessary etc. :) ). Maybe we should just use a formatter :)
 
     """
 
@@ -241,9 +241,10 @@ def _pretty_repr_component_properties(component, lines, indent):
     """Generate a pretty repr of a Component's properties."""
 
     for property_name, property_obj in type(component).properties().items():
-        # If the component is a Container, we deal with its content separately (for the
-        # recursive case). A Widget may well define its own custom "content" property
-        # though, so we handle that just like any other property.
+        # If the component is a Container, we deal with its content separately
+        # (for the recursive case). A Widget may well define its own custom
+        # "content" property though, so we handle that just like any other
+        # property.
         if isinstance(component, Container) and property_name == "content":
             continue
 
@@ -274,6 +275,9 @@ def _pretty_repr_container_content_property(component, lines, indent):
 
 
 def _get_from_datastore(component, property_name):
-    """Return the "from_datastore" instance for a property or None if it is a simple/literal property."""
+    """
+    Return the "from_datastore" instance for a property or None if it is a
+    simple/literal property.
+    """
 
     return getattr(component, f"_{property_name}_from_datastore", None)

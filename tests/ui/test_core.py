@@ -551,7 +551,7 @@ def test_component_init_with_given_values():
         def render(self):
             return document.createElement("div")
 
-    tc = core.TestComponent(name="test1", id="12345", position="TOP-LEFT")
+    tc = TestComponent(name="test1", id="12345", position="TOP-LEFT")
     assert tc.name == "test1"
     assert tc.id == "12345"
     assert tc.position == "TOP-LEFT"
@@ -561,20 +561,32 @@ def test_component_init_with_no_values():
     """
     Initialisation with no defaults ensures they are generated for the user.
     """
-    c = core.Component()
-    assert c.name == "Component 1"
-    assert c.id is not None
-    c2 = core.Component()
-    assert c2.name == "Component 2"
-    assert c2.id is not None
+
+    class TestComponent(core.Component):
+
+        def render(self):
+            return document.createElement("div")
+
+    tc = TestComponent()
+    assert tc.name == "TestComponent 1"
+    assert tc.id is not None
+    tc2 = TestComponent()
+    assert tc2.name == "TestComponent 2"
+    assert tc2.id is not None
 
 
 def test_component_get_component_by_id():
     """
     Once a component is created, it's possible to retrieve it directly via id.
     """
-    c = core.Component()
-    assert core.Component.get_component_by_id(c.id) == c
+
+    class TestComponent(core.Component):
+
+        def render(self):
+            return document.createElement("div")
+
+    tc = TestComponent()
+    assert TestComponent.get_component_by_id(tc.id) == tc
 
 
 def test_component_properties():
@@ -664,7 +676,7 @@ def test_component_blueprint():
     assert result["properties"]["channel"]["property_type"] == "TextProperty"
     assert result["properties"]["channel"]["default_value"] is None
     assert result["properties"]["position"]["property_type"] == "TextProperty"
-    assert result["properties"]["position"]["default_value"] is None
+    assert result["properties"]["position"]["default_value"] is "FILL"
     assert result["properties"]["foo"]["property_type"] == "TextProperty"
     assert result["properties"]["foo"]["default_value"] == "bar"
     assert (
@@ -705,7 +717,10 @@ def test_component_as_dict():
             ],
         )
 
-    w = MyWidget("a test widget")
+        def render(self):
+            return document.createElement("div")
+
+    w = MyWidget()
     result = w.as_dict()
     assert result["type"] == "MyWidget"
     assert result["properties"]["foo"] == "bar"
@@ -718,13 +733,19 @@ def test_widget_init_defaults():
     Ensure an instance of a Widget class has a default id, position and
     channel.
     """
-    w = core.Widget(name="test")
+
+    class MyWidget(core.Widget):
+
+        def render(self):
+            return document.createElement("div")
+
+    w = MyWidget(name="test")
     # There is a default id of the expected default "shape".
     assert w.id is not None
     assert w.id.startswith("invent-")
     assert len(w.id[7:]) == 10
-    # The default position is top left.
-    assert w.position == "TOP-LEFT"
+    # The default position is FILL.
+    assert w.position == "FILL"
     # The default channel for widget related messages is the same as
     # the widget's name.
     assert w.channel == "test"
@@ -734,7 +755,13 @@ def test_widget_init_override():
     """
     It's possible to override the default values for id, position and channel.
     """
-    w = core.Widget(
+
+    class MyWidget(core.Widget):
+
+        def render(self):
+            return document.createElement("div")
+
+    w = MyWidget(
         name="test", id="foo", position="FILL", channel="test_channel"
     )
     assert w.id == "foo"
@@ -754,6 +781,9 @@ def test_widget_publish():
             "Send a ping.", strength="Strength of ping"
         )
 
+        def render(self):
+            return document.createElement("div")
+
     with mock.patch("invent.publish") as mock_publish:
         w = MyWidget()
         w.publish("ping", strength=100)
@@ -766,7 +796,13 @@ def test_widget_parse_position():
     Any valid definition of a widget's position should result in the correct
     horizontal and vertical values.
     """
-    w = core.Widget(name="test widget")
+
+    class MyWidget(core.Widget):
+
+        def render(self):
+            return document.createElement("div")
+
+    w = MyWidget(name="test widget")
     w.element = document.createElement("div")
     container = document.createElement("div")
     container.appendChild(w.element)
@@ -789,7 +825,13 @@ def test_widget_set_position_fill():
     Ensure the widget's element has the CSS width and height set to the
     expected value of 100%.
     """
-    w = core.Widget(position="FILL")
+
+    class MyWidget(core.Widget):
+
+        def render(self):
+            return document.createElement("div")
+
+    w = MyWidget(position="FILL")
     w.element = document.createElement("div")
     container = document.createElement("div")
     container.appendChild(w.element)
@@ -803,6 +845,12 @@ def test_widget_set_position():
     The widget's container has the expected alignment/justify value set for
     each combination of the valid horizontal and vertical positions.
     """
+
+    class MyWidget(core.Widget):
+
+        def render(self):
+            return document.createElement("div")
+
     expected_vertical = {
         "TOP": "start",
         "MIDDLE": "center",
@@ -817,7 +865,7 @@ def test_widget_set_position():
     }
     for h_key, h_val in expected_horizontal.items():
         for v_key, v_val in expected_vertical.items():
-            w = core.Widget()
+            w = MyWidget()
             w.element = document.createElement("div")
             container = document.createElement("div")
             container.appendChild(w.element)

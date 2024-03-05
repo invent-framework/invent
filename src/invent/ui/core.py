@@ -122,8 +122,10 @@ class from_datastore:  # NOQA
         self.with_function = with_function
 
     def __repr__(self):
-        """Create the expression for a property that gets its value from the datastore."""
-
+        """
+        Create the expression for a property that gets its value from the
+        datastore.
+        """
         expression = f"from_datastore('{self.key}'"
         if self.with_function:
             expression += f", with_function={self.with_function.__name__}"
@@ -805,6 +807,15 @@ class Widget(Component):
         "A comma separated list of channels to which the widget broadcasts."
     )
 
+    def __init__(self, **kwargs):
+        """
+        Ensure the widget's channel defaults to the name of the widget if not
+        explicitly set in the kwargs.
+        """
+        super().__init__(**kwargs)
+        if self.channel is None:
+            self.channel = self.name
+
     def publish(self, blueprint, **kwargs):
         """
         Given the name of one of the class's MessageBlueprints, publish
@@ -1056,7 +1067,7 @@ class Row(Container):
 
     @classmethod
     def preview(cls):
-        return '<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 256 256"><path fill="currentColor" d="M208 136H48a16 16 0 0 0-16 16v40a16 16 0 0 0 16 16h160a16 16 0 0 0 16-16v-40a16 16 0 0 0-16-16m0 56H48v-40h160zm0-144H48a16 16 0 0 0-16 16v40a16 16 0 0 0 16 16h160a16 16 0 0 0 16-16V64a16 16 0 0 0-16-16m0 56H48V64h160z"/></svg>'  #noqa
+        return '<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 256 256"><path fill="currentColor" d="M208 136H48a16 16 0 0 0-16 16v40a16 16 0 0 0 16 16h160a16 16 0 0 0 16-16v-40a16 16 0 0 0-16-16m0 56H48v-40h160zm0-144H48a16 16 0 0 0-16 16v40a16 16 0 0 0 16 16h160a16 16 0 0 0 16-16V64a16 16 0 0 0-16-16m0 56H48V64h160z"/></svg>'  # noqa
 
     def append(self, item):
         """
