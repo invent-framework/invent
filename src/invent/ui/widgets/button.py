@@ -21,6 +21,7 @@ limitations under the License.
 from invent.ui.core import (
     Widget,
     TextProperty,
+    BooleanProperty,
     ChoiceProperty,
     MessageBlueprint,
 )

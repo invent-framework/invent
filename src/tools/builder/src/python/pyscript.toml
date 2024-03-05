@@ -31,3 +31,4 @@
 "{INVENT}/ui/widgets/textbox.py"="{INVENT_TO}/ui/widgets/textbox.py"
 "{INVENT}/ui/widgets/textinput.py"="{INVENT_TO}/ui/widgets/textinput.py"
 "{INVENT}/ui/widgets/slider.py"="{INVENT_TO}/ui/widgets/slider.py"
+"{INVENT}/ui/widgets/audio.py"="{INVENT_TO}/ui/widgets/audio.py"

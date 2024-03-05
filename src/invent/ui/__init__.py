@@ -29,6 +29,7 @@ from .widgets.image import Image
 from .widgets.textbox import TextBox
 from .widgets.textinput import TextInput
 from .widgets.slider import Slider
+from .widgets.audio import Audio
 
 
 __all__ = [
@@ -58,4 +59,5 @@ AVAILABLE_COMPONENTS = {
     _("TextInput"): TextInput,
     _("Code"): Code,
     _("Slider"): Slider,
+    _("Audio"): Audio,
 }

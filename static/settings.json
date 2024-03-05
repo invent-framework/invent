@@ -21,6 +21,7 @@
         "{INVENT}/ui/widgets/textinput.py": "{INVENT_TO}/ui/widgets/textinput.py",
         "{INVENT}/ui/widgets/code.py": "{INVENT_TO}/ui/widgets/code.py",
         "{INVENT}/ui/widgets/slider.py": "{INVENT_TO}/ui/widgets/slider.py",
+        "{INVENT}/ui/widgets/audio.py": "{INVENT_TO}/ui/widgets/audio.py",
         "{TESTS}": "../tests",
         "{TESTS_TO}": "./tests",
         "{TESTS}/__init__.py": "{TESTS_TO}/__init__.py",
