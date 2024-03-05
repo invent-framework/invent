@@ -23,6 +23,7 @@ from .app import App
 from .core import Widget, Container, Column, Row, from_datastore
 from .page import Page
 from .utils import random_id, sanitize
+from .widgets.audio import Audio
 from .widgets.button import Button
 from .widgets.code import Code
 from .widgets.image import Image
@@ -43,7 +44,9 @@ __all__ = [
     "Column",
     "Row",
     "from_datastore",
+    "Audio",
     "Button",
+    "Code",
     "Image",
     "TextBox",
     "TextInput",
