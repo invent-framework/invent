@@ -1,15 +1,62 @@
 """
-A minimal button.
+A button widget for the Invent framework.
+
+Based on original pre-COVID work by [Nicholas H.Tollervey.](https://ntoll.org/)
+
+Copyright (c) 2024 Invent contributors.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
 """
 
-from invent.ui.core import Widget, TextProperty, MessageBlueprint
+from invent.ui.core import (
+    Widget,
+    TextProperty,
+    ChoiceProperty,
+    MessageBlueprint,
+)
 from pyscript import document
 
 
 class Button(Widget):
+    """
+    A button. Press it.
+
+    Can be large, medium (default) or small in size. It's also possible to
+    define the button's purpose as a default, primary, secondary, success,
+    warning or danger button.
+    """
+
     label = TextProperty("The text on the button.", default_value="Click Me")
-    size = ChoiceField("The size of the button.", default_value="MEDIUM", choices=["LARGE", "MEDIUM", "SMALL"])
-    purpose = ChoiceField("The button's purpose.", default_value="DEFAULT", choices=["DEFAULT", "PRIMARY", "SECONDARY", "SUCCESS", "WARNING", "DANGER"])
+    size = ChoiceProperty(
+        "The size of the button.",
+        default_value="MEDIUM",
+        choices=["LARGE", "MEDIUM", "SMALL"],
+    )
+    purpose = ChoiceProperty(
+        "The button's purpose.",
+        default_value="DEFAULT",
+        choices=[
+            "DEFAULT",
+            "PRIMARY",
+            "SECONDARY",
+            "SUCCESS",
+            "WARNING",
+            "DANGER",
+        ],
+    )
+    disabled = BooleanProperty(
+        "Indicates if the button is disabled.", default_value=False
+    )
 
     press = MessageBlueprint(
         "Sent when the button is pressed.",
@@ -52,6 +99,9 @@ class Button(Widget):
             self.element.classList.add("btn-warning")
         elif self.purpose == "DANGER":
             self.element.classList.add("btn-danger")
+
+    def on_disabled_changed(self):
+        self.update_attribute("disabled", self.disabled)
 
     def render(self):
         element = document.createElement("button")

@@ -31,7 +31,9 @@ from invent.ui.core import (
 
 class TextInput(Widget):
     """
-    A single line box for short amounts of text.
+    A single line box for short amounts of textual input.
+
+
     """
 
     value = TextProperty("The text in the text box.")
