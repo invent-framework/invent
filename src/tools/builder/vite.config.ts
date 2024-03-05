@@ -16,7 +16,7 @@ export default defineConfig({
   server: {
     proxy: {
       '/api/projects': {
-        target: 'https://pyscript-dev.com',
+        target: 'https://pyscript.com',
         changeOrigin: true
       }
     }

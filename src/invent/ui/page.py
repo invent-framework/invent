@@ -53,7 +53,7 @@ class Page(Column):
         """
         Make the page visible to the user.
         """
-        self.element.style.display = "block"
+        self.element.style.display = "grid"
 
     def hide(self):
         """

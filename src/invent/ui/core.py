@@ -676,7 +676,7 @@ class Component:
                 name: prop.as_dict() for name, prop in cls.properties().items()
             },
             "message_blueprints": {
-                key: value for key, value in cls.message_blueprints().items()
+                key: value.as_dict() for key, value in cls.message_blueprints().items()
             },
             "preview": cls.preview(),
         }
