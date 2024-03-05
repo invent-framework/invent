@@ -8,7 +8,10 @@ from pyscript import document
 
 class Button(Widget):
     label = TextProperty("The text on the button.", default_value="Click Me")
-    press = MessageBlueprint("Sent when the button is pressed.", button="The button that was clicked.")
+    press = MessageBlueprint(
+        "Sent when the button is pressed.",
+        button="The button that was clicked.",
+    )
 
     @classmethod
     def preview(cls):
