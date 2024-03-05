@@ -186,16 +186,17 @@ class Property:
         """
 
         if isinstance(value, from_datastore):
-            via_function = value.with_function
+            # The with_function takes the original value and returns a new
+            # "post-processed" value.
+            with_function = value.with_function
 
             def reactor(message):  # pragma: no cover
                 """
                 Set the value in the widget and call the optional
                 "on_FOO_changed" to ensure the update is visible to the user.
                 """
-                if via_function:
-                    message_value = via_function(message.value)
-
+                if with_function:
+                    message_value = with_function(message.value)
                 else:
                     message_value = message.value
 
@@ -214,8 +215,8 @@ class Property:
             # Update value to the actual value from the datastore.
             value = invent.datastore.get(value.key, self.default_value)
 
-            if via_function is not None:
-                value = via_function(value)
+            if with_function is not None:
+                value = with_function(value)
 
         # Set the value in the widget.
         setattr(obj, self.private_name, self.validate(value))
