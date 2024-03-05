@@ -2,14 +2,14 @@
 A minimal button.
 """
 
-from invent.ui.core import Widget, TextProperty, MessageBlueprint
+from invent.ui.core import Widget, ChoiceProperty, TextProperty, MessageBlueprint
 from pyscript import document
 
 
 class Button(Widget):
     label = TextProperty("The text on the button.", default_value="Click Me")
-    size = ChoiceField("The size of the button.", default_value="MEDIUM", choices=["LARGE", "MEDIUM", "SMALL"])
-    purpose = ChoiceField("The button's purpose.", default_value="DEFAULT", choices=["DEFAULT", "PRIMARY", "SECONDARY", "SUCCESS", "WARNING", "DANGER"])
+    size = ChoiceProperty("The size of the button.", default_value="MEDIUM", choices=["LARGE", "MEDIUM", "SMALL"])
+    purpose = ChoiceProperty("The button's purpose.", default_value="DEFAULT", choices=["DEFAULT", "PRIMARY", "SECONDARY", "SUCCESS", "WARNING", "DANGER"])
 
     press = MessageBlueprint(
         "Sent when the button is pressed.",
