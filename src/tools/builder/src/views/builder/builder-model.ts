@@ -195,6 +195,7 @@ export class BuilderModel extends ViewModelBase {
 			this.uploadFile(apiKey, project.id, this.createFormDataBlob('main.py', mainPy, 'application/x-python-code')),
 	  	]).then(data => {
 			window.alert("Published!")
+			window.open(project.latest.url, '_blank');
 		});
 	}
 
