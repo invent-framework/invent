@@ -147,47 +147,17 @@ export class BuilderModel extends ViewModelBase {
 		//
 		// 1) Log into psdc (prod) and generate an API Key (in your account settings).
 		// 2) Paste that API key here... it will start with "psdc_".
-		const apiKey = "YOUR PSDC API KEY GOES HERE";
+		const apiKey = "psdc_gAAAAABl4d4XdMHCcocfGpegs3y3HPJ7LTNFUmp4SHpSDMV2-ZHLce8mlYlr7-lZI2gpF-pGeJ00SFTL14iKrgV4-zymp1oSPfCBykaf4P04vJktvf3htSqE9tTYpIMdFu3KEdWcaN6HfY43M_4jDO7fpsA-fcXDLrpMedO2eANjtmGifouPUWvVzTIGilylSpDdI3i9sUFYudb2oOm4eJc-R1twB4EcdA=="
 		// 3) Put your username here :)
-		const username = "YOUR PSDC USERNAME GOES HERE";
+		const username = "mchilvers";
 		// 4) Make up the slug for a new project (or use an existing one :).
-		const projectSlug = "your-project-slug-goes-here"
+		const projectSlug = "summer-grasss"		// Yo Dudes! :)
 
-		let response = await fetch(
-			`/api/projects/${username}/${projectSlug}`,
-			{
-				method: "GET",
-				headers: {
-					"Authorization": `Bearer ${apiKey}`,
-				}
-			}
-		);
-
-		if (response.status === 404) {
-			const jsonData = {
-				name: projectSlug,
-				description: "Testing, 1, 2, 3...",
-				type: "app"
-			};
-
-			response = await fetch(
-				`/api/projects/`,
-				{
-					method: "POST",
-					headers: {
-						"Authorization": `Bearer ${apiKey}`,
-						'Content-Type': 'application/json',
-					},
-					body: JSON.stringify(jsonData)
-				}
-			);
+		// Get/create the project.
+		let project = await this.getProject(apiKey, username, projectSlug);
+		if (project === null) {
+			project = await this.createProject(apiKey, projectSlug, "Invent Demo", "app");
 		}
-
-		if (response.status !== 200) {
-			throw await response.json();
-		}
-
-		const project = await response.json();
 
 		await Promise.all([
 		    this.uploadFile(apiKey, project.id, this.createFormDataBlob('index.html', indexHtml, 'text/html')),
@@ -234,6 +204,51 @@ export class BuilderModel extends ViewModelBase {
 		return formData;
 	}
 
+	public async getProject(apiKey: string, username: string, projectSlug: string) {
+		const response = await fetch(
+			`/api/projects/${username}/${projectSlug}`,
+			{
+				method: "GET",
+				headers: {
+					"Authorization": `Bearer ${apiKey}`,
+				}
+			}
+		);
+		if (response.status === 404) {
+			return null;
+		}
+
+		const result = await response.json();
+		if (response.status != 200) {
+			throw result;
+		}
+
+		return result;
+	}
+
+	public async createProject(apiKey: string, name: string, description: string, type: string) {
+		const response = await fetch(
+			`/api/projects/`,
+			{
+				method: "POST",
+				headers: {
+					"Authorization": `Bearer ${apiKey}`,
+					'Content-Type': 'application/json',
+				},
+				body: JSON.stringify({
+					name, description, type
+				})
+			}
+		);
+
+		const result = await response.json();
+		if (response.status != 200) {
+			throw result;
+		}
+
+		return result;
+	}
+
 	public async uploadFile(apiKey: string, projectId: string, formData: FormData): Promise<any> {
 		const endpoint = `/api/projects/${projectId}/files?overwrite=True`;
 		const response = await fetch(endpoint, {
@@ -243,6 +258,13 @@ export class BuilderModel extends ViewModelBase {
 				"Authorization": `Bearer ${apiKey}`,
 			},
 	  	});
+
+		const result = await response.json();
+		if (response.status != 200) {
+			throw result;
+		}
+
+		return result;
 	}
 }
 
