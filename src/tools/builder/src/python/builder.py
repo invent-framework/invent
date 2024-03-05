@@ -112,8 +112,6 @@ class Builder:
         Create a widget from a blueprint and add it to the specified page.
         """
 
-        window.console.log(f"page: {page}")
-
         page = self._get_page_by_id(page.id)
         if page is None:
             raise ValueError(f"No such page: {page.name}")
@@ -165,7 +163,8 @@ class Builder:
         """
         Update a property on a widget (that has already been added to the page).
         """
-        window.console.log(f"update_widget_property: {widget_blueprint}, {widget_id}, {property_name} {value}")
+
+        # window.console.log(f"update_widget_property: {widget_blueprint}, {widget_id}, {property_name} {value}")
 
         component = self._get_widget_by_id(widget_id)
         setattr(component, property_name, value)

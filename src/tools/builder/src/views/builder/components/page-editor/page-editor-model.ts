@@ -15,7 +15,6 @@ class PageEditorModel extends ComponentModelBase {
 	}
 
 	public getSrcDoc(page: PageModel) : string {
-		console.log(page);
 		return `
 			<html>
 				<head>

@@ -75,7 +75,6 @@ export class BuilderModel extends ViewModelBase {
 
 	public getPages(): void {
 		this.state.pages = BuilderUtilities.getPages();
-		console.log(BuilderUtilities.getPages())
 	}
 
 	public setActivePage(page: PageModel): void {
@@ -100,8 +99,6 @@ export class BuilderModel extends ViewModelBase {
 	}
 
 	public updateWidgetProperty(key: string, value: string) {
-		window.console.log(this.state.activeWidgetProperties);
-		window.console.log(this.state.activeWidgetBlueprint);
 		BuilderUtilities.updateWidgetProperty(
 			this.state.activeWidgetBlueprint, this.state.activeWidgetId, key, value
 		);
@@ -136,38 +133,69 @@ export class BuilderModel extends ViewModelBase {
 
 	public async getPythonCode(): Promise<any> {
 		const code: string = pythonGenerator.workspaceToCode(Blockly.getMainWorkspace());
+
 		const result: any = BuilderUtilities.exportAsPyScriptApp(code);
+		const indexHtml: string  = result["index.html"];
+		const mainPy: string  = result["main.py"];
+		const pyscriptToml: string  = result["pyscript.toml"];
 
-		console.log(result["index.html"]);
-		console.log(result["main.py"]);
-		console.log(result["pyscript.toml"]);
+		console.log(indexHtml);
+		console.log(mainPy);
+		console.log(pyscriptToml);
 
-		this.downloadFiles(
-			result["index.html"],
-			result["main.py"],
-			result["pyscript.toml"]
+		// Yo Dudes! :)
+		//
+		// 1) Log into psdc (prod) and generate an API Key (in your account settings).
+		// 2) Paste that API key here... it will start with "psdc_".
+		const apiKey = "YOUR PSDC API KEY GOES HERE";
+		// 3) Put your username here :)
+		const username = "YOUR PSDC USERNAME GOES HERE";
+		// 4) Make up the slug for a new project (or use an existing one :).
+		const projectSlug = "your-project-slug-goes-here"
+
+		let response = await fetch(
+			`/api/projects/${username}/${projectSlug}`,
+			{
+				method: "GET",
+				headers: {
+					"Authorization": `Bearer ${apiKey}`,
+				}
+			}
 		);
 
-		// const response = await fetch(
-		// "https://pyscript-dev.com/api/projects/healthz",
-		// {method: "GET"}
-		// );
-		// console.log(`Status: ${response.status}`);
-		// console.log(await response.json());
+		if (response.status === 404) {
+			const jsonData = {
+				name: projectSlug,
+				description: "Testing, 1, 2, 3...",
+				type: "app"
+			};
 
-		// const apiKey = "psdc_gAAAAABleI0zc55xr4UMlABZsWQX4i_tJ7XH7SvV8vXbzeC0F62HLvADCR-hXM5JZ30pkHrbRWOg-oJX7BXE-dMIaJq3DbDX38AjXPZmXKkBfeBtlZ0_S1MscTI_8cX4LLJREQb8Fd6-Wyi-4WesU97p2d_xgYIatUWNMptfHVgnOARJY8n6C-lD4U-5jPqhn9h1bHvLVZFC-az5RH4clE5mfwazJ09HjQ==";
+			response = await fetch(
+				`/api/projects/`,
+				{
+					method: "POST",
+					headers: {
+						"Authorization": `Bearer ${apiKey}`,
+						'Content-Type': 'application/json',
+					},
+					body: JSON.stringify(jsonData)
+				}
+			);
+		}
 
-		// const response = await fetch(
-		// 	"https://pyscript-dev.com/api/projects/jdjdjdjjdjd/versions",
-		// 	{
-		// 		method: "GET",
-		// 		headers: {
-		// 			"Authorization": `Bearer ${apiKey}`,
-		// 		}
-		// 	}
-		// );
-		// console.log(`Status: ${response.status}`);
-		// console.log(await response.json());
+		if (response.status !== 200) {
+			throw await response.json();
+		}
+
+		const project = await response.json();
+
+		await Promise.all([
+		    this.uploadFile(apiKey, project.id, this.createFormDataBlob('index.html', indexHtml, 'text/html')),
+			this.uploadFile(apiKey, project.id, this.createFormDataBlob('pyscript.toml', pyscriptToml, 'application/toml')),
+			this.uploadFile(apiKey, project.id, this.createFormDataBlob('main.py', mainPy, 'application/x-python-code')),
+	  	]).then(data => {
+			window.alert("Published!")
+		});
 	}
 
 	public downloadFiles(index: string, main: string, config: string) {
@@ -194,6 +222,27 @@ export class BuilderModel extends ViewModelBase {
 		});
 	}
 
+	/**
+	 * The path argument should be relative to the project root and contain the filename.
+	 * For example: some/folder/here/file.js
+	 */
+	public createFormDataBlob(path: string, content = '', type = 'text/plain') {
+		const blobManifest = new Blob([content], { type });
+		const formData = new FormData();
+		formData.append('file', blobManifest, path);
+		return formData;
+	}
+
+	public async uploadFile(apiKey: string, projectId: string, formData: FormData): Promise<any> {
+		const endpoint = `/api/projects/${projectId}/files?overwrite=True`;
+		const response = await fetch(endpoint, {
+			method: 'POST',
+			body: formData,
+			headers: {
+				"Authorization": `Bearer ${apiKey}`,
+			},
+	  	});
+	}
 }
 
 export const view: BuilderModel = new BuilderModel();
