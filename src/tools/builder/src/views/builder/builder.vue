@@ -75,7 +75,7 @@
 
         <template #content >
             <div v-show="view.state.activeBuilderTab === 'app' && view.state.activeEditorTab === 'design'" class="h-full w-full flex">
-                <div v-if="view.state.widgets" class="h-full w-72 overflow-y-auto overflow-x-hidden bg-white border-r border-gray-300 flex-none divide-y divide-gray-200 drop-shadow-lg">
+                <div v-if="view.state.widgets" class="h-full w-72 overflow-y-auto overflow-x-hidden bg-white border-r border-gray-300 flex-none divide-y divide-gray-200">
                     <ib-accordion label="Layouts">
                         <div class="grid grid-cols-2 gap-4">
                             <widget-preview 
