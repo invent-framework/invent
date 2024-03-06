@@ -126,7 +126,7 @@ class from_datastore:  # NOQA
         Create the expression for a property that gets its value from the
         datastore.
         """
-        expression = f"from_datastore('{self.key}'"
+        expression = f'from_datastore("{self.key}"'
         if self.with_function:
             expression += f", with_function={self.with_function.__name__}"
         expression += ")"

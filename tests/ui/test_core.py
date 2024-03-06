@@ -62,10 +62,16 @@ def test_message_blueprint_as_dict():
 
 def test_from_datastore():
     """
-    Ensure this signal class has just a key attribute.
+    Ensure this signal class has a key attribute and optional with_function,
+    that is repr'd correctly into code.
     """
-    fds = core.from_datastore("foo")
+    def test_fn(val):
+        return val
+
+    fds = core.from_datastore("foo", with_function=test_fn)
     assert fds.key == "foo"
+    assert fds.with_function == test_fn
+    assert repr(fds) == 'from_datastore("foo", with_function=test_fn)'
 
 
 def test_property_init():
