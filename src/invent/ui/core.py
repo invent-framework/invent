@@ -718,7 +718,7 @@ class Component:
             "type": type(self).__name__,
             "properties": properties,
             "message_blueprints": {
-                key: value
+                key: value.as_dict()
                 for key, value in type(self).message_blueprints().items()
             },
         }
