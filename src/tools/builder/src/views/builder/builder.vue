@@ -114,13 +114,21 @@
 
                 <div class="h-full w-72 overflow-y-auto overflow-x-hidden bg-white border-l border-gray-300 p-4 flex-none">
                     <ib-v-stack v-if="view.state.activeWidgetProperties" :spacing="4">
-                        <ib-heading label="Settings" size="lg" color="gray" />
-
                         <template v-for="(property, key) in view.state.activeWidgetProperties" :key="key">
                             <ib-select 
                                 v-if="key === 'image'" 
                                 :label="key" 
                                 :options="view.getImageFiles()" 
+                                v-model="property.value"
+                                @input="view.updateWidgetProperty(key as string, $event)"
+                            />
+
+                            <ib-select 
+                                v-else-if="property.property_type === 'ChoiceProperty'" 
+                                :label="key" 
+                                :options="view.getChoicePropertyOptions(property.choices)" 
+                                v-model="property.value"
+                                @input="view.updateWidgetProperty(key as string, $event)"
                             />
 
                             <ib-input 

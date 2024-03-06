@@ -31,7 +31,7 @@
   >
     <label
       v-if="label"
-      class="block text-sm font-medium text-gray-500 mb-2 dark:text-darkGray-400"
+      class="block text-sm font-medium text-gray-500 mb-2 dark:text-darkGray-400 capitalize"
     >
       {{ label }}
       <span
@@ -43,7 +43,7 @@
     </label>
     <div class="w-full">
       <select
-        class="bg-gray-100 border-none block w-full rounded-md py-2.5 pl-4 pr-10 focus:ring-gray-300 focus:outline-none text-sm dark:bg-darkGray-950 dark:highlight-white/5 dark:text-darkGray-200 dark:focus:ring-gray-800"
+        class="bg-gray-100 border-none block w-full rounded-md px-3 py-2.5 pr-10 focus:ring-gray-300 focus:outline-none text-sm dark:bg-darkGray-950 dark:highlight-white/5 dark:text-darkGray-200 dark:focus:ring-gray-800"
         :class="error ? 'border-red-500' : 'border-gray-300'"
         @input="component.updateModelValue($event, $emit)"
       >

@@ -2,7 +2,7 @@
   <div class="w-full">
     <label
       v-if="label"
-      class="block text-sm font-medium text-gray-500 mb-2 dark:text-darkGray-400"
+      class="block text-sm font-medium text-gray-500 mb-2 dark:text-darkGray-400 capitalize"
     >
       {{ label }}
       <span

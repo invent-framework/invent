@@ -379,6 +379,15 @@ export class BuilderModel extends ViewModelBase {
 			};
 		})
 	}
+
+	public getChoicePropertyOptions(options: Array<string>): Array<IbSelectOption> {
+		return options.map((option: string) => {
+			return {
+				label: option,
+				value: option
+			}
+		})
+	}
 }
 
 export const view: BuilderModel = new BuilderModel();

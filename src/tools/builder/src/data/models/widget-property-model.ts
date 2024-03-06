@@ -6,4 +6,5 @@ export interface WidgetPropertyModel {
     value?: string;
     min_length?: number;
     max_length?: number;
+    choices: Array<string>;
 }
