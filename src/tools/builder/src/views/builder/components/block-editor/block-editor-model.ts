@@ -75,7 +75,14 @@ class BlockEditorModel extends ComponentModelBase {
 				contents: [
 					{
 						kind: "block",
-						type: "play_sound"
+						type: "play_sound",
+						inputs: {
+							file: {
+								shadow: {
+									type: "sound_files"
+								}
+							}
+						}
 					}
 				]
 			},
@@ -90,10 +97,7 @@ class BlockEditorModel extends ComponentModelBase {
 						inputs: {
 							key: {
 								shadow: {
-									type: "inline_text",
-									fields: {
-										value: "key",
-									}
+									type: "datastore_values"
 								}
 							},
 							value: {
@@ -108,14 +112,15 @@ class BlockEditorModel extends ComponentModelBase {
 					},
 					{
 						kind: "block",
+						type: "datastore_values"
+					},
+					{
+						kind: "block",
 						type: "change_datastore_value_by",
 						inputs: {
 							key: {
 								shadow: {
-									type: "inline_text",
-									fields: {
-										value: "key",
-									}
+									type: "datastore_values"
 								}
 							},
 							value: {

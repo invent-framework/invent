@@ -3,6 +3,8 @@
  */
 export enum ModalName {
 	AddPage = "AddPage",
+	AddDatastoreValue = "AddDatastoreValue",
+	AppPublished = "AppPublished",
 }
 
 /**
@@ -10,3 +12,5 @@ export enum ModalName {
  */
 export type Modal = 
  | "AddPage"
+ | "AddDatastoreValue"
+ | "AppPublished"

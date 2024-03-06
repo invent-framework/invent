@@ -14,7 +14,7 @@ class PageEditorModel extends ComponentModelBase {
 		return "page-editor";
 	}
 
-	public getSrcDoc(page: PageModel) : string {
+	public getSrcDoc() : string {
 		return `
 			<html>
 				<head>
@@ -22,21 +22,18 @@ class PageEditorModel extends ComponentModelBase {
 				    <link rel="stylesheet" href="/css/page-editor.css">
 				</head>
 				<body>
-					<div id="drop-zone-main" class="drop-zone">
-						<span>Drop Components Here</span>
-					</div>
 				</body>
 			</html>
 		`;
 	}
 
 	public onPageLoad(pages: Array<PageModel>, activePage: PageModel, addWidgetToPage: Function): void {
-		this.addDragAndDropEventListeners(pages, activePage, addWidgetToPage);
-
 		const pageEditor: HTMLIFrameElement = document.getElementById(`${activePage.id}-editor`) as HTMLIFrameElement;
 		const pageElement: HTMLElement = BuilderUtilities.getPageElementById(activePage.id);
 		pageElement.style.display = "grid";
 		pageEditor.contentDocument?.body.insertBefore(pageElement, pageEditor.contentDocument?.body.firstChild);
+
+		this.addDragAndDropEventListeners(pages, activePage, addWidgetToPage);
 	}
 
 	private addDragAndDropEventListeners(pages: Array<PageModel>, activePage: PageModel, addWidgetToPage: Function): void {
@@ -44,20 +41,27 @@ class PageEditorModel extends ComponentModelBase {
 			const iframe: HTMLIFrameElement = document.getElementById(`${page.id}-editor`) as HTMLIFrameElement;
 			
 			if (iframe.contentDocument){
-				const dropZoneMain: HTMLDivElement = iframe.contentDocument.getElementById("drop-zone-main") as HTMLDivElement;
+				const dropZoneMain: HTMLDivElement = iframe.contentDocument.createElement("div");
+				const page: HTMLDivElement = iframe.contentDocument.getElementById(activePage.id) as HTMLDivElement;
+				dropZoneMain.id = "drop-zone-main";
+				dropZoneMain.classList.add("drop-zone");
+				page.appendChild(dropZoneMain);
 
 				dropZoneMain.addEventListener("dragover", (event: DragEvent) => {
 					event.preventDefault();
+					event.stopPropagation();
 					dropZoneMain.classList.add("drop-zone-active");
 				});
 
 				dropZoneMain.addEventListener("dragleave", (event: DragEvent) => {
 					event.preventDefault();
+					event.stopPropagation();
 					dropZoneMain.classList.remove("drop-zone-active");
 				});
 
 				dropZoneMain.addEventListener("drop", (event: DragEvent) => {
 					event.preventDefault();
+					event.stopPropagation();
 
 					dropZoneMain.classList.remove("drop-zone-active");
 

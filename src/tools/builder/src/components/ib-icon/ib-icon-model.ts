@@ -39,7 +39,7 @@ class IbIconModel extends ComponentModelBase {
 				darkGray: ["text-gray-700", "dark:text-darkGray-400"],
 				white: "text-white",
 				red: "text-red-500",
-				blue: "text-blue-500",
+				purple: "text-violet-500",
 				green: "text-green-500",
 				orange: "text-orange-500"
 			},

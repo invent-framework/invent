@@ -11,6 +11,12 @@ import IbHeading from "./ib-heading/ib-heading.vue";
 import IbVStack from "./ib-v-stack/ib-v-stack.vue";
 import IbHStack from "./ib-h-stack/ib-h-stack.vue";
 import IbSlideout from "./id-slideout/ib-slideout.vue";
+import IbAccordion from "./ib-accordion/ib-accordion.vue";
+import IbRadioGroup from "./ib-radio-group/ib-radio-group.vue";
+import IbToggle from "./ib-toggle/ib-toggle.vue";
+import IbList from "./ib-list/ib-list.vue";
+import IbListItem from "./ib-list/ib-list-item.vue";
+import IbSelect from "./ib-select/ib-select.vue";
 
 /**
  * Export & install application components for use globally
@@ -28,5 +34,11 @@ export default {
 		app.component("IbVStack", IbVStack);
 		app.component("IbHStack", IbHStack);
 		app.component("IbSlideout", IbSlideout);
+		app.component("IbAccordion", IbAccordion);
+		app.component("IbRadioGroup", IbRadioGroup);
+		app.component("IbToggle", IbToggle);
+		app.component("IbList", IbList);
+		app.component("IbListItem", IbListItem);
+		app.component("IbSelect", IbSelect);
 	}
 };

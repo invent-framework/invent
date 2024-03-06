@@ -100,10 +100,18 @@ class Builder:
 
         """
         blueprints = {
-            component_klass_name: component_klass.blueprint()
-
-            for component_klass_name, component_klass in AVAILABLE_COMPONENTS.items()
+            "containers": {},
+            "widgets": {}
         }
+
+        for component_klass_name, component_klass in AVAILABLE_COMPONENTS.items():
+            if issubclass(component_klass, Container):
+                collection = "containers"
+
+            else:
+                collection = "widgets"
+
+            blueprints[collection][component_klass_name] = component_klass.blueprint()
 
         return json.dumps(blueprints)
 
@@ -176,7 +184,7 @@ class Builder:
 
     # Import/export ####################################################################
 
-    def export_as_pyscript_app(self, code) -> str:
+    def export_as_pyscript_app(self, datastore, code) -> str:
         """
         Export the Invent App as a PyScript app.
 
@@ -192,7 +200,7 @@ class Builder:
         """
 
         index_html, main_py, pyscript_toml = export.as_pyscript_app(
-            self._app, code=code
+            self._app, datastore=datastore, code=code
         )
 
         return json.dumps({

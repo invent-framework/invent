@@ -3,6 +3,7 @@ import type { WidgetsModel } from "@/data/models/widgets-model";
 import type { WidgetModel } from "@/data/models/widget-model";
 import type { PageModel } from "@/data/models/page-model";
 import { view as builder } from "@/views/builder/builder-model";
+import type { ComponentsModel } from "@/data/models/components-model";
 
  /**
  * Utility functions for the builder.
@@ -24,7 +25,7 @@ export class BuilderUtilities {
 		return JSON.parse(this.builder().add_page(name));
 	}
 
-	public static getAvailableComponents(): WidgetsModel {
+	public static getAvailableComponents(): ComponentsModel {
 		return JSON.parse(this.builder().get_available_components());
 	}
 
@@ -34,11 +35,13 @@ export class BuilderUtilities {
 		if (activePage && (widgetBlueprint.name === "Row" || widgetBlueprint.name === "Column")) {
 			widgetElement.addEventListener("dragover", (event: DragEvent) => {
 				event.preventDefault();
+				event.stopPropagation();
 				widgetElement.classList.add("drop-zone-active");
 			});
 	
 			widgetElement.addEventListener("dragleave", (event: DragEvent) => {
 				event.preventDefault();
+				event.stopPropagation();
 				widgetElement.classList.remove("drop-zone-active");
 			});
 	
@@ -75,9 +78,9 @@ export class BuilderUtilities {
 		return this.builder().export_app_as_python_code(code);
 	}
 
-	public static exportAsPyScriptApp(code: string): string {
+	public static exportAsPyScriptApp(datastore: string, code: string): string {
 		return JSON.parse(
-			this.builder().export_as_pyscript_app(code)
+			this.builder().export_as_pyscript_app(datastore, code)
 		);
 	}
 }

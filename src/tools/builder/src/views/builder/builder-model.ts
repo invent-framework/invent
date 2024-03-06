@@ -7,7 +7,10 @@ import type { WidgetModel } from "@/data/models/widget-model";
 import type { PageModel } from "@/data/models/page-model";
 import * as Blockly from 'blockly/core';
 import { pythonGenerator } from 'blockly/python';
-import JSZip from "jszip";
+import confetti from "canvas-confetti";
+import type { DatastoreValueModel } from "@/data/models/datastore-value-model";
+import type { MediaFileModel } from "@/data/models/media-file-model";
+import type { IbSelectOption } from "@/components/ib-select/ib-select-types";
 
 
 /**
@@ -131,10 +134,38 @@ export class BuilderModel extends ViewModelBase {
 		}
 	}
 
+	public getDatastoreValues(): string {
+		const datastoreCode: Array<string> = [];
+
+		Object.values(this.state.datastore).forEach((datastoreValue: DatastoreValueModel) => {
+			if (datastoreValue.temporary){
+				if (datastoreValue.type === "text"){
+					datastoreCode.push(`invent.datastore["${datastoreValue.key}"] = "${datastoreValue.default_value}"`);
+				}
+				else if (datastoreValue.type === "number"){
+					datastoreCode.push(`invent.datastore["${datastoreValue.key}"] = ${datastoreValue.default_value}`);
+				}
+			}
+			else {
+				if (datastoreValue.type === "text"){
+					datastoreCode.push(`invent.datastore.setdefault("${datastoreValue.key}", "${datastoreValue.default_value}")`);
+				}
+				else if (datastoreValue.type === "number"){
+					datastoreCode.push(`invent.datastore.setdefault("${datastoreValue.key}", ${datastoreValue.default_value})`);
+				}
+			}
+		});
+
+		return datastoreCode.join("\n");
+	}
+
 	public async getPythonCode(): Promise<any> {
+		this.state.isPublishing = true;
+
+		const datastore: string = this.getDatastoreValues();
 		const code: string = pythonGenerator.workspaceToCode(Blockly.getMainWorkspace());
 
-		const result: any = BuilderUtilities.exportAsPyScriptApp(code);
+		const result: any = BuilderUtilities.exportAsPyScriptApp(datastore, code);
 		const indexHtml: string  = result["index.html"];
 		const mainPy: string  = result["main.py"];
 		const pyscriptToml: string  = result["pyscript.toml"];
@@ -160,36 +191,24 @@ export class BuilderModel extends ViewModelBase {
 		}
 
 		await Promise.all([
+			this.uploadMediaFiles(apiKey, project.id),
 		    this.uploadFile(apiKey, project.id, this.createFormDataBlob('index.html', indexHtml, 'text/html')),
 			this.uploadFile(apiKey, project.id, this.createFormDataBlob('pyscript.toml', pyscriptToml, 'application/toml')),
 			this.uploadFile(apiKey, project.id, this.createFormDataBlob('main.py', mainPy, 'application/x-python-code')),
-	  	]).then(data => {
-			window.alert("Published!")
-			window.open(project.latest.url, '_blank');
-		});
-	}
+	  	]).then(() => {
+			confetti({
+				particleCount: 100,
+				spread: 200
+			});
+	
+			ModalUtilities.showModal({
+				modal: "AppPublished",
+				options: {
+					url: project.latest.url
+				}
+			});
 
-	public downloadFiles(index: string, main: string, config: string) {
-		const zip = new JSZip();
-
-		// Add files to the zip
-		zip.file("index.html", index);
-		zip.file("main.py", main);
-		zip.file("pyscript.toml", config);
-		// Add more files as needed
-
-		// Generate the zip file asynchronously
-		zip.generateAsync({type:"blob"}).then(function(content: any) {
-			// Create a dummy anchor element
-			const link = document.createElement("a");
-			link.download = "invent.zip"; // The name of the zip file
-			link.href = URL.createObjectURL(content);
-			link.click(); // Simulate a click on the link
-
-			// Clean up
-			setTimeout(function() {
-				URL.revokeObjectURL(link.href);
-			}, 100);
+			this.state.isPublishing = false;
 		});
 	}
 
@@ -201,6 +220,12 @@ export class BuilderModel extends ViewModelBase {
 		const blobManifest = new Blob([content], { type });
 		const formData = new FormData();
 		formData.append('file', blobManifest, path);
+		return formData;
+	}
+
+	public createFormDataFromBlob(path: string, blob: Blob) {
+		const formData = new FormData();
+		formData.append('file', blob, path);
 		return formData;
 	}
 
@@ -265,6 +290,93 @@ export class BuilderModel extends ViewModelBase {
 		}
 
 		return result;
+	}
+
+	public async uploadMediaFiles(apiKey: string, projectId: string): Promise<void> {
+		const files: Array<Promise<void>> = Object.values(this.state.media).map(async (file: MediaFileModel) => {
+			let mediaFolder: string = "";
+
+			if (file.type.startsWith('image')){
+				mediaFolder = "images";
+			}
+			else if (file.type.startsWith('audio')){
+				mediaFolder = "sounds";
+			}
+			else if (file.type.startsWith('video')){
+				mediaFolder = "videos";
+			}
+
+			const formData: FormData = this.createFormDataFromBlob(`media/${mediaFolder}/${file.name}`, file.file);
+			this.uploadFile(apiKey, projectId, formData);
+		});
+
+		await Promise.all(files);
+	}
+
+	public onBuilderTabClicked(tab: string) {
+		this.state.activeBuilderTab = tab;
+	}
+
+	public getBuilderTabColor(key: string): string { 
+		return this.state.activeBuilderTab === key ? 'gray' : 'transparent';
+	}
+
+	public onAddDatastoreValueClicked(): void {
+		ModalUtilities.showModal({
+			modal: "AddDatastoreValue",
+			options: {
+				onAddValue: (isValid: boolean, datastoreValue: DatastoreValueModel): void => {
+					if (isValid){
+						this.state.datastore[datastoreValue.key] = datastoreValue;
+						ModalUtilities.closeModal();
+					}
+				}
+			}
+		})
+	}
+
+	public uploadMediaFile(): void {
+		// Create file input in order to open file chooser.
+		const fileInput: HTMLInputElement = document.createElement("input");
+		fileInput.type = "file";
+		fileInput.accept = ".png, .jpg, .gif, .jpeg, .mp3, .wav, .mp4, .mov";
+
+		// Runs when the user chooses a file.
+		fileInput.addEventListener("change", (event: Event) => {
+			const target: HTMLInputElement = event.target as HTMLInputElement;
+			const reader: FileReader = new FileReader();
+
+			reader.addEventListener("load", (event: ProgressEvent<FileReader>) => {
+				// Parse JSON file and then open the editor with its contents.
+				if (event.target && target.files) {
+					const file: File = target.files[0];
+					this.state.media[file.name] = {
+						name: file.name,
+						type: file.type,
+						file
+					}
+				}
+			});
+
+			// Trigger reading the uploaded files.
+			if (target.files) {
+				reader.readAsDataURL(target.files[0]);
+			}
+		});
+
+		// Click on the file input to open a file chooser.
+		fileInput.click();
+	}
+
+	public getImageFiles(): Array<IbSelectOption> {
+		return Object.values(this.state.media).filter((file: MediaFileModel) => {
+			return file.type.startsWith('image')
+		}).map((file: MediaFileModel) => {
+			return {
+				label: file.name,
+				value: file.name
+			};
+		})
 	}
 }
 

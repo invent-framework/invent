@@ -4,5 +4,5 @@ export interface WidgetModel {
     name: string;
     properties: WidgetPropertiesModel;
     message_blueprints: Array<string>;
-    preview: string;
+    icon: string;
 }

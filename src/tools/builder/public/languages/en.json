@@ -4,6 +4,9 @@
         "add": "Add",
         "settings": "Settings"
     },
+    "validation": {
+        "required": "{1} is required"
+    },
     "add-widget": {
         "submit": "Submit",
         "cancel": "Cancel"
@@ -14,5 +17,17 @@
         "enter-page-name": "Enter your new page's unique name.",
         "add": "Add",
         "cancel": "Cancel"
+    },
+    "add-datastore-value": {
+        "key": "Key",
+        "type": "Type",
+        "text": "Text",
+        "number": "Number",
+        "add": "Add",
+        "cancel": "Cancel",
+        "enter-key": "Enter your new value's unique key.",
+        "default-value": "Default value",
+        "enter-default-value": "Enter default value.",
+        "temporary-value": "Temporary value?"
     }
 }
