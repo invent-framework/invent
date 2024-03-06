@@ -75,7 +75,7 @@ invent.subscribe(
 # Contents/templates for index.html, main.py and pyscript.toml files ##########
 
 
-INDEX_HTML = """  # noqa
+INDEX_HTML = """
 <!DOCTYPE html>
 <html lang="en">
 <head>
