@@ -98,6 +98,7 @@ export class BuilderModel extends ViewModelBase {
 		this.state.activeWidgetProperties = BuilderUtilities.getWidgetProperties(
 			widgetBlueprint, widgetRef
 		);
+		console.log(this.state.activeWidgetProperties);
 		this.state.activeWidgetBlueprint = widgetBlueprint;
 	}
 

@@ -75,8 +75,8 @@
 
         <template #content >
             <div v-show="view.state.activeBuilderTab === 'app' && view.state.activeEditorTab === 'design'" class="h-full w-full flex">
-                <div v-if="view.state.widgets" class="h-full w-72 overflow-y-auto overflow-x-hidden bg-white border-r border-gray-200 flex-none divide-y divide-gray-200">
-                    <ib-accordion label="Containers">
+                <div v-if="view.state.widgets" class="h-full w-72 overflow-y-auto overflow-x-hidden bg-white border-r border-gray-300 flex-none divide-y divide-gray-200 drop-shadow-lg">
+                    <ib-accordion label="Layouts">
                         <div class="grid grid-cols-2 gap-4">
                             <widget-preview 
                                 v-for="container in view.state.widgets.containers" 
@@ -112,7 +112,7 @@
                     />
                 </div>
 
-                <div class="h-full w-72 overflow-y-auto overflow-x-hidden bg-white border-r border-gray-200 p-4 flex-none">
+                <div class="h-full w-72 overflow-y-auto overflow-x-hidden bg-white border-l border-gray-300 p-4 flex-none">
                     <ib-v-stack v-if="view.state.activeWidgetProperties" :spacing="4">
                         <ib-heading label="Settings" size="lg" color="gray" />
 
