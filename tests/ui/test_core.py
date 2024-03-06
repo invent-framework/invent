@@ -800,6 +800,20 @@ def test_component_update_attribute():
     assert w.element.hasAttributes() is False
 
 
+def test_component_default_icon():
+    """
+    The SVG image returned by the Component's icon class method (to be
+    overridden by children), is the expected default safe catch-all image.
+    """
+
+    class TestComponent(core.Component):
+
+        def render(self):
+            return document.createElement("div")
+
+    assert TestComponent.icon() == core._DEFAULT_ICON
+
+
 def test_widget_init_defaults():
     """
     Ensure an instance of a Widget class has a default id, position and
