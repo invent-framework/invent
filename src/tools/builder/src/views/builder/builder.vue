@@ -149,7 +149,7 @@
                         <ib-button label="Add" :icon="['fas', 'plus']" @click="view.onAddDatastoreValueClicked()" />
                     </ib-h-stack>
 
-                    <ib-list>
+                    <ib-list v-if="Object.values(view.state.datastore).length > 0">
                         <ib-list-item 
                             v-for="value in view.state.datastore" 
                             :key="value.key" 
@@ -158,6 +158,12 @@
                             :subtitle="`Default Value: ${value.default_value}`" 
                         />
                     </ib-list>
+
+                    <ib-empty-state 
+                        v-else
+                        :title="view.getText('nothing-to-see-here')" 
+                        :subtitle="view.getText('click-add')" 
+                    />
                 </div>
             </div>
 
@@ -166,10 +172,10 @@
                     <ib-h-stack align-x="center" justify-content="between">
                         <ib-heading label="Media" size="2xl" color="gray" />
 
-                        <ib-button label="Upload" :icon="['fas', 'file-upload']" @click="view.uploadMediaFile()" />
+                        <ib-button label="Add" :icon="['fas', 'plus']" @click="view.uploadMediaFile()" />
                     </ib-h-stack>
 
-                    <ib-list>
+                    <ib-list v-if="Object.values(view.state.media).length > 0">
                         <ib-list-item 
                             v-for="file in view.state.media" 
                             :key="file.name" 
@@ -178,6 +184,12 @@
                             :subtitle="file.type" 
                         />
                     </ib-list>
+
+                    <ib-empty-state 
+                        v-else
+                        :title="view.getText('nothing-to-see-here')" 
+                        :subtitle="view.getText('click-add')" 
+                    />
                 </div>
             </div>
 

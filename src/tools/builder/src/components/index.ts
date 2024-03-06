@@ -17,6 +17,7 @@ import IbToggle from "./ib-toggle/ib-toggle.vue";
 import IbList from "./ib-list/ib-list.vue";
 import IbListItem from "./ib-list/ib-list-item.vue";
 import IbSelect from "./ib-select/ib-select.vue";
+import IbEmptyState from "./ib-empty-state/ib-empty-state.vue";
 
 /**
  * Export & install application components for use globally
@@ -40,5 +41,6 @@ export default {
 		app.component("IbList", IbList);
 		app.component("IbListItem", IbListItem);
 		app.component("IbSelect", IbSelect);
+		app.component("IbEmptyState", IbEmptyState);
 	}
 };

@@ -2,7 +2,9 @@
     "builder": {
         "widgets": "Widgets",
         "add": "Add",
-        "settings": "Settings"
+        "settings": "Settings",
+        "nothing-to-see-here": "Nothing to see here",
+        "click-add": "Click the Add button to get started"
     },
     "validation": {
         "required": "{1} is required"
