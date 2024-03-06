@@ -706,7 +706,7 @@ def test_component_blueprint():
         )
 
         @classmethod
-        def preview(cls):
+        def icon(cls):
             return "<button>Click me!</button>"
 
     result = MyWidget.blueprint()
@@ -730,6 +730,7 @@ def test_component_blueprint():
         == "ChoiceProperty"
     )
     assert result["properties"]["favourite_colour"]["default_value"] == "black"
+    assert result["icon"] == "<button>Click me!</button>"
 
 
 def test_component_as_dict():
@@ -767,6 +768,36 @@ def test_component_as_dict():
     assert result["properties"]["foo"] == "bar"
     assert result["properties"]["numberwang"] == 42
     assert result["properties"]["favourite_colour"] == "black"
+
+
+def test_component_update_attribute():
+    """
+    Ensure the referenced attribute is updated and removed as expected.
+    """
+    class MyWidget(core.Widget):
+        """
+        A test widget.
+        """
+
+        foo = core.TextProperty("This is a foo", default_value="bar")
+
+        def render(self):
+            return document.createElement("div")
+
+    w = MyWidget()
+    # There is no attribute called "test" on the widget's element.
+    w.element.removeAttribute("id")
+    w.element.removeAttribute("name")
+    assert w.element.hasAttributes() is False
+    # Update an attribute (add it).
+    w.update_attribute("test", "yes")
+    assert w.element.getAttribute("test") == "yes"
+    # Update an attribute (change it).
+    w.update_attribute("test", "yes2")
+    assert w.element.getAttribute("test") == "yes2"
+    # Update an attribute (remove it because it is false-y).
+    w.update_attribute("test", "")
+    assert w.element.hasAttributes() is False
 
 
 def test_widget_init_defaults():
