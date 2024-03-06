@@ -35,4 +35,6 @@ export class BuilderState {
 	public media: MediaModel = {};
 
 	public isPublishing: boolean = false;
+
+	public project: any;
 }

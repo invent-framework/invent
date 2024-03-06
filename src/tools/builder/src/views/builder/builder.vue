@@ -180,7 +180,7 @@
                     <ib-h-stack align-x="center" justify-content="between">
                         <ib-heading label="Media" size="2xl" color="gray" />
 
-                        <ib-button label="Add" :icon="['fas', 'plus']" @click="view.uploadMediaFile()" />
+                        <ib-button label="Add" :icon="['fas', 'plus']" @click="view.onAddMediaFile()" />
                     </ib-h-stack>
 
                     <ib-list v-if="Object.values(view.state.media).length > 0">

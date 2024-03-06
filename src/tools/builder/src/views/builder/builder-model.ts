@@ -24,16 +24,28 @@ export class BuilderModel extends ViewModelBase {
 		return "builder";
 	}
 
+	private apiKey = "psdc_gAAAAABl5zj-GCPoqFRv62GrpO8ud1mZhz_bbMTXSwwd1WR0ayuaiFLl15WnafvFiKMQEULC1YdSLOu4P8PEr5Cj8WPTJq2w0bgZsusOIur9UKf17tIsSlRHrDDEWLpHD1GSooHYvLNyLDFfoGDPEd50pfdoKDy8F7K3plvTjQfEC5lGnNjKt53uKlrwrEFJmLiGiV9-U4TD_uNUOAwnnIHOxMtZ0UI-MQ==";
+	private username = "joshualowe1002";
+	private projectSlug = "invent-demo";
+
 	/**
 	 * Reactive instance of the view state.
 	 */
 	public state: BuilderState = reactive(new BuilderState());
 
 
-	public init(): void {
+	public async init(): Promise<void> {
+		await this.setupProject();
 		this.getPages();
 		this.setDefaultPage();
 		this.getAvailableComponents();
+	}
+
+	private async setupProject(): Promise<void> {
+		this.state.project = await this.getProject();
+		if (this.state.project === null) {
+			this.state.project = await this.createProject("Invent Demo", "app");
+		}
 	}
 
 	/**
@@ -175,27 +187,10 @@ export class BuilderModel extends ViewModelBase {
 		console.log(mainPy);
 		console.log(pyscriptToml);
 
-		// Yo Dudes! :)
-		//
-		// 1) Log into psdc (prod) and generate an API Key (in your account settings).
-		// 2) Paste that API key here... it will start with "psdc_".
-		const apiKey = "YOUR API KEY GOES HERE"
-		// 3) Put your username here :)
-		const username = "YOUR USERNAME GOES HERE";
-		// 4) Make up the slug for a new project (or use an existing one :).
-		const projectSlug = "your-project-slug-goes-here"		// Yo Dudes! :)
-
-		// Get/create the project.
-		let project = await this.getProject(apiKey, username, projectSlug);
-		if (project === null) {
-			project = await this.createProject(apiKey, projectSlug, "Invent Demo", "app");
-		}
-
 		await Promise.all([
-			this.uploadMediaFiles(apiKey, project.id),
-		    this.uploadFile(apiKey, project.id, this.createFormDataBlob('index.html', indexHtml, 'text/html')),
-			this.uploadFile(apiKey, project.id, this.createFormDataBlob('pyscript.toml', pyscriptToml, 'application/toml')),
-			this.uploadFile(apiKey, project.id, this.createFormDataBlob('main.py', mainPy, 'application/x-python-code')),
+		    this.uploadFile(this.createFormDataBlob('index.html', indexHtml, 'text/html')),
+			this.uploadFile(this.createFormDataBlob('pyscript.toml', pyscriptToml, 'application/toml')),
+			this.uploadFile(this.createFormDataBlob('main.py', mainPy, 'application/x-python-code')),
 	  	]).then(() => {
 			confetti({
 				particleCount: 100,
@@ -205,7 +200,7 @@ export class BuilderModel extends ViewModelBase {
 			ModalUtilities.showModal({
 				modal: "AppPublished",
 				options: {
-					url: project.latest.url
+					url: this.state.project.latest.url
 				}
 			});
 
@@ -230,13 +225,13 @@ export class BuilderModel extends ViewModelBase {
 		return formData;
 	}
 
-	public async getProject(apiKey: string, username: string, projectSlug: string) {
+	public async getProject() {
 		const response = await fetch(
-			`/api/projects/${username}/${projectSlug}`,
+			`/api/projects/${this.username}/${this.projectSlug}`,
 			{
 				method: "GET",
 				headers: {
-					"Authorization": `Bearer ${apiKey}`,
+					"Authorization": `Bearer ${this.apiKey}`,
 				}
 			}
 		);
@@ -252,17 +247,17 @@ export class BuilderModel extends ViewModelBase {
 		return result;
 	}
 
-	public async createProject(apiKey: string, name: string, description: string, type: string) {
+	public async createProject(description: string, type: string) {
 		const response = await fetch(
 			`/api/projects/`,
 			{
 				method: "POST",
 				headers: {
-					"Authorization": `Bearer ${apiKey}`,
+					"Authorization": `Bearer ${this.apiKey}`,
 					'Content-Type': 'application/json',
 				},
 				body: JSON.stringify({
-					name, description, type
+					name: this.projectSlug, description, type
 				})
 			}
 		);
@@ -275,13 +270,13 @@ export class BuilderModel extends ViewModelBase {
 		return result;
 	}
 
-	public async uploadFile(apiKey: string, projectId: string, formData: FormData): Promise<any> {
-		const endpoint = `/api/projects/${projectId}/files?overwrite=True`;
+	public async uploadFile(formData: FormData): Promise<any> {
+		const endpoint = `/api/projects/${this.state.project.id}/files?overwrite=True`;
 		const response = await fetch(endpoint, {
 			method: 'POST',
 			body: formData,
 			headers: {
-				"Authorization": `Bearer ${apiKey}`,
+				"Authorization": `Bearer ${this.apiKey}`,
 			},
 	  	});
 
@@ -293,25 +288,23 @@ export class BuilderModel extends ViewModelBase {
 		return result;
 	}
 
-	public async uploadMediaFiles(apiKey: string, projectId: string): Promise<void> {
-		const files: Array<Promise<void>> = Object.values(this.state.media).map(async (file: MediaFileModel) => {
-			let mediaFolder: string = "";
+	public async uploadMediaFile(file: File): Promise<string> {
+		let mediaFolder: string = "";
 
-			if (file.type.startsWith('image')){
-				mediaFolder = "images";
-			}
-			else if (file.type.startsWith('audio')){
-				mediaFolder = "sounds";
-			}
-			else if (file.type.startsWith('video')){
-				mediaFolder = "videos";
-			}
+		if (file.type.startsWith('image')){
+			mediaFolder = "images";
+		}
+		else if (file.type.startsWith('audio')){
+			mediaFolder = "sounds";
+		}
+		else if (file.type.startsWith('video')){
+			mediaFolder = "videos";
+		}
 
-			const formData: FormData = this.createFormDataFromBlob(`media/${mediaFolder}/${file.name}`, file.file);
-			this.uploadFile(apiKey, projectId, formData);
-		});
-
-		await Promise.all(files);
+		const path: string = `media/${mediaFolder}/${file.name}`;
+		const formData: FormData = this.createFormDataFromBlob(path, file);
+		this.uploadFile(formData);
+		return `https://${this.username}.pyscriptapps.com/${this.projectSlug}/latest/${path}`;
 	}
 
 	public onBuilderTabClicked(tab: string) {
@@ -336,7 +329,7 @@ export class BuilderModel extends ViewModelBase {
 		})
 	}
 
-	public uploadMediaFile(): void {
+	public onAddMediaFile(): void {
 		// Create file input in order to open file chooser.
 		const fileInput: HTMLInputElement = document.createElement("input");
 		fileInput.type = "file";
@@ -347,14 +340,16 @@ export class BuilderModel extends ViewModelBase {
 			const target: HTMLInputElement = event.target as HTMLInputElement;
 			const reader: FileReader = new FileReader();
 
-			reader.addEventListener("load", (event: ProgressEvent<FileReader>) => {
+			reader.addEventListener("load", async (event: ProgressEvent<FileReader>) => {
 				// Parse JSON file and then open the editor with its contents.
 				if (event.target && target.files) {
 					const file: File = target.files[0];
+					const path: string = await this.uploadMediaFile(file);
 					this.state.media[file.name] = {
 						name: file.name,
 						type: file.type,
-						file
+						file,
+						path
 					}
 				}
 			});
@@ -370,14 +365,22 @@ export class BuilderModel extends ViewModelBase {
 	}
 
 	public getImageFiles(): Array<IbSelectOption> {
-		return Object.values(this.state.media).filter((file: MediaFileModel) => {
+		const images: Array<IbSelectOption> = Object.values(this.state.media).filter((file: MediaFileModel) => {
 			return file.type.startsWith('image')
 		}).map((file: MediaFileModel) => {
 			return {
 				label: file.name,
-				value: file.name
+				value: file.path
 			};
 		})
+
+		return [
+			{
+				label: "Select a file...",
+				value: ""
+			},
+			...images
+		]
 	}
 
 	public getChoicePropertyOptions(options: Array<string>): Array<IbSelectOption> {

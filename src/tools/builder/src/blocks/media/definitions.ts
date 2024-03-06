@@ -9,7 +9,7 @@ function getSoundFiles(): any {
 
   if (audioFiles.length > 0){
       return audioFiles.map((file: MediaFileModel) => {
-          return [file.name, file.name];
+          return [file.name, file.path];
       });
   }
   else {
