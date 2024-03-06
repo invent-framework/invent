@@ -1,5 +1,5 @@
 <template>
-    <div v-if="pages && activePage" class="p-4 w-full">
+    <div v-if="pages && activePage" class="px-4 py-3 w-full">
         <iframe 
             v-for="page in pages" 
             v-show="activePage.id === page.id"
