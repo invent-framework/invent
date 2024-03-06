@@ -9,7 +9,9 @@ import Modals from "@/modals";
 import InventWidgets from "@/views/builder/components/page-editor/widgets";
 import "@/data/providers/icon-provider";
 
-addEventListener('mpy:done', () => {
+import { whenDefined } from "https://pyscript.net/releases/2024.1.1/core.js";
+
+whenDefined("mpy").then(() => {
     LocalizationUtilities.loadPreferredLanguageAsync().then(() => {
         createApp(App)
             .use(router)
