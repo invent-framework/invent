@@ -41,34 +41,36 @@ class PageEditorModel extends ComponentModelBase {
 			
 			if (iframe.contentDocument){
 				const dropZoneMain: HTMLDivElement = iframe.contentDocument.createElement("div");
-				const page: HTMLDivElement = iframe.contentDocument.getElementById(activePage.id) as HTMLDivElement;
-				dropZoneMain.id = "drop-zone-main";
-				dropZoneMain.classList.add("drop-zone");
-				page.appendChild(dropZoneMain);
+				const pageElement: HTMLDivElement = iframe.contentDocument.getElementById(page.id) as HTMLDivElement;
+				if (!iframe.contentDocument.getElementById("drop-zone-main")){
+					dropZoneMain.id = "drop-zone-main";
+					dropZoneMain.classList.add("drop-zone");
+					pageElement.appendChild(dropZoneMain);
 
-				dropZoneMain.addEventListener("dragover", (event: DragEvent) => {
-					event.preventDefault();
-					event.stopPropagation();
-					dropZoneMain.classList.add("drop-zone-active");
-				});
+					dropZoneMain.addEventListener("dragover", (event: DragEvent) => {
+						event.preventDefault();
+						event.stopPropagation();
+						dropZoneMain.classList.add("drop-zone-active");
+					});
 
-				dropZoneMain.addEventListener("dragleave", (event: DragEvent) => {
-					event.preventDefault();
-					event.stopPropagation();
-					dropZoneMain.classList.remove("drop-zone-active");
-				});
+					dropZoneMain.addEventListener("dragleave", (event: DragEvent) => {
+						event.preventDefault();
+						event.stopPropagation();
+						dropZoneMain.classList.remove("drop-zone-active");
+					});
 
-				dropZoneMain.addEventListener("drop", (event: DragEvent) => {
-					event.preventDefault();
-					event.stopPropagation();
+					dropZoneMain.addEventListener("drop", (event: DragEvent) => {
+						event.preventDefault();
+						event.stopPropagation();
 
-					dropZoneMain.classList.remove("drop-zone-active");
+						dropZoneMain.classList.remove("drop-zone-active");
 
-					if (page.id === activePage.id){
-						const widget: WidgetModel = JSON.parse(event.dataTransfer?.getData("widget") as string);
-						addWidgetToPage(widget);
-					}
-				});
+						if (page.id === activePage.id){
+							const widget: WidgetModel = JSON.parse(event.dataTransfer?.getData("widget") as string);
+							addWidgetToPage(widget);
+						}
+					});
+				}
 			}
 		});
 	}
