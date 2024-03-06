@@ -152,14 +152,23 @@ class Property:
 
     _property_counter = 0
 
-    def __init__(self, description, default_value=None, required=False):
+    def __init__(
+        self,
+        description,
+        default_value=None,
+        required=False,
+        map_to_attribute=None,
+    ):
         """
-        All properties must have a description. They may have a default value
-        and flag indicating if it is a required property.
+        All properties must have a description. They may have a default value,
+        a flag indicating if it is a required property and an indication of the
+        default HTML attribute of the parent object's element to which to map
+        its value.
         """
         self.description = description
         self.required = required
         self.default_value = self.validate(default_value)
+        self.map_to_attribute = map_to_attribute
 
     def __set_name__(self, owner, name):
         """
@@ -186,8 +195,8 @@ class Property:
         """
 
         if isinstance(value, from_datastore):
-            # The with_function takes the original value and returns a new
-            # "post-processed" value.
+            # The from_datastore's with_function takes the original  value and
+            # returns a new "post-processed" value.
             with_function = value.with_function
 
             def reactor(message):  # pragma: no cover
@@ -195,38 +204,48 @@ class Property:
                 Set the value in the widget and call the optional
                 "on_FOO_changed" to ensure the update is visible to the user.
                 """
-                if with_function:
-                    message_value = with_function(message.value)
+                if with_function is not None:
+                    message_value = value.with_function(message.value)
                 else:
                     message_value = message.value
-
                 setattr(obj, self.private_name, self.validate(message_value))
-
-                self._call_on_changed(obj, self.private_name)
+                self._react_on_change(obj, self.private_name)
 
             # Attach the "from_datastore" instance to the object.
             setattr(obj, self.private_name + "_from_datastore", value)
-
             # Subscribe to store events for the specified key.
             invent.subscribe(
                 reactor, to_channel="store-data", when_subject=value.key
             )
-
             # Update value to the actual value from the datastore.
             value = invent.datastore.get(value.key, self.default_value)
-
+            # Ensure the raw value is handled by the from_datastore's
+            # with_function.
             if with_function is not None:
                 value = with_function(value)
 
         # Set the value in the widget.
         setattr(obj, self.private_name, self.validate(value))
-        self._call_on_changed(obj, self.private_name)
+        self._react_on_change(obj, self.private_name)
 
-    def _call_on_changed(self, obj, property_name):
+    def _react_on_change(self, obj, property_name):
         """
-        Call the object's on_changed handler for the specified property if it
-        exists.
+        Ensure any reactive behaviour relating to the setting of the property
+        is enacted. This involves two steps:
+
+        1. If the property has a map_to_attribute value, ensure the new value
+           is directly set on the parent object's element's attribute whose
+           name is the value of map_to_attribute.
+        2. Call the object's on_changed handler for the specified property
+           name, if it exists.
         """
+        # Map the value to an HTML attribute whose name is the value of
+        # map_to_attribute.
+        if self.map_to_attribute and obj.element:
+            obj.update_attribute(
+                self.map_to_attribute, getattr(obj, self.private_name)
+            )
+        # Handle the existence of an on_FOO_changed function.
         on_changed = getattr(obj, "on" + property_name + "_changed", None)
         if on_changed:
             on_changed()
@@ -270,6 +289,7 @@ class NumericProperty(Property):
         description,
         default_value=None,
         required=False,
+        map_to_attribute=None,
         minimum=None,
         maximum=None,
     ):
@@ -280,7 +300,9 @@ class NumericProperty(Property):
         """
         self.minimum = minimum
         self.maximum = maximum
-        super().__init__(description, default_value, required)
+        super().__init__(
+            description, default_value, required, map_to_attribute
+        )
 
     def coerce(self, value):
         """
@@ -387,6 +409,7 @@ class TextProperty(Property):
         description,
         default_value=None,
         required=False,
+        map_to_attribute=None,
         min_length=None,
         max_length=None,
     ):
@@ -397,7 +420,9 @@ class TextProperty(Property):
         """
         self.min_length = min_length
         self.max_length = max_length
-        super().__init__(description, default_value, required)
+        super().__init__(
+            description, default_value, required, map_to_attribute
+        )
 
     def coerce(self, value):
         """
@@ -477,14 +502,21 @@ class ChoiceProperty(Property):
     """
 
     def __init__(
-        self, description, choices, default_value=None, required=False
+        self,
+        description,
+        choices,
+        default_value=None,
+        required=False,
+        map_to_attribute=None,
     ):
         """
         In addition to the Property related attributes, the choices enumerate
         a set of valid values.
         """
         self.choices = choices
-        super().__init__(description, default_value, required)
+        super().__init__(
+            description, default_value, required, map_to_attribute
+        )
 
     def validate(self, value):
         """

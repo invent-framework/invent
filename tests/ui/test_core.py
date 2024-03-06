@@ -93,26 +93,26 @@ def test_property_required_field_needs_default_value():
     assert p.default_value == "test"
     assert p.required is True
 
-    class FakeWidget:
+    class FakeWidget(core.Widget):
         my_property = core.Property(
             "A test property", default_value="test", required=True
         )
 
-        def __init__(self, test="test"):
-            self.my_property = test
+        def render(self):
+            return document.createElement("div")
 
     # The default value is used.
     t = FakeWidget()
     assert t.my_property == "test"
     # A passed in value is used
-    t = FakeWidget(test="bar")
+    t = FakeWidget(my_property="bar")
     assert t.my_property == "bar"
     # Trying to set the value as None results in a ValidationError.
     with pytest.raises(core.ValidationError):
         t.my_property = None
     # Cannot instantiate with None value either.
     with pytest.raises(core.ValidationError):
-        FakeWidget(test=None)
+        FakeWidget(my_property=None)
 
 
 def test_property_from_datastore():
@@ -121,15 +121,47 @@ def test_property_from_datastore():
     function is subscribed to the correct datastore key.
     """
 
-    class FakeWidget:
+    class FakeWidget(core.Widget):
         my_property = core.Property("A test property")
 
+        def render(self):
+            return document.createElement("div")
+
+    test_fn = mock.MagicMock()
     fw = FakeWidget()
     with mock.patch("invent.subscribe") as mock_sub:
-        fw.my_property = core.from_datastore("test")
+        fw.my_property = core.from_datastore("test", with_function=test_fn)
         assert mock_sub.call_args[1]["to_channel"] == "store-data"
         assert mock_sub.call_args[1]["when_subject"] == "test"
         assert mock_sub.call_count == 1
+        test_fn.assert_called_once_with(None)
+
+
+def test_property_react_on_change():
+    """
+    If the property is given a map_to_attribute and the parent object has an
+    on_FOO_changed method, both situations are handled so the new value set
+    against the property is propagated as expected.
+    """
+
+    class FakeWidget(core.Widget):
+        my_property = core.Property("A test", map_to_attribute="test")
+
+        def on_my_property_changed(self):
+            pass
+
+        def render(self):
+            return document.createElement("div")
+
+    fw = FakeWidget()
+    # Mock to check the method has been called.
+    fw.on_my_property_changed = mock.MagicMock()
+    # Set the property to a new value.
+    fw.my_property = "yes"
+    # The element's attribute to which the property is mapped has been updated.
+    assert fw.element.getAttribute("test") == "yes"
+    # The on_FOO_changed function for the property has been called.
+    fw.on_my_property_changed.assert_called_once_with()
 
 
 def test_property_as_dict():
@@ -160,11 +192,11 @@ def test_numeric_property_must_be_a_number():
     A numeric property cannot hold a non-numeric value.
     """
 
-    class FakeWidget:
+    class FakeWidget(core.Widget):
         number = core.NumericProperty("A test property")
 
-        def __init__(self, test=None):
-            self.number = test
+        def render(self):
+            return document.createElement("div")
 
     widget = FakeWidget()
 
@@ -190,13 +222,13 @@ def test_numeric_property_with_bounds():
     If the value is not required, the value could be set to None.
     """
 
-    class FakeWidget:
+    class FakeWidget(core.Widget):
         number = core.NumericProperty(
             "A test property", default_value=150, minimum=100, maximum=200
         )
 
-        def __init__(self, test=None):
-            self.number = test
+        def render(self):
+            return document.createElement("div")
 
     widget = FakeWidget()
 
@@ -213,13 +245,13 @@ def test_numeric_property_with_bounds():
 
     # Now with only a minimum.
 
-    class FakeWidgetMin:
+    class FakeWidgetMin(core.Widget):
         number = core.NumericProperty(
             "A test property", default_value=150, minimum=100
         )
 
-        def __init__(self, test=None):
-            self.number = test
+        def render(self):
+            return document.createElement("div")
 
     widget = FakeWidgetMin()
 
@@ -234,13 +266,13 @@ def test_numeric_property_with_bounds():
 
     # Now with only a minimum.
 
-    class FakeWidgetMax:
+    class FakeWidgetMax(core.Widget):
         number = core.NumericProperty(
             "A test property", default_value=150, maximum=200
         )
 
-        def __init__(self, test=None):
-            self.number = test
+        def render(self):
+            return document.createElement("div")
 
     widget = FakeWidgetMax()
 
@@ -283,10 +315,10 @@ def test_integer_property():
             "A test integer property", default_value=123
         )
 
-        def __init__(self, val):
-            self.integer = val
+        def render(self):
+            return document.createElement("div")
 
-    fw = FakeWidget(123)
+    fw = FakeWidget(integer=123)
     assert fw.integer == 123
     # coercion works.
     fw.integer = "123"
@@ -305,10 +337,10 @@ def test_float_property():
 
         val = core.FloatProperty("A test float property", default_value=1.23)
 
-        def __init__(self, val):
-            self.val = val
+        def render(self):
+            return document.createElement("div")
 
-    fw = FakeWidget(123.4)
+    fw = FakeWidget(val=123.4)
     assert fw.val == 123.4
     # Integers become floats.
     fw.val = 123
@@ -335,11 +367,11 @@ def test_text_property_value_is_string():
     The value must be a string or None if not a required property.
     """
 
-    class FakeWidget:
+    class FakeWidget(core.Widget):
         text = core.TextProperty("A test property")
 
-        def __init__(self, test=None):
-            self.text = test
+        def render(self):
+            return document.createElement("div")
 
     widget = FakeWidget()
     # Strings are OK.
@@ -356,13 +388,14 @@ def test_text_property_value_is_required_string():
     The value must be a string if a required property.
     """
 
-    class FakeWidget:
+    class FakeWidget(core.Widget):
+
         text = core.TextProperty(
             "A test property", default_value="test", required=True
         )
 
-        def __init__(self, test="test"):
-            self.text = test
+        def render(self):
+            return document.createElement("div")
 
     widget = FakeWidget()
     widget.text = "another test"
@@ -378,13 +411,14 @@ def test_text_property_value_with_min_max_length():
     """
 
     # Both min and max length are defined.
-    class FakeWidget:
+    class FakeWidget(core.Widget):
+
         text = core.TextProperty(
             "A test property", min_length=4, max_length=10
         )
 
-        def __init__(self, test="test"):
-            self.text = test
+        def render(self):
+            return document.createElement("div")
 
     widget = FakeWidget()
     # A None value is ignored if it is not a required property.
@@ -399,11 +433,11 @@ def test_text_property_value_with_min_max_length():
         widget.text = "0123456789+"
 
     # Only minimum length is defined.
-    class FakeWidgetMin:
+    class FakeWidgetMin(core.Widget):
         text = core.TextProperty("A test property", min_length=4)
 
-        def __init__(self, test="test"):
-            self.text = test
+        def render(self):
+            return document.createElement("div")
 
     widget = FakeWidgetMin()
     # A None value is ignored if it is not a required property.
@@ -416,11 +450,11 @@ def test_text_property_value_with_min_max_length():
     widget.text = "0123456789+++++"
 
     # Only maximum length is defined.
-    class FakeWidgetMax:
+    class FakeWidgetMax(core.Widget):
         text = core.TextProperty("A test property", max_length=10)
 
-        def __init__(self, test="test"):
-            self.text = test
+        def render(self):
+            return document.createElement("div")
 
     widget = FakeWidgetMax()
     # A None value is ignored if it is not a required property.
@@ -456,15 +490,15 @@ def test_boolean_property_values():
     If not required, None is also allowed. Anything else fails.
     """
 
-    class FakeWidget:
+    class FakeWidget(core.Widget):
         flag = core.BooleanProperty(
             "A test property", default_value=True, required=True
         )
 
-        def __init__(self, test=True):
-            self.flag = test
+        def render(self):
+            return document.createElement("div")
 
-    widget = FakeWidget()
+    widget = FakeWidget(flag=True)
     widget.flag = False
     widget.flag = True
     # Cannot use None if a required property.
@@ -475,11 +509,11 @@ def test_boolean_property_values():
     assert widget.flag is True
 
     # Check behaviour of BooleanProperty if not a required field.
-    class FakeWidgetNotRequired:
+    class FakeWidgetNotRequired(core.Widget):
         flag = core.BooleanProperty("A test property")
 
-        def __init__(self, test=True):
-            self.flag = test
+        def render(self):
+            return document.createElement("div")
 
     widget = FakeWidgetNotRequired()
     widget.flag = False
@@ -496,7 +530,7 @@ def test_choice_property_validation():
     A value set to a choice property must be one of the defined valid choices.
     """
 
-    class FakeWidget:
+    class FakeWidget(core.Widget):
         select = core.ChoiceProperty(
             "A test property",
             choices=[
@@ -506,8 +540,8 @@ def test_choice_property_validation():
             ],
         )
 
-        def __init__(self, test=1):
-            self.select = test
+        def render(self):
+            return document.createElement("div")
 
     widget = FakeWidget()
     # If the property is not required, None is also valid.

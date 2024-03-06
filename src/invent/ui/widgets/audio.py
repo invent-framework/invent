@@ -83,5 +83,5 @@ class Audio(Widget):
         element = document.createElement("audio")
         element.id = self.id
         element.setAttribute("controls", "controls")
-        #element.addEventListener("click", self.click)
+        # element.addEventListener("click", self.click)
         return element

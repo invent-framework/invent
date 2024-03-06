@@ -56,7 +56,9 @@ class Button(Widget):
         ],
     )
     disabled = BooleanProperty(
-        "Indicates if the button is disabled.", default_value=False
+        "Indicates if the button is disabled.",
+        default_value=False,
+        map_to_attribute="disabled",
     )
 
     press = MessageBlueprint(
@@ -100,9 +102,6 @@ class Button(Widget):
             self.element.classList.add("btn-warning")
         elif self.purpose == "DANGER":
             self.element.classList.add("btn-danger")
-
-    def on_disabled_changed(self):
-        self.update_attribute("disabled", self.disabled)
 
     def render(self):
         element = document.createElement("button")
