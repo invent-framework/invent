@@ -205,7 +205,7 @@ class Property:
                 "on_FOO_changed" to ensure the update is visible to the user.
                 """
                 if with_function is not None:
-                    message_value = value.with_function(message.value)
+                    message_value = with_function(message.value)
                 else:
                     message_value = message.value
                 setattr(obj, self.private_name, self.validate(message_value))
