@@ -178,11 +178,11 @@ export class BuilderModel extends ViewModelBase {
 		//
 		// 1) Log into psdc (prod) and generate an API Key (in your account settings).
 		// 2) Paste that API key here... it will start with "psdc_".
-		const apiKey = "psdc_gAAAAABl4d4XdMHCcocfGpegs3y3HPJ7LTNFUmp4SHpSDMV2-ZHLce8mlYlr7-lZI2gpF-pGeJ00SFTL14iKrgV4-zymp1oSPfCBykaf4P04vJktvf3htSqE9tTYpIMdFu3KEdWcaN6HfY43M_4jDO7fpsA-fcXDLrpMedO2eANjtmGifouPUWvVzTIGilylSpDdI3i9sUFYudb2oOm4eJc-R1twB4EcdA=="
+		const apiKey = "YOUR API KEY GOES HERE"
 		// 3) Put your username here :)
-		const username = "mchilvers";
+		const username = "YOUR USERNAME GOES HERE";
 		// 4) Make up the slug for a new project (or use an existing one :).
-		const projectSlug = "summer-grasss"		// Yo Dudes! :)
+		const projectSlug = "your-project-slug-goes-here"		// Yo Dudes! :)
 
 		// Get/create the project.
 		let project = await this.getProject(apiKey, username, projectSlug);
