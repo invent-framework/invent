@@ -318,14 +318,14 @@ class NumericProperty(Property):
             try:
                 result = float(value)
                 return result
-            except ValueError:
+            except ValueError:  # pragma: no cover
                 pass  # Handle below
         else:
             # Let's try an int instead...
             try:
                 result = int(value)
                 return result
-            except ValueError:
+            except ValueError:  # pragma: no cover
                 pass  # Handle below
         raise ValueError(_("Not a valid number: ") + value)
 
@@ -553,6 +553,7 @@ class Component:
     id = TextProperty("The id of the widget instance in the DOM.")
     name = TextProperty(
         "The meaningful name of the widget instance.",
+        map_to_attribute="name",
     )
     position = TextProperty(
         "The component's position inside it's parent.",
@@ -598,16 +599,6 @@ class Component:
         """
         self.element.id = self.id
 
-    def on_name_changed(self):
-        """
-        Automatically called to update the name attribute of the HTML element
-        associated with the component.
-        """
-        if self.name:
-            self.element.setAttribute("name", self.name)
-        else:
-            self.element.removeAttribute("name")
-
     def on_position_changed(self):
         """
         Automatically called to update the position information relating to
@@ -644,10 +635,10 @@ class Component:
         raise NotImplementedError()  # pragma: no cover
 
     @classmethod
-    def preview(cls):
+    def icon(cls):
         """
-        In base classes, return the outerHTML to display in the menu of
-        available components.
+        Return the SVG to display in the menu of available components in the
+        UI builder.
         """
         return _DEFAULT_ICON
 
@@ -712,7 +703,7 @@ class Component:
                 key: value.as_dict()
                 for key, value in cls.message_blueprints().items()
             },
-            "preview": cls.preview(),
+            "icon": cls.icon(),
         }
 
     def as_dict(self):
@@ -1074,7 +1065,7 @@ class Column(Container):
     """
 
     @classmethod
-    def preview(cls):
+    def icon(cls):
         return '<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 256 256"><path fill="currentColor" d="M104 32H64a16 16 0 0 0-16 16v160a16 16 0 0 0 16 16h40a16 16 0 0 0 16-16V48a16 16 0 0 0-16-16m0 176H64V48h40Zm88-176h-40a16 16 0 0 0-16 16v160a16 16 0 0 0 16 16h40a16 16 0 0 0 16-16V48a16 16 0 0 0-16-16m0 176h-40V48h40Z"/></svg>'  # noqa
 
     def append(self, item):
@@ -1111,7 +1102,7 @@ class Row(Container):
     """
 
     @classmethod
-    def preview(cls):
+    def icon(cls):
         return '<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 256 256"><path fill="currentColor" d="M208 136H48a16 16 0 0 0-16 16v40a16 16 0 0 0 16 16h160a16 16 0 0 0 16-16v-40a16 16 0 0 0-16-16m0 56H48v-40h160zm0-144H48a16 16 0 0 0-16 16v40a16 16 0 0 0 16 16h160a16 16 0 0 0 16-16V64a16 16 0 0 0-16-16m0 56H48V64h160z"/></svg>'  # noqa
 
     def append(self, item):

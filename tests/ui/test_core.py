@@ -65,6 +65,7 @@ def test_from_datastore():
     Ensure this signal class has a key attribute and optional with_function,
     that is repr'd correctly into code.
     """
+
     def test_fn(val):
         return val
 
