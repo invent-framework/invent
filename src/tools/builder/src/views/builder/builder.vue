@@ -2,7 +2,9 @@
     <builder-desktop-layout>
         <template #header>
             <div class="w-full grid grid-cols-3">
-                <img src="/logo.svg" class="h-7">
+                <ib-h-stack is-full-width align-y="center">
+                    <img src="/logo.svg" class="h-7">
+                </ib-h-stack>
                 
                 <ib-h-stack :spacing="4" is-full-width align-x="center" align-y="center">
                     <ib-h-stack :spacing="4" class="max-w-72 overflow-x-auto">
@@ -18,7 +20,7 @@
 
                     <ib-button 
                         :icon="['fas', 'plus']" 
-                        size="xs"
+                        size="sm"
                         @click="view.onAddPageClicked()" 
                     />
                 </ib-h-stack>
