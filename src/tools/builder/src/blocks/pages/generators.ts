@@ -9,6 +9,6 @@ pythonGenerator.forBlock['pages'] = function(block: Blockly.Block) {
 
 pythonGenerator.forBlock['show_page'] = function(block: Blockly.Block, generator: Blockly.Generator) {
     const page: string = generator.valueToCode(block, 'page', 0);
-    const code = `show_page("${page}")\n`;
+    const code = `invent.show_page("${page}")\n`;
     return code;
 };

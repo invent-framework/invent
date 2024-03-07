@@ -5,7 +5,7 @@ import type { PageModel } from '@/data/models/page-model';
 function getPages(): any {
     if (builder.state.pages && builder.state.pages.length > 0){
         return builder.state.pages.map((value: PageModel) => {
-            return [value.name, value.id];
+            return [value.name, value.name];
         });
     }
     else {
