@@ -1,10 +1,10 @@
 <template>
     <builder-desktop-layout>
         <template #header>
-            <ib-h-stack is-full-width :spacing="4" align-y="center">
+            <div class="w-full grid grid-cols-3">
                 <img src="/logo.svg" class="h-7">
-
-                <ib-h-stack v-show="view.state.activeBuilderTab === 'app'" :spacing="4">
+                
+                <ib-h-stack :spacing="4" is-full-width align-x="center" align-y="center">
                     <ib-h-stack :spacing="4" class="max-w-72 overflow-x-auto">
                         <ib-button
                             v-for="(page, key) in view.state.pages"
@@ -23,12 +23,12 @@
                     />
                 </ib-h-stack>
 
-                <ib-h-stack :spacing="4" class="!ml-auto">
+                <ib-h-stack :spacing="4" is-full-width align-x="right" align-y="center">
                     <ib-button 
-                        label="App" 
+                        label="Blocks" 
                         size="sm" 
-                        :color="view.getBuilderTabColor('app')" 
-                        @click="view.onBuilderTabClicked('app')"
+                        :color="view.getBuilderTabColor('blocks')" 
+                        @click="view.onBuilderTabClicked('blocks')"
                     />
                      
                     <ib-button 
@@ -53,7 +53,7 @@
                         @click="view.getPythonCode()" 
                     />
                 </ib-h-stack>
-            </ib-h-stack>
+            </div>
         </template>
         
         <template #toolbar>
@@ -74,7 +74,7 @@
         </template>
 
         <template #content >
-            <div v-show="view.state.activeBuilderTab === 'app' && view.state.activeEditorTab === 'design'" class="h-full w-full flex">
+            <div v-show="view.state.activeBuilderTab === 'app'" class="h-full w-full flex">
                 <div v-if="view.state.widgets" class="h-full w-72 overflow-y-auto overflow-x-hidden bg-white border-r border-gray-300 flex-none divide-y divide-gray-200">
                     <ib-accordion label="Layouts">
                         <div class="grid grid-cols-2 gap-4">
@@ -160,7 +160,7 @@
                 </div>
             </div>
 
-            <div v-show="view.state.activeBuilderTab === 'app' && view.state.activeEditorTab === 'blocks'" class="h-full w-full">
+            <div v-show="view.state.activeBuilderTab === 'blocks'" class="h-full w-full">
                 <block-editor />
             </div>
 

@@ -26,8 +26,6 @@ export class BuilderState {
 
 	public activeSidebarTab: string = "widgets";
 
-	public activeEditorTab: string = "design";
-
 	public activeBuilderTab: string = "app";
 
 	public datastore: DatastoreModel = {};

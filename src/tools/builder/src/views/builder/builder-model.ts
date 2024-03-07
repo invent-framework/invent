@@ -11,6 +11,7 @@ import confetti from "canvas-confetti";
 import type { DatastoreValueModel } from "@/data/models/datastore-value-model";
 import type { MediaFileModel } from "@/data/models/media-file-model";
 import type { IbSelectOption } from "@/components/ib-select/ib-select-types";
+import { CommonUtilities } from "@/utilities/common-utilities";
 
 
 /**
@@ -26,7 +27,7 @@ export class BuilderModel extends ViewModelBase {
 
 	private apiKey = "psdc_gAAAAABl5zj-GCPoqFRv62GrpO8ud1mZhz_bbMTXSwwd1WR0ayuaiFLl15WnafvFiKMQEULC1YdSLOu4P8PEr5Cj8WPTJq2w0bgZsusOIur9UKf17tIsSlRHrDDEWLpHD1GSooHYvLNyLDFfoGDPEd50pfdoKDy8F7K3plvTjQfEC5lGnNjKt53uKlrwrEFJmLiGiV9-U4TD_uNUOAwnnIHOxMtZ0UI-MQ==";
 	private username = "joshualowe1002";
-	private projectSlug = "invent-demo";
+	private projectSlug = CommonUtilities.getRandomId();
 
 	/**
 	 * Reactive instance of the view state.
@@ -103,6 +104,7 @@ export class BuilderModel extends ViewModelBase {
 	}
 
 	public onPageClicked(page: PageModel): void {
+		this.state.activeBuilderTab = "app";
 		this.setActivePage(page);
 	}
 
@@ -124,12 +126,8 @@ export class BuilderModel extends ViewModelBase {
 		return this.state.activeSidebarTab === key ? 'gray' : 'transparent';
 	}
 
-	public getEditorTabColor(key: string): string { 
-		return this.state.activeEditorTab === key ? 'gray' : 'transparent';
-	}
-
 	public getPageButtonColor(page: PageModel): string { 
-		return this.state.activePage && this.state.activePage.id === page.id ? 'gray' : 'transparent';
+		return this.state.activePage && this.state.activeBuilderTab === 'app' && this.state.activePage.id === page.id ? 'gray' : 'transparent';
 	}
 
 	// Drag and Drop Prototype
