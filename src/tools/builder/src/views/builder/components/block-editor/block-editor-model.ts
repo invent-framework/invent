@@ -93,6 +93,10 @@ class BlockEditorModel extends ComponentModelBase {
 				contents: [
 					{
 						kind: "block",
+						type: "datastore_values"
+					},
+					{
+						kind: "block",
 						type: "set_datastore",
 						inputs: {
 							key: {
@@ -109,10 +113,6 @@ class BlockEditorModel extends ComponentModelBase {
 								}
 							}
 						}
-					},
-					{
-						kind: "block",
-						type: "datastore_values"
 					},
 					{
 						kind: "block",

@@ -62,7 +62,7 @@ export class BuilderModel extends ViewModelBase {
 		);
 
 		if (widgetElement){
-			widgetElement.addEventListener("click", (event: Event) => {
+			widgetElement.parentElement!.addEventListener("click", (event: Event) => {
 				event.stopPropagation();
 				this.state.activeWidgetId = widgetElement.id;
 				this.openPropertiesForWidget(widget, widgetElement.id);
@@ -380,6 +380,25 @@ export class BuilderModel extends ViewModelBase {
 				value: ""
 			},
 			...images
+		]
+	}
+
+	public getSoundFiles(): Array<IbSelectOption> {
+		const sounds: Array<IbSelectOption> = Object.values(this.state.media).filter((file: MediaFileModel) => {
+			return file.type.startsWith('audio')
+		}).map((file: MediaFileModel) => {
+			return {
+				label: file.name,
+				value: file.path
+			};
+		})
+
+		return [
+			{
+				label: "Select a file...",
+				value: ""
+			},
+			...sounds
 		]
 	}
 

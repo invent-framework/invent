@@ -124,6 +124,14 @@
                             />
 
                             <ib-select 
+                                v-else-if="key === 'source'" 
+                                :label="key" 
+                                :options="view.getSoundFiles()" 
+                                v-model="property.value"
+                                @input="view.updateWidgetProperty(key as string, $event)"
+                            />
+
+                            <ib-select 
                                 v-else-if="property.property_type === 'ChoiceProperty'" 
                                 :label="key" 
                                 :options="view.getChoicePropertyOptions(property.choices)" 
@@ -200,8 +208,6 @@
                     />
                 </div>
             </div>
-
-
         </template>
     </builder-desktop-layout> 
 </template>

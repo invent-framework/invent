@@ -139,6 +139,9 @@ class Builder:
 
         if widget_blueprint.name == "Column" or widget_blueprint.name == "Row":
             component.element.classList.add("drop-zone")
+        else:
+            component.element.style.pointerEvents = "none"
+            component.element.parentElement.style.cursor = "crosshair"
 
         return component.element
 

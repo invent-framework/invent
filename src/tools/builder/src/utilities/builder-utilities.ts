@@ -52,7 +52,7 @@ export class BuilderUtilities {
 				const widgetToAdd: WidgetModel = JSON.parse(event.dataTransfer?.getData("widget") as string);
 				const widgetInRowColumn: HTMLElement = this.addWidgetToPage(activePage, widgetToAdd, widgetElement.id);
 				
-				widgetInRowColumn.addEventListener("click", (event: Event) => {
+				widgetInRowColumn.parentElement!.addEventListener("click", (event: Event) => {
 					event.stopPropagation();
 					builder.state.activeWidgetId = widgetInRowColumn.id;
 					builder.openPropertiesForWidget(widgetToAdd, widgetInRowColumn.id);
