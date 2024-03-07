@@ -840,7 +840,7 @@ class Widget(Component):
     """
 
     channel = TextProperty(
-        "A comma separated list of channels to which the widget broadcasts."
+        "A comma separated list of channels to which the widget broadcasts.", default_value=None
     )
 
     def __init__(self, **kwargs):
@@ -849,8 +849,6 @@ class Widget(Component):
         explicitly set in the kwargs.
         """
         super().__init__(**kwargs)
-        if self.channel is None:
-            self.channel = self.name
 
     def publish(self, blueprint, **kwargs):
         """
