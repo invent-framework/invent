@@ -135,16 +135,6 @@ export class BuilderModel extends ViewModelBase {
 		event.dataTransfer?.setData("widget", JSON.stringify(widget));
 	}
 
-	public onEditorTabClicked(tab: string) {
-		this.state.activeEditorTab = tab;
-
-		if (tab === "blocks"){
-			nextTick(() => {
-				Blockly.svgResize(Blockly.getMainWorkspace() as Blockly.WorkspaceSvg);
-			});
-		}
-	}
-
 	public getDatastoreValues(): string {
 		const datastoreCode: Array<string> = [];
 
@@ -307,6 +297,12 @@ export class BuilderModel extends ViewModelBase {
 
 	public onBuilderTabClicked(tab: string) {
 		this.state.activeBuilderTab = tab;
+
+		if (tab === "blocks"){
+			nextTick(() => {
+				Blockly.svgResize(Blockly.getMainWorkspace() as Blockly.WorkspaceSvg);
+			});
+		}
 	}
 
 	public getBuilderTabColor(key: string): string { 
