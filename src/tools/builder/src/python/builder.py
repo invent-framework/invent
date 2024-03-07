@@ -6,7 +6,7 @@ from pyscript import document, window
 
 import invent
 from invent.ui import export
-from invent.ui.core import Container, Component, Widget
+from invent.ui.core import Container, Component, Widget, from_datastore
 from invent.ui import AVAILABLE_COMPONENTS
 
 
@@ -162,15 +162,20 @@ class Builder:
 
         properties = component_klass.blueprint()["properties"]
         for name, value in properties.items():
-            value["value"] = getattr(widget, name)
-
+            if hasattr(widget, f"_{name}_from_datastore"):
+                value["is_from_datastore"] = True
+                datastore_value = getattr(widget, f"_{name}_from_datastore")
+                value["value"] = datastore_value.key
+            else:
+                value["value"] = getattr(widget, name)
+            
         if issubclass(component_klass, Container):
             properties.pop("content")
 
         window.x = json.dumps(properties)
         return json.dumps(properties)
     
-    def update_widget_property(self, widget_blueprint, widget_id, property_name, value):
+    def update_widget_property(self, widget_blueprint, widget_id, property_name, value, is_from_datastore=False):
         """
         Update a property on a widget (that has already been added to the page).
         """
@@ -178,7 +183,10 @@ class Builder:
         # window.console.log(f"update_widget_property: {widget_blueprint}, {widget_id}, {property_name} {value}")
 
         component = self._get_widget_by_id(widget_id)
-        setattr(component, property_name, value)
+        if is_from_datastore:
+            setattr(component, property_name, from_datastore(value))
+        else:
+            setattr(component, property_name, value)
 
     def get_page_element_by_id(self, page_id):
         result = self._get_page_by_id(page_id)

@@ -29,6 +29,7 @@
                     <ib-button 
                         label="Blocks" 
                         size="sm" 
+                        :icon="['fas', 'puzzle-piece']"
                         :color="view.getBuilderTabColor('blocks')" 
                         @click="view.onBuilderTabClicked('blocks')"
                     />
@@ -36,6 +37,7 @@
                     <ib-button 
                         label="Datastore" 
                         size="sm" 
+                        :icon="['fas', 'database']"
                         :color="view.getBuilderTabColor('datastore')" 
                         @click="view.onBuilderTabClicked('datastore')"
                     />
@@ -43,6 +45,7 @@
                     <ib-button 
                         label="Media" 
                         size="sm" 
+                        :icon="['fas', 'image']"
                         :color="view.getBuilderTabColor('media')" 
                         @click="view.onBuilderTabClicked('media')"
                     />
@@ -56,23 +59,6 @@
                     />
                 </ib-h-stack>
             </div>
-        </template>
-        
-        <template #toolbar>
-            <ib-h-stack v-show="view.state.activeBuilderTab === 'app'" is-full-width align-x="center" :spacing="4">
-                <ib-button 
-                    label="Design" 
-                    size="sm" 
-                    :color="view.getEditorTabColor('design')" 
-                    @click="view.onEditorTabClicked('design')" 
-                />
-                <ib-button 
-                    label="Blocks" 
-                    size="sm" 
-                    :color="view.getEditorTabColor('blocks')" 
-                    @click="view.onEditorTabClicked('blocks')" 
-                />
-            </ib-h-stack>
         </template>
 
         <template #content >
@@ -117,45 +103,64 @@
                 <div class="h-full w-72 overflow-y-auto overflow-x-hidden bg-white border-l border-gray-300 p-4 flex-none">
                     <ib-v-stack v-if="view.state.activeWidgetProperties" :spacing="4">
                         <template v-for="(property, key) in view.state.activeWidgetProperties" :key="key">
-                            <ib-select 
-                                v-if="key === 'image'" 
-                                :label="key" 
-                                :options="view.getImageFiles()" 
-                                v-model="property.value"
-                                @input="view.updateWidgetProperty(key as string, $event)"
-                            />
+                            <ib-h-stack is-full-width :spacing="4" align-y="center">
+                                <ib-select
+                                    v-if="property.is_from_datastore" 
+                                    :label="key" 
+                                    :options="view.getDatastoreOptions()" 
+                                    v-model="property.value"
+                                    @input="view.updateWidgetProperty(key as string, $event, true)"
+                                />
+                                <div class="w-full" v-else>
+                                    <ib-select 
+                                        v-if="key === 'image'" 
+                                        :label="key" 
+                                        :options="view.getImageFiles()" 
+                                        v-model="property.value"
+                                        @input="view.updateWidgetProperty(key as string, $event)"
+                                    />
 
-                            <ib-select 
-                                v-else-if="key === 'source'" 
-                                :label="key" 
-                                :options="view.getSoundFiles()" 
-                                v-model="property.value"
-                                @input="view.updateWidgetProperty(key as string, $event)"
-                            />
+                                    <ib-select 
+                                        v-else-if="key === 'source'" 
+                                        :label="key" 
+                                        :options="view.getSoundFiles()" 
+                                        v-model="property.value"
+                                        @input="view.updateWidgetProperty(key as string, $event)"
+                                    />
 
-                            <ib-select 
-                                v-else-if="property.property_type === 'ChoiceProperty'" 
-                                :label="key" 
-                                :options="view.getChoicePropertyOptions(property.choices)" 
-                                v-model="property.value"
-                                @input="view.updateWidgetProperty(key as string, $event)"
-                            />
+                                    <ib-select 
+                                        v-else-if="property.property_type === 'ChoiceProperty'" 
+                                        :label="key" 
+                                        :options="view.getChoicePropertyOptions(property.choices)" 
+                                        v-model="property.value"
+                                        @input="view.updateWidgetProperty(key as string, $event)"
+                                    />
 
-                            <ib-toggle 
-                                v-else-if="property.property_type === 'BooleanProperty'" 
-                                :label="key" 
-                                v-model="property.value"
-                                @input="view.updateWidgetProperty(key as string, $event)"
-                            />
+                                    <ib-toggle 
+                                        v-else-if="property.property_type === 'BooleanProperty'" 
+                                        :label="key" 
+                                        v-model="property.value"
+                                        @input="view.updateWidgetProperty(key as string, $event)"
+                                    />
 
-                            <ib-input 
-                                v-else
-                                :label="key"
-                                type="text"
-                                :required="property.required" 
-                                v-model="property.value"
-                                @input="view.updateWidgetProperty(key as string, $event)"
-                            />
+                                    <ib-input 
+                                        v-else
+                                        :label="key"
+                                        type="text"
+                                        :required="property.required" 
+                                        v-model="property.value"
+                                        @input="view.updateWidgetProperty(key as string, $event)"
+                                    />
+                                </div>
+
+                                <ib-icon 
+                                    :icon="['fas', 'database']" 
+                                    color="gray" 
+                                    class="hover:text-violet-500 cursor-pointer transition-colors" 
+                                    :class="[property.property_type !== 'BooleanProperty' ? 'mt-6' : '', property.is_from_datastore ? '!text-violet-500' : '']" 
+                                    @click="property.is_from_datastore = !property.is_from_datastore"
+                                />
+                            </ib-h-stack>
                         </template>
                     </ib-v-stack>
 

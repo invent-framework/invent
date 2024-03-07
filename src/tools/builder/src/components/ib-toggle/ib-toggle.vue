@@ -1,5 +1,5 @@
 <template>
-  <div class="flex items-center space-x-3 flex-none w-full">
+  <div class="flex items-center space-x-3 w-full">
     <label
       v-if="label"
       class="block text-sm font-medium text-gray-500 dark:text-darkGray-400 capitalize"

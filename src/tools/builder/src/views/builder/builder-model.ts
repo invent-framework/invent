@@ -116,9 +116,9 @@ export class BuilderModel extends ViewModelBase {
 		this.state.activeWidgetBlueprint = widgetBlueprint;
 	}
 
-	public updateWidgetProperty(key: string, value: string) {
+	public updateWidgetProperty(key: string, value: string, isFromDatastore?: boolean) {
 		BuilderUtilities.updateWidgetProperty(
-			this.state.activeWidgetBlueprint, this.state.activeWidgetId, key, value
+			this.state.activeWidgetBlueprint, this.state.activeWidgetId, key, value, isFromDatastore
 		);
 	}
 
@@ -407,6 +407,33 @@ export class BuilderModel extends ViewModelBase {
 				value: option
 			}
 		})
+	}
+
+	public getDatastoreOptions(): Array<IbSelectOption> {
+		const values: Array<IbSelectOption> = Object.values(this.state.datastore).map((value: DatastoreValueModel) => {
+			return {
+				label: value.key,
+				value: value.key
+			};
+		})
+
+		if (values.length === 0){
+			return [
+				{
+					label: "No Datastore Values",
+					value: ""
+				}
+			]
+		}
+		else {
+			return [
+				{
+					label: "Select a value...",
+					value: ""
+				},
+				...values
+			]
+		}
 	}
 }
 

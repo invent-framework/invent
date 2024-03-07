@@ -7,4 +7,5 @@ export interface WidgetPropertyModel {
     min_length?: number;
     max_length?: number;
     choices: Array<string>;
+    is_from_datastore: boolean;
 }

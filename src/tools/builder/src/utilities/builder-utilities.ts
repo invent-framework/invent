@@ -78,8 +78,8 @@ export class BuilderUtilities {
 		return JSON.parse(this.builder().get_subjects());
 	}
 
-	public static updateWidgetProperty(widgetBlueprint: WidgetModel | undefined, widgetRef: string, key: string, value: string) {
-		this.builder().update_widget_property(widgetBlueprint, widgetRef, key, value);
+	public static updateWidgetProperty(widgetBlueprint: WidgetModel | undefined, widgetRef: string, key: string, value: string, isFromDatastore?: boolean) {
+		this.builder().update_widget_property(widgetBlueprint, widgetRef, key, value, isFromDatastore);
 	}
 
 	public static exportAppAsPythonCode(code: string): string {
