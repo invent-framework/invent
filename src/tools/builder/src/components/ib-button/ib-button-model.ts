@@ -34,7 +34,7 @@ class IbButtonModel extends ComponentModelBase {
 				navy: ["bg-navy-500", "text-white", "focus:ring-navy-400", "hover:bg-navy-400", "border-transparent"],
 				red: ["bg-red-500", "text-white", "focus:ring-red-400", "hover:bg-red-400", "border-transparent"],
 				transparent: ["bg-transparent", "text-gray-700", "focus:ring-transparent", "hover:bg-gray-100", "focus:bg-gray-100", "border-transparent", "dark:hover:bg-darkGray-800", "dark:focus:bg-darkGray-800", "dark:text-darkGray-200"],
-				gray: ["bg-gray-100", "text-gray-700", "focus:ring-transparent", "hover:bg-gray-200", "border-violet-500", "dark:bg-darkGray-800", "dark:text-darkGray-200", "dark:hover:bg-darkGray-700"]
+				gray: ["bg-gray-100", "text-gray-700", "focus:ring-transparent", "hover:bg-gray-200", "border-violet-500", "border-2", "dark:bg-darkGray-800", "dark:text-darkGray-200", "dark:hover:bg-darkGray-700"]
 			},
 			isFullWidth: {
 				true: "w-full"
