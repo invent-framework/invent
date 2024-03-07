@@ -249,13 +249,11 @@ class BlockEditorModel extends ComponentModelBase {
 	 * Patches sticky blockly flyout scrollbar when using localhost.
 	 */
 	private patchBlocklyFlyoutScrollbar(): void {
-		if (location.hostname === "localhost" || location.hostname === "127.0.0.1") {
-			const elements: NodeListOf<HTMLElement> = document.querySelectorAll(".blocklyFlyoutScrollbar");
+		const elements: NodeListOf<HTMLElement> = document.querySelectorAll(".blocklyFlyoutScrollbar");
 
-			elements.forEach((element: HTMLElement) => {
-				element.style.display = "none";
-			});
-		}
+		elements.forEach((element: HTMLElement) => {
+			element.style.display = "none";
+		});
 	}
 }
 
