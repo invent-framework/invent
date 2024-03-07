@@ -190,7 +190,7 @@ class Builder:
     def get_channels(self):
         channels = set()
         for component in Component._components_by_id.values():
-            if isinstance(component, Widget):
+            if isinstance(component, Widget) and component.channel:
                 channels.add(component.channel)
         return json.dumps(list(channels))
     
