@@ -301,6 +301,9 @@ export class BuilderModel extends ViewModelBase {
 		if (tab === "blocks"){
 			nextTick(() => {
 				Blockly.svgResize(Blockly.getMainWorkspace() as Blockly.WorkspaceSvg);
+				const xml = Blockly.Xml.workspaceToDom(Blockly.getMainWorkspace());
+				Blockly.getMainWorkspace().clear();
+				Blockly.Xml.domToWorkspace(xml, Blockly.getMainWorkspace());
 			});
 		}
 	}
