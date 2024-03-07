@@ -27,7 +27,7 @@ export class BuilderModel extends ViewModelBase {
 
 	private apiKey = "psdc_gAAAAABl5zj-GCPoqFRv62GrpO8ud1mZhz_bbMTXSwwd1WR0ayuaiFLl15WnafvFiKMQEULC1YdSLOu4P8PEr5Cj8WPTJq2w0bgZsusOIur9UKf17tIsSlRHrDDEWLpHD1GSooHYvLNyLDFfoGDPEd50pfdoKDy8F7K3plvTjQfEC5lGnNjKt53uKlrwrEFJmLiGiV9-U4TD_uNUOAwnnIHOxMtZ0UI-MQ==";
 	private username = "joshualowe1002";
-	private projectSlug = CommonUtilities.getRandomId();
+	private projectSlug = CommonUtilities.getRandomId("invent", "").toLowerCase();
 
 	/**
 	 * Reactive instance of the view state.
@@ -343,8 +343,9 @@ export class BuilderModel extends ViewModelBase {
 				if (event.target && target.files) {
 					const file: File = target.files[0];
 					const path: string = await this.uploadMediaFile(file);
-					this.state.media[file.name] = {
-						name: file.name,
+					const fileName: string = file.name;
+					this.state.media[fileName] = {
+						name: fileName,
 						type: file.type,
 						file,
 						path
