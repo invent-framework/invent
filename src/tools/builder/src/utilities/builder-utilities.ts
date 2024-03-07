@@ -70,6 +70,14 @@ export class BuilderUtilities {
 		));
 	}
 
+	public static getChannels(): Array<string> {
+		return JSON.parse(this.builder().get_channels());
+	}
+
+	public static getSubjects(): Array<string> {
+		return JSON.parse(this.builder().get_subjects());
+	}
+
 	public static updateWidgetProperty(widgetBlueprint: WidgetModel | undefined, widgetRef: string, key: string, value: string) {
 		this.builder().update_widget_property(widgetBlueprint, widgetRef, key, value);
 	}

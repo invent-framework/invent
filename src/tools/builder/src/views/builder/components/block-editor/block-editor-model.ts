@@ -16,6 +16,9 @@ import "@/blocks/media/generators";
 import "@/blocks/datastore/definitions";
 import "@/blocks/datastore/generators";
 
+import "@/blocks/pages/definitions";
+import "@/blocks/pages/generators";
+
 
 /**
  *  Model for the block editor component.
@@ -56,12 +59,12 @@ class BlockEditorModel extends ComponentModelBase {
 						inputs: {
 							channels: {
 								shadow: {
-									type: "inline_text"
+									type: "channels"
 								}
 							},
 							subjects: {
 								shadow: {
-									type: "inline_text"
+									type: "subjects"
 								}
 							}
 						}
@@ -136,6 +139,24 @@ class BlockEditorModel extends ComponentModelBase {
 				]
 			},
 			{
+				kind: "category",
+				name: "Pages",
+				colour: "#9966ff",
+				contents: [
+					{
+						kind: "block",
+						type: "show_page",
+						inputs: {
+							page: {
+								shadow: {
+									type: "pages"
+								}
+							}
+						}
+					}
+				]
+			},
+			{
 				kind: "CATEGORY",
 				name: "Logic",
 				colour: 210,
@@ -165,62 +186,62 @@ class BlockEditorModel extends ComponentModelBase {
 					type: "logic_ternary",
 				  },
 				],
-			  },
-			  {
-				kind: "CATEGORY",
-				name: "Loops",
-				colour: 122,
-				contents: [
-				  {
-					kind: "block",
-					type: "controls_repeat_ext",
-					inputs: {
-					  TIMES: {
-						shadow: {
-						  type: "math_number",
-						  fields: {NUM: 10},
-						},
-					  },
+			},
+			{
+			kind: "CATEGORY",
+			name: "Loops",
+			colour: 122,
+			contents: [
+				{
+				kind: "block",
+				type: "controls_repeat_ext",
+				inputs: {
+					TIMES: {
+					shadow: {
+						type: "math_number",
+						fields: {NUM: 10},
 					},
-				  },
-				  {
-					kind: "block",
-					type: "controls_whileUntil",
-				  },
-				  {
-					kind: "block",
-					type: "controls_for",
-					inputs: {
-					  FROM: {
-						shadow: {
-						  type: "math_number",
-						  fields: {NUM: 1},
-						},
-					  },
-					  TO: {
-						shadow: {
-						  type: "math_number",
-						  fields: {NUM: 10},
-						},
-					  },
-					  BY: {
-						shadow: {
-						  type: "math_number",
-						  fields: {NUM: 1},
-						},
-					  },
 					},
-				  },
-				  {
-					kind: "block",
-					type: "controls_forEach",
-				  },
-				  {
-					kind: "block",
-					type: "controls_flow_statements",
-				  },
-				],
-			  },		  
+				},
+				},
+				{
+				kind: "block",
+				type: "controls_whileUntil",
+				},
+				{
+				kind: "block",
+				type: "controls_for",
+				inputs: {
+					FROM: {
+					shadow: {
+						type: "math_number",
+						fields: {NUM: 1},
+					},
+					},
+					TO: {
+					shadow: {
+						type: "math_number",
+						fields: {NUM: 10},
+					},
+					},
+					BY: {
+					shadow: {
+						type: "math_number",
+						fields: {NUM: 1},
+					},
+					},
+				},
+				},
+				{
+				kind: "block",
+				type: "controls_forEach",
+				},
+				{
+				kind: "block",
+				type: "controls_flow_statements",
+				},
+			],
+			},		  
 		]
 	};
 

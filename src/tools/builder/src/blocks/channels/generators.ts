@@ -2,6 +2,18 @@ import { CommonUtilities } from '@/utilities/common-utilities';
 import * as Blockly from 'blockly/core';
 import { pythonGenerator } from 'blockly/python';
 
+pythonGenerator.forBlock['channels'] = function(block: Blockly.Block) {
+    const channel: string = block.getFieldValue('channel');
+    const code = channel;
+    return [code, 0];  
+};
+
+pythonGenerator.forBlock['subjects'] = function(block: Blockly.Block) {
+    const subject: string = block.getFieldValue('subject');
+    const code = subject;
+    return [code, 0];  
+};
+
 pythonGenerator.forBlock['subscribe'] = function(block: Blockly.Block, generator: Blockly.Generator) {
     let onSubject = generator.statementToCode(block, "on_subject");
 	onSubject = generator.addLoopTrap(onSubject, block) || pythonGenerator.PASS;

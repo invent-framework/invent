@@ -6,7 +6,7 @@ from pyscript import document, window
 
 import invent
 from invent.ui import export
-from invent.ui.core import Container
+from invent.ui.core import Container, Component, Widget
 from invent.ui import AVAILABLE_COMPONENTS
 
 
@@ -184,6 +184,25 @@ class Builder:
         result = self._get_page_by_id(page_id)
         if result:
             return result.element
+        
+    # Channels ####################################################################
+        
+    def get_channels(self):
+        channels = set()
+        for component in Component._components_by_id.values():
+            if isinstance(component, Widget):
+                channels.add(component.channel)
+        return json.dumps(list(channels))
+    
+    def get_subjects(self):
+        subjects = set()
+        for component in Component._components_by_id.values():
+            if isinstance(component, Widget):
+                widget_cls = type(component)
+                message_blueprints = widget_cls.message_blueprints()
+                subjects.update(message_blueprints.keys())
+        return json.dumps(list(subjects))
+
 
     # Import/export ####################################################################
 
