@@ -139,6 +139,13 @@
                                 @input="view.updateWidgetProperty(key as string, $event)"
                             />
 
+                            <ib-toggle 
+                                v-else-if="property.property_type === 'BooleanProperty'" 
+                                :label="key" 
+                                v-model="property.value"
+                                @input="view.updateWidgetProperty(key as string, $event)"
+                            />
+
                             <ib-input 
                                 v-else
                                 :label="key"
