@@ -26,6 +26,7 @@ from .utils import random_id, sanitize
 from .widgets.audio import Audio
 from .widgets.button import Button
 from .widgets.code import Code
+from .widgets.html import Html
 from .widgets.image import Image
 from .widgets.textbox import TextBox
 from .widgets.textinput import TextInput
@@ -47,6 +48,7 @@ __all__ = [
     "Audio",
     "Button",
     "Code",
+    "Html",
     "Image",
     "TextBox",
     "TextInput",
@@ -54,13 +56,16 @@ __all__ = [
 
 
 AVAILABLE_COMPONENTS = {
+    # Containers...
     _("Column"): Column,
     _("Row"): Row,
+    # Widgets...
+    _("Audio"): Audio,
     _("Button"): Button,
+    _("Code"): Code,
+    _("Html"): Html,
     _("Image"): Image,
+    _("Slider"): Slider,
     _("TextBox"): TextBox,
     _("TextInput"): TextInput,
-    _("Code"): Code,
-    _("Slider"): Slider,
-    _("Audio"): Audio,
 }
