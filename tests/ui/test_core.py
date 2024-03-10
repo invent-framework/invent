@@ -582,6 +582,25 @@ def test_choice_property_as_dict():
     }
 
 
+def test_content_property_validation():
+    """
+    ContentProperty works with None and lists.
+    """
+
+    class TestComponent(core.Component):
+
+        content = core.ContentProperty("The child components.")
+
+        def render(self):
+            return document.createElement("div")
+
+    tc = TestComponent()
+    tc.content = ["foo", "bar", "baz", ]
+    tc.content = None
+    with pytest.raises(TypeError):
+        tc.content = False
+
+
 def test_component_init_with_given_values():
     """
     Given a name and id, these are reflected in the resulting object.
@@ -596,6 +615,7 @@ def test_component_init_with_given_values():
     assert tc.name == "test1"
     assert tc.id == "12345"
     assert tc.position == "TOP-LEFT"
+    assert tc.parent is None
 
 
 def test_component_init_with_no_values():
@@ -832,9 +852,8 @@ def test_widget_init_defaults():
     assert len(w.id[7:]) == 10
     # The default position is FILL.
     assert w.position == "FILL"
-    # The default channel for widget related messages is the same as
-    # the widget's name.
-    assert w.channel == "test"
+    # The default channel for widget related messages is None.
+    assert w.channel is None 
 
 
 def test_widget_init_override():
@@ -872,6 +891,7 @@ def test_widget_publish():
 
     with mock.patch("invent.publish") as mock_publish:
         w = MyWidget()
+        w.channel = "my_channel"
         w.publish("ping", strength=100)
         x = 2
         assert mock_publish.call_count == 1
@@ -984,7 +1004,8 @@ def test_widget_set_position():
                     assert w.element.style.width == "100%"
 
 
-def test_container_init():
+def test_container_on_content_changed():
     """
-    A default initialisation results in the expected default state.
+    The children are re-rendered when the content list is changed.
     """
+    pass  # TODO: Finish me.
