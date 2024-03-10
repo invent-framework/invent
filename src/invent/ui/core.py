@@ -195,8 +195,9 @@ class Property:
         """
 
         # If this property has already been bound to the datastore then we need
-        # to set the value that is *in* the datastore. This will then trigger the
-        # property's reactor.
+        # to set the value *in* the datastore. This will then trigger the
+        # property's reactor. This is used when any "input" properties are changed
+        # on a widget (e.g. a value setting on a slider).
         binding = getattr(obj, self.private_name + "_from_datastore", None)
         if binding:
             validated_value = self.validate(value)
