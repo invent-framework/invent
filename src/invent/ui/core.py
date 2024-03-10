@@ -194,6 +194,15 @@ class Property:
         the associated value is updated.
         """
 
+        # If this property has already been bound to the datastore then we need
+        # to set the value that is *in* the datastore. This will then trigger the
+        # property's reactor.
+        binding = getattr(obj, self.private_name + "_from_datastore", None)
+        if binding:
+            validated_value = self.validate(value)
+            invent.datastore[binding.key] = validated_value
+            return
+
         if isinstance(value, from_datastore):
             # The from_datastore's with_function takes the original  value and
             # returns a new "post-processed" value.
@@ -219,6 +228,7 @@ class Property:
             )
             # Update value to the actual value from the datastore.
             value = invent.datastore.get(value.key, self.default_value)
+
             # Ensure the raw value is handled by the from_datastore's
             # with_function.
             if with_function is not None:
@@ -934,6 +944,7 @@ class Container(Component):
         self.parent = None
 
     def on_content_changed(self):
+        self.element.innerHTML = ""
         self.render_children(self.element)
 
     def on_height_changed(self):

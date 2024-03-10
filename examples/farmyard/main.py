@@ -5,7 +5,10 @@ from invent.ui import export
 # Datastore ############################################################################
 
 
-invent.datastore.setdefault("number_of_honks", 0)
+#invent.datastore.setdefault("number_of_honks", 0)
+#invent.datastore.setdefault("number_of_oinks", 0)
+
+invent.datastore["number_of_honks"] = 0
 invent.datastore.setdefault("number_of_oinks", 0)
 
 
@@ -60,6 +63,12 @@ app = invent.ui.App(
         invent.ui.Page(
             name="Lucy",
             content=[
+                invent.ui.Slider(
+                    value=invent.ui.from_datastore("number_of_honks"),
+                    name='Honk Slider',
+                    position='FILL',
+                    step=1,
+                ),
                 invent.ui.Column(
                     content=[
                         invent.ui.Image(

@@ -51,8 +51,19 @@ class Slider(Widget):
     def icon(cls):
         return '<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 256 256"><path fill="currentColor" d="M40 88h33a32 32 0 0 0 62 0h81a8 8 0 0 0 0-16h-81a32 32 0 0 0-62 0H40a8 8 0 0 0 0 16m64-24a16 16 0 1 1-16 16a16 16 0 0 1 16-16m112 104h-17a32 32 0 0 0-62 0H40a8 8 0 0 0 0 16h97a32 32 0 0 0 62 0h17a8 8 0 0 0 0-16m-48 24a16 16 0 1 1 16-16a16 16 0 0 1-16 16"/></svg>'  # noqa
 
+    def on_js_input(self, event):
+        """
+        Bound to the js "input" event on the widget's element.
+        """
+
+        self.value = int(event.target.value)
+
+    def on_value_changed(self):
+        self.element.value = self.value
+
     def render(self):
         element = document.createElement("input")
         element.id = self.id
         element.setAttribute("type", "range")
+        element.addEventListener("input", self.on_js_input)
         return element
