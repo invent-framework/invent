@@ -47,6 +47,7 @@ export class BuilderUtilities {
 	
 			widgetElement.addEventListener("drop", (event: DragEvent) => {
 				event.preventDefault();
+				event.stopPropagation();
 				widgetElement.classList.remove("drop-zone-active");
 				
 				const widgetToAdd: WidgetModel = JSON.parse(event.dataTransfer?.getData("widget") as string);
