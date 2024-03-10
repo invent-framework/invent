@@ -478,8 +478,8 @@ class BooleanProperty(Property):
 
 class ContentProperty(Property):
     """
-    A property specifically for the content of Containers.
-
+    A property specifically for the content of Containers. Will contain a list
+    of child components.
     """
 
     def coerce(self, value):
@@ -490,7 +490,7 @@ class ContentProperty(Property):
 
     def validate(self, value):
         """
-        Ensure the property's value is a boolean value (True / False).
+        Ensure the property's value is a list.
         """
         return super().validate(self.coerce(value))
 
@@ -570,11 +570,11 @@ class Component:
         self.update(**kwargs)
         if not self.id:
             self.id = random_id()
-
         if not self.name:
             self.name = type(self)._generate_name()
-
         Component._components_by_id[self.id] = self
+        # To reference the container's parent in the DOM tree.
+        self.parent = None
 
     def update(self, **kwargs):
         """
@@ -927,11 +927,6 @@ class Container(Component):
             "Outset",
         ],
     )
-
-    def __init__(self, **kwargs):
-        # To reference the container's parent in the DOM tree.
-        super().__init__(**kwargs)
-        self.parent = None
 
     def on_content_changed(self):
         self.render_children(self.element)
