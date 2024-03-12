@@ -9,7 +9,7 @@ from invent.ui import export
 #invent.datastore.setdefault("number_of_oinks", 0)
 
 invent.datastore["number_of_honks"] = 0
-invent.datastore.setdefault("number_of_oinks", 0)
+invent.datastore["number_of_oinks"] = 0
 
 
 # Code #################################################################################
