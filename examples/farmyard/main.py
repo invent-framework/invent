@@ -1,5 +1,6 @@
 import invent
 from invent.ui import export
+from invent.ui import *
 
 
 # Datastore ############################################################################
@@ -39,11 +40,11 @@ def make_oink(message):
 
 
 def make_geese(number_of_honks):
-    return [invent.ui.TextBox(text="🪿") for _ in range(number_of_honks)]
+    return [TextBox(text="🪿") for _ in range(number_of_honks)]
 
 
 def make_pigs(number_of_oinks):
-    return [invent.ui.TextBox(text="🐖") for _ in range(number_of_oinks)]
+    return [TextBox(text="🐖") for _ in range(number_of_oinks)]
 
 
 # Channels #############################################################################
@@ -57,57 +58,57 @@ invent.subscribe(make_oink, to_channel="oink", when_subject=["press", "touch"])
 # User Interface #######################################################################
 
 
-app = invent.ui.App(
+app = App(
     name="Farmyard",
     content=[
-        invent.ui.Page(
+        Page(
             name="Lucy",
             content=[
-                invent.ui.Slider(
-                    value=invent.ui.from_datastore("number_of_honks"),
+                Slider(
+                    value=from_datastore("number_of_honks"),
                     name='Honk Slider',
                     position='FILL',
                     step=1,
                 ),
-                invent.ui.Column(
+                Column(
                     content=[
-                        invent.ui.Image(
+                        Image(
                             image=invent.media.images.goose.png,
                             channel="honk",
                             position="MIDDLE-CENTER",
                         ),
-                        invent.ui.Row(
+                        Row(
                             position="CENTER",
                             content=[
-                                invent.ui.Button(
+                                Button(
                                     name="button honk",
                                     label="HONK!",
                                     channel="honk",
                                     position="FILL",
                                 ),
-                                invent.ui.Button(
+                                Button(
                                     name="to_percy",
                                     label="Visit Percy",
                                     channel="navigate",
                                     position="FILL",
                                 ),
-                                invent.ui.TextBox(
+                                TextBox(
                                     name="number_of_honks",
-                                    text=invent.ui.from_datastore(
+                                    text=from_datastore(
                                         "number_of_honks"
                                     ),
                                     position="MIDDLE-CENTER",
                                 ),
                             ],
                         ),
-                        invent.ui.Row(
+                        Row(
                             id="geese",
                             position="CENTER",
-                            content=invent.ui.from_datastore(
+                            content=from_datastore(
                                 "number_of_honks", with_function=make_geese
                             ),
                         ),
-                        invent.ui.Button(
+                        Button(
                             name="to_code",
                             label="Show Code",
                             channel="navigate",
@@ -117,47 +118,47 @@ app = invent.ui.App(
                 )
             ],
         ),
-        invent.ui.Page(
+        Page(
             name="Percy",
             content=[
-                invent.ui.Column(
+                Column(
                     content=[
-                        invent.ui.Image(
+                        Image(
                             image=invent.media.images.pig.png,
                             channel="oink",
                             position="MIDDLE-CENTER",
                         ),
-                        invent.ui.Row(
+                        Row(
                             position="CENTER",
                             content=[
-                                invent.ui.Button(
+                                Button(
                                     name="button oink",
                                     label="OINK!!",
                                     channel="oink",
                                 ),
-                                invent.ui.Button(
+                                Button(
                                     name="to_lucy",
                                     label="Visit Lucy",
                                     channel="navigate",
                                     position="FILL",
                                 ),
-                                invent.ui.TextBox(
+                                TextBox(
                                     name="number_of_oinks",
-                                    text=invent.ui.from_datastore(
+                                    text=from_datastore(
                                         "number_of_oinks"
                                     ),
                                     position="MIDDLE-CENTER",
                                 ),
                             ],
                         ),
-                        invent.ui.Row(
+                        Row(
                             id="pigs",
                             position="CENTER",
-                            content=invent.ui.from_datastore(
+                            content=from_datastore(
                                 "number_of_oinks", with_function=make_pigs
                             ),
                         ),
-                        invent.ui.Button(
+                        Button(
                             name="to_code",
                             label="Show Code",
                             channel="navigate",
@@ -175,18 +176,18 @@ app = invent.ui.App(
 
 
 app.content.append(
-    invent.ui.Page(
+    Page(
         name="Code",
         content=[
-            invent.ui.Row(
+            Row(
                 content=[
-                    invent.ui.Button(
+                    Button(
                         name="to_lucy",
                         label="Visit Lucy",
                         channel="navigate",
                         position="FILL",
                     ),
-                    invent.ui.Button(
+                    Button(
                         name="to_percy",
                         label="Visit Percy",
                         channel="navigate",
@@ -194,7 +195,7 @@ app.content.append(
                     ),
                 ]
             ),
-            invent.ui.Code(code=export.as_pyscript_app(app)[0]),
+            Code(code=export.as_pyscript_app(app)[0]),
         ],
     )
 )

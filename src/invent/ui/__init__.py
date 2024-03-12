@@ -50,6 +50,7 @@ __all__ = [
     "Code",
     "Html",
     "Image",
+    "Slider",
     "TextBox",
     "TextInput",
 ]
