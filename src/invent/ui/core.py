@@ -566,9 +566,21 @@ class Component:
         "The meaningful name of the widget instance.",
         map_to_attribute="name",
     )
+
+    # Properties that are used by the container that a component is in.
     position = TextProperty(
         "The component's position inside it's parent.",
         default_value="FILL",
+    )
+
+    width = TextProperty(
+        "The component's requested grid-width inside it's parent.",
+        default_value="1",
+    )
+
+    height = TextProperty(
+        "The component's requested gird-width inside it's parent.",
+        default_value="1",
     )
 
     def __init__(self, **kwargs):
@@ -1129,6 +1141,68 @@ class Row(Container):
         child_wrapper = document.createElement("div")
         child_wrapper.style.setProperty("grid-column", index)
         child_wrapper.style.setProperty("grid-row", 1)
+        child_wrapper.appendChild(child.element)
+        child.set_position(child_wrapper)
+
+        return child_wrapper
+
+
+class Grid(Container):
+    """
+    A grid.
+    """
+
+    columns = IntegerProperty("Number of columns", 4)
+    column_gap = IntegerProperty("Space between columns", 0)
+    row_gap = IntegerProperty("Space between rows", 0)
+
+    @classmethod
+    def icon(cls):
+        return '<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 256 256"><path fill="currentColor" d="M104 32H64a16 16 0 0 0-16 16v160a16 16 0 0 0 16 16h40a16 16 0 0 0 16-16V48a16 16 0 0 0-16-16m0 176H64V48h40Zm88-176h-40a16 16 0 0 0-16 16v160a16 16 0 0 0 16 16h40a16 16 0 0 0 16-16V48a16 16 0 0 0-16-16m0 176h-40V48h40Z"/></svg>'  # noqa
+
+    def append(self, item):
+        """
+        Append like a list.
+        """
+
+        # Update the object model...
+        super().append(item)
+
+        # Update the element...
+        self.element.appendChild(self._wrap_child(item, len(self.content)))
+
+    def render(self):
+        element = document.createElement("div")
+        element.style.display = "grid"
+        element.style.gridTemplateColumns = "auto " * self.columns
+        element.style.columnGap = self.column_gap
+        element.style.rowGap = self.row_gap
+
+        # Render the container's children.
+        self.render_children(element)
+
+        # Implementation detail: add child elements in the child class's own
+        # render method. See Column and Row classes for examples of this.
+        return element
+
+    def render_children(self, element):
+        for counter, child in enumerate(self.content, start=1):
+            element.appendChild(self._wrap_child(child, counter))
+
+    def _wrap_child(self, child, index):
+        """
+        Wrap the child element in a div with grid styles set appropriately.
+        """
+        child_wrapper = document.createElement("div")
+
+        grid_row_span = child.height
+        if grid_row_span:
+            child_wrapper.style.gridRow = "span " + str(grid_row_span)
+
+        grid_column_span = child.width
+        if grid_column_span:
+            child_wrapper.style.gridColumn = "span " + str(grid_column_span)
+
         child_wrapper.appendChild(child.element)
         child.set_position(child_wrapper)
 

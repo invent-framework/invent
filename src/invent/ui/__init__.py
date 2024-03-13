@@ -20,7 +20,7 @@ limitations under the License.
 
 from ..i18n import _
 from .app import App
-from .core import Widget, Container, Column, Row, from_datastore
+from .core import Widget, Container, Column, Grid, Row, from_datastore
 from .page import Page
 from .utils import random_id, sanitize
 from .widgets.audio import Audio
@@ -43,6 +43,7 @@ __all__ = [
     "Widget",
     "Container",
     "Column",
+    "Grid",
     "Row",
     "from_datastore",
     "Audio",
@@ -60,6 +61,7 @@ AVAILABLE_COMPONENTS = {
     # Containers...
     _("Column"): Column,
     _("Row"): Row,
+    _("Grid"): Grid,
     # Widgets...
     _("Audio"): Audio,
     _("Button"): Button,
