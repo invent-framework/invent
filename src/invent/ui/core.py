@@ -573,13 +573,13 @@ class Component:
         default_value="FILL",
     )
 
-    width = TextProperty(
-        "The component's requested grid-width inside it's parent.",
+    column_span = TextProperty(
+        "The component's requested column-span in a grid",
         default_value="1",
     )
 
-    height = TextProperty(
-        "The component's requested gird-width inside it's parent.",
+    row_span = TextProperty(
+        "The component's requested row-span in a grid.",
         default_value="1",
     )
 
@@ -913,7 +913,7 @@ class Container(Component):
         default_value=None,
     )
 
-    width = IntegerProperty(
+    column_width = IntegerProperty(
         "The default width of the container.",
         default_value=100,
         maximum=100,
@@ -1171,6 +1171,9 @@ class Grid(Container):
         # Update the element...
         self.element.appendChild(self._wrap_child(item, len(self.content)))
 
+    def on_columns_changed(self):
+        self.element.style.gridTemplateColumns = "auto " * self.columns
+
     def render(self):
         element = document.createElement("div")
         element.style.display = "grid"
@@ -1195,11 +1198,11 @@ class Grid(Container):
         """
         child_wrapper = document.createElement("div")
 
-        grid_row_span = child.height
+        grid_row_span = child.row_span
         if grid_row_span:
             child_wrapper.style.gridRow = "span " + str(grid_row_span)
 
-        grid_column_span = child.width
+        grid_column_span = child.column_span
         if grid_column_span:
             child_wrapper.style.gridColumn = "span " + str(grid_column_span)
 

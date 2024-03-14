@@ -92,8 +92,9 @@ invent.ui.App(
         invent.ui.Page(
             content=[
                 invent.ui.Grid(
+                    columns=4,
                     content=[
-                        invent.ui.TextInput(width=4, value=invent.ui.from_datastore("numbers")),
+                        invent.ui.TextInput(column_span=4, value=invent.ui.from_datastore("numbers")),
 
                         invent.ui.Button(label="AC", purpose="SECONDARY", channel="calculator"),
                         invent.ui.Button(label="C", purpose="SECONDARY", channel="calculator"),
@@ -115,7 +116,7 @@ invent.ui.App(
                         invent.ui.Button(label="3", purpose="DEFAULT", channel="calculator"),
                         invent.ui.Button(label="+", purpose="SUCCESS", channel="calculator"),
 
-                        invent.ui.Button(label="0", purpose="DEFAULT", width=2, channel="calculator"),
+                        invent.ui.Button(label="0", purpose="DEFAULT", column_span=2, channel="calculator"),
                         invent.ui.Button(label=".", purpose="SECONDARY", channel="calculator"),
                         invent.ui.Button(label="=", purpose="SECONDARY", channel="calculator"),
                     ]
