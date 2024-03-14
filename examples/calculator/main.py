@@ -116,7 +116,7 @@ invent.ui.App(
                         invent.ui.Button(label="3", purpose="DEFAULT", channel="calculator"),
                         invent.ui.Button(label="+", purpose="SUCCESS", channel="calculator"),
 
-                        invent.ui.Button(label="0", purpose="DEFAULT", column_span=2, channel="calculator"),
+                        invent.ui.Button(column_span=2, label="0", purpose="DEFAULT", channel="calculator"),
                         invent.ui.Button(label=".", purpose="SECONDARY", channel="calculator"),
                         invent.ui.Button(label="=", purpose="SECONDARY", channel="calculator"),
                     ]
