@@ -32,6 +32,7 @@ from .widgets.textbox import TextBox
 from .widgets.textinput import TextInput
 from .widgets.slider import Slider
 from .widgets.audio import Audio
+from .widgets.fileupload import FileUpload
 
 
 __all__ = [
@@ -71,4 +72,5 @@ AVAILABLE_COMPONENTS = {
     _("Slider"): Slider,
     _("TextBox"): TextBox,
     _("TextInput"): TextInput,
+    _("FileUpload"): FileUpload,
 }

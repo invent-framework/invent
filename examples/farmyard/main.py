@@ -6,8 +6,8 @@ from invent.ui import *
 # Datastore ############################################################################
 
 
-#invent.datastore.setdefault("number_of_honks", 0)
-#invent.datastore.setdefault("number_of_oinks", 0)
+# invent.datastore.setdefault("number_of_honks", 0)
+# invent.datastore.setdefault("number_of_oinks", 0)
 
 invent.datastore["number_of_honks"] = 0
 invent.datastore["number_of_oinks"] = 0
@@ -66,8 +66,8 @@ app = App(
             content=[
                 Slider(
                     value=from_datastore("number_of_honks"),
-                    name='Honk Slider',
-                    position='FILL',
+                    name="Honk Slider",
+                    position="FILL",
                     step=1,
                 ),
                 Column(
@@ -94,9 +94,7 @@ app = App(
                                 ),
                                 TextBox(
                                     name="number_of_honks",
-                                    text=from_datastore(
-                                        "number_of_honks"
-                                    ),
+                                    text=from_datastore("number_of_honks"),
                                     position="MIDDLE-CENTER",
                                 ),
                             ],
@@ -115,7 +113,7 @@ app = App(
                             position="FILL",
                         ),
                     ]
-                )
+                ),
             ],
         ),
         Page(
@@ -144,9 +142,7 @@ app = App(
                                 ),
                                 TextBox(
                                     name="number_of_oinks",
-                                    text=from_datastore(
-                                        "number_of_oinks"
-                                    ),
+                                    text=from_datastore("number_of_oinks"),
                                     position="MIDDLE-CENTER",
                                 ),
                             ],

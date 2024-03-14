@@ -385,12 +385,6 @@ class IntegerProperty(NumericProperty):
         """
         return int(value) if value is not None else None
 
-    def validate(self, value):
-        """
-        Ensure the property's value is an integer.
-        """
-        return super().validate(self.coerce(value))
-
 
 class FloatProperty(NumericProperty):
     """
@@ -402,12 +396,6 @@ class FloatProperty(NumericProperty):
         Convert to a float.
         """
         return float(value) if value is not None else None
-
-    def validate(self, value):
-        """
-        Ensure the property's value is a floating point number.
-        """
-        return super().validate(self.coerce(value))
 
 
 class TextProperty(Property):
@@ -480,30 +468,28 @@ class BooleanProperty(Property):
     def coerce(self, value):
         return bool(value) if value is not None else None
 
-    def validate(self, value):
-        """
-        Ensure the property's value is a boolean value (True / False).
-        """
-        return super().validate(self.coerce(value))
 
+class ListProperty(Property):
+    """
+    A list like container of stuff.
+    """
 
-class ContentProperty(Property):
-    """
-    A property specifically for the content of Containers. Will contain a list
-    of child components.
-    """
+    def __init__(
+        self,
+        description,
+        default_value=None,
+        required=False,
+        map_to_attribute=None,
+    ):
+        super().__init__(
+            description, default_value or list(), required, map_to_attribute
+        )
 
     def coerce(self, value):
         if value is None:
             return []
 
         return list(value)
-
-    def validate(self, value):
-        """
-        Ensure the property's value is a list.
-        """
-        return super().validate(self.coerce(value))
 
 
 class ChoiceProperty(Property):
@@ -863,7 +849,8 @@ class Widget(Component):
     """
 
     channel = TextProperty(
-        "A comma separated list of channels to which the widget broadcasts.", default_value=None
+        "A comma separated list of channels to which the widget broadcasts.",
+        default_value=None,
     )
 
     def __init__(self, **kwargs):
@@ -908,7 +895,7 @@ class Container(Component):
       insert the children into the container in the correct manner.
     """
 
-    content = ContentProperty(
+    content = ListProperty(
         "The contents of the container",
         default_value=None,
     )

@@ -595,7 +595,11 @@ def test_content_property_validation():
             return document.createElement("div")
 
     tc = TestComponent()
-    tc.content = ["foo", "bar", "baz", ]
+    tc.content = [
+        "foo",
+        "bar",
+        "baz",
+    ]
     tc.content = None
     with pytest.raises(TypeError):
         tc.content = False
@@ -794,6 +798,7 @@ def test_component_update_attribute():
     """
     Ensure the referenced attribute is updated and removed as expected.
     """
+
     class MyWidget(core.Widget):
         """
         A test widget.
@@ -853,7 +858,7 @@ def test_widget_init_defaults():
     # The default position is FILL.
     assert w.position == "FILL"
     # The default channel for widget related messages is None.
-    assert w.channel is None 
+    assert w.channel is None
 
 
 def test_widget_init_override():

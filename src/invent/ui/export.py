@@ -150,6 +150,7 @@ PYSCRIPT_TOML_TEMPLATE = """
 "{{INVENT}}/ui/widgets/slider.py"="{{INVENT_TO}}/ui/widgets/slider.py"
 "{{INVENT}}/ui/widgets/textbox.py"="{{INVENT_TO}}/ui/widgets/textbox.py"
 "{{INVENT}}/ui/widgets/textinput.py"="{{INVENT_TO}}/ui/widgets/textinput.py"
+"{{INVENT}}/ui/widgets/fileupload.py"="{{INVENT_TO}}/ui/widgets/fileupload.py"
 """
 
 

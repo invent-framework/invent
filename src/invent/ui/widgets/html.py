@@ -18,7 +18,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-
 from invent.ui.core import Widget, TextProperty
 from pyscript import document
 
@@ -28,7 +27,9 @@ class Html(Widget):
     An "escape-hatch" widget that allows arbitrary html :)
     """
 
-    html = TextProperty("The raw HTML.", default_value="<div>With great power...</div>")
+    html = TextProperty(
+        "The raw HTML.", default_value="<div>With great power...</div>"
+    )
 
     events = TextProperty(
         "Comma separated list of the DOM events you want the widget to publish to its channel"
