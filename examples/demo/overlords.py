@@ -4,15 +4,19 @@ import requests
 pyodide_http.patch_all()
 
 
-def ask_the_overlords(prompt, ai_launcher_port=8765):
+def ask_the_overlords(context="", ai_launcher_port=8765):
     """Ask the overlords!"""
 
     url = f"http://127.0.0.1:{ai_launcher_port}/v1/chat/completions"
 
     content = f"""
-    Respond as an 18th century pirate.
+    Given the context of the following documents:
+    
+    {context}
+        
+    Please summarize in no more than 30 words in the style of an 18th century
+    pirate.
 
-    {prompt}
     """
 
     response = requests.post(

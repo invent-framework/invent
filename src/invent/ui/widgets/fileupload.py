@@ -30,14 +30,6 @@ from invent.ui.core import (
 )
 
 
-
-# JS Proxy objects are not JSON serializable, so currently we can't put them in the
-# data store.
-_files_ = {
-
-}
-
-
 class FileUpload(Widget):
     """
     A file upload widget.
@@ -46,6 +38,16 @@ class FileUpload(Widget):
     # JS Proxy objects are not JSON serializable, so currently we can't put them in the
     # data store.
     _files_ = {}
+
+    @classmethod
+    def get_file_by_name(cls, filename):
+        """Return the File object with the specified name."""
+
+        print(cls._files_, repr(filename))
+        result = cls._files_.get(filename)
+        print(result)
+
+        return result
 
     files = ListProperty("The files to upload")
     required = BooleanProperty(
@@ -63,13 +65,11 @@ class FileUpload(Widget):
         Bound to the js "input" event on the widget's element.
         """
 
-        global _files_
-
         file = event.target.files.item(0)
 
         # Put the jsproxy in the class-scope dictionary since we can't js serialize it
         # if the files property if bound to the datastore.
-        _files_[file.name] = file
+        FileUpload._files_[file.name] = file
 
         self.files = self.files + [file.name]
 

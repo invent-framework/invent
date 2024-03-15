@@ -1,9 +1,13 @@
+"""Summarizer demo."""
 
+
+import asyncio
 
 import invent
 from invent.ui import *
 
 from overlords import ask_the_overlords
+from utils import get_file_by_name, read_file
 
 
 # Datastore ##################################################################
@@ -26,10 +30,29 @@ def list_of_filenames(filenames):
     return result
 
 
+async def read_files(filenames):
+    return [
+        await read_file(get_file_by_name(filename))
+
+        for filename in filenames or []
+    ]
+
+
+async def summarize():
+    content = await read_files(invent.datastore["filenames"])
+    summary = ask_the_overlords(context="\n\n".join(content))
+
+    invent.datastore["summary"] = summary
+
+    print("summarize: done", summary)
+    return summary
+
+
 def on_summarize(message):
-    ...
-    print("summarize!!!!!")
-    invent.datastore["summary"] = ask_the_overlords("where is Paris?")
+    """Summarize the text files."""
+
+    loop = asyncio.get_event_loop()
+    asyncio.run_coroutine_threadsafe(summarize(), loop)
 
 
 def on_data_changed(message):
