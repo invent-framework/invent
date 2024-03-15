@@ -1,4 +1,7 @@
+packages = ["pyodide_http", "requests"]
+
 [files]
+"overlords.py" = ""
 #
 # invent.
 #

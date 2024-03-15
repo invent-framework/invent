@@ -55,3 +55,15 @@ def sanitize(raw):
     temp = document.createElement("div")
     temp.innerText = raw
     return temp.innerHTML
+
+
+def is_micro_python():
+    import time
+    return not hasattr(time, "time")
+
+
+def proxy(function):
+    if not function:
+        return None
+    import pyodide
+    return pyodide.ffi.create_proxy(function) if not is_micro_python() else function

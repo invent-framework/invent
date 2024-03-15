@@ -43,7 +43,9 @@ class FileUpload(Widget):
     A file upload widget.
     """
 
-
+    # JS Proxy objects are not JSON serializable, so currently we can't put them in the
+    # data store.
+    _files_ = {}
 
     files = ListProperty("The files to upload")
     required = BooleanProperty(
@@ -61,12 +63,14 @@ class FileUpload(Widget):
         Bound to the js "input" event on the widget's element.
         """
 
-        file = event.target.files.item(0)
-        print("on_js_change", file, file.name, type(file))
-
         global _files_
 
+        file = event.target.files.item(0)
+
+        # Put the jsproxy in the class-scope dictionary since we can't js serialize it
+        # if the files property if bound to the datastore.
         _files_[file.name] = file
+
         self.files = self.files + [file.name]
 
     def render(self):

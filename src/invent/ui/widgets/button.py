@@ -25,6 +25,8 @@ from invent.ui.core import (
     ChoiceProperty,
     MessageBlueprint,
 )
+from invent.ui.utils import proxy
+
 from pyscript import document
 
 
@@ -107,5 +109,5 @@ class Button(Widget):
         element = document.createElement("button")
         element.id = self.id
         element.innerText = self.label
-        element.addEventListener("click", self.click)
+        element.addEventListener("click", proxy(self.click))
         return element
