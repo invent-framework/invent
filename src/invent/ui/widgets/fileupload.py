@@ -49,5 +49,5 @@ class FileUpload(Widget):
     def render(self):
         element = document.createElement("input")
         element.id = self.id
-        element.setAttribute("type", "files")
+        element.setAttribute("type", "file")
         return element
