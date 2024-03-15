@@ -50,6 +50,7 @@ __all__ = [
     "Audio",
     "Button",
     "Code",
+    "FileUpload",
     "Html",
     "Image",
     "Slider",
