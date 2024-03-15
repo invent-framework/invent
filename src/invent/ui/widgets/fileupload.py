@@ -41,13 +41,10 @@ class FileUpload(Widget):
 
     @classmethod
     def get_file_by_name(cls, filename):
-        """Return the File object with the specified name."""
-
-        print(cls._files_, repr(filename))
-        result = cls._files_.get(filename)
-        print(result)
-
-        return result
+        """
+        Return the File object with the specified name.
+        """
+        return cls._files_.get(filename)
 
     files = ListProperty("The files to upload")
     required = BooleanProperty(
