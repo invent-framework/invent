@@ -18,6 +18,16 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
+try:
+    import asyncio
+    is_micropython = False
+
+except ImportError:
+    is_micropython = True
+
+import inspect
+
+
 __all__ = [
     "Message",
     "subscribe",
@@ -99,7 +109,11 @@ def publish(message, to_channel):
         channel_info = _channels.get(channel, {})
         if message._subject in channel_info:
             for handler in channel_info[message._subject]:
-                handler(message)
+                if not is_micropython and inspect.iscoroutinefunction(handler):
+                    asyncio.create_task(handler(message))
+
+                else:
+                    handler(message)
 
 
 def unsubscribe(handler, from_channel, when_subject):
