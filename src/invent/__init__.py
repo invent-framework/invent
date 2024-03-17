@@ -20,17 +20,20 @@ limitations under the License.
 
 
 from .channels import Message, subscribe, publish, unsubscribe
+from .compatability import is_micropython
 from .datastore import DataStore
 from .i18n import _, load_translations
 from .media import Media, set_media_root, get_media_root
 from .ui.app import App
-from .utils import is_micropython, play_sound, show_page
+from .utils import play_sound, show_page
+
 
 __all__ = [
     "Message",
     "subscribe",
     "publish",
     "unsubscribe",
+    "is_micropython",
     "DataStore",
     "datastore",
     "_",
@@ -41,7 +44,6 @@ __all__ = [
     "get_media_root",
     "play_sound",
     "show_page",
-    "is_micropython",
     "go",
 ]
 

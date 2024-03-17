@@ -21,8 +21,8 @@ limitations under the License.
 import invent
 import inspect
 from pyscript import document
+from invent.compatability import getmembers_static
 from invent.i18n import _
-from invent.utils import getmembers_static
 from .utils import random_id
 
 
