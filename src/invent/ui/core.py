@@ -22,6 +22,7 @@ import invent
 import inspect
 from pyscript import document
 from invent.i18n import _
+from invent.utils import getmembers_static
 from .utils import random_id
 
 
@@ -661,16 +662,9 @@ class Component:
         Implementation detail: we branch on interpreter type because of the
         different behaviour of `getmembers`.
         """
-        if invent.is_micropython:  # pragma: no cover
-            result = {}
-            for name, member in inspect.getmembers(cls):
-                value = getattr(cls, name)
-                if isinstance(value, Property):
-                    result[name] = value
-            return result
         return {
             name: value
-            for name, value in inspect.getmembers_static(cls)
+            for name, value in getmembers_static(cls)
             if isinstance(value, Property)
         }
 
@@ -683,16 +677,9 @@ class Component:
         Implementation detail: we branch on interpreter type because of the
         different behaviour of `getmembers`.
         """
-        if invent.is_micropython:  # pragma: no cover
-            result = {}
-            for name, member in inspect.getmembers(cls):
-                value = getattr(cls, name)
-                if isinstance(value, MessageBlueprint):
-                    result[name] = value
-            return result
         return {
             name: value
-            for name, value in inspect.getmembers_static(cls)
+            for name, value in getmembers_static(cls)
             if isinstance(value, MessageBlueprint)
         }
 

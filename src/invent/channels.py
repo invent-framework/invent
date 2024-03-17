@@ -18,12 +18,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-try:
-    import asyncio
-    is_micropython = False
+from .utils import is_micropython
 
-except ImportError:
-    is_micropython = True
+if not is_micropython:
+    import asyncio
 
 import inspect
 

@@ -18,13 +18,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-import sys
+
 from .channels import Message, subscribe, publish, unsubscribe
 from .datastore import DataStore
 from .i18n import _, load_translations
 from .media import Media, set_media_root, get_media_root
 from .ui.app import App
-from .utils import play_sound, show_page
+from .utils import is_micropython, play_sound, show_page
 
 __all__ = [
     "Message",
@@ -52,10 +52,6 @@ datastore = DataStore()
 
 #: The root from which all media files can be found.
 media = Media([], "media")
-
-
-#: A flag to show if MicroPython is the current Python interpreter.
-is_micropython = "MicroPython" in sys.version
 
 
 #: Start the app.
