@@ -3,6 +3,7 @@
 
 import inspect
 import sys
+import types
 
 
 #: A flag to show if MicroPython is the current Python interpreter.
@@ -22,7 +23,7 @@ def iscoroutinefunction(obj):
     """Cross-interpreter implementation of inspect.iscoroutinefunction."""
 
     if is_micropython:  # pragma: no cover
-        # TODO: No async handlers in MicroPython just yet...
-        return False
+        # MicroPython seems to treat coroutines as generators :)
+        return type(obj) is types.GeneratorType
 
     return inspect.iscoroutinefunction(obj)
