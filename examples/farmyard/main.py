@@ -17,11 +17,11 @@ invent.datastore["number_of_oinks"] = 0
 
 
 def navigate(message):
-    if message.button == "to_lucy":
+    if message.button.name == "to_lucy":
         invent.show_page("Lucy")
-    elif message.button == "to_percy":
+    elif message.button.name == "to_percy":
         invent.show_page("Percy")
-    elif message.button == "to_code":
+    elif message.button.name == "to_code":
         invent.show_page("Code")
 
 

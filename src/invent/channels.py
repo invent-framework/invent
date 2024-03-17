@@ -18,12 +18,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-from .utils import is_micropython
+from .utils import is_micropython, iscoroutinefunction
 
 if not is_micropython:
     import asyncio
-
-import inspect
 
 
 __all__ = [
@@ -107,7 +105,7 @@ def publish(message, to_channel):
         channel_info = _channels.get(channel, {})
         if message._subject in channel_info:
             for handler in channel_info[message._subject]:
-                if not is_micropython and inspect.iscoroutinefunction(handler):
+                if iscoroutinefunction(handler):
                     asyncio.create_task(handler(message))
 
                 else:

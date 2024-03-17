@@ -33,3 +33,13 @@ def getmembers_static(cls):
         ]
 
     return inspect.getmembers_static(cls)
+
+
+def iscoroutinefunction(obj):
+    """Cross-interpreter implementation of inspect.iscoroutinefunction."""
+
+    if is_micropython:
+        # TODO: No async handlers in MicroPython just yet...
+        return False
+
+    return inspect.iscoroutinefunction(obj)
