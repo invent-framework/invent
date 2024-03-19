@@ -22,7 +22,7 @@ INDEX_HTML = """
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>{app.name}</title>
+    <title>{title}</title>
 
     <!-- Recommended meta tags -->
     <meta charset="UTF-8">
@@ -110,7 +110,7 @@ def as_pyscript_app(app, imports=IMPORTS, datastore="", code="", to_psdc=True):
 
     # index.html
     index_html = INDEX_HTML.format(
-        app=app
+        title=app.name
     )
 
     # main.py
