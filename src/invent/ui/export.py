@@ -139,8 +139,8 @@ PYSCRIPT_TOML_TEMPLATE = """
 #
 # invent.integrations
 #
-"{INVENT}/integrations/__init__.py"="{INVENT_TO}/integrations/__init__.py"
-"{INVENT}/integrations/ai_client.py"="{INVENT_TO}/integrations/ai_client.py"
+"{{INVENT}}/integrations/__init__.py"="{{INVENT_TO}}/integrations/__init__.py"
+"{{INVENT}}/integrations/ai_client.py"="{{INVENT_TO}}/integrations/ai_client.py"
 #
 # invent.ui
 #
