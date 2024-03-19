@@ -11,66 +11,7 @@ from invent.ui import Container
 IMPORTS = """
 import invent
 from invent.ui import *
-from invent.integrations.ai_client import summarize
-"""
-
-
-# TODO: This will be passed in from the builder :)
-DATASTORE = """
-invent.datastore.setdefault("number_of_honks", 
-import pyodide
-invent.datastore.setdefault("number_of_oinks", 0)
-"""
-
-
-# TODO: This will be passed in from the builder :)
-CODE = """
-def make_honk(message):
-    invent.datastore["number_of_honks"] = (
-        invent.datastore["number_of_honks"] + 1
-    )
-    invent.play_sound(invent.media.sounds.honk.mp3)
-
-
-def make_oink(message):
-    invent.datastore["number_of_oinks"] = (
-        invent.datastore["number_of_oinks"] + 1
-    )
-    invent.play_sound(invent.media.sounds.oink.mp3)
-
-
-def move_page(message):
-    if message.button == "to_goose":
-        invent.show_page("Honk")
-    elif message.button == "to_pig":
-        invent.show_page("Oink")
-
-
-def make_geese(value_from_datastore):
-    return [
-        invent.ui.TextBox(text="🪿")
-
-        for _ in range(value_from_datastore)
-    ]
-
-
-def make_pigs(value_from_datastore):
-    return [
-        invent.ui.TextBox(text="🐖")
-
-        for _ in range(value_from_datastore)
-    ]
-
-
-invent.subscribe(make_honk, to_channel="honk", when_subject=["press", "touch"])
-invent.subscribe(make_oink, to_channel="oink", when_subject=["press", "touch"])
-invent.subscribe(
-    move_page,
-    to_channel="navigate",
-    when_subject=[
-        "press",
-    ],
-)
+from invent.ai import *
 """
 
 
@@ -95,7 +36,7 @@ INDEX_HTML = """
     <link rel="stylesheet" href="https://unpkg.com/papercss@1.9.2/dist/paper.min.css">
 </head>
 <body>
-  <script type="py" src="./main.py" config="./pyscript.toml"></script>
+  <script type="py" src="./main.py" config="./pyscript.toml" async></script>
 </body>
 </html>
 """
@@ -163,9 +104,7 @@ experimental_create_proxy = "auto"
 """
 
 
-def as_pyscript_app(
-    app, imports=IMPORTS, datastore=DATASTORE, code=CODE, to_psdc=True
-):
+def as_pyscript_app(app, imports=IMPORTS, datastore="", code="", to_psdc=True):
     """Generate the index.html, main.py and pyscript.toml files for an app."""
 
     # index.html
