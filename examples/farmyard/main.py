@@ -59,7 +59,7 @@ invent.subscribe(make_oink, to_channel="oink", when_subject=["press", "touch"])
 
 
 app = App(
-    name="Farmyard",
+    name="Farmyard!",
     content=[
         Page(
             name="Lucy",
