@@ -18,6 +18,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
+from invent.compatability import proxy
 from invent.ui.core import (
     Widget,
     TextProperty,
@@ -25,7 +26,6 @@ from invent.ui.core import (
     ChoiceProperty,
     MessageBlueprint,
 )
-from invent.ui.utils import proxy
 
 from pyscript import document
 

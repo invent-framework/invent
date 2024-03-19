@@ -19,6 +19,8 @@ limitations under the License.
 """
 
 from pyscript import document
+
+from invent.compatability import proxy
 from invent.ui.core import (
     Widget,
     TextProperty,
@@ -86,9 +88,7 @@ class TextInput(Widget):
         self.value = event.target.value
 
     def render(self):
-        from pyodide.ffi import create_proxy
-
         element = document.createElement("input")
         element.id = self.id
-        element.addEventListener("input", create_proxy(self.on_js_input))
+        element.addEventListener("input", proxy(self.on_js_input))
         return element

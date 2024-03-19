@@ -19,6 +19,8 @@ limitations under the License.
 """
 
 from pyscript import document
+
+from invent.compatability import proxy
 from invent.ui.core import (
     Widget,
     TextProperty,
@@ -71,10 +73,8 @@ class FileUpload(Widget):
         self.files = self.files + [file.name]
 
     def render(self):
-        from pyodide.ffi import create_proxy
-
         element = document.createElement("input")
         element.id = self.id
         element.setAttribute("type", "file")
-        element.addEventListener("change", create_proxy(self.on_js_change))
+        element.addEventListener("change", proxy(self.on_js_change))
         return element
