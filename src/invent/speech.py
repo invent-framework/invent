@@ -12,9 +12,11 @@ except:
 
 def say(text):
     """Ask the overlords!"""
+    print("Saying:", text)
     msg = window.SpeechSynthesisUtterance.new()
     msg.text = text
     synth.speak(msg)
+    print("Done")
 
 
 def listen():
