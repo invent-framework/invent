@@ -86,7 +86,9 @@ class TextInput(Widget):
         self.value = event.target.value
 
     def render(self):
+        from pyodide.ffi import create_proxy
+
         element = document.createElement("input")
         element.id = self.id
-        element.addEventListener("input", self.on_js_input)
+        element.addEventListener("input", create_proxy(self.on_js_input))
         return element
