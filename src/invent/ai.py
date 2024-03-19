@@ -2,7 +2,7 @@ import json
 from pyscript import fetch
 
 
-async def summarize(context="", ai_launcher_port=8765):
+async def summarize(context=""):
     """Ask the overlords!"""
 
     user_message = f"""
@@ -14,14 +14,14 @@ async def summarize(context="", ai_launcher_port=8765):
 
     """
 
-    ai_launcher_client = AIClient("http://127.0.0.1:8765/v1")
+    ai_client = AIClient("http://127.0.0.1:8765/v1")
 
-    return await ai_launcher_client.completions(user_messages=[user_message])
+    return await ai_client.completions(user_messages=[user_message])
 
 
 class AIClient:
     def __init__(self, url):
-        """A client of the Anaconda AI launcher."""
+        """An OpenAI compatible AI client."""
 
         self.url = url
 

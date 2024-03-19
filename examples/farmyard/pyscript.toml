@@ -7,17 +7,13 @@
 "{INVENT_TO}" = "./invent"
 "{INVENT}/__init__.py"="{INVENT_TO}/__init__.py"
 "{INVENT}/__about__.py"="{INVENT_TO}/__about__.py"
+"{INVENT}/ai.py"="{INVENT_TO}/ai.py"
 "{INVENT}/channels.py"="{INVENT_TO}/channels.py"
 "{INVENT}/compatability.py"="{INVENT_TO}/compatability.py"
 "{INVENT}/datastore.py"="{INVENT_TO}/datastore.py"
 "{INVENT}/i18n.py"="{INVENT_TO}/i18n.py"
 "{INVENT}/media.py"="{INVENT_TO}/media.py"
 "{INVENT}/utils.py"="{INVENT_TO}/utils.py"
-#
-# invent.integrations
-#
-"{INVENT}/integrations/__init__.py"="{INVENT_TO}/integrations/__init__.py"
-"{INVENT}/integrations/ai_client.py"="{INVENT_TO}/integrations/ai_client.py"
 #
 # invent.ui
 #
