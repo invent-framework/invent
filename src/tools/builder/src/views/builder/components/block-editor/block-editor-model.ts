@@ -22,6 +22,9 @@ import "@/blocks/ai/generators";
 import "@/blocks/pages/definitions";
 import "@/blocks/pages/generators";
 
+import "@/blocks/speech/definitions";
+import "@/blocks/speech/generators";
+
 /**
  *  Model for the block editor component.
  */
@@ -88,7 +91,21 @@ class BlockEditorModel extends ComponentModelBase {
 								}
 							}
 						}
-					}
+					},
+					{
+						kind: "block",
+						type: "say",
+						inputs: {
+							text: {
+								shadow: {
+									type: "inline_text",
+									fields: {
+										value: "text"
+									}
+								}
+							}
+						}
+					},
 				]
 			},
 			{

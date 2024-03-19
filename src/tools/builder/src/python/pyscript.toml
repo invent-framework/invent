@@ -16,6 +16,7 @@
 "{INVENT}/datastore.py"="{INVENT_TO}/datastore.py"
 "{INVENT}/i18n.py"="{INVENT_TO}/i18n.py"
 "{INVENT}/media.py"="{INVENT_TO}/media.py"
+"{INVENT}/speech.py"="{INVENT_TO}/speech.py"
 "{INVENT}/utils.py"="{INVENT_TO}/utils.py"
 #
 # invent.ui
