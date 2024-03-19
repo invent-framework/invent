@@ -124,7 +124,7 @@ invent.go()
 PYSCRIPT_TOML_TEMPLATE = """
 [files]
 #
-# Invent.
+# invent
 #
 "{{INVENT}}" = "{invent_src}"
 "{{INVENT_TO}}" = "./invent"
@@ -136,6 +136,14 @@ PYSCRIPT_TOML_TEMPLATE = """
 "{{INVENT}}/i18n.py"="{{INVENT_TO}}/i18n.py"
 "{{INVENT}}/media.py"="{{INVENT_TO}}/media.py"
 "{{INVENT}}/utils.py"="{{INVENT_TO}}/utils.py"
+#
+# invent.integrations
+#
+"{INVENT}/integrations/__init__.py"="{INVENT_TO}/integrations/__init__.py"
+"{INVENT}/integrations/ai_client.py"="{INVENT_TO}/integrations/ai_client.py"
+#
+# invent.ui
+#
 "{{INVENT}}/ui/__init__.py"="{{INVENT_TO}}/ui/__init__.py"
 "{{INVENT}}/ui/app.py"="{{INVENT_TO}}/ui/app.py"
 "{{INVENT}}/ui/core.py"="{{INVENT_TO}}/ui/core.py"

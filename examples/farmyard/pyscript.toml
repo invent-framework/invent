@@ -3,6 +3,7 @@
 # invent.
 #
 "{INVENT}" = "../../src/invent"
+#"{INVENT}" = "https://mchilvers.pyscriptapps.com/invent/latest/invent/"
 "{INVENT_TO}" = "./invent"
 "{INVENT}/__init__.py"="{INVENT_TO}/__init__.py"
 "{INVENT}/__about__.py"="{INVENT_TO}/__about__.py"
@@ -12,6 +13,9 @@
 "{INVENT}/i18n.py"="{INVENT_TO}/i18n.py"
 "{INVENT}/media.py"="{INVENT_TO}/media.py"
 "{INVENT}/utils.py"="{INVENT_TO}/utils.py"
+#
+# invent.integrations
+#
 #
 # invent.ui
 #

@@ -13,6 +13,11 @@
 "{INVENT}/media.py"="{INVENT_TO}/media.py"
 "{INVENT}/utils.py"="{INVENT_TO}/utils.py"
 #
+# invent.integrations
+#
+"{INVENT}/integrations/__init__.py"="{INVENT_TO}/integrations/__init__.py"
+"{INVENT}/integrations/ai_client.py"="{INVENT_TO}/integrations/ai_client.py"
+#
 # invent.ui
 #
 "{INVENT}/ui/__init__.py"="{INVENT_TO}/ui/__init__.py"
