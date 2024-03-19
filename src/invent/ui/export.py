@@ -11,12 +11,14 @@ from invent.ui import Container
 IMPORTS = """
 import invent
 from invent.ui import *
+from invent.integrations.ai_client import summarize
 """
 
 
 # TODO: This will be passed in from the builder :)
 DATASTORE = """
-invent.datastore.setdefault("number_of_honks", 0)
+invent.datastore.setdefault("number_of_honks", 
+import pyodide
 invent.datastore.setdefault("number_of_oinks", 0)
 """
 
@@ -86,14 +88,14 @@ INDEX_HTML = """
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
 
     <!-- PyScript -->
-    <link rel="stylesheet" href="https://pyscript.net/releases/2024.1.1/core.css">
-    <script type="module" src="https://pyscript.net/releases/2024.1.1/core.js"></script>
+    <link rel="stylesheet" href="https://pyscript.net/releases/2024.3.1/core.css">
+    <script type="module" src="https://pyscript.net/releases/2024.3.1/core.js"></script>
 
     <!-- App CSS Styles -->
     <link rel="stylesheet" href="https://unpkg.com/papercss@1.9.2/dist/paper.min.css">
 </head>
 <body>
-  <script type="mpy" src="./main.py" config="./pyscript.toml"></script>
+  <script type="py" src="./main.py" config="./pyscript.toml"></script>
 </body>
 </html>
 """
@@ -122,6 +124,8 @@ invent.go()
 
 
 PYSCRIPT_TOML_TEMPLATE = """
+packages = [ "pyodide_http", "requests" ]
+experimental_create_proxy = "auto"
 [files]
 #
 # invent

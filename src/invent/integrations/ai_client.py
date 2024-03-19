@@ -21,7 +21,7 @@ async def summarize(context="", ai_launcher_port=8765):
 
 class AIClient:
     def __init__(self, url):
-        """A client of the Anaconda AI launcher."""
+        """A client of AI."""
 
         self.url = url
 

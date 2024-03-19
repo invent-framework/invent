@@ -146,6 +146,9 @@ export class BuilderModel extends ViewModelBase {
 				else if (datastoreValue.type === "number"){
 					datastoreCode.push(`invent.datastore["${datastoreValue.key}"] = ${datastoreValue.default_value}`);
 				}
+				else if (datastoreValue.type === "list"){
+					datastoreCode.push(`invent.datastore["${datastoreValue.key}"] = []`);
+				}
 			}
 			else {
 				if (datastoreValue.type === "text"){
@@ -153,6 +156,9 @@ export class BuilderModel extends ViewModelBase {
 				}
 				else if (datastoreValue.type === "number"){
 					datastoreCode.push(`invent.datastore.setdefault("${datastoreValue.key}", ${datastoreValue.default_value})`);
+				}
+				else if (datastoreValue.type === "list"){
+					datastoreCode.push(`invent.datastore.setdefault("${datastoreValue.key}", [])`);
 				}
 			}
 		});
@@ -164,7 +170,8 @@ export class BuilderModel extends ViewModelBase {
 		this.state.isPublishing = true;
 
 		const datastore: string = this.getDatastoreValues();
-		const code: string = pythonGenerator.workspaceToCode(Blockly.getMainWorkspace());
+		const generatedCode: string = pythonGenerator.workspaceToCode(Blockly.getMainWorkspace());
+		const code: string = `${this.state.functions}\n${generatedCode}`;
 
 		const result: any = BuilderUtilities.exportAsPyScriptApp(datastore, code);
 		const indexHtml: string  = result["index.html"];

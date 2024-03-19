@@ -11,7 +11,7 @@ import "@/data/providers/icon-provider";
 
 import { whenDefined } from "https://pyscript.net/releases/2024.1.1/core.js";
 
-whenDefined("mpy").then(() => {
+whenDefined("py").then(() => {
     LocalizationUtilities.loadPreferredLanguageAsync().then(() => {
         createApp(App)
             .use(router)

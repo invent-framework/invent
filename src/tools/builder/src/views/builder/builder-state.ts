@@ -35,4 +35,6 @@ export class BuilderState {
 	public isPublishing: boolean = false;
 
 	public project: any;
+
+	public functions: string = "";
 }

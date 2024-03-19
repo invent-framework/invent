@@ -200,6 +200,8 @@ class Builder:
         for component in Component._components_by_id.values():
             if isinstance(component, Widget) and component.channel:
                 channels.add(component.channel)
+        channels.add("store-data")
+        channels.add("delete-data")
         return json.dumps(list(channels))
     
     def get_subjects(self):

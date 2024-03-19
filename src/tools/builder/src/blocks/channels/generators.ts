@@ -29,7 +29,7 @@ pythonGenerator.forBlock['subscribe'] = function(block: Blockly.Block, generator
     });
 
     const onSubjectDefinitionId: string = CommonUtilities.getRandomId("subscribe");
-    const onSubjectDefinition: string = `def ${onSubjectDefinitionId}(message):\n${onSubject}\n`;
+    const onSubjectDefinition: string = `async def ${onSubjectDefinitionId}(message):\n${onSubject}\n`;
     const subscribe: string = `invent.subscribe(${onSubjectDefinitionId}, to_channel=${JSON.stringify(channelsArray)}, when_subject=${JSON.stringify(subjectsArray)})`;
 
     const code = `${onSubjectDefinition}\n${subscribe}\n`;
