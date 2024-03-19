@@ -22,7 +22,7 @@ INDEX_HTML = """
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <title>Invent</title>
+    <title>{app.name}</title>
 
     <!-- Recommended meta tags -->
     <meta charset="UTF-8">
@@ -108,7 +108,9 @@ def as_pyscript_app(app, imports=IMPORTS, datastore="", code="", to_psdc=True):
     """Generate the index.html, main.py and pyscript.toml files for an app."""
 
     # index.html
-    index_html = INDEX_HTML
+    index_html = INDEX_HTML.format(
+        app=app
+    )
 
     # main.py
     main_py = MAIN_PY_TEMPLATE.format(

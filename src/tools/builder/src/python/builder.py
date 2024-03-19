@@ -16,7 +16,7 @@ class Builder:
     def __init__(self):
         # The app that we are building.
         self._app = invent.ui.App(
-            name="Untitled Cool App",
+            name="Invent Demo",
             content=[
                 invent.ui.Page(
                     name="Page 1",
