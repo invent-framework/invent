@@ -7,7 +7,8 @@ Blockly.Blocks["say"] = {
         this.appendValueInput("text")
             .setCheck(null);        
         this.setInputsInline(true);
-        this.setOutput(true, null);
+        this.setPreviousStatement(true, null);
+        this.setNextStatement(true, null);
         this.setColour("#3EB049");
     }
 };
