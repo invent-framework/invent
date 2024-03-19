@@ -23,6 +23,16 @@ Blockly.Blocks["datastore_values"] = {
     }
 };
 
+Blockly.Blocks["get_datastore_value"] = {
+    init: function(): void {
+        this.appendDummyInput()
+            .appendField(new Blockly.FieldDropdown(getDatastoreValues()), "key");
+        this.setInputsInline(true);
+        this.setOutput(true, null);
+        this.setColour("#ff8c1b");
+    }
+};
+
 Blockly.Blocks['set_datastore'] = {
     init: function() {
       this.appendDummyInput()

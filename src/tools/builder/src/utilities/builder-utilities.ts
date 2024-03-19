@@ -76,7 +76,9 @@ export class BuilderUtilities {
 	}
 
 	public static getSubjects(): Array<string> {
-		return JSON.parse(this.builder().get_subjects());
+		const subjects = JSON.parse(this.builder().get_subjects());
+		const datastoreKeys = Object.keys(builder.state.datastore);
+		return [...subjects, ...datastoreKeys];
 	}
 
 	public static updateWidgetProperty(widgetBlueprint: WidgetModel | undefined, widgetRef: string, key: string, value: string, isFromDatastore?: boolean) {

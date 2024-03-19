@@ -1,7 +1,7 @@
 import { ComponentModelBase } from "@/components/base-classes/component-model-base";
 import * as Blockly from "blockly/core";
 import * as En from "blockly/msg/en";
-import * as libraryBlocks from "blockly/blocks";
+import "blockly/blocks";
 
 // Blocks
 import "@/blocks/common/definitions";
@@ -16,9 +16,11 @@ import "@/blocks/media/generators";
 import "@/blocks/datastore/definitions";
 import "@/blocks/datastore/generators";
 
+import "@/blocks/ai/definitions";
+import "@/blocks/ai/generators";
+
 import "@/blocks/pages/definitions";
 import "@/blocks/pages/generators";
-
 
 /**
  *  Model for the block editor component.
@@ -96,7 +98,7 @@ class BlockEditorModel extends ComponentModelBase {
 				contents: [
 					{
 						kind: "block",
-						type: "datastore_values"
+						type: "get_datastore_value"
 					},
 					{
 						kind: "block",
@@ -153,6 +155,17 @@ class BlockEditorModel extends ComponentModelBase {
 								}
 							}
 						}
+					}
+				]
+			},
+			{
+				kind: "category",
+				name: "AI",
+				colour: "#3EB049",
+				contents: [
+					{
+						kind: "block",
+						type: "summarize"
 					}
 				]
 			},
@@ -241,7 +254,40 @@ class BlockEditorModel extends ComponentModelBase {
 				type: "controls_flow_statements",
 				},
 			],
-			},		  
+			},
+			{
+				// Text Category
+				kind: 'CATEGORY',
+				name: "Text",
+				colour: 46,
+				contents: [
+				  {
+					kind: 'BLOCK',
+					type: 'text',
+				  }
+				],
+			},
+			{
+				// Lists Category
+				kind: 'CATEGORY',
+				name: "Lists",
+				colour: 172,
+				contents: [
+					{
+						kind: 'BLOCK',
+						type: 'lists_split',
+						inputs: {
+						  DELIM: {
+							shadow: {
+							  type: 'text',
+							  fields: {TEXT: ','},
+							},
+						  },
+						},
+					}
+				]
+			  },
+		  
 		]
 	};
 
