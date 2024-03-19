@@ -18,6 +18,6 @@ pythonGenerator.forBlock['say'] = function(block: Blockly.Block, generator: Bloc
 
     // builder.state.functions += summarizeFunction;
     
-    const code = `invent.say("${text}")`;
+    const code = `invent.say(${text})`;
     return [code, 0];  
 };
