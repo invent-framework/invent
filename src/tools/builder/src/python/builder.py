@@ -172,7 +172,6 @@ class Builder:
         if issubclass(component_klass, Container):
             properties.pop("content")
 
-        window.x = json.dumps(properties)
         return json.dumps(properties)
     
     def update_widget_property(self, widget_blueprint, widget_id, property_name, value, is_from_datastore=False):
