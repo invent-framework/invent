@@ -10,7 +10,8 @@ async def summarize(context=""):
 
     {context}
 
-    Please summarize them in no more than 30 words in the style of shakespeare.
+    Please summarize them in no more than 30 words in the style of a very articulate
+    business analyst.
 
     """
 
