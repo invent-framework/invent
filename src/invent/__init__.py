@@ -47,6 +47,8 @@ __all__ = [
     "read_files",
     "show_page",
     "go",
+    "say",
+    "listen",
 ]
 
 

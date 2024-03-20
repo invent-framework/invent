@@ -21,3 +21,19 @@ pythonGenerator.forBlock['say'] = function(block: Blockly.Block, generator: Bloc
     const code = `invent.say(${text})`;
     return code;
 };
+
+
+pythonGenerator.forBlock['listen'] = function(block: Blockly.Block, generator: Blockly.Generator) {
+//   const summarizeId: string = CommonUtilities.getRandomId("listen");
+//   const summarizeFunction: string = `
+// async def ${summarizeId}():
+//   content = await invent.read_files()
+//   summary = await summarize(context="\\n\\n".join(content))
+//   return summary
+
+// `;
+
+//     builder.state.functions += summarizeFunction;
+    const code = `await invent.listen()`;
+    return [code, 0];  
+};

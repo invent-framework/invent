@@ -19,31 +19,36 @@ def say(text):
     print("Done")
 
 
-def listen():
-    try:
-        SpeechRecognition =  window.SpeechRecognition
-    except AttributeError:
-        try:
-            SpeechRecognition = window.webkitSpeechRecognition
-        except AttributeError:
-            print("Unable to find the SpeechRecognition or webkitSpeechRecognition APIs")
 
-    recognition = SpeechRecognition.new()
+async def listen():
+    return await window.recognizeSpeech()
+# window.recognizeSpeech
 
-    def on_start(e=None):
-        print("starting to listen... SPEAK!")
+# async def listen():
+#     try:
+#         SpeechRecognition =  window.SpeechRecognition
+#     except AttributeError:
+#         try:
+#             SpeechRecognition = window.webkitSpeechRecognition
+#         except AttributeError:
+#             print("Unable to find the SpeechRecognition or webkitSpeechRecognition APIs")
 
-    def on_stop(e=None):
-        print("stopped listening")
-        recognition.stop()
+#     recognition = SpeechRecognition.new()
 
-    def on_result(result):
-        window.console.log(result.results)
-        print(result.results[0][0].transcript)
+#     def on_start(e=None):
+#         print("starting to listen... SPEAK!")
 
-    recognition.onspeechend = on_stop
-    recognition.onresult = on_result
-    recognition.onstart = on_start
+#     def on_stop(e=None):
+#         print("stopped listening")
+#         recognition.stop()
 
-    # We start the recognition here
-    recognition.start();
+#     def on_result(result):
+#         window.console.log(result.results)
+#         print(result.results[0][0].transcript)
+
+#     recognition.onspeechend = on_stop
+#     recognition.onresult = on_result
+#     recognition.onstart = on_start
+
+#     # We start the recognition here
+#     recognition.start();

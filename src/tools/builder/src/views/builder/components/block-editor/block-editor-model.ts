@@ -106,6 +106,10 @@ class BlockEditorModel extends ComponentModelBase {
 							}
 						}
 					},
+					{
+						kind: "block",
+						type: "listen",
+					},
 				]
 			},
 			{

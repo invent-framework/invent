@@ -12,3 +12,14 @@ Blockly.Blocks["say"] = {
         this.setColour("#3EB049");
     }
 };
+
+
+Blockly.Blocks["listen"] = {
+    init: function(): void {
+        this.appendDummyInput()
+            .appendField("listen")
+        this.setInputsInline(true);
+        this.setOutput(true, null);
+        this.setColour("#9966ff");
+    }
+};
