@@ -18,18 +18,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
+
 from pyscript import document
 
 from invent.compatability import proxy
-from invent.ui.core import (
-    Widget,
-    TextProperty,
-    IntegerProperty,
-    BooleanProperty,
-    ChoiceProperty,
-    MessageBlueprint,
-    ListProperty,
-)
+from invent.ui.core import Widget, BooleanProperty, ListProperty
 
 
 class FileUpload(Widget):
@@ -37,8 +30,9 @@ class FileUpload(Widget):
     A file upload widget.
     """
 
-    # JS Proxy objects are not JSON serializable, so currently we can't put them in the
-    # data store.
+    # JS Proxy objects are not JSON serializable, which means we can't put them in the
+    # datastore. Hence, this widget just maintains a dictionary that maps a filename
+    # to its associated proxy.
     _files_ = {}
 
     @classmethod
@@ -61,15 +55,17 @@ class FileUpload(Widget):
 
     def on_js_change(self, event):
         """
-        Bound to the js "input" event on the widget's element.
+        Bound to the js "change" event on the widget's element.
         """
 
         file = event.target.files.item(0)
 
-        # Put the jsproxy in the class-scope dictionary since we can't js serialize it
+        # Put the jsproxy in the class-scope dictionary since we can't json serialize it
         # if the files property if bound to the datastore.
         FileUpload._files_[file.name] = file
 
+        # We do list addition here to make the property change (just mutating the list
+        # would be unnoticeable).
         self.files = self.files + [file.name]
 
     def render(self):
