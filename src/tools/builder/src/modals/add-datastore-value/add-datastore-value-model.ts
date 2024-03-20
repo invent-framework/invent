@@ -90,6 +90,10 @@ export class AddDatastoreValueModel extends ModalModelBase {
 				title: this.getText("number"),
 			},
 			{
+				key: "boolean",
+				title: "Boolean",
+			},
+			{
 				key: "list",
 				title: "List",
 			},

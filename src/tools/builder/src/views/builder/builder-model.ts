@@ -146,6 +146,9 @@ export class BuilderModel extends ViewModelBase {
 				else if (datastoreValue.type === "number"){
 					datastoreCode.push(`invent.datastore["${datastoreValue.key}"] = ${datastoreValue.default_value}`);
 				}
+				else if (datastoreValue.type === "boolean"){
+					datastoreCode.push(`invent.datastore["${datastoreValue.key}"] = ${datastoreValue.default_value}`);
+				}
 				else if (datastoreValue.type === "list"){
 					datastoreCode.push(`invent.datastore["${datastoreValue.key}"] = []`);
 				}
@@ -155,6 +158,9 @@ export class BuilderModel extends ViewModelBase {
 					datastoreCode.push(`invent.datastore.setdefault("${datastoreValue.key}", "${datastoreValue.default_value}")`);
 				}
 				else if (datastoreValue.type === "number"){
+					datastoreCode.push(`invent.datastore.setdefault("${datastoreValue.key}", ${datastoreValue.default_value})`);
+				}
+				else if (datastoreValue.type === "boolean"){
 					datastoreCode.push(`invent.datastore.setdefault("${datastoreValue.key}", ${datastoreValue.default_value})`);
 				}
 				else if (datastoreValue.type === "list"){
