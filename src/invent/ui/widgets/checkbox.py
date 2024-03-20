@@ -25,17 +25,17 @@ from invent.ui.core import Widget, BooleanProperty, TextProperty
 from ..utils import random_id
 
 
-class Switch(Widget):
+class CheckBox(Widget):
     """
-    A switch for indicating a boolean value.
+    A checkbox for indicating a boolean value.
     """
 
     value = BooleanProperty(
-        "The value of the switch.", default_value=False
+        "The value of the checkbox.", default_value=False
     )
 
     label = TextProperty(
-        "An optional label shown next to the switch", default_value=""
+        "An optional label shown next to the checkbox", default_value=""
     )
 
     @classmethod
@@ -66,7 +66,7 @@ class Switch(Widget):
         element.classList.add("form-group")
 
         label = document.createElement("label")
-        label.classList.add("paper-switch-2")
+        label.classList.add("paper-check")
         element.appendChild(label)
 
         self.input_ = input_ = document.createElement("input")
@@ -75,15 +75,9 @@ class Switch(Widget):
         input_.setAttribute("type", "checkbox")
         label.appendChild(input_)
 
-        span = document.createElement("span")
-        span.classList.add("paper-switch-slider")
+        self.label_ = span = document.createElement("span")
+        span.innerText = self.label
         label.appendChild(span)
-
-        self.label_ = label = document.createElement("label")
-        label.innerText = self.label
-        label.setAttribute("for", input_id)
-        label.classList.add("paper-switch-2-label")
-        element.appendChild(label)
 
         element.addEventListener("change", proxy(self.on_js_changed))
         return element

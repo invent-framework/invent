@@ -27,6 +27,7 @@
 "{INVENT}/ui/widgets/__init__.py"="{INVENT_TO}/ui/widgets/__init__.py"
 "{INVENT}/ui/widgets/audio.py"="{INVENT_TO}/ui/widgets/audio.py"
 "{INVENT}/ui/widgets/button.py"="{INVENT_TO}/ui/widgets/button.py"
+"{INVENT}/ui/widgets/checkbox.py"="{INVENT_TO}/ui/widgets/checkbox.py"
 "{INVENT}/ui/widgets/code.py"="{INVENT_TO}/ui/widgets/code.py"
 "{INVENT}/ui/widgets/fileupload.py"="{INVENT_TO}/ui/widgets/fileupload.py"
 "{INVENT}/ui/widgets/html.py"="{INVENT_TO}/ui/widgets/html.py"

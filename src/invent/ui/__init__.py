@@ -25,6 +25,7 @@ from .page import Page
 from .utils import random_id, sanitize
 from .widgets.audio import Audio
 from .widgets.button import Button
+from .widgets.checkbox import CheckBox
 from .widgets.code import Code
 from .widgets.fileupload import FileUpload
 from .widgets.html import Html
@@ -49,6 +50,7 @@ __all__ = [
     "from_datastore",
     "Audio",
     "Button",
+    "CheckBox",
     "Code",
     "FileUpload",
     "Html",
@@ -68,6 +70,7 @@ AVAILABLE_COMPONENTS = {
     # Widgets...
     _("Audio"): Audio,
     _("Button"): Button,
+    _("CheckBox"): CheckBox,
     _("Code"): Code,
     _("Html"): Html,
     _("Image"): Image,
