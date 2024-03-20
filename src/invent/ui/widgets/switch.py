@@ -1,0 +1,129 @@
+"""
+A slider widget for the Invent framework.
+
+Based on original pre-COVID work by [Nicholas H.Tollervey.](https://ntoll.org/)
+
+Copyright (c) 2024 Invent contributors.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+"""
+
+from pyscript import document
+
+from invent.compatability import proxy
+from invent.ui.core import Widget, BooleanProperty, TextProperty
+from ..utils import random_id
+
+
+class Switch(Widget):
+    """
+    A switch for indicating a boolean value.
+    """
+
+    value = BooleanProperty(
+        "The value of the switch.", default_value=False
+    )
+
+    label = TextProperty(
+        "An optional label shown next to the switch", default_value=""
+    )
+
+    @classmethod
+    def icon(cls):
+        return '<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 256 256"><path fill="currentColor" d="M40 88h33a32 32 0 0 0 62 0h81a8 8 0 0 0 0-16h-81a32 32 0 0 0-62 0H40a8 8 0 0 0 0 16m64-24a16 16 0 1 1-16 16a16 16 0 0 1 16-16m112 104h-17a32 32 0 0 0-62 0H40a8 8 0 0 0 0 16h97a32 32 0 0 0 62 0h17a8 8 0 0 0 0-16m-48 24a16 16 0 1 1 16-16a16 16 0 0 1-16 16"/></svg>'  # noqa
+
+    def on_js_changed(self, event):
+        """
+        Bound to the js "changed" event on the widget's element.
+        """
+
+        self.value = not self.value
+
+    def on_label_changed(self):
+        self.label_.innerText = self.label
+
+    def on_value_changed(self):
+        if self.value:
+            self.input_.setAttribute("checked", True)
+
+        else:
+            self.input_.removeAttribute("checked")
+
+    def render(self):
+        input_id = random_id()
+
+        element = document.createElement("fieldset")
+        element.classList.add("form-group")
+
+        label = document.createElement("label")
+        label.classList.add("paper-switch-2")
+        element.appendChild(label)
+
+        self.input_ = input_ = document.createElement("input")
+        input_.id = input_id
+        input_.name = input_id
+        input_.setAttribute("type", "checkbox")
+        label.appendChild(input_)
+
+        span = document.createElement("span")
+        span.classList.add("paper-switch-slider")
+        label.appendChild(span)
+
+        self.label_ = label = document.createElement("label")
+        label.innerText = self.label
+        label.setAttribute("for", input_id)
+        label.classList.add("paper-switch-2-label")
+        element.appendChild(label)
+
+        element.addEventListener("change", proxy(self.on_js_changed))
+        return element
+
+    def render1(self):
+        input_id = random_id()
+
+        element = document.createElement("fieldset")
+        element.classList.add("form-group")
+
+        label = document.createElement("label")
+        label.setAttribute("for", input_id)
+        label.classList.add("paper-switch-tile")
+        element.appendChild(label)
+
+        self.input_ = input_ = document.createElement("input")
+        input_.id = input_id
+        input_.name = input_id
+        input_.setAttribute("type", "checkbox")
+        label.appendChild(input_)
+        card = document.createElement("div")
+        card.classList.add("paper-switch-tile-card")
+        card.classList.add("border")
+        label.appendChild(card)
+
+        off = document.createElement("div")
+        off.classList.add("paper-switch-tile-card-front")
+        off.classList.add("border")
+        off.classList.add("background-danger")
+        off.innerText = "Off"
+        card.appendChild(off)
+
+        on = document.createElement("div")
+        on.classList.add("paper-switch-tile-card-back")
+        on.classList.add("border")
+        on.classList.add("background-success")
+        on.innerText = "On"
+        card.appendChild(on)
+
+        element.addEventListener("change", proxy(self.on_js_changed))
+        return element
+
+

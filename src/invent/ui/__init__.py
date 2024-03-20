@@ -26,13 +26,13 @@ from .utils import random_id, sanitize
 from .widgets.audio import Audio
 from .widgets.button import Button
 from .widgets.code import Code
+from .widgets.fileupload import FileUpload
 from .widgets.html import Html
 from .widgets.image import Image
+from .widgets.slider import Slider
+from .widgets.switch import Switch
 from .widgets.textbox import TextBox
 from .widgets.textinput import TextInput
-from .widgets.slider import Slider
-from .widgets.audio import Audio
-from .widgets.fileupload import FileUpload
 
 
 __all__ = [
@@ -54,6 +54,7 @@ __all__ = [
     "Html",
     "Image",
     "Slider",
+    "Switch",
     "TextBox",
     "TextInput",
 ]
@@ -71,6 +72,7 @@ AVAILABLE_COMPONENTS = {
     _("Html"): Html,
     _("Image"): Image,
     _("Slider"): Slider,
+    _("Switch"): Switch,
     _("TextBox"): TextBox,
     _("TextInput"): TextInput,
     _("FileUpload"): FileUpload,
