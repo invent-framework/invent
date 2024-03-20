@@ -21,3 +21,20 @@ async def ${summarizeId}():
     const code = `await ${summarizeId}()`;
     return [code, 0];  
 };
+
+pythonGenerator.forBlock['prompt'] = function(block: Blockly.Block, generator: Blockly.Generator) {
+    const question: string = generator.valueToCode(block, 'question', 0);
+    const promptFunctionId: string = CommonUtilities.getRandomId("prompt");
+    const promptFunction: string = `
+async def ${promptFunctionId}(question):
+  filenames = invent.get_filenames()
+  content = await invent.read_files(filenames)
+  answer = await prompt("\\n\\n".join(content), question)
+  return answer
+`;
+
+    builder.state.functions += promptFunction;
+
+    const code = `await ${promptFunctionId}(${question})`;
+    return [code, 0];
+};

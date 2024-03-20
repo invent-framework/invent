@@ -42,6 +42,13 @@ class FileUpload(Widget):
         """
         return cls._files_.get(filename)
 
+    @classmethod
+    def get_filenames(cls):
+        """
+        Return the filenames of all files.
+        """
+        return cls._files_.keys()
+
     files = ListProperty("The files to upload")
     required = BooleanProperty(
         "A flag to indicate entry into the text box is required.",

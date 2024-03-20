@@ -25,7 +25,7 @@ from .datastore import DataStore
 from .i18n import _, load_translations
 from .media import Media, set_media_root, get_media_root
 from .ui.app import App
-from .utils import play_sound, read_files, show_page
+from .utils import get_filenames, play_sound, read_files, show_page
 from .speech import say, listen
 
 
@@ -44,6 +44,7 @@ __all__ = [
     "set_media_root",
     "get_media_root",
     "play_sound",
+    "get_filenames",
     "read_files",
     "show_page",
     "go",

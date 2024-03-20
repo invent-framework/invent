@@ -38,6 +38,14 @@ async def read_files(filenames):
     ]
 
 
+def get_filenames():
+    """Return the filenames of all uploaded files."""
+
+    from invent.ui.widgets.fileupload import FileUpload
+
+    return FileUpload.get_filenames()
+
+
 def get_file_by_name(filename):
     """Get the File object with the specified name."""
 

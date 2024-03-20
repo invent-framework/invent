@@ -2,6 +2,25 @@ import json
 from pyscript import fetch
 
 
+async def prompt(context, question):
+    """Ask the overlords!"""
+
+    user_message = f"""
+    Given the context of the following documents:
+
+    {context}
+
+    Please answer the following question in the style of a very articulate
+    business analyst in no more than 20 words.
+
+    {question}
+    """
+
+    ai_client = AIClient("http://127.0.0.1:8765/v1")
+
+    return await ai_client.completions(user_messages=[user_message])
+
+
 async def summarize(context=""):
     """Ask the overlords!"""
 

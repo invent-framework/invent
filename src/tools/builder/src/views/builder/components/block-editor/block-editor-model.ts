@@ -187,6 +187,10 @@ class BlockEditorModel extends ComponentModelBase {
 					{
 						kind: "block",
 						type: "summarize"
+					},
+					{
+						kind: "block",
+						type: "prompt"
 					}
 				]
 			},
