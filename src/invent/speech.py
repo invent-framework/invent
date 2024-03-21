@@ -54,13 +54,13 @@ def get_voice_by_name(voice_name):
     return voice
 
 
-selected_voice_name = None
+preferred_voice_name = None
 def set_voice(voice_name):
-    global selected_voice_name
+    global preferred_voice_name
 
     # We DON'T try to look up the actual voice, just in case the voices haven't
     # loaded yet. We will look it up when we actually say something.
-    selected_voice_name = voice_name
+    preferred_voice_name = voice_name
 
 
 def say(text):
@@ -73,8 +73,8 @@ def say(text):
     #
     # a) the voices haven't loaded yet.
     # b) no voice exists with the specified name :)
-    if selected_voice_name:
-        voice = get_voice_by_name(selected_voice_name)
+    if preferred_voice_name:
+        voice = get_voice_by_name(preferred_voice_name)
         if voice:
             utterance.voice = voice
 
