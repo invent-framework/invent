@@ -2,7 +2,7 @@ from pyscript import fetch, window
 from .compatability import proxy
 
 
-_VOICES_BY_NAME = {}
+_VOICES_BY_NAME = None
 
 
 def on_voices_changed(event):
@@ -10,7 +10,9 @@ def on_voices_changed(event):
 
     global _VOICES_BY_NAME
 
-    _VOICES_BY_NAME = {voice.name: voice for voice in synth.getVoices()}
+    voices_by_name = {voice.name: voice for voice in synth.getVoices()}
+
+    _VOICES_BY_NAME = voices_by_name
 
 
 try:
@@ -41,7 +43,9 @@ def get_voice_by_name(voice_name):
     Defaults to the first voice.
     """
 
-    if _VOICES_BY_NAME:
+    voice_name = voice_name.strip()
+
+    if _VOICES_BY_NAME is not None:
         voice = _VOICES_BY_NAME.get(voice_name)
 
     else:
@@ -70,7 +74,7 @@ def say(text):
         voice = selected_voice
 
     else:
-        voice = get_voice_by_name("Catherine")
+        voice = get_voice_by_name("Fred")
 
     if voice:
         utterance.voice = voice
