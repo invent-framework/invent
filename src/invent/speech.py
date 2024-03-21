@@ -2,8 +2,20 @@ from pyscript import fetch, window
 from .compatability import proxy
 
 
+_VOICES_BY_NAME = {}
+
+
+def on_voices_changed(event):
+    """Voices are loaded asynchronously."""
+
+    global _VOICES_BY_NAME
+
+    _VOICES_BY_NAME = {voice.name: voice for voice in synth.getVoices()}
+
+
 try:
     synth = window.speechSynthesis
+    synth.onvoiceschanged = proxy(on_voices_changed)
 
 except AttributeError:
     print("Sorry, your browser doesn't support text to speech!")
@@ -29,14 +41,19 @@ def get_voice_by_name(voice_name):
     Defaults to the first voice.
     """
 
-    for voice in synth.getVoices():
-        if voice.name == voice_name:
-            break
+    if _VOICES_BY_NAME:
+        voice = _VOICES_BY_NAME.get(voice_name)
 
     else:
-        voice = synth.getVoices()[0]
+        voice = None
 
     return voice
+
+
+selected_voice = None
+def set_voice(voice_name):
+    global selected_voice
+    selected_voice = get_voice_by_name(voice_name)
 
 
 def say(text):
@@ -44,7 +61,20 @@ def say(text):
     Say the specified text using speech synthesis.
     """
     utterance = window.SpeechSynthesisUtterance.new()
-    utterance.voice = get_voice_by_name("Catherine")
+
+    # We may not get the requested voice if:
+    #
+    # a) the voices haven't loaded yet.
+    # b) no voice exists with the specified name :)
+    if selected_voice:
+        voice = selected_voice
+
+    else:
+        voice = get_voice_by_name("Catherine")
+
+    if voice:
+        utterance.voice = voice
+
     utterance.text = text
     synth.speak(utterance)
 
@@ -59,7 +89,7 @@ async def listen():
     recognition = SpeechRecognition.new()
 
     # The speech recognition API is non-blocking but uses callbacks, so here
-    # we wrap it with a Future.
+    # we wrap it with a Future, so we can create this awaitable function.
     future = asyncio.Future()
 
     def on_result(event):

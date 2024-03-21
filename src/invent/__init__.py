@@ -26,7 +26,7 @@ from .i18n import _, load_translations
 from .media import Media, set_media_root, get_media_root
 from .ui.app import App
 from .utils import get_filenames, play_sound, read_files, show_page
-from .speech import say, listen
+from .speech import listen, say, set_voice
 
 
 __all__ = [
@@ -48,8 +48,9 @@ __all__ = [
     "read_files",
     "show_page",
     "go",
-    "say",
     "listen",
+    "say",
+    "set_voice"
 ]
 
 

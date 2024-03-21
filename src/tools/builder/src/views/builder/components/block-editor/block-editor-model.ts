@@ -94,6 +94,20 @@ class BlockEditorModel extends ComponentModelBase {
 					},
 					{
 						kind: "block",
+						type: "set_voice",
+						inputs: {
+							value: {
+								shadow: {
+									type: "inline_text",
+									fields: {
+										value: "value"
+									}
+								}
+							}
+						}
+					},
+					{
+						kind: "block",
 						type: "say",
 						inputs: {
 							text: {

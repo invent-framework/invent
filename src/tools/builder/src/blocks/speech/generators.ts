@@ -37,3 +37,10 @@ pythonGenerator.forBlock['listen'] = function(block: Blockly.Block, generator: B
     const code = `await invent.listen()`;
     return [code, 0];  
 };
+
+
+pythonGenerator.forBlock['set_voice'] = function(block: Blockly.Block, generator: Blockly.Generator) {
+    const value: string = generator.valueToCode(block, 'value', 0);
+    const code = `invent.set_voice(${value})\n`;
+    return code;
+};

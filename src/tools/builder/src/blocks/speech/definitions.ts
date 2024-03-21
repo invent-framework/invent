@@ -23,3 +23,19 @@ Blockly.Blocks["listen"] = {
         this.setColour("#ca65cc");
     }
 };
+
+
+Blockly.Blocks['set_voice'] = {
+    init: function() {
+      this.appendDummyInput()
+          .appendField("set voice")
+      this.appendDummyInput()
+          .appendField("to");
+      this.appendValueInput("value")
+          .setCheck(null);
+      this.setInputsInline(true);
+      this.setPreviousStatement(true, null);
+      this.setNextStatement(true, null);
+      this.setColour("#ca65cc");
+    }
+};
