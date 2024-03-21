@@ -9,7 +9,7 @@ Blockly.Blocks["say"] = {
         this.setInputsInline(true);
         this.setPreviousStatement(true, null);
         this.setNextStatement(true, null);
-        this.setColour("#3EB049");
+        this.setColour("#ca65cc");
     }
 };
 
@@ -20,6 +20,6 @@ Blockly.Blocks["listen"] = {
             .appendField("listen")
         this.setInputsInline(true);
         this.setOutput(true, null);
-        this.setColour("#9966ff");
+        this.setColour("#ca65cc");
     }
 };
