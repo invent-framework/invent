@@ -1001,6 +1001,15 @@ class Container(Component):
         # Actually adding of the element is done in concrete classes.
         ...
 
+    def insert(self, index, item):
+        """
+        Insert like a list.
+        """
+
+        item.parent = self
+        self.content.insert(index, item)
+        self.update_children()
+
     def remove(self, item):
         item.parent = None
         self.content.remove(item)
