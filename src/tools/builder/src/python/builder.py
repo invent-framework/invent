@@ -145,8 +145,9 @@ class Builder:
 
         return component.element
 
-    def delete_widget_from_page(self, widget_id):
-        ...
+    def delete_widget(self, widget_id):
+        widget_to_delete = self._get_widget_by_id(widget_id)
+        widget_to_delete.parent.remove(widget_to_delete)
 
     def get_widget_properties(self, widget_blueprint, widget_id):
         """

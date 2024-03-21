@@ -1001,6 +1001,12 @@ class Container(Component):
         # Actually adding of the element is done in concrete classes.
         ...
 
+    def remove(self, item):
+        item.parent = None
+        self.content.remove(item)
+        item.element.parentElement.remove()
+        self.update_children()
+
     def __getitem__(self, index):
         """
         Index items like a list.
@@ -1013,7 +1019,7 @@ class Container(Component):
         """
         return iter(self.content)
 
-    def __delete__(self, item):
+    def __delitem__(self, item):
         """
         Delete like a list.
         """
@@ -1039,6 +1045,9 @@ class Container(Component):
         return element
 
     def render_children(self, element):
+        raise NotImplementedError()
+    
+    def update_children(self):
         raise NotImplementedError()
 
     def as_dict(self):
@@ -1086,6 +1095,19 @@ class Column(Container):
 
         return child_wrapper
 
+    def update_children(self):
+        for counter, child in enumerate(self.content, start=1):
+            self._update_child_wrapper(child, counter)
+
+    def _update_child_wrapper(self, child, index):
+        """
+        Wrap the child element in a div with grid styles set appropriately.
+        """
+        child_wrapper = child.element.parentElement
+        child_wrapper.style.setProperty("grid-column", 1)
+        child_wrapper.style.setProperty("grid-row", index)
+        child_wrapper.appendChild(child.element)
+        child.set_position(child_wrapper)
 
 class Row(Container):
     """
@@ -1119,6 +1141,20 @@ class Row(Container):
         child.set_position(child_wrapper)
 
         return child_wrapper
+    
+    def update_children(self):
+        for counter, child in enumerate(self.content, start=1):
+            self._update_child_wrapper(child, counter)
+
+    def _update_child_wrapper(self, child, index):
+        """
+        Wrap the child element in a div with grid styles set appropriately.
+        """
+        child_wrapper = child.element.parentElement
+        child_wrapper.style.setProperty("grid-column", index)
+        child_wrapper.style.setProperty("grid-row", 1)
+        child_wrapper.appendChild(child.element)
+        child.set_position(child_wrapper)
 
 
 class Grid(Container):

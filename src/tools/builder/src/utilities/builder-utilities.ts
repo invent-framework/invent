@@ -1,5 +1,4 @@
 import type { WidgetPropertiesModel } from "@/data/models/widget-properties-model";
-import type { WidgetsModel } from "@/data/models/widgets-model";
 import type { WidgetModel } from "@/data/models/widget-model";
 import type { PageModel } from "@/data/models/page-model";
 import { view as builder } from "@/views/builder/builder-model";
@@ -63,6 +62,13 @@ export class BuilderUtilities {
 		}
 
 		return widgetElement;
+	}
+
+	public static deleteWidget(widgetRef: string) {
+		this.builder().delete_widget(widgetRef);
+		builder.state.activeWidgetId = "";
+		builder.state.activeWidgetBlueprint = undefined;
+		builder.state.activeWidgetProperties = undefined;
 	}
 
 	public static getWidgetProperties(widgetBlueprint: WidgetModel, widgetRef: string): WidgetPropertiesModel {

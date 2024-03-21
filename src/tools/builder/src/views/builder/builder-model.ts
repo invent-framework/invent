@@ -448,6 +448,10 @@ export class BuilderModel extends ViewModelBase {
 			]
 		}
 	}
+
+	public deleteWidget(){
+		BuilderUtilities.deleteWidget(this.state.activeWidgetId);
+	}
 }
 
 export const view: BuilderModel = new BuilderModel();
