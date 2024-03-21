@@ -12,7 +12,6 @@ def on_voices_changed(event):
 
     voices_by_name = {voice.name: voice for voice in synth.getVoices()}
 
-    print(voices_by_name.keys())
     _VOICES_BY_NAME = voices_by_name
 
 
