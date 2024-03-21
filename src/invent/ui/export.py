@@ -34,31 +34,6 @@ INDEX_HTML = """
 
     <!-- App CSS Styles -->
     <link rel="stylesheet" href="https://unpkg.com/papercss@1.9.2/dist/paper.min.css">
-
-    <script>
-    // Create a Promise-based asynchronous function to handle recognition
-    async function recognizeSpeech() {{
-        // Create a new SpeechRecognition instance
-        const recognition = new webkitSpeechRecognition();
-
-        // Set the continuous property to false to stop recognition after the first speech
-        recognition.continuous = false;
-
-        // Start the recognition process
-        recognition.start();
-
-        return new Promise((resolve, reject) => {{
-            // Resolve the promise with the recognition result
-            recognition.onresult = (event) => {{
-                const transcript = event.results[0][0].transcript;
-                resolve(transcript);
-            }};
-            
-            // Reject the promise if there's an error
-            recognition.onerror = (event) => reject(event.error);
-        }});
-    }}
-    </script>
 </head>
 <body>
   <script type="py" src="./main.py" config="./pyscript.toml" async></script>

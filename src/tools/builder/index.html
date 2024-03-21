@@ -12,30 +12,5 @@
     <div id="app"></div>
     <script type="py" src="/src/python/main.py" config="/src/python/pyscript.toml"></script>
     <script type="module" src="/src/main.ts"></script>
-
-    <script>
-      // Create a Promise-based asynchronous function to handle recognition
-      async function recognizeSpeech() {
-          // Create a new SpeechRecognition instance
-          const recognition = new webkitSpeechRecognition();
-  
-          // Set the continuous property to false to stop recognition after the first speech
-          recognition.continuous = false;
-  
-          // Start the recognition process
-          recognition.start();
-  
-          return new Promise((resolve, reject) => {
-              // Resolve the promise with the recognition result
-              recognition.onresult = (event) => {
-                  const transcript = event.results[0][0].transcript;
-                  resolve(transcript);
-              };
-              
-              // Reject the promise if there's an error
-              recognition.onerror = (event) => reject(event.error);
-          });
-      }
-      </script>
   </body>
 </html>

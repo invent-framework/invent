@@ -49,13 +49,6 @@ def say(text):
     synth.speak(utterance)
 
 
-async def listenJS():
-    """
-    Speech recognition via the microphone using pure JS.
-    """
-    return await window.recognizeSpeech()
-
-
 async def listen():
     """
     Speech recognition via the microphone.
