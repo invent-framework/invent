@@ -12,6 +12,7 @@ def on_voices_changed(event):
 
     voices_by_name = {voice.name: voice for voice in synth.getVoices()}
 
+    print(voices_by_name.keys())
     _VOICES_BY_NAME = voices_by_name
 
 
@@ -54,10 +55,13 @@ def get_voice_by_name(voice_name):
     return voice
 
 
-selected_voice = None
+selected_voice_name = None
 def set_voice(voice_name):
-    global selected_voice
-    selected_voice = get_voice_by_name(voice_name)
+    global selected_voice_name
+
+    # We DON'T try to look up the actual voice, just in case the voices haven't
+    # loaded yet. We will look it up when we actually say something.
+    selected_voice_name = voice_name
 
 
 def say(text):
@@ -70,14 +74,10 @@ def say(text):
     #
     # a) the voices haven't loaded yet.
     # b) no voice exists with the specified name :)
-    if selected_voice:
-        voice = selected_voice
-
-    else:
-        voice = get_voice_by_name("Fred")
-
-    if voice:
-        utterance.voice = voice
+    if selected_voice_name:
+        voice = get_voice_by_name(selected_voice_name)
+        if voice:
+            utterance.voice = voice
 
     utterance.text = text
     synth.speak(utterance)
