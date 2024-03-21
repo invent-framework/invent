@@ -1008,7 +1008,9 @@ class Container(Component):
 
         item.parent = self
         self.content.insert(index, item)
-        self.update_children()
+
+        # Actually inserting of the element is done in concrete classes.
+        ...
 
     def remove(self, item):
         item.parent = None
@@ -1088,6 +1090,20 @@ class Column(Container):
         # Update the element...
         self.element.appendChild(self._wrap_child(item, len(self.content)))
 
+    def insert(self, index, item):
+        """
+        Insert like a list.
+        """
+
+        # Update the object model...
+        super().insert(index, item)
+
+        # Update the element...
+        self.element.insertBefore(
+            self._wrap_child(item, len(self.content)),
+            self.element.childNodes[index]
+        )
+
     def render_children(self, element):
         for counter, child in enumerate(self.content, start=1):
             element.appendChild(self._wrap_child(child, counter))
@@ -1134,6 +1150,20 @@ class Row(Container):
 
         super().append(item)
         self.element.appendChild(self._wrap_child(item, len(self.content)))
+
+    def insert(self, index, item):
+        """
+        Insert like a list.
+        """
+
+        # Update the object model...
+        super().insert(index, item)
+
+        # Update the element...
+        self.element.insertBefore(
+            self._wrap_child(item, len(self.content)),
+            self.element.childNodes[index]
+        )
 
     def render_children(self, element):
         for index, child in enumerate(self.content, start=1):
@@ -1190,6 +1220,20 @@ class Grid(Container):
         # Update the element...
         self.element.appendChild(self._wrap_child(item, len(self.content)))
 
+    def insert(self, index, item):
+        """
+        Insert like a list.
+        """
+
+        # Update the object model...
+        super().insert(index, item)
+
+        # Update the element...
+        self.element.insertBefore(
+            self._wrap_child(item, len(self.content)),
+            self.element.childNodes[index]
+        )
+
     def on_columns_changed(self):
         self.element.style.gridTemplateColumns = "auto " * self.columns
 
@@ -1229,3 +1273,23 @@ class Grid(Container):
         child.set_position(child_wrapper)
 
         return child_wrapper
+
+    def update_children(self):
+        for counter, child in enumerate(self.content, start=1):
+            self._update_child_wrapper(child, counter)
+
+    def _update_child_wrapper(self, child, index):
+        """
+        Wrap the child element in a div with grid styles set appropriately.
+        """
+        child_wrapper = child.element.parentElement
+        grid_row_span = child.row_span
+        if grid_row_span:
+            child_wrapper.style.gridRow = "span " + str(grid_row_span)
+
+        grid_column_span = child.column_span
+        if grid_column_span:
+            child_wrapper.style.gridColumn = "span " + str(grid_column_span)
+
+        child_wrapper.appendChild(child.element)
+        child.set_position(child_wrapper)
