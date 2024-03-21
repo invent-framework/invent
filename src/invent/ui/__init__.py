@@ -72,11 +72,11 @@ AVAILABLE_COMPONENTS = {
     _("Button"): Button,
     _("CheckBox"): CheckBox,
     _("Code"): Code,
+    _("FileUpload"): FileUpload,
     _("Html"): Html,
     _("Image"): Image,
     _("Slider"): Slider,
     _("Switch"): Switch,
     _("TextBox"): TextBox,
     _("TextInput"): TextInput,
-    _("FileUpload"): FileUpload,
 }
