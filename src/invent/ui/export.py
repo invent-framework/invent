@@ -135,6 +135,18 @@ def as_pyscript_app(app, imports=IMPORTS, datastore="", code="", to_psdc=True):
     return index_html, main_py, pyscript_toml
 
 
+def as_dict(app, imports=IMPORTS, datastore="", code="", to_psdc=True):
+    """Export an app as a dictionary."""
+
+    return dict(
+        imports={},
+        datastore={},
+        blocks={},
+        app=app.as_dict()
+
+    )
+
+
 # Internal ###################################################################
 
 

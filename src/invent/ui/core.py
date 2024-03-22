@@ -710,6 +710,7 @@ class Component:
         properties = {
             key: getattr(self, key) for key in type(self).properties()
         }
+
         return {
             "type": type(self).__name__,
             "properties": properties,
@@ -1067,7 +1068,8 @@ class Container(Component):
         content of children.
         """
         result = super().as_dict()
-        result["content"] = [child.as_dict for child in self.content]
+        result["properties"]["content"] = [child.as_dict() for child in self.content]
+        return result
 
 
 class Column(Container):
