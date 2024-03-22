@@ -27,8 +27,8 @@ class PageEditorModel extends ComponentModelBase {
 	}
 
 	public onPageLoad(pages: Array<PageModel>, activePage: PageModel, addWidgetToPage: Function): void {
-		const pageEditor: HTMLIFrameElement = document.getElementById(`${activePage.id}-editor`) as HTMLIFrameElement;
-		const pageElement: HTMLElement = BuilderUtilities.getPageElementById(activePage.id);
+		const pageEditor: HTMLIFrameElement = document.getElementById(`${activePage.properties.id}-editor`) as HTMLIFrameElement;
+		const pageElement: HTMLElement = BuilderUtilities.getPageElementById(activePage.properties.id);
 		pageElement.style.display = "grid";
 		pageEditor.contentDocument?.body.insertBefore(pageElement, pageEditor.contentDocument?.body.firstChild);
 
@@ -37,11 +37,11 @@ class PageEditorModel extends ComponentModelBase {
 
 	private addDragAndDropEventListeners(pages: Array<PageModel>, activePage: PageModel, addWidgetToPage: Function): void {
 		pages.forEach((page: PageModel) => {
-			const iframe: HTMLIFrameElement = document.getElementById(`${page.id}-editor`) as HTMLIFrameElement;
+			const iframe: HTMLIFrameElement = document.getElementById(`${page.properties.id}-editor`) as HTMLIFrameElement;
 			
 			if (iframe.contentDocument){
 				const dropZoneMain: HTMLDivElement = iframe.contentDocument.createElement("div");
-				const pageElement: HTMLDivElement = iframe.contentDocument.getElementById(page.id) as HTMLDivElement;
+				const pageElement: HTMLDivElement = iframe.contentDocument.getElementById(page.properties.id as any) as HTMLDivElement;
 				if (!iframe.contentDocument.getElementById("drop-zone-main")){
 					dropZoneMain.id = "drop-zone-main";
 					dropZoneMain.classList.add("drop-zone");
@@ -65,7 +65,7 @@ class PageEditorModel extends ComponentModelBase {
 
 						dropZoneMain.classList.remove("drop-zone-active");
 
-						if (page.id === activePage.id){
+						if (page.properties.id === activePage.properties.id){
 							const widget: WidgetModel = JSON.parse(event.dataTransfer?.getData("widget") as string);
 							addWidgetToPage(widget);
 						}

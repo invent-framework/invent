@@ -11,7 +11,7 @@
                         <ib-button
                             v-for="(page, key) in view.state.pages"
                             :key="key"
-                            :label="page.name"
+                            :label="page.properties.name"
                             size="sm"
                             :color="view.getPageButtonColor(page)"
                             @click="view.onPageClicked(page)"

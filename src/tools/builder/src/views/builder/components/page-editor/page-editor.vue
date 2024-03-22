@@ -2,10 +2,10 @@
     <div v-if="pages && activePage" class="px-4 py-3 w-full">
         <iframe 
             v-for="page in pages" 
-            v-show="activePage.id === page.id"
-            :key="page.name" 
-            :id="`${page.id}-editor`"
-            :srcdoc="component.getSrcDoc(page)" 
+            v-show="activePage.properties.id === page.properties.id"
+            :key="page.properties.name" 
+            :id="`${page.properties.id}-editor`"
+            :srcdoc="component.getSrcDoc()" 
             class="w-full h-full"
             @load="component.onPageLoad(pages, activePage, addWidgetToPage)"
         />

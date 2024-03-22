@@ -120,7 +120,7 @@ class Builder:
         Create a widget from a blueprint and add it to the specified page.
         """
 
-        page = self._get_page_by_id(page.id)
+        page = self._get_page_by_id(page.properties.id)
         if page is None:
             raise ValueError(f"No such page: {page.name}")
 

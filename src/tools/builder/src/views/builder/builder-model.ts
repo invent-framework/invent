@@ -127,7 +127,7 @@ export class BuilderModel extends ViewModelBase {
 	}
 
 	public getPageButtonColor(page: PageModel): string { 
-		return this.state.activePage && this.state.activeBuilderTab === 'app' && this.state.activePage.id === page.id ? 'gray' : 'transparent';
+		return this.state.activePage && this.state.activeBuilderTab === 'app' && this.state.activePage.properties.id === page.properties.id ? 'gray' : 'transparent';
 	}
 
 	// Drag and Drop Prototype

@@ -1,8 +1,8 @@
 import type { WidgetModel } from "./widget-model";
+import type { WidgetPropertiesModel } from "./widget-properties-model";
 
 export interface PageModel {
-    id: string;
-    name: string;
     element: HTMLElement;
+    properties: WidgetPropertiesModel;
     content: Array<WidgetModel>;
 }

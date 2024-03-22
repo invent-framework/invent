@@ -3,6 +3,7 @@ import type { WidgetModel } from "@/data/models/widget-model";
 import type { PageModel } from "@/data/models/page-model";
 import { view as builder } from "@/views/builder/builder-model";
 import type { ComponentsModel } from "@/data/models/components-model";
+import type { WidgetPropertyModel } from "@/data/models/widget-property-model";
 
  /**
  * Utility functions for the builder.
@@ -16,7 +17,7 @@ export class BuilderUtilities {
 		return JSON.parse(this.builder().get_pages());
 	}
 
-	public static getPageElementById(pageId: string): HTMLElement {
+	public static getPageElementById(pageId: WidgetPropertyModel): HTMLElement {
 		return this.builder().get_page_element_by_id(pageId);
 	}
 
