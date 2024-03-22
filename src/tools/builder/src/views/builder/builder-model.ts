@@ -209,6 +209,16 @@ export class BuilderModel extends ViewModelBase {
 		});
 	}
 
+	public loadBlocks(): void {
+		if (localStorage.getItem("blocks")){
+			Blockly.serialization.workspaces.load(JSON.parse(localStorage.getItem("blocks") as string), Blockly.getMainWorkspace())
+		}	
+	}
+
+	public saveBlocks(): void {
+		localStorage.setItem("blocks", JSON.stringify(Blockly.serialization.workspaces.save(Blockly.getMainWorkspace())));
+	}
+
 	/**
 	 * The path argument should be relative to the project root and contain the filename.
 	 * For example: some/folder/here/file.js

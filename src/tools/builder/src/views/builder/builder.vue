@@ -51,6 +51,20 @@
                     />
 
                     <ib-button 
+                        label="Load" 
+                        size="sm" 
+                        :icon="['fas', 'upload']"
+                        @click="view.loadBlocks()" 
+                    />
+
+                    <ib-button 
+                        label="Save" 
+                        size="sm" 
+                        :icon="['fas', 'save']"
+                        @click="view.saveBlocks()" 
+                    />
+
+                    <ib-button 
                         label="Publish" 
                         size="sm" 
                         :is-loading="view.state.isPublishing"
