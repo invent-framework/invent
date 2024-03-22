@@ -52,9 +52,10 @@ class App:
         content=None,
     ):
         global __app__
-        if __app__:
-            raise RuntimeError("There is already an app.")
-        __app__ = self
+        if not __app__:
+            #raise RuntimeError("There is already an app.")
+            __app__ = self
+
         self.name = name
         self.icon = icon
         self.description = description

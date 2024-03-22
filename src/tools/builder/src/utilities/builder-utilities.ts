@@ -101,4 +101,14 @@ export class BuilderUtilities {
 			this.builder().export_as_pyscript_app(datastore, code)
 		);
 	}
+
+	public static getAppAsDict(): object {
+		return JSON.parse(
+			this.builder().get_app_as_dict()
+		);
+	}
+
+	public static getAppFromDict(app_dict: object): object {
+		this.builder().get_app_from_dict(JSON.stringify(app_dict));
+	}
 }

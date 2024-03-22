@@ -143,8 +143,53 @@ def as_dict(app, imports=IMPORTS, datastore="", code="", to_psdc=True):
         datastore={},
         blocks={},
         app=app.as_dict()
-
     )
+
+
+def from_dict(bundle_dict):
+    """Rehydrate an app from the dictionary representation."""
+
+    app = _app_from_dict(bundle_dict["app"])
+
+    return app
+
+
+def _app_from_dict(app_dict):
+    """Create an App from the specified dictionary representation."""
+
+    from invent.ui.app import App
+
+    content = [
+        _component_from_dict(component_dict) for component_dict in app_dict["content"]
+    ]
+
+    app = App(**{**app_dict, "content": content})
+
+    # Sanity check!
+    assert app.as_dict() == app_dict
+
+    return app
+
+
+def _component_from_dict(component_dict):
+    """Create a component from the specified dictionary representation."""
+
+    from invent import ui
+
+    cls_name = component_dict["type"]
+    cls = getattr(ui, cls_name)
+
+    if issubclass(cls, Container):
+        content = [
+            _component_from_dict(component_dict)
+
+            for component_dict in component_dict["properties"]["content"]
+        ]
+
+    else:
+        content = None
+
+    return cls(**{**component_dict["properties"], "content": content})
 
 
 # Internal ###################################################################

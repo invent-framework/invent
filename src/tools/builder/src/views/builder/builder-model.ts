@@ -112,7 +112,6 @@ export class BuilderModel extends ViewModelBase {
 		this.state.activeWidgetProperties = BuilderUtilities.getWidgetProperties(
 			widgetBlueprint, widgetRef
 		);
-		console.log(this.state.activeWidgetProperties);
 		this.state.activeWidgetBlueprint = widgetBlueprint;
 	}
 
@@ -209,14 +208,28 @@ export class BuilderModel extends ViewModelBase {
 		});
 	}
 
-	public loadBlocks(): void {
+	public async loadBlocks(): void {
 		if (localStorage.getItem("blocks")){
 			Blockly.serialization.workspaces.load(JSON.parse(localStorage.getItem("blocks") as string), Blockly.getMainWorkspace())
-		}	
+		}
+
+		if (localStorage.getItem("app")){
+			BuilderUtilities.getAppFromDict(JSON.parse(localStorage.getItem("app") as string));
+			this.state.pages = BuilderUtilities.getPages();
+			await this.init();
+			//this.state.activePage = this.state.pages[0];
+		}
+
 	}
 
 	public saveBlocks(): void {
+		// Save the blocks...
 		localStorage.setItem("blocks", JSON.stringify(Blockly.serialization.workspaces.save(Blockly.getMainWorkspace())));
+
+		// Save the WOM...
+		localStorage.setItem("app", JSON.stringify(BuilderUtilities.getAppAsDict()));
+		console.log("Saving app...")
+		console.log(JSON.stringify(BuilderUtilities.getAppAsDict()));
 	}
 
 	/**

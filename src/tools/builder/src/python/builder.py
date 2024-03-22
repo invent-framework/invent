@@ -39,6 +39,16 @@ class Builder:
 
         return self._app.as_dict()
 
+    def get_app_as_dict(self):
+        return json.dumps(self.get_app())
+
+    def get_app_from_dict(self, app_dict):
+        bundle_dict = {
+            "app": json.loads(app_dict)
+        }
+        self._app = export.from_dict(bundle_dict)
+        print("Loaded app", self._app)
+
     # Pages ############################################################################
 
     def add_page(self, page_name):
