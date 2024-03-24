@@ -1006,7 +1006,6 @@ class Container(Component):
         """
         Insert like a list.
         """
-
         item.parent = self
         self.content.insert(index, item)
 
@@ -1014,6 +1013,9 @@ class Container(Component):
         ...
 
     def remove(self, item):
+        """
+        Remove like a list.
+        """
         item.parent = None
         self.content.remove(item)
         item.element.parentElement.remove()
