@@ -191,8 +191,7 @@ app.content.append(
                     ),
                 ]
             ),
-            #Code(code=export.as_pyscript_app(app)[0]),
-            Code(code=export.as_dict(app)),
+            Code(code=export.as_pyscript_app(app)[1]),
         ],
     )
 )
