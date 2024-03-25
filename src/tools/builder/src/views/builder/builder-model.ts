@@ -215,9 +215,12 @@ export class BuilderModel extends ViewModelBase {
 
 		if (localStorage.getItem("app")){
 			BuilderUtilities.getAppFromDict(JSON.parse(localStorage.getItem("app") as string));
-			this.state.pages = BuilderUtilities.getPages();
-			await this.init();
-			//this.state.activePage = this.state.pages[0];
+			this.state.pages = [];
+			nextTick(() => {
+				//this.state.pages = BuilderUtilities.getPages();
+				//this.state.activePage = this.state.pages[0];
+				this.init();
+			});
 		}
 
 	}
