@@ -61,18 +61,17 @@ export class BuilderModel extends ViewModelBase {
 		this.state.widgets = BuilderUtilities.getAvailableComponents();
 	}
 
-	public addWidgetToPage(widget: WidgetModel) {
-		const widgetElement: HTMLElement = BuilderUtilities.addWidgetToPage(
-			this.state.activePage, widget, undefined
-		);
+	public addComponentToPage(widget: WidgetModel) {
+		const parentId = this.state.activeWidgetId ? this.state.activeWidgetId : this.state.activePage?.properties.id;
+		BuilderUtilities.addComponent(parentId, widget);
 
-		if (widgetElement){
-			widgetElement.parentElement!.addEventListener("click", (event: Event) => {
-				event.stopPropagation();
-				this.state.activeWidgetId = widgetElement.id;
-				this.openPropertiesForWidget(widget, widgetElement.id);
-			});
-		}
+		// if (widgetElement){
+		// 	widgetElement.parentElement!.addEventListener("click", (event: Event) => {
+		// 		event.stopPropagation();
+		// 		this.state.activeWidgetId = widgetElement.id;
+		// 		this.openPropertiesForWidget(widget, widgetElement.id);
+		// 	});
+		// }
 	}
 
 	/**

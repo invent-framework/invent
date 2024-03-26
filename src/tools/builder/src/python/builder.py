@@ -164,6 +164,17 @@ class Builder:
 
         return json.dumps(blueprints)
 
+    def add_component(self, parent_id, component_klass_name):
+        """
+        Add a component to the end of the specified page.
+        """
+        parent = self._get_component_by_id(parent_id)
+        if parent is None:
+            raise ValueError(f"No such container: {parent_id}")
+
+        component = create_component(component_klass_name)
+        self.insert_after(parent.content[-1], component)
+
     def insert_after(self, after_component, component):
         """
         Insert a component after another (as a sibling).
@@ -307,11 +318,11 @@ class Builder:
 
         return page
 
-    def _get_component_by_id(self, widget_id):
+    def _get_component_by_id(self, component_id):
         """
-        Return the component with the specified id or None if no such componenet exists.
+        Return the component with the specified id or None if no such component exists.
         """
 
         from invent.ui.core import Component
 
-        return Component.get_component_by_id(widget_id)
+        return Component.get_component_by_id(component_id)

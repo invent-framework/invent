@@ -33,6 +33,10 @@ export class BuilderUtilities {
 
 	// Components //////////////////////////////////////////////////////////////////////
 
+	public static addComponent(parentId: string, widgetBlueprint: WidgetModel): void {
+		this.builder().add_component(parentId, widgetBlueprint.name);
+	}
+
 	public static deleteComponent(componentId: string) {
 		this.builder().delete_component(componentId);
 	}

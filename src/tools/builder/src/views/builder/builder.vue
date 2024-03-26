@@ -84,7 +84,7 @@
                                 v-for="container in view.state.widgets.containers" 
                                 :key="container.name" 
                                 :widget="container"
-                                @click="view.addWidgetToPage(container)"
+                                @click="view.addComponentToPage(container)"
                                 :draggable="true"
                                 @dragstart="view.onDragStart($event, container)"
                             />
@@ -97,7 +97,7 @@
                                 v-for="widget in view.state.widgets.widgets" 
                                 :key="widget.name" 
                                 :widget="widget"
-                                @click="view.addWidgetToPage(widget)"
+                                @click="view.addComponentToPage(widget)"
                                 :draggable="true"
                                 @dragstart="view.onDragStart($event, widget)"
                             />
@@ -110,7 +110,7 @@
                         class="mt-1" 
                         :pages="view.state.pages"  
                         :activePage="view.state.activePage"
-                        :add-widget-to-page="(widget: WidgetModel) => { view.addWidgetToPage(widget) }"
+                        :add-widget-to-page="(widget: WidgetModel) => { view.addComponentToPage(widget) }"
                     />
                 </div>
 
