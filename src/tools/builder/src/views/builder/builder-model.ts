@@ -494,7 +494,7 @@ export class BuilderModel extends ViewModelBase {
 		}
 	}
 
-	public deleteWidget(){
+	public deleteComponent() {
 		BuilderUtilities.deleteComponent(this.state.activeWidgetId);
 		this.state.activeWidgetId = "";
 		this.state.activeWidgetBlueprint = undefined;
