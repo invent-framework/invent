@@ -47,7 +47,7 @@ class BuilderDropZone(Widget):
             event.stopPropagation()
 
             self.builder._builder_model.onComponentClicked(
-                component_blueprint, component
+                create_proxy(component_blueprint), create_proxy(component)
             )
 
         component.element.addEventListener("click", create_proxy(on_click_on_component))
