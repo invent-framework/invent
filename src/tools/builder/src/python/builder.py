@@ -117,24 +117,25 @@ class Builder:
 
         return json.dumps(blueprints)
 
-    def add_component(self, parent_id, component_klass_name):
+    def append_component(self, parent_id, component_type_name):
         """
-        Add a component to the end of the specified page.
+        Append a component to the specified parent.
         """
         parent = self._app.get_component_by_id(parent_id)
         if parent is None:
             raise ValueError(f"No such container: {parent_id}")
 
-        component = create_component(component_klass_name)
-        self.insert_after(parent.content[-1], component)
+        self.insert_component_after(parent.content[-1], component_type_name)
 
-    def insert_after(self, after_component, component):
+    def insert_component_after(self, after_component, component_type_name):
         """
         Insert a component after another (as a sibling).
         """
 
         parent = after_component.parent
         after_component_index = parent.content.index(after_component)
+
+        component = create_component(component_type_name)
 
         if after_component_index == len(parent.content) - 1:
             parent.append(component)
@@ -287,14 +288,15 @@ class BuilderDropZone(Widget):
         event.preventDefault()
         event.stopPropagation()
         self.element.classList.remove("drop-zone-active")
-
         component_blueprint = json.loads(event.dataTransfer.getData("widget"))
-        component = create_component(component_blueprint["name"])
-        self.builder.insert_after(after_component=self, component=component)
+
+        self.builder.insert_component_after(
+            after_component=self, component_type_name=component_blueprint["name"]
+        )
 
     def render(self):
         """
-        Render the component's HTML element.
+        Create the component's HTML element.
         """
         element = document.createElement("div")
         element.id = self.id

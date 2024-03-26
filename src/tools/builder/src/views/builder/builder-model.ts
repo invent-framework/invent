@@ -86,7 +86,7 @@ export class BuilderModel extends ViewModelBase {
 			}
 		});
 	}
-	
+
 	/**
 	 * Called when a page button is clicked.
 	 */
@@ -116,7 +116,7 @@ export class BuilderModel extends ViewModelBase {
 			}
 		}
 
-		BuilderUtilities.addComponent(parentId, widgetBlueprint.name);
+		BuilderUtilities.appendComponent(parentId, widgetBlueprint.name);
 	}
 
 	/**
@@ -125,15 +125,13 @@ export class BuilderModel extends ViewModelBase {
 	 * This is called from the Python-side of the view model.
 	 */
 	public onComponentClicked(componentBlueprint: any, component: any) {
-		this.state.activeWidgetId = component.id;
 		this.openPropertiesForWidget(componentBlueprint, component.id);
 	}
 
 	public openPropertiesForWidget(widgetBlueprint: WidgetModel, componentId: string): void {
-		this.state.activeWidgetProperties = BuilderUtilities.getComponentProperties(
-			componentId
-		);
+		this.state.activeWidgetId = componentId;
 		this.state.activeWidgetBlueprint = widgetBlueprint;
+		this.state.activeWidgetProperties = BuilderUtilities.getComponentProperties(componentId);
 	}
 
 	public updateComponentProperty(key: string, value: string, isFromDatastore?: boolean) {
