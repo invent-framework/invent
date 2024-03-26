@@ -841,13 +841,6 @@ class Widget(Component):
         default_value=None,
     )
 
-    def __init__(self, **kwargs):
-        """
-        Ensure the widget's channel defaults to the name of the widget if not
-        explicitly set in the kwargs.
-        """
-        super().__init__(**kwargs)
-
     def publish(self, blueprint, **kwargs):
         """
         Given the name of one of the class's MessageBlueprints, publish
@@ -925,6 +918,11 @@ class Container(Component):
             "Outset",
         ],
     )
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        for item in self.content:
+            item.parent = self
 
     def on_content_changed(self):
         self.element.innerHTML = ""
@@ -1050,6 +1048,7 @@ class Container(Component):
         """
         element = document.createElement("div")
         element.style.display = "grid"
+        element.classList.add("row-container")
 
         # Render the container's children.
         self.render_children(element)
@@ -1094,6 +1093,8 @@ class Column(Container):
         # Update the element...
         self.element.appendChild(self._wrap_child(item, len(self.content)))
 
+        self.update_children()
+
     def insert(self, index, item):
         """
         Insert like a list.
@@ -1104,9 +1105,11 @@ class Column(Container):
 
         # Update the element...
         self.element.insertBefore(
-            self._wrap_child(item, len(self.content)),
-            self.element.childNodes[index]
+            self._wrap_child(item, index), self.element.childNodes[index]
         )
+
+        # Update the grid indices of the container's children.
+        self.update_children()
 
     def render_children(self, element):
         for counter, child in enumerate(self.content, start=1):
@@ -1138,6 +1141,7 @@ class Column(Container):
         child_wrapper.appendChild(child.element)
         child.set_position(child_wrapper)
 
+
 class Row(Container):
     """
     A horizontal container box.
@@ -1154,6 +1158,7 @@ class Row(Container):
 
         super().append(item)
         self.element.appendChild(self._wrap_child(item, len(self.content)))
+        self.update_children()
 
     def insert(self, index, item):
         """
@@ -1165,9 +1170,11 @@ class Row(Container):
 
         # Update the element...
         self.element.insertBefore(
-            self._wrap_child(item, len(self.content)),
-            self.element.childNodes[index]
+            self._wrap_child(item, index), self.element.childNodes[index]
         )
+
+        # Update the grid indices of the container's children.
+        self.update_children()
 
     def render_children(self, element):
         for index, child in enumerate(self.content, start=1):

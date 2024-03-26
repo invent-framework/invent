@@ -3,11 +3,66 @@
 
 import json
 from pyscript import document, window
+from pyscript.ffi import create_proxy
 
 import invent
 from invent.ui import export
 from invent.ui.core import Container, Component, Widget, from_datastore
-from invent.ui import AVAILABLE_COMPONENTS
+from invent.ui import create_component, AVAILABLE_COMPONENTS
+
+
+class BuilderDropZone(Widget):
+    """
+    A drop zone used ONLY in the builder to position components on a page.
+    """
+
+    def __init__(self, builder, **kwargs):
+        super().__init__(**kwargs)
+        self.builder = builder
+
+    def on_dragover(self, event):
+        event.preventDefault()
+        event.stopPropagation()
+        self.element.classList.add("drop-zone-active")
+
+    def on_dragleave(self, event):
+        event.preventDefault()
+        event.stopPropagation()
+        self.element.classList.remove("drop-zone-active")
+
+    def on_drop(self, event):
+        event.preventDefault()
+        event.stopPropagation()
+        self.element.classList.remove("drop-zone-active")
+
+        component_blueprint = json.loads(event.dataTransfer.getData("widget"))
+        component = create_component(component_blueprint["name"])
+        self.builder.insert_after(after_component=self, component=component)
+
+        def on_click_on_component(event):
+            """
+            Called when a JS "click" event is fired on a component in a page.
+            """
+
+            event.stopPropagation()
+
+            self.builder._builder_model.onComponentClicked(
+                component_blueprint, component
+            )
+
+        component.element.addEventListener("click", create_proxy(on_click_on_component))
+
+    def render(self):
+        """
+        Render the component's HTML element.
+        """
+        element = document.createElement("div")
+        element.id = self.id
+        element.classList.add("drop-zone")
+        element.addEventListener("dragover", create_proxy(self.on_dragover))
+        element.addEventListener("dragleave", create_proxy(self.on_dragleave))
+        element.addEventListener("drop", create_proxy(self.on_drop))
+        return element
 
 
 class Builder:
@@ -20,10 +75,19 @@ class Builder:
             content=[
                 invent.ui.Page(
                     name="Page 1",
-                    content=[]
+                    content=[
+                        BuilderDropZone(self),
+                    ]
                 )
             ]
         )
+
+        self._builder_model = None
+
+    def set_view_model(self, builder_model):
+        """Connects the Python side of the view model to the JS side."""
+
+        self._builder_model = builder_model
 
     # App ##############################################################################
 
@@ -40,6 +104,9 @@ class Builder:
         return self._app.as_dict()
 
     def get_app_as_dict(self):
+        """
+        Return the JSON-ified app.
+        """
         return json.dumps(self.get_app())
 
     def get_app_from_dict(self, app_dict):
@@ -84,36 +151,8 @@ class Builder:
     def get_available_components(self):
         """
         Return a dictionary of available component blueprints by name.
-
-        e.g.
-
-        {
-            "Button": {
-                "properties": {
-                    "id": {
-                      "property_type": "TextProperty",
-                      "description": "The id of the widget instance in the DOM.",
-                      "required": False,
-                      "default_value": None,
-                      "min_length": None,
-                      "max_length": None
-                    },
-                    ...
-                },
-                "message_blueprints": [
-                    "click", "double-click", "hold"
-                ],
-                "preview" : "<button>Button</button>"
-            },
-            ...
-        }
-
         """
-        blueprints = {
-            "containers": {},
-            "widgets": {}
-        }
-
+        blueprints = {"containers": {}, "widgets": {}}
         for component_klass_name, component_klass in AVAILABLE_COMPONENTS.items():
             if issubclass(component_klass, Container):
                 collection = "containers"
@@ -125,74 +164,75 @@ class Builder:
 
         return json.dumps(blueprints)
 
-    def add_widget_to_page(self, page, widget_blueprint, parent_id=None):
+    def insert_after(self, after_component, component):
         """
-        Create a widget from a blueprint and add it to the specified page.
+        Insert a component after another (as a sibling).
         """
 
-        page = self._get_page_by_id(page.properties.id)
-        if page is None:
-            raise ValueError(f"No such page: {page.name}")
+        parent = after_component.parent
+        after_component_index = parent.content.index(after_component)
 
-        component_klass = AVAILABLE_COMPONENTS.get(widget_blueprint.name)
-        if component_klass is None:
-            raise ValueError(f"No such widget: {widget_blueprint.name}")
-
-        component = component_klass()
-
-        if parent_id is None:
-            page.append(component)
-
-        else:
-            parent = self._get_widget_by_id(parent_id)
+        if after_component_index == len(parent.content) - 1:
             parent.append(component)
+            parent.append(BuilderDropZone(self))
 
-        if widget_blueprint.name == "Column" or widget_blueprint.name == "Row":
-            component.element.classList.add("drop-zone")
         else:
-            component.element.style.pointerEvents = "none"
-            component.element.parentElement.style.cursor = "crosshair"
+            parent.insert(after_component_index + 1, component)
+            parent.insert(after_component_index + 2, BuilderDropZone(self))
+
+        if isinstance(component, Container):
+            component.append(BuilderDropZone(self))
+
+        # Let the JS-side know that we have added the component.
+        self._builder_model.onComponentAdded(json.dumps(component.as_dict()))
+
+    def delete_component(self, component_id):
+        """
+        Delete the component with the specified id.
+        """
+        component_to_delete = self._get_component_by_id(component_id)
+        component_to_delete.parent.remove(component_to_delete)
+
+    def get_component_element_by_id(self, component_id):
+        """
+        Return the component with the specified id or None if no such component exists.
+        """
+
+        from invent.ui.core import Component
+
+        component = Component.get_component_by_id(component_id)
+        if component is None:
+            return None
 
         return component.element
 
-    def delete_widget(self, widget_id):
-        widget_to_delete = self._get_widget_by_id(widget_id)
-        widget_to_delete.parent.remove(widget_to_delete)
-
-    def get_widget_properties(self, widget_blueprint, widget_id):
+    def get_component_properties(self, component_id):
         """
-        Return a dictionary of properties from a widget reference.
+        Return a dictionary of properties for the specified component.
         """
-        component_klass = AVAILABLE_COMPONENTS.get(widget_blueprint.name)
-        if component_klass is None:
-            raise ValueError(f"No such component: {widget_blueprint.name}")
+        component = self._get_component_by_id(component_id)
+        if component is None:
+            raise ValueError(f"No such component: {component_id}")
 
-        widget = self._get_widget_by_id(widget_id)
-        if widget is None:
-            raise ValueError(f"No such widget: {widget_id}")
-
-        properties = component_klass.blueprint()["properties"]
+        properties = type(component).blueprint()["properties"]
         for name, value in properties.items():
-            if hasattr(widget, f"_{name}_from_datastore"):
+            if hasattr(component, f"_{name}_from_datastore"):
                 value["is_from_datastore"] = True
-                datastore_value = getattr(widget, f"_{name}_from_datastore")
+                datastore_value = getattr(component, f"_{name}_from_datastore")
                 value["value"] = datastore_value.key
             else:
-                value["value"] = getattr(widget, name)
+                value["value"] = getattr(component, name)
             
-        if issubclass(component_klass, Container):
+        if isinstance(component, Container):
             properties.pop("content")
 
         return json.dumps(properties)
     
-    def update_widget_property(self, widget_blueprint, widget_id, property_name, value, is_from_datastore=False):
+    def update_component_property(self, component_id, property_name, value, is_from_datastore=False):
         """
-        Update a property on a widget (that has already been added to the page).
+        Update a property on a component (that has already been added to the page).
         """
-
-        # window.console.log(f"update_widget_property: {widget_blueprint}, {widget_id}, {property_name} {value}")
-
-        component = self._get_widget_by_id(widget_id)
+        component = self._get_component_by_id(component_id)
         if is_from_datastore:
             setattr(component, property_name, from_datastore(value))
         else:
@@ -222,7 +262,6 @@ class Builder:
                 message_blueprints = widget_cls.message_blueprints()
                 subjects.update(message_blueprints.keys())
         return json.dumps(list(subjects))
-
 
     # Import/export ####################################################################
 
@@ -268,9 +307,9 @@ class Builder:
 
         return page
 
-    def _get_widget_by_id(self, widget_id):
+    def _get_component_by_id(self, widget_id):
         """
-        Return the widget with the specified id or None if no such widget exists.
+        Return the component with the specified id or None if no such componenet exists.
         """
 
         from invent.ui.core import Component

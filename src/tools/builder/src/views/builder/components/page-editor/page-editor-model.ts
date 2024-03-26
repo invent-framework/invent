@@ -1,6 +1,5 @@
 import { ComponentModelBase } from "@/components/base-classes/component-model-base";
 import type { PageModel } from "@/data/models/page-model";
-import type { WidgetModel } from "@/data/models/widget-model";
 import { BuilderUtilities } from "@/utilities/builder-utilities";
 
 /**
@@ -31,48 +30,6 @@ class PageEditorModel extends ComponentModelBase {
 		const pageElement: HTMLElement = BuilderUtilities.getPageElementById(activePage.properties.id);
 		pageElement.style.display = "grid";
 		pageEditor.contentDocument?.body.insertBefore(pageElement, pageEditor.contentDocument?.body.firstChild);
-
-		this.addDragAndDropEventListeners(pages, activePage, addWidgetToPage);
-	}
-
-	private addDragAndDropEventListeners(pages: Array<PageModel>, activePage: PageModel, addWidgetToPage: Function): void {
-		pages.forEach((page: PageModel) => {
-			const iframe: HTMLIFrameElement = document.getElementById(`${page.properties.id}-editor`) as HTMLIFrameElement;
-			
-			if (iframe.contentDocument){
-				const dropZoneMain: HTMLDivElement = iframe.contentDocument.createElement("div");
-				const pageElement: HTMLDivElement = iframe.contentDocument.getElementById(page.properties.id as any) as HTMLDivElement;
-				if (!iframe.contentDocument.getElementById("drop-zone-main")){
-					dropZoneMain.id = "drop-zone-main";
-					dropZoneMain.classList.add("drop-zone");
-					pageElement.appendChild(dropZoneMain);
-
-					dropZoneMain.addEventListener("dragover", (event: DragEvent) => {
-						event.preventDefault();
-						event.stopPropagation();
-						dropZoneMain.classList.add("drop-zone-active");
-					});
-
-					dropZoneMain.addEventListener("dragleave", (event: DragEvent) => {
-						event.preventDefault();
-						event.stopPropagation();
-						dropZoneMain.classList.remove("drop-zone-active");
-					});
-
-					dropZoneMain.addEventListener("drop", (event: DragEvent) => {
-						event.preventDefault();
-						event.stopPropagation();
-
-						dropZoneMain.classList.remove("drop-zone-active");
-
-						if (page.properties.id === activePage.properties.id){
-							const widget: WidgetModel = JSON.parse(event.dataTransfer?.getData("widget") as string);
-							addWidgetToPage(widget);
-						}
-					});
-				}
-			}
-		});
 	}
 }
 

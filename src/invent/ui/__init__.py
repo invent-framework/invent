@@ -80,3 +80,15 @@ AVAILABLE_COMPONENTS = {
     _("TextBox"): TextBox,
     _("TextInput"): TextInput,
 }
+
+
+def create_component(component_cls_name):
+    """
+    Create an instance of the subclass of Component with the specified name.
+    """
+
+    component_klass = AVAILABLE_COMPONENTS.get(component_cls_name)
+    if component_klass is None:
+        raise ValueError(f"No such component type: {component_cls_name}")
+
+    return component_klass()

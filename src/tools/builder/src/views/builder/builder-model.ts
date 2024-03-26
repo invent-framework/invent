@@ -34,12 +34,17 @@ export class BuilderModel extends ViewModelBase {
 	 */
 	public state: BuilderState = reactive(new BuilderState());
 
-
 	public async init(): Promise<void> {
 		await this.setupProject();
 		this.getPages();
 		this.setDefaultPage();
 		this.getAvailableComponents();
+		/*
+		 * BuilderUtilities is really just a bridge between this class (the JS-side of
+		 * the view model) and the "Builder" class in "builder.py" (the Python-side of
+		 * the view model).
+		 */
+		BuilderUtilities.init(this);
 	}
 
 	private async setupProject(): Promise<void> {
@@ -50,9 +55,8 @@ export class BuilderModel extends ViewModelBase {
 	}
 
 	/**
-	 * Widgets.
+	 * Components.
 	 */
-
 	public getAvailableComponents(): void {
 		this.state.widgets = BuilderUtilities.getAvailableComponents();
 	}
@@ -72,8 +76,43 @@ export class BuilderModel extends ViewModelBase {
 	}
 
 	/**
-	 * Called when the add button is clicked.
-	 * Adds a step to the tutorial.
+	 * Called when a component has been added to the page.
+	 */
+	public onComponentClicked(componentBlueprint: any, component: any) {
+		console.log("BuilderModel.onComponentClicked");
+		console.log(component);
+		console.log(component.element);
+
+		console.log("Looking for componenet with Id:");
+		console.log(component.id);
+
+		this.state.activeWidgetId = component.id;
+		this.openPropertiesForWidget(componentBlueprint, component.id);
+
+	}
+
+	public onComponentAdded(component: any) {
+		console.log("BuilderModel.onComponentAdded:");
+		console.log(component);
+
+		//this.state.activeWidgetId = component.id;
+		//this.openPropertiesForWidget(component, component.id);
+
+		// Need element from page iframe...
+		// const element = BuilderUtilities.getComponentElementById(component.id);
+		// console.log(element);
+		// element?.addEventListener("click", (event: Event) => {
+		// 	console.log("Got click!!!!!!!!!!");
+		// 	console.log(component.id);
+		// 	event.stopPropagation();
+		//
+		// 	this.state.activeWidgetId = component.id;
+		// 	this.openPropertiesForWidget(component, component.id);
+		// })
+	}
+
+	/**
+	 * Called when the add page button is clicked.
 	 */
 	public onAddPageClicked(): void {
 		ModalUtilities.showModal({
@@ -108,16 +147,16 @@ export class BuilderModel extends ViewModelBase {
 		this.setActivePage(page);
 	}
 
-	public openPropertiesForWidget(widgetBlueprint: WidgetModel, widgetRef: string): void {
-		this.state.activeWidgetProperties = BuilderUtilities.getWidgetProperties(
-			widgetBlueprint, widgetRef
+	public openPropertiesForWidget(widgetBlueprint: WidgetModel, componentId: string): void {
+		this.state.activeWidgetProperties = BuilderUtilities.getComponentProperties(
+			componentId
 		);
 		this.state.activeWidgetBlueprint = widgetBlueprint;
 	}
 
-	public updateWidgetProperty(key: string, value: string, isFromDatastore?: boolean) {
-		BuilderUtilities.updateWidgetProperty(
-			this.state.activeWidgetBlueprint, this.state.activeWidgetId, key, value, isFromDatastore
+	public updateComponentProperty(key: string, value: string, isFromDatastore?: boolean) {
+		BuilderUtilities.updateComponentProperty(
+			this.state.activeWidgetId, key, value, isFromDatastore
 		);
 	}
 
@@ -208,7 +247,7 @@ export class BuilderModel extends ViewModelBase {
 		});
 	}
 
-	public async loadBlocks(): void {
+	public async loadBlocks(): Promise<void> {
 		if (localStorage.getItem("blocks")){
 			Blockly.serialization.workspaces.load(JSON.parse(localStorage.getItem("blocks") as string), Blockly.getMainWorkspace())
 		}
@@ -476,7 +515,10 @@ export class BuilderModel extends ViewModelBase {
 	}
 
 	public deleteWidget(){
-		BuilderUtilities.deleteWidget(this.state.activeWidgetId);
+		BuilderUtilities.deleteComponent(this.state.activeWidgetId);
+		this.state.activeWidgetId = "";
+		this.state.activeWidgetBlueprint = undefined;
+		this.state.activeWidgetProperties = undefined;
 	}
 }
 

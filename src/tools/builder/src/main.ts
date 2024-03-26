@@ -9,7 +9,7 @@ import Modals from "@/modals";
 import InventWidgets from "@/views/builder/components/page-editor/widgets";
 import "@/data/providers/icon-provider";
 
-import { whenDefined } from "https://pyscript.net/releases/2024.3.1/core.js";
+import { whenDefined } from "https://pyscript.net/releases/2024.3.2/core.js";
 
 whenDefined("py").then(() => {
     LocalizationUtilities.loadPreferredLanguageAsync().then(() => {

@@ -1,7 +1,7 @@
 import type { WidgetPropertiesModel } from "@/data/models/widget-properties-model";
 import type { WidgetModel } from "@/data/models/widget-model";
 import type { PageModel } from "@/data/models/page-model";
-import { view as builder } from "@/views/builder/builder-model";
+import {BuilderModel, view as builder} from "@/views/builder/builder-model";
 import type { ComponentsModel } from "@/data/models/components-model";
 import type { WidgetPropertyModel } from "@/data/models/widget-property-model";
 
@@ -9,9 +9,15 @@ import type { WidgetPropertyModel } from "@/data/models/widget-property-model";
  * Utility functions for the builder.
  */
 export class BuilderUtilities {	
+	public static init(builderModel: BuilderModel): any {
+		(window as any).builder.set_view_model(builderModel)
+	}
+
 	public static builder(): any {
 		return (window as any).builder;
 	} 
+
+	// Pages ///////////////////////////////////////////////////////////////////////////
 
 	public static getPages(): Array<PageModel> {
 		return JSON.parse(this.builder().get_pages());
@@ -25,58 +31,25 @@ export class BuilderUtilities {
 		return JSON.parse(this.builder().add_page(name));
 	}
 
+	// Components //////////////////////////////////////////////////////////////////////
+
+	public static deleteComponent(componentId: string) {
+		this.builder().delete_component(componentId);
+	}
+
 	public static getAvailableComponents(): ComponentsModel {
 		return JSON.parse(this.builder().get_available_components());
 	}
 
-	public static addWidgetToPage(activePage: PageModel | undefined , widgetBlueprint: WidgetModel, parentId: string | undefined): HTMLElement {
-		const widgetElement: HTMLElement = this.builder().add_widget_to_page(activePage, widgetBlueprint, parentId);
-
-		if (activePage && (widgetBlueprint.name === "Row" || widgetBlueprint.name === "Column")) {
-			widgetElement.addEventListener("dragover", (event: DragEvent) => {
-				event.preventDefault();
-				event.stopPropagation();
-				widgetElement.classList.add("drop-zone-active");
-			});
-	
-			widgetElement.addEventListener("dragleave", (event: DragEvent) => {
-				event.preventDefault();
-				event.stopPropagation();
-				widgetElement.classList.remove("drop-zone-active");
-			});
-	
-			widgetElement.addEventListener("drop", (event: DragEvent) => {
-				event.preventDefault();
-				event.stopPropagation();
-				widgetElement.classList.remove("drop-zone-active");
-				
-				const widgetToAdd: WidgetModel = JSON.parse(event.dataTransfer?.getData("widget") as string);
-				const widgetInRowColumn: HTMLElement = this.addWidgetToPage(activePage, widgetToAdd, widgetElement.id);
-				
-				widgetInRowColumn.parentElement!.addEventListener("click", (event: Event) => {
-					event.stopPropagation();
-					builder.state.activeWidgetId = widgetInRowColumn.id;
-					builder.openPropertiesForWidget(widgetToAdd, widgetInRowColumn.id);
-				})
-			});
-	
-		}
-
-		return widgetElement;
+	public static getComponentProperties(componentId: string): WidgetPropertiesModel {
+		return JSON.parse(this.builder().get_component_properties(componentId));
 	}
 
-	public static deleteWidget(widgetRef: string) {
-		this.builder().delete_widget(widgetRef);
-		builder.state.activeWidgetId = "";
-		builder.state.activeWidgetBlueprint = undefined;
-		builder.state.activeWidgetProperties = undefined;
+	public static updateComponentProperty(componentId: string, key: string, value: string, isFromDatastore?: boolean) {
+		this.builder().update_component_property(componentId, key, value, isFromDatastore);
 	}
 
-	public static getWidgetProperties(widgetBlueprint: WidgetModel, widgetRef: string): WidgetPropertiesModel {
-		return JSON.parse(this.builder().get_widget_properties(
-			widgetBlueprint, widgetRef
-		));
-	}
+	// Channels ////////////////////////////////////////////////////////////////////////
 
 	public static getChannels(): Array<string> {
 		return JSON.parse(this.builder().get_channels());
@@ -88,24 +61,18 @@ export class BuilderUtilities {
 		return [...subjects, ...datastoreKeys];
 	}
 
-	public static updateWidgetProperty(widgetBlueprint: WidgetModel | undefined, widgetRef: string, key: string, value: string, isFromDatastore?: boolean) {
-		this.builder().update_widget_property(widgetBlueprint, widgetRef, key, value, isFromDatastore);
-	}
+	// Import/export ///////////////////////////////////////////////////////////////////
 
 	public static exportAppAsPythonCode(code: string): string {
 		return this.builder().export_app_as_python_code(code);
 	}
 
 	public static exportAsPyScriptApp(datastore: string, code: string): string {
-		return JSON.parse(
-			this.builder().export_as_pyscript_app(datastore, code)
-		);
+		return JSON.parse(this.builder().export_as_pyscript_app(datastore, code));
 	}
 
 	public static getAppAsDict(): object {
-		return JSON.parse(
-			this.builder().get_app_as_dict()
-		);
+		return JSON.parse(this.builder().get_app_as_dict());
 	}
 
 	public static getAppFromDict(app_dict: object): object {
