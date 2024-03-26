@@ -33,8 +33,8 @@ export class BuilderUtilities {
 
 	// Components //////////////////////////////////////////////////////////////////////
 
-	public static addComponent(parentId: string, widgetBlueprint: WidgetModel): void {
-		this.builder().add_component(parentId, widgetBlueprint.name);
+	public static addComponent(parentId: string, componentTypeName: string): void {
+		this.builder().add_component(parentId, componentTypeName);
 	}
 
 	public static deleteComponent(componentId: string) {

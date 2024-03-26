@@ -88,6 +88,29 @@ class App:
         global __app__
         return __app__
 
+    def get_component_by_id(self, component_id):
+        """
+        Return the component with the specified id or None if no such component exists.
+        """
+
+        from invent.ui.core import Component
+
+        return Component.get_component_by_id(component_id)
+
+    def get_page_by_id(self, page_id):
+        """
+        Return the page with the specified id or None if no such page exists.
+        """
+
+        for page in self.content:
+            if page.id == page_id:
+                break
+
+        else:
+            page = None
+
+        return page
+
     def get_page_by_name(self, page_name):
         """
         Return the page with the specified name or None if no such page exists.

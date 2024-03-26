@@ -54,60 +54,20 @@ export class BuilderModel extends ViewModelBase {
 		}
 	}
 
-	/**
-	 * Components.
-	 */
-	public getAvailableComponents(): void {
-		this.state.widgets = BuilderUtilities.getAvailableComponents();
+	// Pages ///////////////////////////////////////////////////////////////////////////
+
+	public getPages(): void {
+		this.state.pages = BuilderUtilities.getPages();
 	}
 
-	public addComponentToPage(widget: WidgetModel) {
-		const parentId = this.state.activeWidgetId ? this.state.activeWidgetId : this.state.activePage?.properties.id;
-		BuilderUtilities.addComponent(parentId, widget);
-
-		// if (widgetElement){
-		// 	widgetElement.parentElement!.addEventListener("click", (event: Event) => {
-		// 		event.stopPropagation();
-		// 		this.state.activeWidgetId = widgetElement.id;
-		// 		this.openPropertiesForWidget(widget, widgetElement.id);
-		// 	});
-		// }
+	public setActivePage(page: PageModel): void {
+		this.state.activePage = page;
 	}
 
-	/**
-	 * Called when a component has been added to the page.
-	 */
-	public onComponentClicked(componentBlueprint: any, component: any) {
-		console.log("BuilderModel.onComponentClicked");
-		console.log(component);
-		console.log(component.element);
-
-		console.log("Looking for componenet with Id:");
-		console.log(component.id);
-
-		this.state.activeWidgetId = component.id;
-		this.openPropertiesForWidget(componentBlueprint, component.id);
-
-	}
-
-	public onComponentAdded(component: any) {
-		console.log("BuilderModel.onComponentAdded:");
-		console.log(component);
-
-		//this.state.activeWidgetId = component.id;
-		//this.openPropertiesForWidget(component, component.id);
-
-		// Need element from page iframe...
-		// const element = BuilderUtilities.getComponentElementById(component.id);
-		// console.log(element);
-		// element?.addEventListener("click", (event: Event) => {
-		// 	console.log("Got click!!!!!!!!!!");
-		// 	console.log(component.id);
-		// 	event.stopPropagation();
-		//
-		// 	this.state.activeWidgetId = component.id;
-		// 	this.openPropertiesForWidget(component, component.id);
-		// })
+	public setDefaultPage(): void {
+		if (this.state.pages){
+			this.setActivePage(this.state.pages[0])
+		}
 	}
 
 	/**
@@ -126,24 +86,47 @@ export class BuilderModel extends ViewModelBase {
 			}
 		});
 	}
-
-	public getPages(): void {
-		this.state.pages = BuilderUtilities.getPages();
-	}
-
-	public setActivePage(page: PageModel): void {
-		this.state.activePage = page;
-	}
-
-	public setDefaultPage(): void {
-		if (this.state.pages){
-			this.setActivePage(this.state.pages[0])
-		}
-	}
-
+	
+	/**
+	 * Called when a page button is clicked.
+	 */
 	public onPageClicked(page: PageModel): void {
 		this.state.activeBuilderTab = "app";
 		this.setActivePage(page);
+	}
+
+	// Components //////////////////////////////////////////////////////////////////////
+
+	public getAvailableComponents(): void {
+		this.state.widgets = BuilderUtilities.getAvailableComponents();
+	}
+
+	public addComponentToPage(widgetBlueprint: WidgetModel) {
+		let parentId: string;
+
+		if (!this.state.activeWidgetId) {
+			parentId = this.state.activePage?.properties?.id;
+		} else {
+			if (this.state.activeWidgetBlueprint?.name === "Row" || this.state.activeWidgetBlueprint?.name === "Column") {
+				parentId = this.state.activeWidgetId;
+			} else {
+				// If a widget is selected, should we add to the page or to the
+				// selected widget's parent?
+				parentId = this.state.activePage?.properties?.id;
+			}
+		}
+
+		BuilderUtilities.addComponent(parentId, widgetBlueprint.name);
+	}
+
+	/**
+	 * Called when we get a JS "click" event on a component on the page.
+	 *
+	 * This is called from the Python-side of the view model.
+	 */
+	public onComponentClicked(componentBlueprint: any, component: any) {
+		this.state.activeWidgetId = component.id;
+		this.openPropertiesForWidget(componentBlueprint, component.id);
 	}
 
 	public openPropertiesForWidget(widgetBlueprint: WidgetModel, componentId: string): void {

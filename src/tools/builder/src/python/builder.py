@@ -11,65 +11,16 @@ from invent.ui.core import Container, Component, Widget, from_datastore
 from invent.ui import create_component, AVAILABLE_COMPONENTS
 
 
-class BuilderDropZone(Widget):
-    """
-    A drop zone used ONLY in the builder to position components on a page.
-    """
-
-    def __init__(self, builder, **kwargs):
-        super().__init__(**kwargs)
-        self.builder = builder
-
-    def on_dragover(self, event):
-        event.preventDefault()
-        event.stopPropagation()
-        self.element.classList.add("drop-zone-active")
-
-    def on_dragleave(self, event):
-        event.preventDefault()
-        event.stopPropagation()
-        self.element.classList.remove("drop-zone-active")
-
-    def on_drop(self, event):
-        event.preventDefault()
-        event.stopPropagation()
-        self.element.classList.remove("drop-zone-active")
-
-        component_blueprint = json.loads(event.dataTransfer.getData("widget"))
-        component = create_component(component_blueprint["name"])
-        self.builder.insert_after(after_component=self, component=component)
-
-        def on_click_on_component(event):
-            """
-            Called when a JS "click" event is fired on a component in a page.
-            """
-
-            event.stopPropagation()
-
-            self.builder._builder_model.onComponentClicked(
-                create_proxy(component_blueprint), create_proxy(component)
-            )
-
-        component.element.addEventListener("click", create_proxy(on_click_on_component))
-
-    def render(self):
-        """
-        Render the component's HTML element.
-        """
-        element = document.createElement("div")
-        element.id = self.id
-        element.classList.add("drop-zone")
-        element.addEventListener("dragover", create_proxy(self.on_dragover))
-        element.addEventListener("dragleave", create_proxy(self.on_dragleave))
-        element.addEventListener("drop", create_proxy(self.on_drop))
-        return element
-
-
 class Builder:
     """The Python-side of the Invent Builder."""
 
     def __init__(self):
-        # The app that we are building.
+        """The Python-side of the Invent builder.
+
+        The model-view for the builder is split into two parts: JS and Python.
+        """
+
+        # The Invent app that the builder is building.
         self._app = invent.ui.App(
             name="Invent Demo",
             content=[
@@ -82,11 +33,13 @@ class Builder:
             ]
         )
 
+        # The JS-side of the Invent-Builder.
         self._builder_model = None
 
     def set_view_model(self, builder_model):
-        """Connects the Python side of the view model to the JS side."""
-
+        """
+        Connects the Python side of the view model to the JS side.
+        """
         self._builder_model = builder_model
 
     # App ##############################################################################
@@ -98,29 +51,25 @@ class Builder:
         """
         return self._app
 
-    def get_app(self):
-        """Might need this to return the app as a plain ol' dictionary."""
-
-        return self._app.as_dict()
-
     def get_app_as_dict(self):
         """
         Return the JSON-ified app.
         """
-        return json.dumps(self.get_app())
+        return json.dumps(self._app.as_dict())
 
     def get_app_from_dict(self, app_dict):
-        bundle_dict = {
-            "app": json.loads(app_dict)
-        }
-        self._app = export.from_dict(bundle_dict)
-        print("Loaded app", self._app)
+        """
+        Create an App instance from the specified dictionary representation.
+
+        This sets created app to be the one that the builder is building.
+        """
+        self._app = export.from_dict({"app": json.loads(app_dict)})
 
     # Pages ############################################################################
 
     def add_page(self, page_name):
         """
-        Add an empty page with the specified name to the app.
+        Add an empty page with the specified name.
         """
         new_page = invent.ui.Page(name=page_name)
 
@@ -132,13 +81,17 @@ class Builder:
         """
         Delete the page with the specified name.
         """
+        page = self._app.get_page_by_name(page_name)
+        if page is None:
+            raise(ValueError(f"No such page: {page_name}"))
+
         ...
 
     def get_pages(self):
         """
         Return a list of all the pages in the app.
         """
-        return json.dumps(self.get_app()["content"])
+        return json.dumps(self._app.as_dict()["content"])
 
     def update_page(self, page_name, **properties_to_update):
         """
@@ -168,7 +121,7 @@ class Builder:
         """
         Add a component to the end of the specified page.
         """
-        parent = self._get_component_by_id(parent_id)
+        parent = self._app.get_component_by_id(parent_id)
         if parent is None:
             raise ValueError(f"No such container: {parent_id}")
 
@@ -194,14 +147,24 @@ class Builder:
         if isinstance(component, Container):
             component.append(BuilderDropZone(self))
 
-        # Let the JS-side know that we have added the component.
-        self._builder_model.onComponentAdded(json.dumps(component.as_dict()))
+        def on_click_on_component(event):
+            """
+            Called when a JS "click" event is fired on a component in a page.
+            """
+
+            event.stopPropagation()
+
+            self._builder_model.onComponentClicked(
+                create_proxy(type(component).blueprint()), create_proxy(component)
+            )
+
+        component.element.addEventListener("click", create_proxy(on_click_on_component))
 
     def delete_component(self, component_id):
         """
         Delete the component with the specified id.
         """
-        component_to_delete = self._get_component_by_id(component_id)
+        component_to_delete = self._app.get_component_by_id(component_id)
         component_to_delete.parent.remove(component_to_delete)
 
     def get_component_element_by_id(self, component_id):
@@ -209,9 +172,7 @@ class Builder:
         Return the component with the specified id or None if no such component exists.
         """
 
-        from invent.ui.core import Component
-
-        component = Component.get_component_by_id(component_id)
+        component = self._app.get_component_by_id(component_id)
         if component is None:
             return None
 
@@ -221,7 +182,7 @@ class Builder:
         """
         Return a dictionary of properties for the specified component.
         """
-        component = self._get_component_by_id(component_id)
+        component = self._app.get_component_by_id(component_id)
         if component is None:
             raise ValueError(f"No such component: {component_id}")
 
@@ -243,14 +204,14 @@ class Builder:
         """
         Update a property on a component (that has already been added to the page).
         """
-        component = self._get_component_by_id(component_id)
+        component = self._app.get_component_by_id(component_id)
         if is_from_datastore:
             setattr(component, property_name, from_datastore(value))
         else:
             setattr(component, property_name, value)
 
     def get_page_element_by_id(self, page_id):
-        result = self._get_page_by_id(page_id)
+        result = self._app.get_page_by_id(page_id)
         if result:
             return result.element
         
@@ -302,27 +263,43 @@ class Builder:
 
         })
 
-    # Internal #########################################################################
 
-    def _get_page_by_id(self, page_id):
+class BuilderDropZone(Widget):
+    """
+    A drop zone used ONLY in the builder to position components on a page.
+    """
+
+    def __init__(self, builder, **kwargs):
+        super().__init__(**kwargs)
+        self.builder = builder
+
+    def on_dragover(self, event):
+        event.preventDefault()
+        event.stopPropagation()
+        self.element.classList.add("drop-zone-active")
+
+    def on_dragleave(self, event):
+        event.preventDefault()
+        event.stopPropagation()
+        self.element.classList.remove("drop-zone-active")
+
+    def on_drop(self, event):
+        event.preventDefault()
+        event.stopPropagation()
+        self.element.classList.remove("drop-zone-active")
+
+        component_blueprint = json.loads(event.dataTransfer.getData("widget"))
+        component = create_component(component_blueprint["name"])
+        self.builder.insert_after(after_component=self, component=component)
+
+    def render(self):
         """
-        Return the page with the specified id or None if no such page exists.
+        Render the component's HTML element.
         """
-
-        for page in self._app.content:
-            if page.id == page_id:
-                break
-
-        else:
-            page = None
-
-        return page
-
-    def _get_component_by_id(self, component_id):
-        """
-        Return the component with the specified id or None if no such component exists.
-        """
-
-        from invent.ui.core import Component
-
-        return Component.get_component_by_id(component_id)
+        element = document.createElement("div")
+        element.id = self.id
+        element.classList.add("drop-zone")
+        element.addEventListener("dragover", create_proxy(self.on_dragover))
+        element.addEventListener("dragleave", create_proxy(self.on_dragleave))
+        element.addEventListener("drop", create_proxy(self.on_drop))
+        return element
