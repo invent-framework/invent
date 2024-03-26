@@ -1048,7 +1048,6 @@ class Container(Component):
         """
         element = document.createElement("div")
         element.style.display = "grid"
-        element.classList.add("row-container")
 
         # Render the container's children.
         self.render_children(element)
@@ -1112,6 +1111,7 @@ class Column(Container):
         self.update_children()
 
     def render_children(self, element):
+        element.classList.add("column-container")
         for counter, child in enumerate(self.content, start=1):
             element.appendChild(self._wrap_child(child, counter))
 
@@ -1177,6 +1177,7 @@ class Row(Container):
         self.update_children()
 
     def render_children(self, element):
+        element.classList.add("row-container")
         for index, child in enumerate(self.content, start=1):
             element.appendChild(self._wrap_child(child, index))
 

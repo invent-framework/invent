@@ -119,7 +119,7 @@ class Builder:
 
     def append_component(self, parent_id, component_type_name):
         """
-        Append a component to the specified parent.
+        Create and append a component to the specified parent.
         """
         parent = self._app.get_component_by_id(parent_id)
         if parent is None:
@@ -129,7 +129,7 @@ class Builder:
 
     def insert_component_after(self, after_component, component_type_name):
         """
-        Insert a component after another (as a sibling).
+        Create and insert a component after another (as a sibling).
         """
 
         parent = after_component.parent
@@ -168,17 +168,6 @@ class Builder:
         component_to_delete = self._app.get_component_by_id(component_id)
         component_to_delete.parent.remove(component_to_delete)
 
-    def get_component_element_by_id(self, component_id):
-        """
-        Return the component with the specified id or None if no such component exists.
-        """
-
-        component = self._app.get_component_by_id(component_id)
-        if component is None:
-            return None
-
-        return component.element
-
     def get_component_properties(self, component_id):
         """
         Return a dictionary of properties for the specified component.
@@ -201,9 +190,9 @@ class Builder:
 
         return json.dumps(properties)
     
-    def update_component_property(self, component_id, property_name, value, is_from_datastore=False):
+    def set_component_property(self, component_id, property_name, value, is_from_datastore=False):
         """
-        Update a property on a component (that has already been added to the page).
+        Set a property on a component (that has already been added to the page).
         """
         component = self._app.get_component_by_id(component_id)
         if is_from_datastore:

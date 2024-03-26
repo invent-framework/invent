@@ -49,8 +49,8 @@ export class BuilderUtilities {
 		return JSON.parse(this.builder().get_component_properties(componentId));
 	}
 
-	public static updateComponentProperty(componentId: string, key: string, value: string, isFromDatastore?: boolean) {
-		this.builder().update_component_property(componentId, key, value, isFromDatastore);
+	public static setComponentProperty(componentId: string, key: string, value: string, isFromDatastore?: boolean) {
+		this.builder().set_component_property(componentId, key, value, isFromDatastore);
 	}
 
 	// Channels ////////////////////////////////////////////////////////////////////////

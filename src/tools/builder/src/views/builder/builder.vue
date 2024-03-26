@@ -125,7 +125,7 @@
                                     :label="key" 
                                     :options="view.getDatastoreOptions()" 
                                     v-model="property.value"
-                                    @input="view.updateComponentProperty(key as string, $event, true)"
+                                    @input="view.setComponentProperty(key as string, $event, true)"
                                 />
                                 <div class="w-full" v-else>
                                     <ib-select 
@@ -133,7 +133,7 @@
                                         :label="key" 
                                         :options="view.getImageFiles()" 
                                         v-model="property.value"
-                                        @input="view.updateComponentProperty(key as string, $event)"
+                                        @input="view.setComponentProperty(key as string, $event)"
                                     />
 
                                     <ib-select 
@@ -141,7 +141,7 @@
                                         :label="key" 
                                         :options="view.getSoundFiles()" 
                                         v-model="property.value"
-                                        @input="view.updateComponentProperty(key as string, $event)"
+                                        @input="view.setComponentProperty(key as string, $event)"
                                     />
 
                                     <ib-select 
@@ -149,14 +149,14 @@
                                         :label="key" 
                                         :options="view.getChoicePropertyOptions(property.choices)" 
                                         v-model="property.value"
-                                        @input="view.updateComponentProperty(key as string, $event)"
+                                        @input="view.setComponentProperty(key as string, $event)"
                                     />
 
                                     <ib-toggle 
                                         v-else-if="property.property_type === 'BooleanProperty'" 
                                         :label="key" 
                                         v-model="property.value"
-                                        @input="view.updateComponentProperty(key as string, $event)"
+                                        @input="view.setComponentProperty(key as string, $event)"
                                     />
 
                                     <ib-input 
@@ -165,7 +165,7 @@
                                         type="text"
                                         :required="property.required" 
                                         v-model="property.value"
-                                        @input="view.updateComponentProperty(key as string, $event)"
+                                        @input="view.setComponentProperty(key as string, $event)"
                                     />
                                 </div>
 
