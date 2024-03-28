@@ -1,12 +1,20 @@
 .drop-zone {
-    padding: 1rem;
+    padding: 0.05rem;
     width: 100%;
     background-color: #f3f4f6;
-    border-width: 2px;
+    border-width: 1px;
     border-style: dashed;
     border-color: rgb(209 213 219);
     border-radius: 0.5rem;
     text-align: center;
+}
+
+.row-container {
+    border-color: rgb(255 0 0);
+}
+
+.column-container {
+    border-color: rgb(0 255 0);
 }
 
 .drop-zone span {
