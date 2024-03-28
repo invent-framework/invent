@@ -233,6 +233,9 @@ def _pretty_repr_component(component, lines, indent=""):
 
     """
 
+    if type(component).__name__ == "BuilderDropZone":
+        return lines
+
     # The first line of the component's constructor e.g. "Page(".
     lines.append(f"{indent}{type(component).__name__}(")
 
