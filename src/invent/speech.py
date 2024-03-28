@@ -1,5 +1,5 @@
 from pyscript import fetch, window
-from .compatability import proxy
+from pyscript.ffi import create_proxy
 
 
 _VOICES_BY_NAME = None
@@ -17,7 +17,7 @@ def on_voices_changed(event):
 
 try:
     synth = window.speechSynthesis
-    synth.onvoiceschanged = proxy(on_voices_changed)
+    synth.onvoiceschanged = create_proxy(on_voices_changed)
 
 except AttributeError:
     print("Sorry, your browser doesn't support text to speech!")
@@ -105,9 +105,9 @@ async def listen():
     def on_error(event):
         raise Exception(str(event))
 
-    recognition.onresult = proxy(on_result)
-    recognition.onstop = proxy(on_stop)
-    recognition.onerror = proxy(on_error)
+    recognition.onresult = create_proxy(on_result)
+    recognition.onstop = create_proxy(on_stop)
+    recognition.onerror = create_proxy(on_error)
 
     # Auto-stops when it detects a pause in the user's speech.
     recognition.continuous = False

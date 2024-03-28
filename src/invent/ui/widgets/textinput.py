@@ -19,8 +19,8 @@ limitations under the License.
 """
 
 from pyscript import document
+from pyscript.ffi import create_proxy
 
-from invent.compatability import proxy
 from invent.ui.core import (
     Widget,
     TextProperty,
@@ -90,5 +90,5 @@ class TextInput(Widget):
     def render(self):
         element = document.createElement("input")
         element.id = self.id
-        element.addEventListener("input", proxy(self.on_js_input))
+        element.addEventListener("input", create_proxy(self.on_js_input))
         return element

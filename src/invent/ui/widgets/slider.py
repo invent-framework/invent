@@ -18,9 +18,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-from invent.compatability import proxy
-from invent.ui.core import Widget, NumericProperty
 from pyscript import document
+from pyscript.ffi import create_proxy
+
+from invent.ui.core import Widget, NumericProperty
 
 
 class Slider(Widget):
@@ -66,5 +67,5 @@ class Slider(Widget):
         element = document.createElement("input")
         element.id = self.id
         element.setAttribute("type", "range")
-        element.addEventListener("input", proxy(self.on_js_input))
+        element.addEventListener("input", create_proxy(self.on_js_input))
         return element

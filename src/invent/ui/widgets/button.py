@@ -18,7 +18,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-from invent.compatability import proxy
 from invent.ui.core import (
     Widget,
     TextProperty,
@@ -28,6 +27,7 @@ from invent.ui.core import (
 )
 
 from pyscript import document
+from pyscript.ffi import create_proxy
 
 
 class Button(Widget):
@@ -109,5 +109,5 @@ class Button(Widget):
         element = document.createElement("button")
         element.id = self.id
         element.innerText = self.label
-        element.addEventListener("click", proxy(self.click))
+        element.addEventListener("click", create_proxy(self.click))
         return element

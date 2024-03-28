@@ -20,8 +20,8 @@ limitations under the License.
 
 
 from pyscript import document
+from pyscript.ffi import create_proxy
 
-from invent.compatability import proxy
 from invent.ui.core import Widget, BooleanProperty, ListProperty
 
 
@@ -79,5 +79,5 @@ class FileUpload(Widget):
         element = document.createElement("input")
         element.id = self.id
         element.setAttribute("type", "file")
-        element.addEventListener("change", proxy(self.on_js_change))
+        element.addEventListener("change", create_proxy(self.on_js_change))
         return element

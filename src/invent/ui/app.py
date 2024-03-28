@@ -53,7 +53,6 @@ class App:
     ):
         global __app__
         if not __app__:
-            #raise RuntimeError("There is already an app.")
             __app__ = self
 
         self.name = name

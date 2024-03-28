@@ -27,19 +27,3 @@ def iscoroutinefunction(obj):
         return type(obj) is types.GeneratorType
 
     return inspect.iscoroutinefunction(obj)
-
-
-def proxy(function):
-    """
-    In pyodide, create a JS proxy for the specified Python function.
-    In MicroPython, just return the function unharmed :)
-    """
-    if not function:
-        return None
-
-    if is_micropython:
-        return function
-
-    from pyodide.ffi import create_proxy
-
-    return create_proxy(function)

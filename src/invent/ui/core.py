@@ -1178,8 +1178,26 @@ class Row(Container):
 
     def render_children(self, element):
         element.classList.add("row-container")
+        self._update_template_columns(element)
+
         for index, child in enumerate(self.content, start=1):
             element.appendChild(self._wrap_child(child, index))
+
+    def _update_template_columns(self, element):
+        """
+        Set the grid's template columns.
+        """
+
+        template_columns = []
+        for item in self.content:
+            if item.element.classList.contains("drop-zone") and len(self.content) > 1:
+                template_columns.append("0px")
+
+            else:
+                template_columns.append("auto")
+
+        print("Template columns:", template_columns)
+        element.style.gridTemplateColumns = " ".join(template_columns)
 
     def _wrap_child(self, child, index):
         """
@@ -1194,6 +1212,7 @@ class Row(Container):
         return child_wrapper
     
     def update_children(self):
+        self._update_template_columns(self.element)
         for counter, child in enumerate(self.content, start=1):
             self._update_child_wrapper(child, counter)
 

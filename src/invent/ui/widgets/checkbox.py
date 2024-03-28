@@ -19,8 +19,8 @@ limitations under the License.
 """
 
 from pyscript import document
+from pyscript.ffi import create_proxy
 
-from invent.compatability import proxy
 from invent.ui.core import Widget, BooleanProperty, TextProperty
 from ..utils import random_id
 
@@ -79,5 +79,5 @@ class CheckBox(Widget):
         span.innerText = self.label
         label.appendChild(span)
 
-        element.addEventListener("change", proxy(self.on_js_changed))
+        element.addEventListener("change", create_proxy(self.on_js_changed))
         return element
