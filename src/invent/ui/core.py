@@ -1068,7 +1068,11 @@ class Container(Component):
         content of children.
         """
         result = super().as_dict()
-        result["properties"]["content"] = [child.as_dict() for child in self.content]
+        result["properties"]["content"] = [
+            child.as_dict() for child in self.content
+
+            if type(child).__name__ != "BuilderDropZone"
+        ]
         return result
 
 

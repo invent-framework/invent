@@ -55,6 +55,7 @@ class Builder:
         """
         Return the JSON-ified app.
         """
+
         return json.dumps(self._app.as_dict())
 
     def get_app_from_dict(self, app_dict):
@@ -63,7 +64,31 @@ class Builder:
 
         This sets created app to be the one that the builder is building.
         """
-        self._app = export.from_dict({"app": json.loads(app_dict)})
+        app = export.from_dict({"app": json.loads(app_dict)})
+
+        for page in app.content:
+            self._inject_builder_drop_zones(page)
+
+        self._app = app
+
+    def _inject_builder_drop_zones(self, container):
+        """
+        Inject a BuilderDropZone around each item in a container.
+        """
+
+        self._add_click_handler(container)
+
+        for item in container.content[:]:
+            index = container.content.index(item)
+            container.insert(index, BuilderDropZone(self))
+
+            if isinstance(item, Container):
+                self._inject_builder_drop_zones(item)
+
+            else:
+                self._add_click_handler(item)
+
+        container.append(BuilderDropZone(self))
 
     # Pages ############################################################################
 
@@ -148,18 +173,7 @@ class Builder:
         if isinstance(component, Container):
             component.append(BuilderDropZone(self))
 
-        def on_click_on_component(event):
-            """
-            Called when a JS "click" event is fired on a component in a page.
-            """
-
-            event.stopPropagation()
-
-            self._builder_model.onComponentClicked(
-                create_proxy(type(component).blueprint()), create_proxy(component)
-            )
-
-        component.element.addEventListener("click", create_proxy(on_click_on_component))
+        self._add_click_handler(component)
 
     def delete_component(self, component_id):
         """
@@ -252,6 +266,23 @@ class Builder:
             "pyscript.toml": pyscript_toml
 
         })
+
+    # Internal #########################################################################
+
+    def _add_click_handler(self, component):
+        def on_click_on_component(event):
+            """
+            Called when a JS "click" event is fired on a component in a page.
+            """
+
+            event.stopPropagation()
+
+            self._builder_model.onComponentClicked(
+                create_proxy(type(component).blueprint()), create_proxy(component)
+            )
+
+        component.element.addEventListener("click", create_proxy(on_click_on_component))
+
 
 
 class BuilderDropZone(Widget):

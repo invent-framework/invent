@@ -249,9 +249,10 @@ export class BuilderModel extends ViewModelBase {
 		localStorage.setItem("blocks", JSON.stringify(Blockly.serialization.workspaces.save(Blockly.getMainWorkspace())));
 
 		// Save the WOM...
-		localStorage.setItem("app", JSON.stringify(BuilderUtilities.getAppAsDict()));
 		console.log("Saving app...")
-		console.log(JSON.stringify(BuilderUtilities.getAppAsDict()));
+		const appJSON: string = JSON.stringify(BuilderUtilities.getAppAsDict());
+		console.log(appJSON);
+		localStorage.setItem("app", appJSON);
 	}
 
 	/**
