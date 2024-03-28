@@ -79,8 +79,9 @@ class Builder:
         self._add_click_handler(container)
 
         for item in container.content[:]:
-            index = container.content.index(item)
-            container.insert(index, BuilderDropZone(self))
+            container.insert(
+                container.content.index(item), BuilderDropZone(self)
+            )
 
             if isinstance(item, Container):
                 self._inject_builder_drop_zones(item)
