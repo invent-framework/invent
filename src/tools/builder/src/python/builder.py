@@ -410,13 +410,21 @@ class BuilderDropZone(Widget):
         event.preventDefault()
         event.stopPropagation()
         self.element.classList.remove("drop-zone-active")
-        component_blueprint = json.loads(event.dataTransfer.getData("widget"))
+
+        move_data = event.dataTransfer.getData("move")
+        if move_data:
+            component_to_move = Component.get_component_by_id(move_data)
+            component = component_to_move.clone()
+            self.builder.delete_component(component_to_move.id)
+
+        else:
+            component_blueprint = json.loads(event.dataTransfer.getData("widget"))
+            component = create_component(component_blueprint["name"])
 
         # Now that the container is no longer empty - we can get rid of the drop zone.
         print("Drop Zone id", self.id)
         parent_id = self.parent.id
 
-        component = create_component(component_blueprint["name"])
         self.builder.append_component(parent_id, component)
         self.builder.delete_component(self.id)
 
