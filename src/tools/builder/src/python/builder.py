@@ -313,7 +313,6 @@ class Builder:
         component.element.addEventListener("click", create_proxy(on_click_on_component))
 
         def on_dragstart(event):
-            print("Dragged!!!!!")
             event.dataTransfer.setData("move", component.id);
 
         def on_drop(event):
@@ -323,8 +322,8 @@ class Builder:
 
             move_data = event.dataTransfer.getData("move")
             if move_data:
-                new_component = Component.get_component_by_id(move_data)
-                self.delete_component(new_component.id)
+                component_to_move = Component.get_component_by_id(move_data)
+                new_component = component_to_move.clone()
 
             else:
                 component_blueprint = json.loads(event.dataTransfer.getData("widget"))
@@ -335,6 +334,9 @@ class Builder:
                 self.insert_component_before(component, new_component)
             else:
                 self.insert_component_after(component, new_component)
+
+            if move_data:
+                self.delete_component(component_to_move.id)
 
         def on_dragover(event):
             """

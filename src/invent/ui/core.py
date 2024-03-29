@@ -586,6 +586,18 @@ class Component:
         # To reference the container's parent in the DOM tree.
         self.parent = None
 
+    def clone(self):
+        """
+        Make a clone of the component.
+        """
+        from invent.ui import create_component
+        clone = create_component(type(self).__name__)
+
+        for property_name, property_obj in type(self).properties().items():
+            setattr(clone, property_name, getattr(self, property_name))
+
+        return clone
+    
     def update(self, **kwargs):
         """
         Given the **kwargs dict, iterate of the items and if the key identifies
