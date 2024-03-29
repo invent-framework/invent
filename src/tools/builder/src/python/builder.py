@@ -156,7 +156,7 @@ class Builder:
 
         return json.dumps(blueprints)
 
-    def append_component(self, parent_id, component_type_name):
+    def append_component(self, parent_id, component):
         """
         Create and append a component to the specified parent.
         """
@@ -164,15 +164,14 @@ class Builder:
         if parent is None:
             raise ValueError(f"No such container: {parent_id}")
 
-        self.insert_component_after(parent.content[-1], component_type_name)
+        self.insert_component_after(parent.content[-1], component)
 
-    def insert_component_after(self, after_component, component_type_name):
+    def insert_component_after(self, after_component, component):
         """
         Create and insert a component after another (as a sibling).
         """
 
         parent = after_component.parent
-        component = create_component(component_type_name)
 
         after_component_index = parent.content.index(after_component)
         if after_component_index == len(parent.content) - 1:
@@ -188,13 +187,12 @@ class Builder:
 
         self._add_click_handler(component)
 
-    def insert_component_before(self, before_component, component_type_name):
+    def insert_component_before(self, before_component, component):
         """
         Create and insert a component before another (as a sibling).
         """
 
         parent = before_component.parent
-        component = create_component(component_type_name)
 
         before_component_index = parent.content.index(before_component)
         parent.insert(before_component_index, component)
@@ -306,7 +304,7 @@ class Builder:
             Called when a JS "click" event is fired on a component in a page.
             """
 
-            event.stopPropagation()
+            #event.stopPropagation()
 
             self._builder_model.onComponentClicked(
                 create_proxy(type(component).blueprint()), create_proxy(component)
@@ -314,22 +312,29 @@ class Builder:
 
         component.element.addEventListener("click", create_proxy(on_click_on_component))
 
+        def on_dragstart(event):
+            print("Dragged!!!!!")
+            event.dataTransfer.setData("move", component.id);
+
         def on_drop(event):
             event.preventDefault()
             event.stopPropagation()
             component.element.parentNode.classList.remove(f"drop-zone-active-{self.mode}")
-            component_blueprint = json.loads(event.dataTransfer.getData("widget"))
-            component_type_name = component_blueprint["name"]
 
-            if self.mode in ["left", "above"]:
-                self.insert_component_before(
-                    before_component=component, component_type_name=component_type_name
-                )
+            move_data = event.dataTransfer.getData("move")
+            if move_data:
+                new_component = Component.get_component_by_id(move_data)
+                self.delete_component(new_component.id)
 
             else:
-                self.insert_component_after(
-                    after_component=component, component_type_name=component_type_name
-                )
+                component_blueprint = json.loads(event.dataTransfer.getData("widget"))
+                component_type_name = component_blueprint["name"]
+                new_component = create_component(component_type_name)
+
+            if self.mode in ["left", "above"]:
+                self.insert_component_before(component, new_component)
+            else:
+                self.insert_component_after(component, new_component)
 
         def on_dragover(event):
             """
@@ -369,6 +374,8 @@ class Builder:
             event.stopPropagation()
             component.element.parentNode.classList.remove(f"drop-zone-active-{self.mode}")
 
+        component.element.setAttribute("draggable", "true")
+        component.element.addEventListener("dragstart", create_proxy(on_dragstart))
         component.element.addEventListener("dragover", create_proxy(on_dragover))
         component.element.addEventListener("dragleave", create_proxy(on_dragleave))
         component.element.addEventListener("drop", create_proxy(on_drop))
@@ -404,9 +411,8 @@ class BuilderDropZone(Widget):
         print("Drop Zone id", self.id)
         parent_id = self.parent.id
 
-        self.builder.append_component(
-            parent_id, component_type_name=component_blueprint["name"]
-        )
+        component = create_component(component_blueprint["name"])
+        self.builder.append_component(parent_id, component)
         self.builder.delete_component(self.id)
 
 
