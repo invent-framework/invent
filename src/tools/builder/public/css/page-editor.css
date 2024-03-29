@@ -1,5 +1,5 @@
 .drop-zone {
-    padding: 0.05rem;
+    padding: 1rem;
     width: 100%;
     background-color: #f3f4f6;
     border-width: 1px;
@@ -9,14 +9,6 @@
     text-align: center;
 }
 
-.row-container {
-    border-color: rgb(255 0 0);
-}
-
-.column-container {
-    border-color: rgb(0 255 0);
-}
-
 .drop-zone span {
     font-family: ui-sans-serif, system-ui, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol", "Noto Color Emoji";
     font-size: 0.875rem; 
@@ -24,9 +16,30 @@
     font-weight: 500;
 }
 
-.drop-zone-active {
-    background-color: #ede9fe;
-    border-color: #8b5cf6;
+.drop-zone-active-above {
+/*    border-color: #8b5cf6;*/
+/*    background-color: #ede9fe;*/
+    border-top-color: red;
+    border-top-width: 4px;
+    border-top-style: solid;
+}
+
+.drop-zone-active-below {
+    border-bottom-color: red;
+    border-bottom-width: 4px;
+    border-bottom-style: solid;
+}
+
+.drop-zone-active-left {
+    border-left-color: red;
+    border-left-width: 4px;
+    border-left-style: solid;
+}
+
+.drop-zone-active-right {
+    border-right-color: red;
+    border-right-width: 4px;
+    border-right-style: solid;
 }
 
 .drop-zone-active span {

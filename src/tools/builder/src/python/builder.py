@@ -7,7 +7,7 @@ from pyscript.ffi import create_proxy
 
 import invent
 from invent.ui import export
-from invent.ui.core import Container, Component, Widget, from_datastore
+from invent.ui.core import Column, Container, Component, Grid, Row, Widget, from_datastore
 from invent.ui import create_component, AVAILABLE_COMPONENTS
 
 
@@ -27,7 +27,7 @@ class Builder:
                 invent.ui.Page(
                     name="Page 1",
                     content=[
-                        BuilderDropZone(self),
+                        BuilderDropZone(self, invent.ui.Page),
                     ]
                 )
             ]
@@ -67,29 +67,42 @@ class Builder:
         app = export.from_dict({"app": json.loads(app_dict)})
 
         for page in app.content:
-            self._inject_builder_drop_zones(page)
+            #self._inject_builder_drop_zones(page)
+            self._inject_click_handlers(page)
 
         self._app = app
 
-    def _inject_builder_drop_zones(self, container):
+    def _inject_click_handlers(self, container):
         """
-        Inject a BuilderDropZone around each item in a container.
+        Recursively Inject JS event handlers onto all Widgets.
         """
-
-        self._add_click_handler(container)
 
         for item in container.content[:]:
-            container.insert(
-                container.content.index(item), BuilderDropZone(self)
-            )
-
             if isinstance(item, Container):
-                self._inject_builder_drop_zones(item)
+                self._inject_click_handlers(item)
 
             else:
                 self._add_click_handler(item)
 
-        container.append(BuilderDropZone(self))
+    # def _inject_builder_drop_zones(self, container):
+    #     """
+    #     Inject a BuilderDropZone around each item in a container.
+    #     """
+    #
+    #     self._add_click_handler(container)
+    #
+    #     for item in container.content[:]:
+    #         container.insert(
+    #             container.content.index(item), BuilderDropZone(self)
+    #         )
+    #
+    #         if isinstance(item, Container):
+    #             self._inject_builder_drop_zones(item)
+    #
+    #         else:
+    #             self._add_click_handler(item)
+    #
+    #     container.append(BuilderDropZone(self))
 
     # Pages ############################################################################
 
@@ -159,20 +172,37 @@ class Builder:
         """
 
         parent = after_component.parent
-        after_component_index = parent.content.index(after_component)
-
         component = create_component(component_type_name)
 
+        after_component_index = parent.content.index(after_component)
         if after_component_index == len(parent.content) - 1:
             parent.append(component)
-            parent.append(BuilderDropZone(self))
 
         else:
             parent.insert(after_component_index + 1, component)
-            parent.insert(after_component_index + 2, BuilderDropZone(self))
 
+        # If we are inserting a new (and hence *empty* container), give it a drop
+        # zone to give the user a place to put the first item in it.
         if isinstance(component, Container):
-            component.append(BuilderDropZone(self))
+            component.append(BuilderDropZone(self, type(component)))
+
+        self._add_click_handler(component)
+
+    def insert_component_before(self, before_component, component_type_name):
+        """
+        Create and insert a component before another (as a sibling).
+        """
+
+        parent = before_component.parent
+        component = create_component(component_type_name)
+
+        before_component_index = parent.content.index(before_component)
+        parent.insert(before_component_index, component)
+
+        # If we are inserting a new (and hence *empty* container), give it a drop
+        # zone to give the user a place to put the first item in it.
+        if isinstance(component, Container):
+            component.append(BuilderDropZone(self, type(component)))
 
         self._add_click_handler(component)
 
@@ -284,6 +314,64 @@ class Builder:
 
         component.element.addEventListener("click", create_proxy(on_click_on_component))
 
+        def on_drop(event):
+            event.preventDefault()
+            event.stopPropagation()
+            component.element.parentNode.classList.remove(f"drop-zone-active-{self.mode}")
+            component_blueprint = json.loads(event.dataTransfer.getData("widget"))
+            component_type_name = component_blueprint["name"]
+
+            if self.mode in ["left", "above"]:
+                self.insert_component_before(
+                    before_component=component, component_type_name=component_type_name
+                )
+
+            else:
+                self.insert_component_after(
+                    after_component=component, component_type_name=component_type_name
+                )
+
+        def on_dragover(event):
+            """
+            Handle a JS "dragover" event on a component.
+            """
+
+            event.preventDefault()
+            event.stopPropagation()
+
+            pointer_offset_x = event.offsetX
+            pointer_offset_y = event.offsetY
+            component_width = component.element.offsetWidth
+            component_height = component.element.offsetHeight
+
+            if isinstance(component.parent, Column):
+                if pointer_offset_y < (component_height * .5):
+                    self.mode = "above"
+
+                elif pointer_offset_y > (component_height * .5):
+                    self.mode = "below"
+
+            elif isinstance(component.parent, Row):
+                if pointer_offset_x < (component_width * .5):
+                    self.mode = "left"
+
+                elif pointer_offset_x > (component_width * .5):
+                    self.mode = "right"
+
+            for class_name in component.element.parentNode.classList:
+                if class_name.startswith("drop-zone-active"):
+                    component.element.parentNode.classList.remove(class_name)
+
+            component.element.parentNode.classList.add(f"drop-zone-active-{self.mode}")
+
+        def on_dragleave(event):
+            event.preventDefault()
+            event.stopPropagation()
+            component.element.parentNode.classList.remove(f"drop-zone-active-{self.mode}")
+
+        component.element.addEventListener("dragover", create_proxy(on_dragover))
+        component.element.addEventListener("dragleave", create_proxy(on_dragleave))
+        component.element.addEventListener("drop", create_proxy(on_drop))
 
 
 class BuilderDropZone(Widget):
@@ -291,9 +379,10 @@ class BuilderDropZone(Widget):
     A drop zone used ONLY in the builder to position components on a page.
     """
 
-    def __init__(self, builder, **kwargs):
-        super().__init__(**kwargs)
+    def __init__(self, builder, container_type, **kwargs):
+        self.container_type = container_type
         self.builder = builder
+        super().__init__(**kwargs)
 
     def on_dragover(self, event):
         event.preventDefault()
@@ -311,9 +400,15 @@ class BuilderDropZone(Widget):
         self.element.classList.remove("drop-zone-active")
         component_blueprint = json.loads(event.dataTransfer.getData("widget"))
 
-        self.builder.insert_component_after(
-            after_component=self, component_type_name=component_blueprint["name"]
+        # Now that the container is no longer empty - we can get rid of the drop zone.
+        print("Drop Zone id", self.id)
+        parent_id = self.parent.id
+
+        self.builder.append_component(
+            parent_id, component_type_name=component_blueprint["name"]
         )
+        self.builder.delete_component(self.id)
+
 
     def render(self):
         """
@@ -321,6 +416,8 @@ class BuilderDropZone(Widget):
         """
         element = document.createElement("div")
         element.id = self.id
+
+        element.innerText = f"Drop yo' stuff on this here {self.container_type.__name__}!"
         element.classList.add("drop-zone")
         element.addEventListener("dragover", create_proxy(self.on_dragover))
         element.addEventListener("dragleave", create_proxy(self.on_dragleave))

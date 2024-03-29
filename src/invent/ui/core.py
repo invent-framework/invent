@@ -1200,7 +1200,6 @@ class Row(Container):
             else:
                 template_columns.append("auto")
 
-        print("Template columns:", template_columns)
         element.style.gridTemplateColumns = " ".join(template_columns)
 
     def _wrap_child(self, child, index):

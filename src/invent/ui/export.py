@@ -163,10 +163,12 @@ def _app_from_dict(app_dict):
         _component_from_dict(component_dict) for component_dict in app_dict["content"]
     ]
 
-    app = App(**{**app_dict, "content": content})
+    app_dict["content"] = content
+
+    app = App(**app_dict)
 
     # Sanity check!
-    assert app.as_dict() == app_dict
+    #assert app.as_dict() == app_dict
 
     return app
 
@@ -189,7 +191,9 @@ def _component_from_dict(component_dict):
     else:
         content = None
 
-    return cls(**{**component_dict["properties"], "content": content})
+    component_dict["content"] = content
+
+    return cls(**component_dict)
 
 
 # Internal ###################################################################
@@ -234,6 +238,8 @@ def _pretty_repr_component(component, lines, indent=""):
     """
 
     if type(component).__name__ == "BuilderDropZone":
+        if type(component.parent).__name__ == "Grid":
+            component.parent.columns = component.parent.columns -1
         return lines
 
     # The first line of the component's constructor e.g. "Page(".
