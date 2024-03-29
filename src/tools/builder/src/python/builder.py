@@ -417,7 +417,7 @@ class BuilderDropZone(Widget):
         element = document.createElement("div")
         element.id = self.id
 
-        element.innerText = f"Drop yo' stuff on this here {self.container_type.__name__}!"
+        element.innerText = f"Empty {self.container_type.__name__}"
         element.classList.add("drop-zone")
         element.addEventListener("dragover", create_proxy(self.on_dragover))
         element.addEventListener("dragleave", create_proxy(self.on_dragleave))
