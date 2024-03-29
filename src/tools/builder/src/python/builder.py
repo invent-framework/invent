@@ -304,7 +304,7 @@ class Builder:
             Called when a JS "click" event is fired on a component in a page.
             """
 
-            #event.stopPropagation()
+            event.stopPropagation()
 
             self._builder_model.onComponentClicked(
                 create_proxy(type(component).blueprint()), create_proxy(component)
@@ -364,6 +364,9 @@ class Builder:
 
                 elif pointer_offset_x > (component_width * .5):
                     self.mode = "right"
+
+            else:
+                return
 
             for class_name in component.element.parentNode.classList:
                 if class_name.startswith("drop-zone-active"):

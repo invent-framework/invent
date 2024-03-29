@@ -191,9 +191,9 @@ def _component_from_dict(component_dict):
     else:
         content = None
 
-    component_dict["content"] = content
+    component_dict["properties"]["content"] = content
 
-    return cls(**component_dict)
+    return cls(**component_dict["properties"])
 
 
 # Internal ###################################################################
