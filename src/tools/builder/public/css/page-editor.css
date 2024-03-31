@@ -17,18 +17,16 @@
 }
 
 .invent-empty {
-    background-color: orange !important;
+    background-color: #f3f4f6;
+    bbbackground-color: brown !important;
     padding: 1rem;
-    width: 100%;
+    wwwwidth: 100%;
     background-color: #f3f4f6;
     border-width: 1px;
     border-style: dashed;
     border-color: rgb(209 213 219);
     border-radius: 0.5rem;
-    text-align: center;}
-
-.invent-column:empty {
-    background-color: aquamarine !important;
+    text-align: center;
 }
 
 .drop-zone-active {

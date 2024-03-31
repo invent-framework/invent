@@ -1131,7 +1131,16 @@ class Column(Container):
             self.empty = empty = document.createElement("div")
             empty.id = '-empty-'
             empty.innerText = "This is an empty column!"
+
+            from invent.ui.page import Page
+
+            if not isinstance(self, Page):
+                element.classList.add("invent-empty")
+
             element.appendChild(empty)
+
+        else:
+            element.classList.remove("invent-empty")
 
         for counter, child in enumerate(self.content, start=1):
             element.appendChild(self._wrap_child(child, counter))
@@ -1153,11 +1162,18 @@ class Column(Container):
             self.empty = empty = document.createElement("div")
             empty.id = '-empty-'
             empty.innerText = "This is an empty column!"
+
+            from invent.ui.page import Page
+            if not isinstance(self, Page):
+                self.element.classList.add("invent-empty")
+
             self.element.appendChild(empty)
 
         else:
             print("Got empty element", self.empty)
             self.empty.remove()
+            self.element.classList.remove("invent-empty")
+
 
         for counter, child in enumerate(self.content, start=1):
             self._update_child_wrapper(child, counter)
