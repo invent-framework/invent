@@ -1061,6 +1061,7 @@ class Container(Component):
         """
         element = document.createElement("div")
         element.style.display = "grid"
+        element.classList.add(f"invent-{type(self).__name__.lower()}")
 
         # Render the container's children.
         self.render_children(element)
@@ -1083,8 +1084,6 @@ class Container(Component):
         result = super().as_dict()
         result["properties"]["content"] = [
             child.as_dict() for child in self.content
-
-            if type(child).__name__ != "BuilderDropZone"
         ]
         return result
 
@@ -1128,7 +1127,12 @@ class Column(Container):
         self.update_children()
 
     def render_children(self, element):
-        element.classList.add("column-container")
+        if len(self.content) == 0:
+            self.empty = empty = document.createElement("div")
+            empty.id = '-empty-'
+            empty.innerText = "This is an empty column!"
+            element.appendChild(empty)
+
         for counter, child in enumerate(self.content, start=1):
             element.appendChild(self._wrap_child(child, counter))
 
@@ -1145,6 +1149,16 @@ class Column(Container):
         return child_wrapper
 
     def update_children(self):
+        if len(self.content) == 0:
+            self.empty = empty = document.createElement("div")
+            empty.id = '-empty-'
+            empty.innerText = "This is an empty column!"
+            self.element.appendChild(empty)
+
+        else:
+            print("Got empty element", self.empty)
+            self.empty.remove()
+
         for counter, child in enumerate(self.content, start=1):
             self._update_child_wrapper(child, counter)
 
@@ -1174,7 +1188,7 @@ class Row(Container):
         """
 
         super().append(item)
-        self.element.appendChild(self._wrap_child(item, len(self.content)))
+        self.element.appendChild(self._create_item_wrapper(item, len(self.content)))
         self.update_children()
 
     def insert(self, index, item):
@@ -1187,18 +1201,28 @@ class Row(Container):
 
         # Update the element...
         self.element.insertBefore(
-            self._wrap_child(item, index), self.element.childNodes[index]
+            self._create_item_wrapper(item, index), self.element.childNodes[index]
         )
 
         # Update the grid indices of the container's children.
         self.update_children()
 
     def render_children(self, element):
-        element.classList.add("row-container")
+        if len(self.content) == 0:
+            self.empty = empty = document.createElement("div")
+            empty.id = '-empty-'
+            empty.innerText = "This is an empty row!"
+            element.appendChild(empty)
+            element.classList.add("invent-empty")
+
+        else:
+            element.classList.remove("invent-empty")
+
+
         self._update_template_columns(element)
 
         for index, child in enumerate(self.content, start=1):
-            element.appendChild(self._wrap_child(child, index))
+            element.appendChild(self._create_item_wrapper(child, index))
 
     def _update_template_columns(self, element):
         """
@@ -1215,7 +1239,7 @@ class Row(Container):
 
         element.style.gridTemplateColumns = " ".join(template_columns)
 
-    def _wrap_child(self, child, index):
+    def _create_item_wrapper(self, child, index):
         """
         Wrap the child element in a div with grid styles set appropriately.
         """
@@ -1228,11 +1252,23 @@ class Row(Container):
         return child_wrapper
     
     def update_children(self):
+        if len(self.content) == 0:
+            self.empty = empty = document.createElement("div")
+            empty.id = '-empty-'
+            empty.innerText = "This is an empty row!"
+            self.element.appendChild(empty)
+            self.element.classList.add("invent-empty")
+
+        else:
+            print("Got empty element", self.empty)
+            self.element.classList.remove("invent-empty")
+            self.empty.remove()
+
         self._update_template_columns(self.element)
         for counter, child in enumerate(self.content, start=1):
-            self._update_child_wrapper(child, counter)
+            self._update_item_wrapper(child, counter)
 
-    def _update_child_wrapper(self, child, index):
+    def _update_item_wrapper(self, child, index):
         """
         Wrap the child element in a div with grid styles set appropriately.
         """

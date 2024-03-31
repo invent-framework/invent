@@ -6,9 +6,9 @@ from pyscript import document, window
 from pyscript.ffi import create_proxy
 
 import invent
-from invent.ui import export
-from invent.ui.core import Column, Container, Component, Grid, Row, Widget, from_datastore
-from invent.ui import create_component, AVAILABLE_COMPONENTS
+from invent.ui import AVAILABLE_COMPONENTS, create_component, export
+from invent.ui.core import Column, Container, Component, Row, Widget, from_datastore
+from invent.ui.page import Page
 
 
 class Builder:
@@ -24,14 +24,12 @@ class Builder:
         self._app = invent.ui.App(
             name="Invent Demo",
             content=[
-                invent.ui.Page(
-                    name="Page 1",
-                    content=[
-                        BuilderDropZone(self, invent.ui.Page),
-                    ]
-                )
+                invent.ui.Page(name="Page 1")
             ]
         )
+
+        # Inject JS event handlers into all components in the app.
+        self._inject_js_event_handlers_into_app(self._app)
 
         # The JS-side of the Invent-Builder.
         self._builder_model = None
@@ -65,44 +63,8 @@ class Builder:
         This sets created app to be the one that the builder is building.
         """
         app = export.from_dict({"app": json.loads(app_dict)})
-
-        for page in app.content:
-            #self._inject_builder_drop_zones(page)
-            self._inject_click_handlers(page)
-
+        self._inject_js_event_handlers_into_app(app)
         self._app = app
-
-    def _inject_click_handlers(self, container):
-        """
-        Recursively Inject JS event handlers onto all Widgets.
-        """
-
-        for item in container.content[:]:
-            if isinstance(item, Container):
-                self._inject_click_handlers(item)
-
-            else:
-                self._add_click_handler(item)
-
-    # def _inject_builder_drop_zones(self, container):
-    #     """
-    #     Inject a BuilderDropZone around each item in a container.
-    #     """
-    #
-    #     self._add_click_handler(container)
-    #
-    #     for item in container.content[:]:
-    #         container.insert(
-    #             container.content.index(item), BuilderDropZone(self)
-    #         )
-    #
-    #         if isinstance(item, Container):
-    #             self._inject_builder_drop_zones(item)
-    #
-    #         else:
-    #             self._add_click_handler(item)
-    #
-    #     container.append(BuilderDropZone(self))
 
     # Pages ############################################################################
 
@@ -164,7 +126,8 @@ class Builder:
         if parent is None:
             raise ValueError(f"No such container: {parent_id}")
 
-        self.insert_component_after(parent.content[-1], component)
+        parent.append(component)
+        self._inject_js_event_handlers_into_component(component)
 
     def insert_component_after(self, after_component, component):
         """
@@ -180,12 +143,7 @@ class Builder:
         else:
             parent.insert(after_component_index + 1, component)
 
-        # If we are inserting a new (and hence *empty* container), give it a drop
-        # zone to give the user a place to put the first item in it.
-        if isinstance(component, Container):
-            component.append(BuilderDropZone(self, type(component)))
-
-        self._add_click_handler(component)
+        self._inject_js_event_handlers_into_component(component)
 
     def insert_component_before(self, before_component, component):
         """
@@ -197,12 +155,7 @@ class Builder:
         before_component_index = parent.content.index(before_component)
         parent.insert(before_component_index, component)
 
-        # If we are inserting a new (and hence *empty* container), give it a drop
-        # zone to give the user a place to put the first item in it.
-        if isinstance(component, Container):
-            component.append(BuilderDropZone(self, type(component)))
-
-        self._add_click_handler(component)
+        self._inject_js_event_handlers_into_component(component)
 
     def delete_component(self, component_id):
         """
@@ -298,7 +251,38 @@ class Builder:
 
     # Internal #########################################################################
 
-    def _add_click_handler(self, component):
+    def _inject_js_event_handlers_into_app(self, app):
+        """
+        Inject JS event handlers into the specified app.
+
+        We inject handlers to:-
+
+        a) catch click events so that we can show a component's property sheet.
+        b) handle drag and drop events.
+        """
+
+        for page in app.content:
+            self._inject_js_event_handlers_into_container(page)
+
+    def _inject_js_event_handlers_into_container(self, container):
+        """
+        Recursively Inject JS event handlers into the specified container.
+        """
+
+        self._inject_js_event_handlers_into_component(container)
+
+        for item in container.content[:]:
+            if isinstance(item, Container):
+                self._inject_js_event_handlers_into_container(item)
+
+            else:
+                self._inject_js_event_handlers_into_component(item)
+
+    def _inject_js_event_handlers_into_component(self, component):
+        """
+        Recursively Inject JS event handlers into the specified component.
+        """
+
         def on_click_on_component(event):
             """
             Called when a JS "click" event is fired on a component in a page.
@@ -313,16 +297,27 @@ class Builder:
         component.element.addEventListener("click", create_proxy(on_click_on_component))
 
         def on_dragstart(event):
-            event.dataTransfer.setData("move", component.id);
+            if isinstance(component, Page):
+                event.preventDefault()
+                event.stopPropagation()
+
+            else:
+                event.stopPropagation()
+                print("on_dragstart:", component.name)
+                event.dataTransfer.setData("move", component.id);
 
         def on_drop(event):
+            print("on_drop:", component.name)
             event.preventDefault()
             event.stopPropagation()
-            component.element.parentNode.classList.remove(f"drop-zone-active-{self.mode}")
+
+            # Moving or adding? ########################################################
 
             move_data = event.dataTransfer.getData("move")
             if move_data:
+                print("Got MOVE data:", move_data)
                 component_to_move = Component.get_component_by_id(move_data)
+                print("Component to move is:", component_to_move)
                 new_component = component_to_move.clone()
 
             else:
@@ -330,10 +325,35 @@ class Builder:
                 component_type_name = component_blueprint["name"]
                 new_component = create_component(component_type_name)
 
-            if self.mode in ["left", "above"]:
-                self.insert_component_before(component, new_component)
+            # Dropping on a Widget or a Container? #####################################
+            if isinstance(component, Container):
+                container = component
+                component.element.classList.remove("drop-zone-active")
             else:
-                self.insert_component_after(component, new_component)
+                container = component.parent
+                component.element.parentNode.classList.remove(f"drop-zone-active-{self.mode}")
+
+            if isinstance(component, Container) and len(component.content) == 0:
+                self.append_component(container.id, new_component)
+
+            else:
+                if self.mode in ["left", "above"]:
+                    if isinstance(component, Container):
+                        insert_before = component.content[0]
+
+                    else:
+                        insert_before = component
+
+                    print("Inserting before:", self.mode, insert_before)
+                    self.insert_component_before(insert_before, new_component)
+                else:
+                    if isinstance(component, Container):
+                        insert_after = component.content[-1]
+
+                    else:
+                        insert_after = component
+                    print("Inserting after:", self.mode, insert_after)
+                    self.insert_component_after(insert_after, new_component)
 
             if move_data:
                 self.delete_component(component_to_move.id)
@@ -342,7 +362,7 @@ class Builder:
             """
             Handle a JS "dragover" event on a component.
             """
-
+            print("on_dragover:", component.name)
             event.preventDefault()
             event.stopPropagation()
 
@@ -351,14 +371,20 @@ class Builder:
             component_width = component.element.offsetWidth
             component_height = component.element.offsetHeight
 
-            if isinstance(component.parent, Column):
+            if isinstance(component, Container):
+                container = component
+
+            else:
+                container = component.parent
+
+            if isinstance(container, Column):
                 if pointer_offset_y < (component_height * .5):
                     self.mode = "above"
 
                 elif pointer_offset_y > (component_height * .5):
                     self.mode = "below"
 
-            elif isinstance(component.parent, Row):
+            elif isinstance(container, Row):
                 if pointer_offset_x < (component_width * .5):
                     self.mode = "left"
 
@@ -366,17 +392,26 @@ class Builder:
                     self.mode = "right"
 
             else:
-                return
+                raise ValueError("Shouldn't get here!!!", container)
 
-            for class_name in component.element.parentNode.classList:
-                if class_name.startswith("drop-zone-active"):
-                    component.element.parentNode.classList.remove(class_name)
+            if isinstance(component, Container):
+                print("Trying to hi-lite a container", component.name)
+                component.element.classList.add(f"drop-zone-active")
 
-            component.element.parentNode.classList.add(f"drop-zone-active-{self.mode}")
+            else:
+                for class_name in component.element.parentNode.classList:
+                    if class_name.startswith("drop-zone-active"):
+                        component.element.parentNode.classList.remove(class_name)
+
+                component.element.parentNode.classList.add(f"drop-zone-active-{self.mode}")
 
         def on_dragleave(event):
+            print("on_dragleave:", component.name)
             event.preventDefault()
-            event.stopPropagation()
+
+            if isinstance(component, Container):
+                component.element.classList.remove("drop-zone-active")
+
             component.element.parentNode.classList.remove(f"drop-zone-active-{self.mode}")
 
         component.element.setAttribute("draggable", "true")
@@ -384,61 +419,3 @@ class Builder:
         component.element.addEventListener("dragover", create_proxy(on_dragover))
         component.element.addEventListener("dragleave", create_proxy(on_dragleave))
         component.element.addEventListener("drop", create_proxy(on_drop))
-
-
-class BuilderDropZone(Widget):
-    """
-    A drop zone used ONLY in the builder to position components on a page.
-    """
-
-    def __init__(self, builder, container_type, **kwargs):
-        self.container_type = container_type
-        self.builder = builder
-        super().__init__(**kwargs)
-
-    def on_dragover(self, event):
-        event.preventDefault()
-        event.stopPropagation()
-        self.element.classList.add("drop-zone-active")
-
-    def on_dragleave(self, event):
-        event.preventDefault()
-        event.stopPropagation()
-        self.element.classList.remove("drop-zone-active")
-
-    def on_drop(self, event):
-        event.preventDefault()
-        event.stopPropagation()
-        self.element.classList.remove("drop-zone-active")
-
-        move_data = event.dataTransfer.getData("move")
-        if move_data:
-            component_to_move = Component.get_component_by_id(move_data)
-            component = component_to_move.clone()
-            self.builder.delete_component(component_to_move.id)
-
-        else:
-            component_blueprint = json.loads(event.dataTransfer.getData("widget"))
-            component = create_component(component_blueprint["name"])
-
-        # Now that the container is no longer empty - we can get rid of the drop zone.
-        print("Drop Zone id", self.id)
-        parent_id = self.parent.id
-
-        self.builder.append_component(parent_id, component)
-        self.builder.delete_component(self.id)
-
-
-    def render(self):
-        """
-        Create the component's HTML element.
-        """
-        element = document.createElement("div")
-        element.id = self.id
-
-        element.innerText = f"Empty {self.container_type.__name__}"
-        element.classList.add("drop-zone")
-        element.addEventListener("dragover", create_proxy(self.on_dragover))
-        element.addEventListener("dragleave", create_proxy(self.on_dragleave))
-        element.addEventListener("drop", create_proxy(self.on_drop))
-        return element
