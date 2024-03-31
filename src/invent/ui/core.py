@@ -595,7 +595,11 @@ class Component:
 
         for property_name, property_obj in type(self).properties().items():
             if property_name not in ["id"]:
-                setattr(clone, property_name, getattr(self, property_name))
+                value = getattr(self, property_name)
+                if property_name is "content":
+                    value = value[:]
+
+                setattr(clone, property_name, value)
 
         return clone
     
@@ -933,9 +937,15 @@ class Container(Component):
     )
 
     def __init__(self, **kwargs):
+        # An element shown when the container is empty.
+        #
+        # TODO: This should be in the builder.
+        self._empty_element = None
+
         super().__init__(**kwargs)
         for item in self.content:
             item.parent = self
+
 
     def on_content_changed(self):
         self.element.innerHTML = ""
@@ -1087,6 +1097,31 @@ class Container(Component):
         ]
         return result
 
+    def _manage_empty_element(self, element):
+        """
+        Manage the element shown when the container is empty.
+
+        TODO: This should be done in the builder!
+        """
+
+        if len(self.content) == 0:
+            self._empty_element = document.createElement("div")
+            self._empty_element.style.textAlign = "center"
+            self._empty_element.innerText = f"Empty {type(self).__name__}"
+
+            from invent.ui.page import Page
+
+            if not isinstance(self, Page):
+                element.classList.add("invent-empty")
+
+            element.appendChild(self._empty_element)
+
+        else:
+            element.classList.remove("invent-empty")
+            if self._empty_element is not None:
+                self._empty_element.remove()
+                self._empty_element = None
+
 
 class Column(Container):
     """
@@ -1127,21 +1162,7 @@ class Column(Container):
         self.update_children()
 
     def render_children(self, element):
-        if len(self.content) == 0:
-            self.empty = empty = document.createElement("div")
-            empty.id = '-empty-'
-            empty.innerText = "This is an empty column!"
-
-            from invent.ui.page import Page
-
-            if not isinstance(self, Page):
-                element.classList.add("invent-empty")
-
-            element.appendChild(empty)
-
-        else:
-            element.classList.remove("invent-empty")
-
+        self._manage_empty_element(element)
         for counter, child in enumerate(self.content, start=1):
             element.appendChild(self._wrap_child(child, counter))
 
@@ -1158,23 +1179,7 @@ class Column(Container):
         return child_wrapper
 
     def update_children(self):
-        if len(self.content) == 0:
-            self.empty = empty = document.createElement("div")
-            empty.id = '-empty-'
-            empty.innerText = "This is an empty column!"
-
-            from invent.ui.page import Page
-            if not isinstance(self, Page):
-                self.element.classList.add("invent-empty")
-
-            self.element.appendChild(empty)
-
-        else:
-            print("Got empty element", self.empty)
-            self.empty.remove()
-            self.element.classList.remove("invent-empty")
-
-
+        self._manage_empty_element(self.element)
         for counter, child in enumerate(self.content, start=1):
             self._update_child_wrapper(child, counter)
 
@@ -1224,19 +1229,8 @@ class Row(Container):
         self.update_children()
 
     def render_children(self, element):
-        if len(self.content) == 0:
-            self.empty = empty = document.createElement("div")
-            empty.id = '-empty-'
-            empty.innerText = "This is an empty row!"
-            element.appendChild(empty)
-            element.classList.add("invent-empty")
-
-        else:
-            element.classList.remove("invent-empty")
-
-
+        self._manage_empty_element(element)
         self._update_template_columns(element)
-
         for index, child in enumerate(self.content, start=1):
             element.appendChild(self._create_item_wrapper(child, index))
 
@@ -1268,18 +1262,7 @@ class Row(Container):
         return child_wrapper
     
     def update_children(self):
-        if len(self.content) == 0:
-            self.empty = empty = document.createElement("div")
-            empty.id = '-empty-'
-            empty.innerText = "This is an empty row!"
-            self.element.appendChild(empty)
-            self.element.classList.add("invent-empty")
-
-        else:
-            print("Got empty element", self.empty)
-            self.element.classList.remove("invent-empty")
-            self.empty.remove()
-
+        self._manage_empty_element(self.element)
         self._update_template_columns(self.element)
         for counter, child in enumerate(self.content, start=1):
             self._update_item_wrapper(child, counter)

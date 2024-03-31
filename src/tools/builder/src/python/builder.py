@@ -315,9 +315,7 @@ class Builder:
 
             move_data = event.dataTransfer.getData("move")
             if move_data:
-                print("Got MOVE data:", move_data)
                 component_to_move = Component.get_component_by_id(move_data)
-                print("Component to move is:", component_to_move)
                 new_component = component_to_move.clone()
 
             else:
@@ -395,7 +393,6 @@ class Builder:
                 raise ValueError("Shouldn't get here!!!", container)
 
             if isinstance(component, Container):
-                print("Trying to hi-lite a container", component.name)
                 component.element.classList.add(f"drop-zone-active")
 
             else:
