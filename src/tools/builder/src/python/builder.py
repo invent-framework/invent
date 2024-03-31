@@ -127,7 +127,9 @@ class Builder:
             raise ValueError(f"No such container: {parent_id}")
 
         parent.append(component)
+
         self._inject_js_event_handlers_into_component(component)
+        self.pprint_app()
 
     def insert_component_after(self, after_component, component):
         """
@@ -144,6 +146,7 @@ class Builder:
             parent.insert(after_component_index + 1, component)
 
         self._inject_js_event_handlers_into_component(component)
+        self.pprint_app()
 
     def insert_component_before(self, before_component, component):
         """
@@ -156,6 +159,7 @@ class Builder:
         parent.insert(before_component_index, component)
 
         self._inject_js_event_handlers_into_component(component)
+        self.pprint_app()
 
     def delete_component(self, component_id):
         """
@@ -163,6 +167,11 @@ class Builder:
         """
         component_to_delete = self._app.get_component_by_id(component_id)
         component_to_delete.parent.remove(component_to_delete)
+
+        component_to_delete._remove_js_event_handlers()
+
+        self.pprint_app()
+
 
     def get_component_properties(self, component_id):
         """
@@ -249,6 +258,35 @@ class Builder:
 
         })
 
+    def pprint_app(self):
+        """
+        Pretty print the basic structure of the app.
+        """
+
+        print(f"App({self._app.name})")
+
+        indent = "    "
+        for page in self._app.content:
+            self.pprint_container(page, indent)
+
+    def pprint_container(self, container, indent):
+        """
+        Pretty print a container.
+        """
+
+        parent_id = None if not container.parent else container.parent.id
+
+        print(f"{indent}{type(container).__name__}({container.name, container.id}) -> {parent_id}")
+        indent += "    "
+
+        for item in container.content:
+            if isinstance(item, Container):
+                self.pprint_container(item, indent)
+
+            else:
+                parent_id = None if not item.parent else item.parent.id
+                print(f"{indent}{type(item).__name__}({item.name, item.id}) -> {parent_id}")
+
     # Internal #########################################################################
 
     def _inject_js_event_handlers_into_app(self, app):
@@ -283,6 +321,20 @@ class Builder:
         Recursively Inject JS event handlers into the specified component.
         """
 
+        def remove_js_event_handlers():
+            print("removing js", component.name, component.id)
+            component.element.setAttribute("draggable", "false")
+            component.element.removeEventListener("dragstart", component._on_dragstart_proxy)
+            component.element.addEventListener("dragover", component._on_dragover_proxy)
+            component.element.addEventListener("dragleave", component._on_dragleave_proxy)
+            component.element.addEventListener("drop", component._on_drop_proxy)
+
+            if isinstance(component, Container):
+                for child in component.content:
+                    child._remove_js_event_handlers()
+
+        component._remove_js_event_handlers = remove_js_event_handlers
+
         def on_click_on_component(event):
             """
             Called when a JS "click" event is fired on a component in a page.
@@ -314,8 +366,15 @@ class Builder:
             # Moving or adding? ########################################################
 
             move_data = event.dataTransfer.getData("move")
+            print("MOVE COMPONENT", move_data)
+            if move_data == component.id:
+                return
+
             if move_data:
                 component_to_move = Component.get_component_by_id(move_data)
+
+                print("Ok, so I think I need to delete the moving", component_to_move.name, component_to_move.id, component_to_move.parent)
+                self.delete_component(component_to_move.id)
                 new_component = component_to_move.clone()
 
             else:
@@ -327,6 +386,7 @@ class Builder:
             if isinstance(component, Container):
                 container = component
                 component.element.classList.remove("drop-zone-active")
+
             else:
                 container = component.parent
                 component.element.parentNode.classList.remove(f"drop-zone-active-{self.mode}")
@@ -353,14 +413,12 @@ class Builder:
                     print("Inserting after:", self.mode, insert_after)
                     self.insert_component_after(insert_after, new_component)
 
-            if move_data:
-                self.delete_component(component_to_move.id)
 
         def on_dragover(event):
             """
             Handle a JS "dragover" event on a component.
             """
-            print("on_dragover:", component.name)
+            #print("on_dragover:", component.name)
             event.preventDefault()
             event.stopPropagation()
 
@@ -390,7 +448,8 @@ class Builder:
                     self.mode = "right"
 
             else:
-                raise ValueError("Shouldn't get here!!!", container)
+                return
+                #raise ValueError("Shouldn't get here!!!", container)
 
             if isinstance(component, Container):
                 component.element.classList.add(f"drop-zone-active")
@@ -403,7 +462,7 @@ class Builder:
                 component.element.parentNode.classList.add(f"drop-zone-active-{self.mode}")
 
         def on_dragleave(event):
-            print("on_dragleave:", component.name)
+            #print("on_dragleave:", component.name)
             event.preventDefault()
 
             if isinstance(component, Container):
@@ -412,7 +471,17 @@ class Builder:
             component.element.parentNode.classList.remove(f"drop-zone-active-{self.mode}")
 
         component.element.setAttribute("draggable", "true")
-        component.element.addEventListener("dragstart", create_proxy(on_dragstart))
-        component.element.addEventListener("dragover", create_proxy(on_dragover))
-        component.element.addEventListener("dragleave", create_proxy(on_dragleave))
-        component.element.addEventListener("drop", create_proxy(on_drop))
+
+        component._on_dragstart_proxy = create_proxy(on_dragstart)
+        component._on_dragover_proxy = create_proxy(on_dragover)
+        component._on_dragleave_proxy = create_proxy(on_dragleave)
+        component._on_drop_proxy = create_proxy(on_drop)
+
+        component.element.addEventListener("dragstart", component._on_dragstart_proxy)
+        component.element.addEventListener("dragover", component._on_dragover_proxy)
+        component.element.addEventListener("dragleave", component._on_dragleave_proxy)
+        component.element.addEventListener("drop", component._on_drop_proxy)
+
+        if isinstance(component, Container):
+            for item in component.content:
+                self._inject_js_event_handlers_into_component(item)

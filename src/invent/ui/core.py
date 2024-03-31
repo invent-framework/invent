@@ -594,12 +594,17 @@ class Component:
         clone = create_component(type(self).__name__)
 
         for property_name, property_obj in type(self).properties().items():
-            if property_name not in ["id"]:
-                value = getattr(self, property_name)
-                if property_name is "content":
-                    value = value[:]
+            value = getattr(self, property_name)
+            if property_name == "content":
+                content = []
+                for item in value:
+                    item_clone = item.clone()
+                    clone.append(item_clone)
+                    content.append(item_clone)
 
-                setattr(clone, property_name, value)
+                value = content
+
+            setattr(clone, property_name, value)
 
         return clone
     
