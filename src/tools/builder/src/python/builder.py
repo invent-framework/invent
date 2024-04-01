@@ -60,7 +60,7 @@ class Builder:
         Set the app that we are building.
         """
         if self._app is not None:
-            # If there is a current app, remove all the JS event handlers from it.
+            # If there was a previous app, remove all the JS event handlers from it.
             self._remove_js_event_handlers_from_app(self._app)
 
         # Inject the JS event handlers to make component selection and drag-and-drop
@@ -69,6 +69,7 @@ class Builder:
 
         # The builder is now officially managing the rehydrated app!
         self._app = app
+        self.pprint_app()
 
     def get_app_as_dict(self):
         """
@@ -279,7 +280,6 @@ class Builder:
         """
         Pretty print the basic structure of the app.
         """
-
         print(f"App({self._app.name})")
 
         indent = "    "
@@ -294,7 +294,9 @@ class Builder:
         parent_id = None if not container.parent else container.parent.id
         parent_pid = None if not container.parent else id(container.parent)
 
-        print(f"{indent}{type(container).__name__}({container.name, container.id, id(container)}) -> {parent_id}:{parent_pid}")
+        # Uncomment for more detail :)
+        # print(f"{indent}{type(container).__name__}({container.name}, {container.id}, {id(container)}) -> {parent_id}:{parent_pid}")
+        print(f"{indent}{type(container).__name__}({container.name}, {container.id})")
         indent += "    "
 
         for item in container.content:
@@ -304,7 +306,9 @@ class Builder:
             else:
                 parent_id = None if not item.parent else item.parent.id
                 parent_pid = None if not item.parent else id(item.parent)
-                print(f"{indent}{type(item).__name__}({item.name, item.id, id(item)}) -> {parent_id}:{parent_pid}")
+                # Uncomment for more detail :)
+                # print(f"{indent}{type(item).__name__}({item.name}, {item.id}, {id(item)}) -> {parent_id}:{parent_pid}")
+                print(f"{indent}{type(item).__name__}({item.name}, {item.id})")
 
     # Internal #########################################################################
 
