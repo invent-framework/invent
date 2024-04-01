@@ -30,6 +30,7 @@
 .drop-zone-active {
     background-color: #ede9fe;
     border-color: #8b5cf6;
+    border-color: rgb(209 213 219);
 }
 
 .drop-zone-active-above {

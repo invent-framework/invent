@@ -578,6 +578,10 @@ class Component:
                 property_obj.__set_name__(self, property_name)
         self.element = self.render()
         self.update(**kwargs)
+
+        Component._components_by_id[self.id] = self
+        Component._component_counter += 1
+
         if not self.id:
             self.id = random_id()
         if not self.name:
@@ -594,7 +598,7 @@ class Component:
 
         # Set the id here otherwise we don't update the Component by Id map!
         # This assumes you want a destructive clone as part of a move!
-        clone = create_component(type(self).__name__, id=self.id)
+        clone = create_component(type(self).__name__, id=self.id, name=self.name)
 
         for property_name, property_obj in type(self).properties().items():
             value = getattr(self, property_name)
@@ -647,8 +651,8 @@ class Component:
 
         "Button 1"
         """
-        cls._component_counter += 1
-        return f"{cls.__name__} {cls._component_counter}"
+        #cls._component_counter += 1
+        return f"{cls.__name__} {Component._component_counter}"
 
     @classmethod
     def get_component_by_id(cls, component_id):

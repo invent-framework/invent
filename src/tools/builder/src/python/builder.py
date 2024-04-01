@@ -66,8 +66,9 @@ class Builder:
         This sets created app to be the one that the builder is building.
         """
         app = export.from_dict({"app": json.loads(app_dict)})
-        self._inject_js_event_handlers_into_app(app)
         self._app = app
+        self.pprint_app()
+        self._inject_js_event_handlers_into_app(app)
 
     # Pages ############################################################################
 
@@ -301,7 +302,7 @@ class Builder:
         a) catch click events so that we can show a component's property sheet.
         b) handle drag and drop events.
         """
-
+        print("_inject_js_event_handlers_into_app", app)
         for page in app.content:
             self._inject_js_event_handlers_into_container(page)
 
@@ -309,21 +310,23 @@ class Builder:
         """
         Recursively Inject JS event handlers into the specified container.
         """
+        print("_inject_js_event_handlers_into_container", container.name, container.id)
 
         self._inject_js_event_handlers_into_component(container)
 
-        for item in container.content:
-            if isinstance(item, Container):
-                self._inject_js_event_handlers_into_container(item)
-
-            else:
-                self._inject_js_event_handlers_into_component(item)
+        # for item in container.content[:]:
+        #     if isinstance(item, Container):
+        #         self._inject_js_event_handlers_into_container(item)
+        #
+        #     else:
+        #         self._inject_js_event_handlers_into_component(item)
 
     def _inject_js_event_handlers_into_component(self, component):
         """
         Recursively Inject JS event handlers into the specified component.
         """
 
+        print("_inject_js_event_handlers_into_component", component.name, component.id)
         def remove_js_event_handlers():
             print("removing js", component.name, component.id)
             component.element.setAttribute("draggable", "false")
@@ -364,27 +367,31 @@ class Builder:
 
         def on_drop(event):
             print("-"*80)
-            print("on_drop:", component.name)
+            print("on_drop: on", component.name)
             event.preventDefault()
             event.stopPropagation()
 
             # Moving or adding? ########################################################
 
             move_data = event.dataTransfer.getData("move")
-            print("on_drop: move_data:", move_data)
+            if move_data:
+                print("on_drop: move_data:", move_data)
+
             if move_data == component.id:
                 return
 
-            if move_data:
+            widget_data = event.dataTransfer.getData("widget")
+            if widget_data:
+                print("on_drop: widget_data:", widget_data)
+                component_blueprint = json.loads(widget_data)
+                component_type_name = component_blueprint["name"]
+                new_component = create_component(component_type_name)
+
+            else:
                 component_to_move = Component.get_component_by_id(move_data)
                 print("MOVING:", component_to_move.name, component_to_move.id, id(component_to_move), component_to_move.parent)
                 self.delete_component(component_to_move.id)
                 new_component = component_to_move.clone()
-
-            else:
-                component_blueprint = json.loads(event.dataTransfer.getData("widget"))
-                component_type_name = component_blueprint["name"]
-                new_component = create_component(component_type_name)
 
             # Dropping on a Widget or a Container? #####################################
             if isinstance(component, Container):
@@ -416,7 +423,6 @@ class Builder:
                         insert_after = component
                     print("Inserting after:", self.mode, insert_after)
                     self.insert_component_after(insert_after, new_component)
-
 
         def on_dragover(event):
             """
