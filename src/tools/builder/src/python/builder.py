@@ -304,22 +304,7 @@ class Builder:
         """
         print("_inject_js_event_handlers_into_app", app)
         for page in app.content:
-            self._inject_js_event_handlers_into_container(page)
-
-    def _inject_js_event_handlers_into_container(self, container):
-        """
-        Recursively Inject JS event handlers into the specified container.
-        """
-        print("_inject_js_event_handlers_into_container", container.name, container.id)
-
-        self._inject_js_event_handlers_into_component(container)
-
-        # for item in container.content[:]:
-        #     if isinstance(item, Container):
-        #         self._inject_js_event_handlers_into_container(item)
-        #
-        #     else:
-        #         self._inject_js_event_handlers_into_component(item)
+            self._inject_js_event_handlers_into_component(page)
 
     def _inject_js_event_handlers_into_component(self, component):
         """
