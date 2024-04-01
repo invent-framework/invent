@@ -502,21 +502,10 @@ class Builder:
 
         else:
             if self._insertion_mode in ["left", "above"]:
-                if isinstance(component, Container):
-                    insert_before = component.content[0]
-
-                else:
-                    insert_before = component
-
-                print("Inserting before:", self._insertion_mode, insert_before)
+                insert_before = component.content[0] if isinstance(component, Container) else component
                 self.insert_component_before(insert_before, new_component)
             else:
-                if isinstance(component, Container):
-                    insert_after = component.content[-1]
-
-                else:
-                    insert_after = component
-                print("Inserting after:", self._insertion_mode, insert_after)
+                insert_after = component.content[-1] if isinstance(component, Container) else component
                 self.insert_component_after(insert_after, new_component)
 
     def _remove_js_event_handlers_from_app(self, app):
