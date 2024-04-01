@@ -116,7 +116,7 @@ export class BuilderModel extends ViewModelBase {
 			}
 		}
 
-		BuilderUtilities.appendComponent(parentId, widgetBlueprint.name);
+		BuilderUtilities.createAndAppendComponent(parentId, widgetBlueprint.name);
 	}
 
 	public openPropertiesForComponent(componentBlueprint: WidgetModel, componentId: string): void {

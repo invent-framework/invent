@@ -140,7 +140,7 @@ class Builder:
 
     def append_component(self, parent_id, component):
         """
-        Create and append a component to the specified parent.
+        Append a component to the specified parent.
         """
         parent = self._app.get_component_by_id(parent_id)
         if parent is None:
@@ -150,6 +150,13 @@ class Builder:
 
         self._add_js_event_handlers_to_component(component)
         self.pprint_app()
+
+    def create_and_append_component(self, parent_id, component_type_name):
+        """
+        Create and append a component to the specified parent.
+        """
+
+        self.append_component(parent_id, create_component(component_type_name))
 
     def delete_component(self, component_id):
         """

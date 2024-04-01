@@ -33,8 +33,8 @@ export class BuilderUtilities {
 
 	// Components //////////////////////////////////////////////////////////////////////
 
-	public static appendComponent(parentId: string, componentTypeName: string): void {
-		this.builder().append_component(parentId, componentTypeName);
+	public static createAndAppendComponent(parentId: string, componentTypeName: string): void {
+		this.builder().create_and_append_component(parentId, componentTypeName);
 	}
 
 	public static deleteComponent(componentId: string) {
