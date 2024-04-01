@@ -145,7 +145,7 @@ class Builder:
         component_to_delete = self._app.get_component_by_id(component_id)
         component_to_delete.parent.remove(component_to_delete)
 
-        self._remove_js_event_handlers(component_to_delete)
+        self._remove_js_event_handlers_from_component(component_to_delete)
         self.pprint_app()
 
     def insert_component_after(self, after_component, component):
@@ -329,6 +329,9 @@ class Builder:
             self._on_dragleave_component(event, component)
 
         # Proxies if required by the underlying interpreter.
+        #
+        # It's a bit smelly, but we tag them onto the component so that we can remove
+        # them if the component is deleted.
         component._on_click_proxy = create_proxy(on_click)
         component._on_dragstart_proxy = create_proxy(on_dragstart)
         component._on_dragover_proxy = create_proxy(on_dragover)
@@ -380,12 +383,11 @@ class Builder:
         Handle a JS "dragover" event on a component.
         """
 
-        # print("on_dragover:", component.name, component.id)
         event.preventDefault()
         event.stopPropagation()
 
-        # move_data = event.dataTransfer.getData("move")
-        # print("move data is", move_data, type(move_data))
+        # In JS, the data transfer data is NOT available on a "dragover" event. It is
+        # only available when the element is dropped.
         if self._moving == component:
             print("draggining over self!")
             if isinstance(component, Container):
@@ -424,7 +426,7 @@ class Builder:
                 self._mode = "right"
 
         else:
-            raise ValueError("Shouldn't get here!!!", container)
+            raise ValueError("Unsupported container type:", container)
 
         if isinstance(component, Container):
             component.element.classList.add(f"drop-zone-active")
@@ -440,13 +442,14 @@ class Builder:
         """
         Handle a JS "dragstart" event on a component.
         """
+        event.stopPropagation()
+
         if isinstance(component, Page):
             event.preventDefault()
-            event.stopPropagation()
 
         else:
-            event.stopPropagation()
-            print("on_dragstart:", component.name, component.id)
+            # In JS, the data transfer data is NOT available on a "dragover" event.
+            # Hence, we track the component being moved manually.
             self._moving = component
             event.dataTransfer.setData("move", component.id)
 
@@ -454,7 +457,6 @@ class Builder:
         """
         Handle a JS "drop" event on a component.
         """
-        print("-"*80)
         print("on_drop: on", component.name)
         event.preventDefault()
         event.stopPropagation()
@@ -462,10 +464,8 @@ class Builder:
         # Moving or adding? ########################################################
 
         move_data = event.dataTransfer.getData("move")
-        if move_data:
-            print("on_drop: move_data:", move_data)
-
         if move_data == component.id:
+            print("Dropped on myself!")
             return
 
         widget_data = event.dataTransfer.getData("widget")
@@ -477,7 +477,6 @@ class Builder:
 
         else:
             component_to_move = Component.get_component_by_id(move_data)
-            print("MOVING:", component_to_move.name, component_to_move.id, id(component_to_move), component_to_move.parent)
             self.delete_component(component_to_move.id)
             new_component = component_to_move.clone()
 
@@ -512,18 +511,17 @@ class Builder:
                 print("Inserting after:", self._mode, insert_after)
                 self.insert_component_after(insert_after, new_component)
 
-    def _remove_js_event_handlers(self, component):
+    def _remove_js_event_handlers_from_component(self, component):
         """
-        Remove the JS event handlers for the specified component.
+        Remove the JS event handlers from the specified component.
         """
-        print("removing js", component.name, component.id)
-        component.element.setAttribute("draggable", "false")
         component.element.removeEventListener("click", component._on_click_proxy)
         component.element.removeEventListener("dragstart", component._on_dragstart_proxy)
         component.element.addEventListener("dragover", component._on_dragover_proxy)
         component.element.addEventListener("dragleave", component._on_dragleave_proxy)
         component.element.addEventListener("drop", component._on_drop_proxy)
 
+        # Recursively...
         if isinstance(component, Container):
             for item in component.content:
-                self._remove_js_event_handlers(item)
+                self._remove_js_event_handlers_from_component(item)
