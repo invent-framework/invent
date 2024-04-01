@@ -131,6 +131,16 @@ class Builder:
         self._inject_js_event_handlers_into_component(component)
         self.pprint_app()
 
+    def delete_component(self, component_id):
+        """
+        Delete the component with the specified id.
+        """
+        component_to_delete = self._app.get_component_by_id(component_id)
+        component_to_delete.parent.remove(component_to_delete)
+
+        component_to_delete._remove_js_event_handlers()
+        self.pprint_app()
+
     def insert_component_after(self, after_component, component):
         """
         Create and insert a component after another (as a sibling).
@@ -160,18 +170,6 @@ class Builder:
 
         self._inject_js_event_handlers_into_component(component)
         self.pprint_app()
-
-    def delete_component(self, component_id):
-        """
-        Delete the component with the specified id.
-        """
-        component_to_delete = self._app.get_component_by_id(component_id)
-        component_to_delete.parent.remove(component_to_delete)
-
-        component_to_delete._remove_js_event_handlers()
-
-        self.pprint_app()
-
 
     def get_component_properties(self, component_id):
         """
@@ -275,8 +273,9 @@ class Builder:
         """
 
         parent_id = None if not container.parent else container.parent.id
+        parent_pid = None if not container.parent else id(container.parent)
 
-        print(f"{indent}{type(container).__name__}({container.name, container.id}) -> {parent_id}")
+        print(f"{indent}{type(container).__name__}({container.name, container.id, id(container)}) -> {parent_id}:{parent_pid}")
         indent += "    "
 
         for item in container.content:
@@ -285,7 +284,8 @@ class Builder:
 
             else:
                 parent_id = None if not item.parent else item.parent.id
-                print(f"{indent}{type(item).__name__}({item.name, item.id}) -> {parent_id}")
+                parent_pid = None if not item.parent else id(item.parent)
+                print(f"{indent}{type(item).__name__}({item.name, item.id, id(item)}) -> {parent_id}:{parent_pid}")
 
     # Internal #########################################################################
 
@@ -359,6 +359,7 @@ class Builder:
                 event.dataTransfer.setData("move", component.id);
 
         def on_drop(event):
+            print("-"*80)
             print("on_drop:", component.name)
             event.preventDefault()
             event.stopPropagation()
@@ -373,7 +374,11 @@ class Builder:
             if move_data:
                 component_to_move = Component.get_component_by_id(move_data)
 
-                print("Ok, so I think I need to delete the moving", component_to_move.name, component_to_move.id, component_to_move.parent)
+                print("MOVING:", component_to_move.name, component_to_move.id, id(component_to_move), component_to_move.parent)
+                if component_to_move.parent is None:
+                    print("But something is fishy... parent is None")
+                    self.pprint_app()
+
                 self.delete_component(component_to_move.id)
                 new_component = component_to_move.clone()
 
@@ -421,6 +426,10 @@ class Builder:
             #print("on_dragover:", component.name)
             event.preventDefault()
             event.stopPropagation()
+
+            move_data = event.dataTransfer.getData("move")
+            if move_data == component.id:
+                return
 
             pointer_offset_x = event.offsetX
             pointer_offset_y = event.offsetY

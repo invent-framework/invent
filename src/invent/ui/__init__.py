@@ -82,7 +82,7 @@ AVAILABLE_COMPONENTS = {
 }
 
 
-def create_component(component_cls_name):
+def create_component(component_cls_name, **kwargs):
     """
     Create an instance of the subclass of Component with the specified name.
     """
@@ -91,4 +91,4 @@ def create_component(component_cls_name):
     if component_klass is None:
         raise ValueError(f"No such component type: {component_cls_name}")
 
-    return component_klass()
+    return component_klass(**kwargs)

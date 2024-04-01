@@ -591,20 +591,16 @@ class Component:
         Make a clone of the component.
         """
         from invent.ui import create_component
-        clone = create_component(type(self).__name__)
+        clone = create_component(type(self).__name__, id=self.id)
 
         for property_name, property_obj in type(self).properties().items():
             value = getattr(self, property_name)
             if property_name == "content":
-                content = []
                 for item in value:
-                    item_clone = item.clone()
-                    clone.append(item_clone)
-                    content.append(item_clone)
+                    clone.append(item.clone())
 
-                value = content
-
-            setattr(clone, property_name, value)
+            else:
+                setattr(clone, property_name, value)
 
         return clone
     
