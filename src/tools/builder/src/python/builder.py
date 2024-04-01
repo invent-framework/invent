@@ -28,7 +28,7 @@ class Builder:
         )
 
         # The JS-side of the Invent-Builder.
-        self._builder_model = None
+        self._js_builder_model = None
 
         # The component currently being dragged or None if there is no such component.
         self._component_being_dragged = None
@@ -38,11 +38,11 @@ class Builder:
         # It will be one of "left", "right", "above", "below".
         self._insertion_mode = None
 
-    def set_view_model(self, builder_model):
+    def set_js_builder_model(self, js_builder_model):
         """
         Connects the Python side of the view model to the JS side.
         """
-        self._builder_model = builder_model
+        self._js_builder_model = js_builder_model
 
     # App ##############################################################################
 
@@ -365,7 +365,7 @@ class Builder:
 
         event.stopPropagation()
 
-        self._builder_model.openPropertiesForComponent(
+        self._js_builder_model.openPropertiesForComponent(
             create_proxy(type(component).blueprint()), component.id
         )
 

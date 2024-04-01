@@ -10,7 +10,7 @@ import type { WidgetPropertyModel } from "@/data/models/widget-property-model";
  */
 export class BuilderUtilities {	
 	public static init(builderModel: BuilderModel): any {
-		(window as any).builder.set_view_model(builderModel)
+		(window as any).builder.set_js_builder_model(builderModel)
 	}
 
 	public static builder(): any {
