@@ -5,7 +5,7 @@ import json
 from pyscript.ffi import create_proxy
 
 import invent
-from invent.ui import AVAILABLE_COMPONENTS, create_component, export
+from invent.ui import App, AVAILABLE_COMPONENTS, create_component, export, Page
 from invent.ui.core import Column, Container, Component, Row, Widget, from_datastore
 from invent.ui.page import Page
 
@@ -20,12 +20,7 @@ class Builder:
         """
 
         # The Invent app that the builder is building.
-        self.app = invent.ui.App(
-            name="Invent Demo",
-            content=[
-                invent.ui.Page(name="Page 1")
-            ]
-        )
+        self._app = None
 
         # The JS-side of the Invent-Builder.
         self._js_builder_model = None
@@ -37,6 +32,10 @@ class Builder:
         #
         # It will be one of "left", "right", "above", "below".
         self._insertion_mode = None
+
+        # TODO: We might eventually open with an existing app, but here we just create
+        # one with a single, empty page.
+        self.app = App(name="Invent Demo", content=[Page(name="Page 1")])
 
     def set_js_builder_model(self, js_builder_model):
         """
@@ -58,7 +57,12 @@ class Builder:
         """
         Set the app that we are building.
         """
-        # Inject the JS handlers to make component selection and drag-and-drop work.
+        if self._app is not None:
+            # If there is a current app, remove all the JS event handlers from it.
+            self._remove_js_event_handlers_from_app(self._app)
+
+        # Inject the JS event handlers to make component selection and drag-and-drop
+        # work.
         self._inject_js_event_handlers_into_app(app)
 
         # The builder is now officially managing the rehydrated app!
@@ -512,6 +516,13 @@ class Builder:
                     insert_after = component
                 print("Inserting after:", self._insertion_mode, insert_after)
                 self.insert_component_after(insert_after, new_component)
+
+    def _remove_js_event_handlers_from_app(self, app):
+        """
+        Remove the JS event handlers from the specified app.
+        """
+        for page in app.content:
+            self._remove_js_event_handlers_from_component(page)
 
     def _remove_js_event_handlers_from_component(self, component):
         """
