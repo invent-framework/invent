@@ -591,6 +591,9 @@ class Component:
         Make a clone of the component.
         """
         from invent.ui import create_component
+
+        # Set the id here otherwise we don't update the Component by Id map!
+        # This assumes you want a destructive clone as part of a move!
         clone = create_component(type(self).__name__, id=self.id)
 
         for property_name, property_obj in type(self).properties().items():
