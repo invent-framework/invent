@@ -34,6 +34,9 @@ class Builder:
         # The JS-side of the Invent-Builder.
         self._builder_model = None
 
+        # The component currently being moved or None if there is no such component.
+        self._moving = None
+
     def set_view_model(self, builder_model):
         """
         Connects the Python side of the view model to the JS side.
@@ -309,7 +312,7 @@ class Builder:
 
         self._inject_js_event_handlers_into_component(container)
 
-        for item in container.content[:]:
+        for item in container.content:
             if isinstance(item, Container):
                 self._inject_js_event_handlers_into_container(item)
 
@@ -355,8 +358,9 @@ class Builder:
 
             else:
                 event.stopPropagation()
-                print("on_dragstart:", component.name)
-                event.dataTransfer.setData("move", component.id);
+                print("on_dragstart:", component.name, component.id)
+                self._moving = component
+                event.dataTransfer.setData("move", component.id)
 
         def on_drop(event):
             print("-"*80)
@@ -367,18 +371,13 @@ class Builder:
             # Moving or adding? ########################################################
 
             move_data = event.dataTransfer.getData("move")
-            print("MOVE COMPONENT", move_data)
+            print("on_drop: move_data:", move_data)
             if move_data == component.id:
                 return
 
             if move_data:
                 component_to_move = Component.get_component_by_id(move_data)
-
                 print("MOVING:", component_to_move.name, component_to_move.id, id(component_to_move), component_to_move.parent)
-                if component_to_move.parent is None:
-                    print("But something is fishy... parent is None")
-                    self.pprint_app()
-
                 self.delete_component(component_to_move.id)
                 new_component = component_to_move.clone()
 
@@ -423,12 +422,22 @@ class Builder:
             """
             Handle a JS "dragover" event on a component.
             """
-            #print("on_dragover:", component.name)
+            #print("on_dragover:", component.name, component.id)
             event.preventDefault()
             event.stopPropagation()
 
-            move_data = event.dataTransfer.getData("move")
-            if move_data == component.id:
+            #move_data = event.dataTransfer.getData("move")
+            #print("move data is", move_data, type(move_data))
+            if self._moving == component:
+                print("draggining over self!")
+                if isinstance(component, Container):
+                    component.element.classList.remove(f"drop-zone-active")
+
+                else:
+                    for class_name in component.element.parentNode.classList:
+                        if class_name.startswith("drop-zone-active"):
+                            component.element.parentNode.classList.remove(class_name)
+
                 return
 
             pointer_offset_x = event.offsetX
@@ -457,8 +466,7 @@ class Builder:
                     self.mode = "right"
 
             else:
-                return
-                #raise ValueError("Shouldn't get here!!!", container)
+                raise ValueError("Shouldn't get here!!!", container)
 
             if isinstance(component, Container):
                 component.element.classList.add(f"drop-zone-active")
@@ -471,7 +479,7 @@ class Builder:
                 component.element.parentNode.classList.add(f"drop-zone-active-{self.mode}")
 
         def on_dragleave(event):
-            #print("on_dragleave:", component.name)
+            print("on_dragleave:", component.name)
             event.preventDefault()
 
             if isinstance(component, Container):
