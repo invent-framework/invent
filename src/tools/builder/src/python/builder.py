@@ -354,12 +354,21 @@ class Builder:
         component._on_dragleave_proxy = create_proxy(on_dragleave)
         component._on_drop_proxy = create_proxy(on_drop)
 
-        component.element.setAttribute("draggable", "true")
-        component.element.addEventListener("click", component._on_click_proxy)
-        component.element.addEventListener("dragstart", component._on_dragstart_proxy)
-        component.element.addEventListener("dragover", component._on_dragover_proxy)
-        component.element.addEventListener("dragleave", component._on_dragleave_proxy)
-        component.element.addEventListener("drop", component._on_drop_proxy)
+        # Pages...
+        if component.parent is None:
+            element = component.element
+
+        # Everything else...
+        else:
+            # Attach to the *wrapper* we put around each grid item.
+            element = component.element.parentNode
+            element.setAttribute("draggable", "true")
+
+        element.addEventListener("click", component._on_click_proxy)
+        element.addEventListener("dragstart", component._on_dragstart_proxy)
+        element.addEventListener("dragover", component._on_dragover_proxy)
+        element.addEventListener("dragleave", component._on_dragleave_proxy)
+        element.addEventListener("drop", component._on_drop_proxy)
 
         # Recursively...
         if isinstance(component, Container):
@@ -525,11 +534,21 @@ class Builder:
         """
         Recursively remove JS event handlers from the specified component.
         """
-        component.element.removeEventListener("click", component._on_click_proxy)
-        component.element.removeEventListener("dragstart", component._on_dragstart_proxy)
-        component.element.addEventListener("dragover", component._on_dragover_proxy)
-        component.element.addEventListener("dragleave", component._on_dragleave_proxy)
-        component.element.addEventListener("drop", component._on_drop_proxy)
+        # Pages...
+        if component.parent is None:
+            element = component.element
+
+        # Everything else...
+        else:
+            # Remove from the *wrapper* we put around every grid item.
+            element = component.element.parentNode
+            element.setAttribute("draggable", "false")
+
+        element.removeEventListener("click", component._on_click_proxy)
+        element.removeEventListener("dragstart", component._on_dragstart_proxy)
+        element.addEventListener("dragover", component._on_dragover_proxy)
+        element.addEventListener("dragleave", component._on_dragleave_proxy)
+        element.addEventListener("drop", component._on_drop_proxy)
 
         # Recursively...
         if isinstance(component, Container):
