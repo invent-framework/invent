@@ -37,6 +37,9 @@ class Builder:
         # The component currently being moved or None if there is no such component.
         self._moving = None
 
+        # The current insert mode.
+        self._mode = None
+
     def set_view_model(self, builder_model):
         """
         Connects the Python side of the view model to the JS side.
@@ -142,7 +145,7 @@ class Builder:
         component_to_delete = self._app.get_component_by_id(component_id)
         component_to_delete.parent.remove(component_to_delete)
 
-        component_to_delete._remove_js_event_handlers()
+        self._remove_js_event_handlers(component_to_delete)
         self.pprint_app()
 
     def insert_component_after(self, after_component, component):
@@ -302,7 +305,6 @@ class Builder:
         a) catch click events so that we can show a component's property sheet.
         b) handle drag and drop events.
         """
-        print("_inject_js_event_handlers_into_app", app)
         for page in app.content:
             self._inject_js_event_handlers_into_component(page)
 
@@ -311,185 +313,217 @@ class Builder:
         Recursively Inject JS event handlers into the specified component.
         """
 
-        print("_inject_js_event_handlers_into_component", component.name, component.id)
-        def remove_js_event_handlers():
-            print("removing js", component.name, component.id)
-            component.element.setAttribute("draggable", "false")
-            component.element.removeEventListener("dragstart", component._on_dragstart_proxy)
-            component.element.addEventListener("dragover", component._on_dragover_proxy)
-            component.element.addEventListener("dragleave", component._on_dragleave_proxy)
-            component.element.addEventListener("drop", component._on_drop_proxy)
-
-            if isinstance(component, Container):
-                for child in component.content:
-                    child._remove_js_event_handlers()
-
-        component._remove_js_event_handlers = remove_js_event_handlers
-
-        def on_click_on_component(event):
-            """
-            Called when a JS "click" event is fired on a component in a page.
-            """
-
-            event.stopPropagation()
-
-            self._builder_model.onComponentClicked(
-                create_proxy(type(component).blueprint()), create_proxy(component)
-            )
-
-        component.element.addEventListener("click", create_proxy(on_click_on_component))
+        def on_click(event):
+            self._on_click_component(event, component)
 
         def on_dragstart(event):
-            if isinstance(component, Page):
-                event.preventDefault()
-                event.stopPropagation()
-
-            else:
-                event.stopPropagation()
-                print("on_dragstart:", component.name, component.id)
-                self._moving = component
-                event.dataTransfer.setData("move", component.id)
+            self._on_dragstart_component(event, component)
 
         def on_drop(event):
-            print("-"*80)
-            print("on_drop: on", component.name)
-            event.preventDefault()
-            event.stopPropagation()
-
-            # Moving or adding? ########################################################
-
-            move_data = event.dataTransfer.getData("move")
-            if move_data:
-                print("on_drop: move_data:", move_data)
-
-            if move_data == component.id:
-                return
-
-            widget_data = event.dataTransfer.getData("widget")
-            if widget_data:
-                print("on_drop: widget_data:", widget_data)
-                component_blueprint = json.loads(widget_data)
-                component_type_name = component_blueprint["name"]
-                new_component = create_component(component_type_name)
-
-            else:
-                component_to_move = Component.get_component_by_id(move_data)
-                print("MOVING:", component_to_move.name, component_to_move.id, id(component_to_move), component_to_move.parent)
-                self.delete_component(component_to_move.id)
-                new_component = component_to_move.clone()
-
-            # Dropping on a Widget or a Container? #####################################
-            if isinstance(component, Container):
-                container = component
-                component.element.classList.remove("drop-zone-active")
-
-            else:
-                container = component.parent
-                component.element.parentNode.classList.remove(f"drop-zone-active-{self.mode}")
-
-            if isinstance(component, Container) and len(component.content) == 0:
-                self.append_component(container.id, new_component)
-
-            else:
-                if self.mode in ["left", "above"]:
-                    if isinstance(component, Container):
-                        insert_before = component.content[0]
-
-                    else:
-                        insert_before = component
-
-                    print("Inserting before:", self.mode, insert_before)
-                    self.insert_component_before(insert_before, new_component)
-                else:
-                    if isinstance(component, Container):
-                        insert_after = component.content[-1]
-
-                    else:
-                        insert_after = component
-                    print("Inserting after:", self.mode, insert_after)
-                    self.insert_component_after(insert_after, new_component)
+            self._on_drop_component(event, component)
 
         def on_dragover(event):
-            """
-            Handle a JS "dragover" event on a component.
-            """
-            #print("on_dragover:", component.name, component.id)
-            event.preventDefault()
-            event.stopPropagation()
+            self._on_dragover_component(event, component)
 
-            #move_data = event.dataTransfer.getData("move")
-            #print("move data is", move_data, type(move_data))
-            if self._moving == component:
-                print("draggining over self!")
-                if isinstance(component, Container):
-                    component.element.classList.remove(f"drop-zone-active")
+        def on_dragleave(event):
+            self._on_dragleave_component(event, component)
 
-                else:
-                    for class_name in component.element.parentNode.classList:
-                        if class_name.startswith("drop-zone-active"):
-                            component.element.parentNode.classList.remove(class_name)
+        # Proxies if required by the underlying interpreter.
+        component._on_click_proxy = create_proxy(on_click)
+        component._on_dragstart_proxy = create_proxy(on_dragstart)
+        component._on_dragover_proxy = create_proxy(on_dragover)
+        component._on_dragleave_proxy = create_proxy(on_dragleave)
+        component._on_drop_proxy = create_proxy(on_drop)
 
-                return
+        component.element.setAttribute("draggable", "true")
+        component.element.addEventListener("click", component._on_click_proxy)
+        component.element.addEventListener("dragstart", component._on_dragstart_proxy)
+        component.element.addEventListener("dragover", component._on_dragover_proxy)
+        component.element.addEventListener("dragleave", component._on_dragleave_proxy)
+        component.element.addEventListener("drop", component._on_drop_proxy)
 
-            pointer_offset_x = event.offsetX
-            pointer_offset_y = event.offsetY
-            component_width = component.element.offsetWidth
-            component_height = component.element.offsetHeight
+        # ... and recurse :)
+        if isinstance(component, Container):
+            for item in component.content:
+                self._inject_js_event_handlers_into_component(item)
 
+    # JS event handlers ################################################################
+
+    def _on_click_component(self, event, component):
+        """
+        Called when a JS "click" event is fired on a component in a page.
+        """
+
+        event.stopPropagation()
+
+        self._builder_model.onComponentClicked(
+            create_proxy(type(component).blueprint()), create_proxy(component)
+        )
+
+    def _on_dragleave_component(self, event, component):
+        """
+        Handle a JS "dragleave" event on a component.
+        """
+
+        print("on_dragleave:", component.name)
+        event.preventDefault()
+
+        if isinstance(component, Container):
+            component.element.classList.remove("drop-zone-active")
+
+        # Mode might be None as we don't set if when dragging over self.
+        if self._mode:
+            component.element.parentNode.classList.remove(f"drop-zone-active-{self._mode}")
+
+    def _on_dragover_component(self, event, component):
+        """
+        Handle a JS "dragover" event on a component.
+        """
+
+        # print("on_dragover:", component.name, component.id)
+        event.preventDefault()
+        event.stopPropagation()
+
+        # move_data = event.dataTransfer.getData("move")
+        # print("move data is", move_data, type(move_data))
+        if self._moving == component:
+            print("draggining over self!")
             if isinstance(component, Container):
-                container = component
-
-            else:
-                container = component.parent
-
-            if isinstance(container, Column):
-                if pointer_offset_y < (component_height * .5):
-                    self.mode = "above"
-
-                elif pointer_offset_y > (component_height * .5):
-                    self.mode = "below"
-
-            elif isinstance(container, Row):
-                if pointer_offset_x < (component_width * .5):
-                    self.mode = "left"
-
-                elif pointer_offset_x > (component_width * .5):
-                    self.mode = "right"
-
-            else:
-                raise ValueError("Shouldn't get here!!!", container)
-
-            if isinstance(component, Container):
-                component.element.classList.add(f"drop-zone-active")
+                component.element.classList.remove(f"drop-zone-active")
 
             else:
                 for class_name in component.element.parentNode.classList:
                     if class_name.startswith("drop-zone-active"):
                         component.element.parentNode.classList.remove(class_name)
 
-                component.element.parentNode.classList.add(f"drop-zone-active-{self.mode}")
+            return
 
-        def on_dragleave(event):
-            print("on_dragleave:", component.name)
+        pointer_offset_x = event.offsetX
+        pointer_offset_y = event.offsetY
+        component_width = component.element.offsetWidth
+        component_height = component.element.offsetHeight
+
+        if isinstance(component, Container):
+            container = component
+
+        else:
+            container = component.parent
+
+        if isinstance(container, Column):
+            if pointer_offset_y < (component_height * .5):
+                self._mode = "above"
+
+            elif pointer_offset_y > (component_height * .5):
+                self._mode = "below"
+
+        elif isinstance(container, Row):
+            if pointer_offset_x < (component_width * .5):
+                self._mode = "left"
+
+            elif pointer_offset_x > (component_width * .5):
+                self._mode = "right"
+
+        else:
+            raise ValueError("Shouldn't get here!!!", container)
+
+        if isinstance(component, Container):
+            component.element.classList.add(f"drop-zone-active")
+
+        else:
+            for class_name in component.element.parentNode.classList:
+                if class_name.startswith("drop-zone-active"):
+                    component.element.parentNode.classList.remove(class_name)
+
+            component.element.parentNode.classList.add(f"drop-zone-active-{self._mode}")
+
+    def _on_dragstart_component(self, event, component):
+        """
+        Handle a JS "dragstart" event on a component.
+        """
+        if isinstance(component, Page):
             event.preventDefault()
+            event.stopPropagation()
 
-            if isinstance(component, Container):
-                component.element.classList.remove("drop-zone-active")
+        else:
+            event.stopPropagation()
+            print("on_dragstart:", component.name, component.id)
+            self._moving = component
+            event.dataTransfer.setData("move", component.id)
 
-            component.element.parentNode.classList.remove(f"drop-zone-active-{self.mode}")
+    def _on_drop_component(self, event, component):
+        """
+        Handle a JS "drop" event on a component.
+        """
+        print("-"*80)
+        print("on_drop: on", component.name)
+        event.preventDefault()
+        event.stopPropagation()
 
-        component.element.setAttribute("draggable", "true")
+        # Moving or adding? ########################################################
 
-        component._on_dragstart_proxy = create_proxy(on_dragstart)
-        component._on_dragover_proxy = create_proxy(on_dragover)
-        component._on_dragleave_proxy = create_proxy(on_dragleave)
-        component._on_drop_proxy = create_proxy(on_drop)
+        move_data = event.dataTransfer.getData("move")
+        if move_data:
+            print("on_drop: move_data:", move_data)
 
-        component.element.addEventListener("dragstart", component._on_dragstart_proxy)
+        if move_data == component.id:
+            return
+
+        widget_data = event.dataTransfer.getData("widget")
+        if widget_data:
+            print("on_drop: widget_data:", widget_data)
+            component_blueprint = json.loads(widget_data)
+            component_type_name = component_blueprint["name"]
+            new_component = create_component(component_type_name)
+
+        else:
+            component_to_move = Component.get_component_by_id(move_data)
+            print("MOVING:", component_to_move.name, component_to_move.id, id(component_to_move), component_to_move.parent)
+            self.delete_component(component_to_move.id)
+            new_component = component_to_move.clone()
+
+        # Dropping on a Widget or a Container? #####################################
+        if isinstance(component, Container):
+            container = component
+            component.element.classList.remove("drop-zone-active")
+
+        else:
+            container = component.parent
+            component.element.parentNode.classList.remove(f"drop-zone-active-{self._mode}")
+
+        if isinstance(component, Container) and len(component.content) == 0:
+            self.append_component(container.id, new_component)
+
+        else:
+            if self._mode in ["left", "above"]:
+                if isinstance(component, Container):
+                    insert_before = component.content[0]
+
+                else:
+                    insert_before = component
+
+                print("Inserting before:", self._mode, insert_before)
+                self.insert_component_before(insert_before, new_component)
+            else:
+                if isinstance(component, Container):
+                    insert_after = component.content[-1]
+
+                else:
+                    insert_after = component
+                print("Inserting after:", self._mode, insert_after)
+                self.insert_component_after(insert_after, new_component)
+
+    def _remove_js_event_handlers(self, component):
+        """
+        Remove the JS event handlers for the specified component.
+        """
+        print("removing js", component.name, component.id)
+        component.element.setAttribute("draggable", "false")
+        component.element.removeEventListener("click", component._on_click_proxy)
+        component.element.removeEventListener("dragstart", component._on_dragstart_proxy)
         component.element.addEventListener("dragover", component._on_dragover_proxy)
         component.element.addEventListener("dragleave", component._on_dragleave_proxy)
         component.element.addEventListener("drop", component._on_drop_proxy)
 
         if isinstance(component, Container):
             for item in component.content:
-                self._inject_js_event_handlers_into_component(item)
+                self._remove_js_event_handlers(item)
