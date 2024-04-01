@@ -65,7 +65,7 @@ class Builder:
 
         # Inject the JS event handlers to make component selection and drag-and-drop
         # work.
-        self._inject_js_event_handlers_into_app(app)
+        self._add_js_event_handlers_to_app(app)
 
         # The builder is now officially managing the rehydrated app!
         self._app = app
@@ -148,7 +148,7 @@ class Builder:
 
         parent.append(component)
 
-        self._inject_js_event_handlers_into_component(component)
+        self._add_js_event_handlers_to_component(component)
         self.pprint_app()
 
     def delete_component(self, component_id):
@@ -175,7 +175,7 @@ class Builder:
         else:
             parent.insert(after_component_index + 1, component)
 
-        self._inject_js_event_handlers_into_component(component)
+        self._add_js_event_handlers_to_component(component)
         self.pprint_app()
 
     def insert_component_before(self, before_component, component):
@@ -188,7 +188,7 @@ class Builder:
         before_component_index = parent.content.index(before_component)
         parent.insert(before_component_index, component)
 
-        self._inject_js_event_handlers_into_component(component)
+        self._add_js_event_handlers_to_component(component)
         self.pprint_app()
 
     def get_component_properties(self, component_id):
@@ -312,21 +312,21 @@ class Builder:
 
     # Internal #########################################################################
 
-    def _inject_js_event_handlers_into_app(self, app):
+    def _add_js_event_handlers_to_app(self, app):
         """
-        Inject JS event handlers into the specified app.
+        Add JS event handlers to all components in the specified app.
 
-        We inject handlers to:-
+        We add handlers to:-
 
         a) catch click events so that we can show a component's property sheet.
-        b) handle drag and drop events.
+        b) handle drag and drop events for adding/moving components on a page.
         """
         for page in app.content:
-            self._inject_js_event_handlers_into_component(page)
+            self._add_js_event_handlers_to_component(page)
 
-    def _inject_js_event_handlers_into_component(self, component):
+    def _add_js_event_handlers_to_component(self, component):
         """
-        Recursively Inject JS event handlers into the specified component.
+        Recursively add JS event handlers to the specified component.
         """
 
         def on_click(event):
@@ -364,7 +364,7 @@ class Builder:
         # Recursively...
         if isinstance(component, Container):
             for item in component.content:
-                self._inject_js_event_handlers_into_component(item)
+                self._add_js_event_handlers_to_component(item)
 
     # JS event handlers ################################################################
 
@@ -516,14 +516,14 @@ class Builder:
 
     def _remove_js_event_handlers_from_app(self, app):
         """
-        Remove the JS event handlers from the specified app.
+        Remove JS event handlers from all components in the specified app.
         """
         for page in app.content:
             self._remove_js_event_handlers_from_component(page)
 
     def _remove_js_event_handlers_from_component(self, component):
         """
-        Recursively remove the JS event handlers from the specified component.
+        Recursively remove JS event handlers from the specified component.
         """
         component.element.removeEventListener("click", component._on_click_proxy)
         component.element.removeEventListener("dragstart", component._on_dragstart_proxy)
