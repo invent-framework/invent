@@ -410,11 +410,24 @@ class Builder:
         event.preventDefault()
         event.stopPropagation()
 
+        # You can't drop a container onto one of its children!
+        if isinstance(self._component_being_dragged, Container):
+            for item in self._component_being_dragged.content:
+                if item.id == component.id:
+                    return
+
         # In JS, the data transfer data is NOT available on a "dragover" event. It is
         # only available when the element is dropped.
         if self._component_being_dragged == component:
             if isinstance(component, Container):
                 component.element.classList.remove(f"drop-zone-active")
+
+                # You can't drop a container onto one of its children!
+                if isinstance(self._component_being_dragged, Container):
+                    for item in self._component_being_dragged.content:
+                        if item.id == component.id:
+                            return
+
 
             else:
                 for class_name in component.element.parentNode.classList:
@@ -488,17 +501,29 @@ class Builder:
         move_data = event.dataTransfer.getData("move")
         widget_data = event.dataTransfer.getData("widget")
 
+        if move_data:
+            print("moving:", move_data, "onto:", component.name)
+
+            component_to_move = Component.get_component_by_id(move_data)
+
+            # You can't drop a container onto one of its children!
+            if isinstance(component_to_move, Container):
+                for item in component_to_move.content:
+                    if item.id == component.id:
+                        return
+
+        if widget_data:
+            print("adding:", widget_data)
+
         # You can't drop a component onto itself :)
         if move_data == component.id:
             return
 
         if widget_data:
             component_blueprint = json.loads(widget_data)
-            component_type_name = component_blueprint["name"]
-            new_component = create_component(component_type_name)
+            new_component = create_component(component_blueprint["name"])
 
         else:
-            component_to_move = Component.get_component_by_id(move_data)
             self.delete_component(component_to_move.id)
             new_component = component_to_move.clone()
 
