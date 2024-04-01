@@ -119,18 +119,9 @@ export class BuilderModel extends ViewModelBase {
 		BuilderUtilities.appendComponent(parentId, widgetBlueprint.name);
 	}
 
-	/**
-	 * Called when we get a JS "click" event on a component on the page.
-	 *
-	 * This is called from the Python-side of the view model.
-	 */
-	public onComponentClicked(componentBlueprint: any, component: any) {
-		this.openPropertiesForWidget(componentBlueprint, component.id);
-	}
-
-	public openPropertiesForWidget(widgetBlueprint: WidgetModel, componentId: string): void {
+	public openPropertiesForComponent(componentBlueprint: WidgetModel, componentId: string): void {
 		this.state.activeWidgetId = componentId;
-		this.state.activeWidgetBlueprint = widgetBlueprint;
+		this.state.activeWidgetBlueprint = componentBlueprint;
 		this.state.activeWidgetProperties = BuilderUtilities.getComponentProperties(componentId);
 	}
 

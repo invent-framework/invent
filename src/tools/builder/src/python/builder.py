@@ -2,7 +2,6 @@
 
 
 import json
-from pyscript import document, window
 from pyscript.ffi import create_proxy
 
 import invent
@@ -21,24 +20,23 @@ class Builder:
         """
 
         # The Invent app that the builder is building.
-        self._app = invent.ui.App(
+        self.app = invent.ui.App(
             name="Invent Demo",
             content=[
                 invent.ui.Page(name="Page 1")
             ]
         )
 
-        # Inject JS event handlers into all components in the app.
-        self._inject_js_event_handlers_into_app(self._app)
-
         # The JS-side of the Invent-Builder.
         self._builder_model = None
 
-        # The component currently being moved or None if there is no such component.
-        self._moving = None
+        # The component currently being dragged or None if there is no such component.
+        self._component_being_dragged = None
 
-        # The current insert mode.
-        self._mode = None
+        # The current component insertion mode/direction.
+        #
+        # It will be one of "left", "right", "above", "below".
+        self._insertion_mode = None
 
     def set_view_model(self, builder_model):
         """
@@ -51,9 +49,20 @@ class Builder:
     @property
     def app(self):
         """
-        The app that we are building.
+        Get the app that we are building.
         """
         return self._app
+
+    @app.setter
+    def app(self, app):
+        """
+        Set the app that we are building.
+        """
+        # Inject the JS handlers to make component selection and drag-and-drop work.
+        self._inject_js_event_handlers_into_app(app)
+
+        # The builder is now officially managing the rehydrated app!
+        self._app = app
 
     def get_app_as_dict(self):
         """
@@ -68,10 +77,7 @@ class Builder:
 
         This sets created app to be the one that the builder is building.
         """
-        app = export.from_dict({"app": json.loads(app_dict)})
-        self._app = app
-        self.pprint_app()
-        self._inject_js_event_handlers_into_app(app)
+        self.app = export.from_dict({"app": json.loads(app_dict)})
 
     # Pages ############################################################################
 
@@ -331,7 +337,7 @@ class Builder:
         # Proxies if required by the underlying interpreter.
         #
         # It's a bit smelly, but we tag them onto the component so that we can remove
-        # them if the component is deleted.
+        # them if/when the component is deleted.
         component._on_click_proxy = create_proxy(on_click)
         component._on_dragstart_proxy = create_proxy(on_dragstart)
         component._on_dragover_proxy = create_proxy(on_dragover)
@@ -354,13 +360,13 @@ class Builder:
 
     def _on_click_component(self, event, component):
         """
-        Called when a JS "click" event is fired on a component in a page.
+        Handle a JS "click" event on a component.
         """
 
         event.stopPropagation()
 
-        self._builder_model.onComponentClicked(
-            create_proxy(type(component).blueprint()), create_proxy(component)
+        self._builder_model.openPropertiesForComponent(
+            create_proxy(type(component).blueprint()), component.id
         )
 
     def _on_dragleave_component(self, event, component):
@@ -375,8 +381,8 @@ class Builder:
             component.element.classList.remove("drop-zone-active")
 
         # Mode might be None as we don't set if when dragging over self.
-        if self._mode:
-            component.element.parentNode.classList.remove(f"drop-zone-active-{self._mode}")
+        if self._insertion_mode:
+            component.element.parentNode.classList.remove(f"drop-zone-active-{self._insertion_mode}")
 
     def _on_dragover_component(self, event, component):
         """
@@ -388,8 +394,7 @@ class Builder:
 
         # In JS, the data transfer data is NOT available on a "dragover" event. It is
         # only available when the element is dropped.
-        if self._moving == component:
-            print("draggining over self!")
+        if self._component_being_dragged == component:
             if isinstance(component, Container):
                 component.element.classList.remove(f"drop-zone-active")
 
@@ -413,17 +418,17 @@ class Builder:
 
         if isinstance(container, Column):
             if pointer_offset_y < (component_height * .5):
-                self._mode = "above"
+                self._insertion_mode = "above"
 
             elif pointer_offset_y > (component_height * .5):
-                self._mode = "below"
+                self._insertion_mode = "below"
 
         elif isinstance(container, Row):
             if pointer_offset_x < (component_width * .5):
-                self._mode = "left"
+                self._insertion_mode = "left"
 
             elif pointer_offset_x > (component_width * .5):
-                self._mode = "right"
+                self._insertion_mode = "right"
 
         else:
             raise ValueError("Unsupported container type:", container)
@@ -436,7 +441,7 @@ class Builder:
                 if class_name.startswith("drop-zone-active"):
                     component.element.parentNode.classList.remove(class_name)
 
-            component.element.parentNode.classList.add(f"drop-zone-active-{self._mode}")
+            component.element.parentNode.classList.add(f"drop-zone-active-{self._insertion_mode}")
 
     def _on_dragstart_component(self, event, component):
         """
@@ -450,14 +455,13 @@ class Builder:
         else:
             # In JS, the data transfer data is NOT available on a "dragover" event.
             # Hence, we track the component being moved manually.
-            self._moving = component
+            self._component_being_dragged = component
             event.dataTransfer.setData("move", component.id)
 
     def _on_drop_component(self, event, component):
         """
         Handle a JS "drop" event on a component.
         """
-        print("on_drop: on", component.name)
         event.preventDefault()
         event.stopPropagation()
 
@@ -465,12 +469,10 @@ class Builder:
 
         move_data = event.dataTransfer.getData("move")
         if move_data == component.id:
-            print("Dropped on myself!")
             return
 
         widget_data = event.dataTransfer.getData("widget")
         if widget_data:
-            print("on_drop: widget_data:", widget_data)
             component_blueprint = json.loads(widget_data)
             component_type_name = component_blueprint["name"]
             new_component = create_component(component_type_name)
@@ -487,20 +489,20 @@ class Builder:
 
         else:
             container = component.parent
-            component.element.parentNode.classList.remove(f"drop-zone-active-{self._mode}")
+            component.element.parentNode.classList.remove(f"drop-zone-active-{self._insertion_mode}")
 
         if isinstance(component, Container) and len(component.content) == 0:
             self.append_component(container.id, new_component)
 
         else:
-            if self._mode in ["left", "above"]:
+            if self._insertion_mode in ["left", "above"]:
                 if isinstance(component, Container):
                     insert_before = component.content[0]
 
                 else:
                     insert_before = component
 
-                print("Inserting before:", self._mode, insert_before)
+                print("Inserting before:", self._insertion_mode, insert_before)
                 self.insert_component_before(insert_before, new_component)
             else:
                 if isinstance(component, Container):
@@ -508,7 +510,7 @@ class Builder:
 
                 else:
                     insert_after = component
-                print("Inserting after:", self._mode, insert_after)
+                print("Inserting after:", self._insertion_mode, insert_after)
                 self.insert_component_after(insert_after, new_component)
 
     def _remove_js_event_handlers_from_component(self, component):
