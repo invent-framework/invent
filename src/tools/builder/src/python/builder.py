@@ -5,9 +5,11 @@ import json
 from pyscript.ffi import create_proxy
 
 import invent
-from invent.ui import App, AVAILABLE_COMPONENTS, create_component, export, Page
-from invent.ui.core import Column, Container, Component, Row, Widget, from_datastore
-from invent.ui.page import Page
+from invent.ui import (
+    App, AVAILABLE_COMPONENTS, Column, Container, create_component, export, Page,
+    Row, Widget, from_datastore
+)
+from invent.ui.core import Component
 
 
 class Builder:
