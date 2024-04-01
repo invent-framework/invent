@@ -357,7 +357,7 @@ class Builder:
         component.element.addEventListener("dragleave", component._on_dragleave_proxy)
         component.element.addEventListener("drop", component._on_drop_proxy)
 
-        # ... and recurse :)
+        # Recursively...
         if isinstance(component, Container):
             for item in component.content:
                 self._inject_js_event_handlers_into_component(item)
@@ -474,10 +474,12 @@ class Builder:
         # Moving or adding? ########################################################
 
         move_data = event.dataTransfer.getData("move")
+        widget_data = event.dataTransfer.getData("widget")
+
+        # You can't drop a component onto itself :)
         if move_data == component.id:
             return
 
-        widget_data = event.dataTransfer.getData("widget")
         if widget_data:
             component_blueprint = json.loads(widget_data)
             component_type_name = component_blueprint["name"]
@@ -488,7 +490,8 @@ class Builder:
             self.delete_component(component_to_move.id)
             new_component = component_to_move.clone()
 
-        # Dropping on a Widget or a Container? #####################################
+        # Dropping on a Widget or a Container? #########################################
+
         if isinstance(component, Container):
             container = component
             component.element.classList.remove("drop-zone-active")
@@ -517,7 +520,7 @@ class Builder:
 
     def _remove_js_event_handlers_from_component(self, component):
         """
-        Remove the JS event handlers from the specified component.
+        Recursively remove the JS event handlers from the specified component.
         """
         component.element.removeEventListener("click", component._on_click_proxy)
         component.element.removeEventListener("dragstart", component._on_dragstart_proxy)
