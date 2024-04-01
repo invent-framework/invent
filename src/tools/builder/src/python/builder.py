@@ -384,7 +384,6 @@ class Builder:
         Handle a JS "dragleave" event on a component.
         """
 
-        print("on_dragleave:", component.name)
         event.preventDefault()
 
         if isinstance(component, Container):
