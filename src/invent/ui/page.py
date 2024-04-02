@@ -36,7 +36,10 @@ class Page(Column):
         element = super().render()
         element.classList.add("paper")
         element.classList.add("container")
-        element.classList.add("form-group")
+
+        # Why this?
+        #element.classList.add("form-group")
+
         element.style.display = "None"
         return element
 

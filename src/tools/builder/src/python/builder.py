@@ -403,19 +403,13 @@ class Builder:
 
         event.preventDefault()
 
-        if isinstance(component, Container):
-            component.element.classList.remove("drop-zone-active")
-
-        # Mode might be None as we don't set if when dragging over self.
-        if self._insertion_mode:
-            component.element.parentNode.classList.remove(f"drop-zone-active-{self._insertion_mode}")
+        self._remove_drop_zone_active_classes(component)
 
     def _on_dragover_component(self, event, component):
         """
         Handle a JS "dragover" event on a component.
         """
 
-        event.preventDefault()
         event.stopPropagation()
 
         # In JS, the data transfer data is NOT available on a "dragover" event. It is
@@ -427,35 +421,24 @@ class Builder:
                 if item.id == component.id:
                     return
 
-        # 1) Remove any previous 'drop-zone-active' classes from the element ###########
+        # Preventing the default means "allow dropping here".
+        event.preventDefault()
+
+        # 1) Remove any previous drop zone active classes from the element #############
+        self._remove_drop_zone_active_classes(component)
 
         # If the dragover is still over the component being dragged :)
         if self._component_being_dragged == component:
-            if isinstance(component, Container):
-                component.element.classList.remove(f"drop-zone-active")
-
-            else:
-                for class_name in component.element.parentNode.classList:
-                    if class_name.startswith("drop-zone-active"):
-                        component.element.parentNode.classList.remove(class_name)
-
-            return
-
-        # 2) Determine whether the current pointer position is above, below, to the
-        # left or to the right of the component the pointer is over.
-        self._insertion_mode = self._get_insertion_mode(event, component)
-
-        # 3) Add an appropriate 'drop-zone-active' class to the element to show where
-        # the new element would be inserted
-        if isinstance(component, Container):
-            component.element.classList.add(f"drop-zone-active")
+            event.preventDefault()
 
         else:
-            for class_name in component.element.parentNode.classList:
-                if class_name.startswith("drop-zone-active"):
-                    component.element.parentNode.classList.remove(class_name)
+            # 2) Determine whether the current pointer position is above, below, to the
+            # left or to the right of the component the pointer is over.
+            self._insertion_mode = self._get_insertion_mode(event, component)
 
-            component.element.parentNode.classList.add(f"drop-zone-active-{self._insertion_mode}")
+            # 3) Add an appropriate drop zone active class to the element to show where
+            # the new element would be inserted
+            self._add_drop_zone_active_classes(component)
 
     def _get_insertion_mode(self, event, component):
         """
@@ -470,14 +453,14 @@ class Builder:
         container = component if isinstance(component, Container) else component.parent
 
         if isinstance(container, Column):
-            if pointer_offset_y < (component_height * .5):
+            if pointer_offset_y <= (component_height * .5):
                 insertion_mode = "above"
 
             elif pointer_offset_y > (component_height * .5):
                 insertion_mode = "below"
 
         elif isinstance(container, Row):
-            if pointer_offset_x < (component_width * .5):
+            if pointer_offset_x <= (component_width * .5):
                 insertion_mode = "left-of"
 
             elif pointer_offset_x > (component_width * .5):
@@ -544,16 +527,13 @@ class Builder:
             component_blueprint = json.loads(component_blueprint_json)
             new_component = create_component(component_blueprint["name"])
 
-        # Dropping onto a Widget or a Container? #######################################
-        #
-        # Remove the "drop-zone-active" class.
-        if isinstance(component, Container):
-            container = component
-            component.element.classList.remove("drop-zone-active")
+        # Remove any drop zone active classes ##########################################
 
-        else:
-            container = component.parent
-            component.element.parentNode.classList.remove(f"drop-zone-active-{self._insertion_mode}")
+        self._remove_drop_zone_active_classes(component)
+
+        # Dropping onto a Widget or a Container? #######################################
+
+        container = component if isinstance(component, Container) else component.parent
 
         # Append/insert the new component into the appropriate place.
         if isinstance(component, Container) and len(component.content) == 0:
@@ -598,3 +578,31 @@ class Builder:
         if isinstance(component, Container):
             for item in component.content:
                 self._remove_js_event_handlers_from_component(item)
+
+    def _add_drop_zone_active_classes(self, component):
+        """
+        Add the appropriate drop zone active classes to a component.
+        """
+        element = component.element if isinstance(component, Page) else component.element.parentNode
+
+        if isinstance(component, Container):
+            element.classList.add(f"drop-zone-active")
+            if len(component.content) > 0:
+                element.classList.add(f"drop-zone-active-{self._insertion_mode}")
+
+        else:
+            element.classList.add(f"drop-zone-active-{self._insertion_mode}")
+
+    def _remove_drop_zone_active_classes(self, component):
+        """
+        Remove any drop zone active classes from a component.
+        """
+        element = component.element if isinstance(component, Page) else component.element.parentNode
+
+        element.classList.remove(
+            "drop-zone-active",
+            "drop-zone-active-left-of",
+            "drop-zone-active-right-of",
+            "drop-zone-active-above",
+            "drop-zone-active-below"
+        )
