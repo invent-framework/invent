@@ -443,29 +443,7 @@ class Builder:
 
         # 2) Determine whether the current pointer position is above, below, to the
         # left or to the right of the component the pointer is over.
-        pointer_offset_x = event.offsetX
-        pointer_offset_y = event.offsetY
-        component_width = component.element.offsetWidth
-        component_height = component.element.offsetHeight
-
-        container = component if isinstance(component, Container) else component.parent
-
-        if isinstance(container, Column):
-            if pointer_offset_y < (component_height * .5):
-                self._insertion_mode = "above"
-
-            elif pointer_offset_y > (component_height * .5):
-                self._insertion_mode = "below"
-
-        elif isinstance(container, Row):
-            if pointer_offset_x < (component_width * .5):
-                self._insertion_mode = "left-of"
-
-            elif pointer_offset_x > (component_width * .5):
-                self._insertion_mode = "right-of"
-
-        else:
-            raise ValueError("Unsupported container type:", container)
+        self._insertion_mode = self._get_insertion_mode(event, component)
 
         # 3) Add an appropriate 'drop-zone-active' class to the element to show where
         # the new element would be inserted
@@ -478,6 +456,35 @@ class Builder:
                     component.element.parentNode.classList.remove(class_name)
 
             component.element.parentNode.classList.add(f"drop-zone-active-{self._insertion_mode}")
+
+    def _get_insertion_mode(self, event, component):
+        """Get the insertion mode based on the position of the pointer on a component."""
+
+        pointer_offset_x = event.offsetX
+        pointer_offset_y = event.offsetY
+        component_width = component.element.offsetWidth
+        component_height = component.element.offsetHeight
+
+        container = component if isinstance(component, Container) else component.parent
+
+        if isinstance(container, Column):
+            if pointer_offset_y < (component_height * .5):
+                insertion_mode = "above"
+
+            elif pointer_offset_y > (component_height * .5):
+                insertion_mode = "below"
+
+        elif isinstance(container, Row):
+            if pointer_offset_x < (component_width * .5):
+                insertion_mode = "left-of"
+
+            elif pointer_offset_x > (component_width * .5):
+                insertion_mode = "right-of"
+
+        else:
+            raise ValueError("Unsupported container type:", container)
+
+        return insertion_mode
 
     def _on_dragstart_component(self, event, component):
         """
