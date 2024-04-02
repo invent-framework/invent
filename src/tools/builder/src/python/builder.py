@@ -427,6 +427,8 @@ class Builder:
                 if item.id == component.id:
                     return
 
+        # 1) Remove any previous 'drop-zone-active' classes from the element ###########
+
         # If the dragover is still over the component being dragged :)
         if self._component_being_dragged == component:
             if isinstance(component, Container):
@@ -439,6 +441,8 @@ class Builder:
 
             return
 
+        # 2) Determine whether the current pointer position is towards the top, bottom,
+        # left or right of the component the pointer is over.
         pointer_offset_x = event.offsetX
         pointer_offset_y = event.offsetY
         component_width = component.element.offsetWidth
@@ -463,6 +467,8 @@ class Builder:
         else:
             raise ValueError("Unsupported container type:", container)
 
+        # 3) Add an appropriate 'drop-zone-active' class to the element to show where
+        # the new element would be inserted
         if isinstance(component, Container):
             component.element.classList.add(f"drop-zone-active")
 
