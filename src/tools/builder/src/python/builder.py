@@ -389,10 +389,11 @@ class Builder:
         Handle a JS "click" event on a component.
         """
 
+        event.preventDefault()
         event.stopPropagation()
 
         self._js_builder_model.openPropertiesForComponent(
-            create_proxy(type(component).blueprint()), component.id
+            json.dumps(type(component).blueprint()), component.id
         )
 
     def _on_dragleave_component(self, event, component):

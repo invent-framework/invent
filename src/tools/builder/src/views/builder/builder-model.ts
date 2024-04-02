@@ -107,11 +107,11 @@ export class BuilderModel extends ViewModelBase {
 		if (!this.state.activeWidgetId) {
 			parentId = this.state.activePage?.properties?.id;
 		} else {
-			if (this.state.activeWidgetBlueprint?.name === "Row" || this.state.activeWidgetBlueprint?.name === "Column") {
+			if (this.state.activeWidgetBlueprint?.name === "Row" || this.state.activeWidgetBlueprint?.name === "Page" || this.state.activeWidgetBlueprint?.name === "Column") {
 				parentId = this.state.activeWidgetId;
 			} else {
-				// If a widget is selected, should we add to the page or to the
-				// selected widget's parent?
+				// If a widget (hint, not a container) is selected, should we add to the
+				// page or to the selected widget's parent?
 				parentId = this.state.activePage?.properties?.id;
 			}
 		}
@@ -119,9 +119,9 @@ export class BuilderModel extends ViewModelBase {
 		BuilderUtilities.createAndAppendComponent(parentId, widgetBlueprint.name);
 	}
 
-	public openPropertiesForComponent(componentBlueprint: WidgetModel, componentId: string): void {
+	public openPropertiesForComponent(componentBlueprintJSON: string, componentId: string): void {
 		this.state.activeWidgetId = componentId;
-		this.state.activeWidgetBlueprint = componentBlueprint;
+		this.state.activeWidgetBlueprint = JSON.parse(componentBlueprintJSON);
 		this.state.activeWidgetProperties = BuilderUtilities.getComponentProperties(componentId);
 	}
 
