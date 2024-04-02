@@ -502,20 +502,20 @@ class Builder:
         # a) Moving a component that is already on the page.
         move_data = event.dataTransfer.getData("move")
         if move_data:
-            # You can't drop a component onto itself :)
+            # Rule 1: You can't drop a component onto itself :)
             if move_data == component.id:
                 return
 
             component_to_move = Component.get_component_by_id(move_data)
 
-            # You also can't drop a container onto one of its own children!
+            # Rule 2: You also can't drop a container onto one of its own children!
             # TODO: Is one level enough, should this check recursively...
             if isinstance(component_to_move, Container):
                 for item in component_to_move.content:
                     if item.id == component.id:
                         return
 
-            # DO the "move" by deleting and re-inserting!
+            # Go ahead and do the "move" by deleting and re-inserting!
             self.delete_component(component_to_move.id)
             new_component = component_to_move.clone()
 
