@@ -418,24 +418,19 @@ class Builder:
         event.preventDefault()
         event.stopPropagation()
 
+        # In JS, the data transfer data is NOT available on a "dragover" event. It is
+        # only available when the element is dropped.
+        #
         # You can't drop a container onto one of its children!
         if isinstance(self._component_being_dragged, Container):
             for item in self._component_being_dragged.content:
                 if item.id == component.id:
                     return
 
-        # In JS, the data transfer data is NOT available on a "dragover" event. It is
-        # only available when the element is dropped.
+        # If the dragover is still over the component being dragged :)
         if self._component_being_dragged == component:
             if isinstance(component, Container):
                 component.element.classList.remove(f"drop-zone-active")
-
-                # You can't drop a container onto one of its children!
-                if isinstance(self._component_being_dragged, Container):
-                    for item in self._component_being_dragged.content:
-                        if item.id == component.id:
-                            return
-
 
             else:
                 for class_name in component.element.parentNode.classList:
@@ -449,11 +444,7 @@ class Builder:
         component_width = component.element.offsetWidth
         component_height = component.element.offsetHeight
 
-        if isinstance(component, Container):
-            container = component
-
-        else:
-            container = component.parent
+        container = component if isinstance(component, Container) else component.parent
 
         if isinstance(container, Column):
             if pointer_offset_y < (component_height * .5):
@@ -508,7 +499,7 @@ class Builder:
         event.preventDefault()
         event.stopPropagation()
 
-        # Moving or adding? ########################################################
+        # Moving a component that is already on the page or adding a new one? ##########
 
         move_data = event.dataTransfer.getData("move")
         if move_data:
