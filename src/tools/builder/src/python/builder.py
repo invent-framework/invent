@@ -30,10 +30,10 @@ class Builder:
         # The component currently being dragged or None if there is no such component.
         self._component_being_dragged = None
 
-        # The current component insertion mode/direction.
+        # The current component insertion position.
         #
         # It will be one of "left-of", "right-of", "above", "below".
-        self._insertion_mode = None
+        self._insertion_position = None
 
         # TODO: We might eventually open with an existing app, but here we just create
         # one with a single, empty page.
@@ -432,15 +432,15 @@ class Builder:
         else:
             # 2) Determine whether the current pointer position is above, below, to the
             # left or to the right of the component the pointer is over.
-            self._insertion_mode = self._get_insertion_mode(event, component)
+            self._insertion_position = self._get_insertion_position(event, component)
 
             # 3) Add an appropriate drop zone active class to the element to show where
             # the new element would be inserted
             self._add_drop_zone_active_classes(component)
 
-    def _get_insertion_mode(self, event, component):
+    def _get_insertion_position(self, event, component):
         """
-        Get the insertion mode based on the position of the pointer on a component.
+        Get the insertion position based on the location of the pointer on a component.
         """
 
         pointer_offset_x = event.offsetX
@@ -452,22 +452,22 @@ class Builder:
 
         if isinstance(container, Column):
             if pointer_offset_y <= (component_height * .5):
-                insertion_mode = "above"
+                insertion_position = "above"
 
             elif pointer_offset_y > (component_height * .5):
-                insertion_mode = "below"
+                insertion_position = "below"
 
         elif isinstance(container, Row):
             if pointer_offset_x <= (component_width * .5):
-                insertion_mode = "left-of"
+                insertion_position = "left-of"
 
             elif pointer_offset_x > (component_width * .5):
-                insertion_mode = "right-of"
+                insertion_position = "right-of"
 
         else:
             raise ValueError("Unsupported container type:", container)
 
-        return insertion_mode
+        return insertion_position
 
     def _on_dragstart_component(self, event, component):
         """
@@ -539,7 +539,7 @@ class Builder:
 
         # Otherwise, insert the new component before or after as appropriate.
         else:
-            if self._insertion_mode in ["left-of", "above"]:
+            if self._insertion_position in ["left-of", "above"]:
                 insert_before = component.content[0] if isinstance(component, Container) else component
                 self.insert_component_before(insert_before, new_component)
             else:
@@ -589,10 +589,10 @@ class Builder:
                 element.classList.add(f"drop-zone-active")
 
             else:
-                element.classList.add(f"drop-zone-active-{self._insertion_mode}")
+                element.classList.add(f"drop-zone-active-{self._insertion_position}")
 
         else:
-            element.classList.add(f"drop-zone-active-{self._insertion_mode}")
+            element.classList.add(f"drop-zone-active-{self._insertion_position}")
 
     def _remove_drop_zone_active_classes(self, component):
         """
