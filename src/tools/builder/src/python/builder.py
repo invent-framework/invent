@@ -585,8 +585,10 @@ class Builder:
         element = component.element if isinstance(component, Page) else component.element.parentNode
 
         if isinstance(component, Container):
-            element.classList.add(f"drop-zone-active")
-            if len(component.content) > 0:
+            if len(component.content) == 0:
+                element.classList.add(f"drop-zone-active")
+
+            else:
                 element.classList.add(f"drop-zone-active-{self._insertion_mode}")
 
         else:
