@@ -488,12 +488,16 @@ class Builder:
         """
         event.stopPropagation()
 
+        # You can't drag a Page anywhere :)
         if isinstance(component, Page):
             event.preventDefault()
 
         else:
             # In JS, the data transfer data is NOT available on a "dragover" event.
             # Hence, we track the component being moved manually.
+            #
+            # TODO: we currently also add it to the move data as we need a way to
+            # "reset" the "_component_being_dragged"... smelly...
             self._component_being_dragged = component
             event.dataTransfer.setData("move", component.id)
 
@@ -507,35 +511,30 @@ class Builder:
         # Moving or adding? ########################################################
 
         move_data = event.dataTransfer.getData("move")
-        widget_data = event.dataTransfer.getData("widget")
-
         if move_data:
-            print("moving:", move_data, "onto:", component.name)
+            # You can't drop a component onto itself :)
+            if move_data == component.id:
+                return
 
             component_to_move = Component.get_component_by_id(move_data)
 
-            # You can't drop a container onto one of its children!
+            # You also can't drop a container onto one of its children!
+            # TODO: Is one level enough, should this check recursively...
             if isinstance(component_to_move, Container):
                 for item in component_to_move.content:
                     if item.id == component.id:
                         return
 
-        if widget_data:
-            print("adding:", widget_data)
+            # We "move" by deleting and re-inserting!
+            self.delete_component(component_to_move.id)
+            new_component = component_to_move.clone()
 
-        # You can't drop a component onto itself :)
-        if move_data == component.id:
-            return
-
+        widget_data = event.dataTransfer.getData("widget")
         if widget_data:
             component_blueprint = json.loads(widget_data)
             new_component = create_component(component_blueprint["name"])
 
-        else:
-            self.delete_component(component_to_move.id)
-            new_component = component_to_move.clone()
-
-        # Dropping on a Widget or a Container? #########################################
+        # Dropping onto a Widget or a Container? #######################################
 
         if isinstance(component, Container):
             container = component
