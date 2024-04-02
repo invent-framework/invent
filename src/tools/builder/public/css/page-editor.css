@@ -45,13 +45,13 @@
     border-bottom-style: solid;
 }
 
-.drop-zone-active-left {
+.drop-zone-active-left-of {
     border-left-color: red;
     border-left-width: 4px;
     border-left-style: solid;
 }
 
-.drop-zone-active-right {
+.drop-zone-active-right-of {
     border-right-color: red;
     border-right-width: 4px;
     border-right-style: solid;

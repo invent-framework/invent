@@ -32,7 +32,7 @@ class Builder:
 
         # The current component insertion mode/direction.
         #
-        # It will be one of "left", "right", "above", "below".
+        # It will be one of "left-of", "right-of", "above", "below".
         self._insertion_mode = None
 
         # TODO: We might eventually open with an existing app, but here we just create
@@ -459,10 +459,10 @@ class Builder:
 
         elif isinstance(container, Row):
             if pointer_offset_x < (component_width * .5):
-                self._insertion_mode = "left"
+                self._insertion_mode = "left-of"
 
             elif pointer_offset_x > (component_width * .5):
-                self._insertion_mode = "right"
+                self._insertion_mode = "right-of"
 
         else:
             raise ValueError("Unsupported container type:", container)
