@@ -138,16 +138,11 @@ class Builder:
 
         return json.dumps(blueprints)
 
-    def append_component(self, parent_id, component):
+    def append_component(self, container, component):
         """
-        Append a component to the specified parent.
+        Append a component to the specified container.
         """
-        parent = self._app.get_component_by_id(parent_id)
-        if parent is None:
-            raise ValueError(f"No such container: {parent_id}")
-
-        parent.append(component)
-
+        container.append(component)
         self._add_js_event_handlers_to_component(component)
         self.pprint_app()
 
@@ -155,8 +150,11 @@ class Builder:
         """
         Create and append a component to the specified parent.
         """
+        parent = self._app.get_component_by_id(parent_id)
+        if parent is None:
+            raise ValueError(f"No such container: {parent_id}")
 
-        self.append_component(parent_id, create_component(component_type_name))
+        self.append_component(parent, create_component(component_type_name))
 
     def delete_component(self, component_id):
         """
@@ -535,10 +533,11 @@ class Builder:
 
         container = component if isinstance(component, Container) else component.parent
 
-        # Append/insert the new component into the appropriate place.
-        if isinstance(component, Container) and len(component.content) == 0:
-            self.append_component(container.id, new_component)
+        # If the container is empty then a simple append will do...
+        if len(container.content) == 0:
+            self.append_component(container, new_component)
 
+        # Otherwise, insert the new component before or after as appropriate.
         else:
             if self._insertion_mode in ["left-of", "above"]:
                 insert_before = component.content[0] if isinstance(component, Container) else component
