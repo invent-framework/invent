@@ -531,8 +531,8 @@ class Builder:
         #
         # b) Adding a new component to the page.
         else:
-            widget_data = event.dataTransfer.getData("widget")
-            component_blueprint = json.loads(widget_data)
+            component_blueprint_json = event.dataTransfer.getData("widget")
+            component_blueprint = json.loads(component_blueprint_json)
             new_component = create_component(component_blueprint["name"])
 
         # Dropping onto a Widget or a Container? #######################################
