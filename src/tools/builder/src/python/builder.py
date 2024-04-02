@@ -458,7 +458,9 @@ class Builder:
             component.element.parentNode.classList.add(f"drop-zone-active-{self._insertion_mode}")
 
     def _get_insertion_mode(self, event, component):
-        """Get the insertion mode based on the position of the pointer on a component."""
+        """
+        Get the insertion mode based on the position of the pointer on a component.
+        """
 
         pointer_offset_x = event.offsetX
         pointer_offset_y = event.offsetY
