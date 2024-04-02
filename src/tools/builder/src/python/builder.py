@@ -505,8 +505,7 @@ class Builder:
         event.preventDefault()
         event.stopPropagation()
 
-        # Moving a component that is already on the page or adding a new one? ##########
-
+        # Moving a component that is already on the page...
         move_data = event.dataTransfer.getData("move")
         if move_data:
             # You can't drop a component onto itself :)
@@ -526,13 +525,16 @@ class Builder:
             self.delete_component(component_to_move.id)
             new_component = component_to_move.clone()
 
-        widget_data = event.dataTransfer.getData("widget")
-        if widget_data:
-            component_blueprint = json.loads(widget_data)
-            new_component = create_component(component_blueprint["name"])
+        # ...adding a new component to the page.
+        else:
+            widget_data = event.dataTransfer.getData("widget")
+            if widget_data:
+                component_blueprint = json.loads(widget_data)
+                new_component = create_component(component_blueprint["name"])
 
         # Dropping onto a Widget or a Container? #######################################
-
+        #
+        # Remove the "drop-zone-active" class.
         if isinstance(component, Container):
             container = component
             component.element.classList.remove("drop-zone-active")
@@ -541,6 +543,7 @@ class Builder:
             container = component.parent
             component.element.parentNode.classList.remove(f"drop-zone-active-{self._insertion_mode}")
 
+        # Append/insert the new component into the appropriate place.
         if isinstance(component, Container) and len(component.content) == 0:
             self.append_component(container.id, new_component)
 
