@@ -505,7 +505,9 @@ class Builder:
         event.preventDefault()
         event.stopPropagation()
 
-        # Moving a component that is already on the page...
+        # Are we...
+        #
+        # a) Moving a component that is already on the page.
         move_data = event.dataTransfer.getData("move")
         if move_data:
             # You can't drop a component onto itself :)
@@ -514,23 +516,24 @@ class Builder:
 
             component_to_move = Component.get_component_by_id(move_data)
 
-            # You also can't drop a container onto one of its children!
+            # You also can't drop a container onto one of its own children!
             # TODO: Is one level enough, should this check recursively...
             if isinstance(component_to_move, Container):
                 for item in component_to_move.content:
                     if item.id == component.id:
                         return
 
-            # We "move" by deleting and re-inserting!
+            # DO the "move" by deleting and re-inserting!
             self.delete_component(component_to_move.id)
             new_component = component_to_move.clone()
 
-        # ...adding a new component to the page.
+        # Or...
+        #
+        # b) Adding a new component to the page.
         else:
             widget_data = event.dataTransfer.getData("widget")
-            if widget_data:
-                component_blueprint = json.loads(widget_data)
-                new_component = create_component(component_blueprint["name"])
+            component_blueprint = json.loads(widget_data)
+            new_component = create_component(component_blueprint["name"])
 
         # Dropping onto a Widget or a Container? #######################################
         #
