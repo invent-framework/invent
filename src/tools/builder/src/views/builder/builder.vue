@@ -117,7 +117,7 @@
                 <div class="h-full w-72 overflow-y-auto overflow-x-hidden bg-white border-l border-gray-300 p-4 flex-none">
                     <ib-v-stack v-if="view.state.activeWidgetProperties" :spacing="4">
                         <ib-icon :icon="['fas', 'trash']" @click="view.deleteComponent()" class="hover:text-red-500" />
-                        <div>{{ view.state.activeWidgetBlueprint.name }}</div>
+                        <div>{{ view.state.activeWidgetProperties.name.value }}</div>
                         <template v-for="(property, key) in view.state.activeWidgetProperties" :key="key">
                             <ib-h-stack is-full-width :spacing="4" align-y="center">
                                 <ib-select
