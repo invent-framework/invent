@@ -441,8 +441,8 @@ class Builder:
 
             return
 
-        # 2) Determine whether the current pointer position is towards the top, bottom,
-        # left or right of the component the pointer is over.
+        # 2) Determine whether the current pointer position is above, below, to the
+        # left or to the right of the component the pointer is over.
         pointer_offset_x = event.offsetX
         pointer_offset_y = event.offsetY
         component_width = component.element.offsetWidth
