@@ -548,7 +548,7 @@ class Builder:
             self.append_component(container.id, new_component)
 
         else:
-            if self._insertion_mode in ["left", "above"]:
+            if self._insertion_mode in ["left-of", "above"]:
                 insert_before = component.content[0] if isinstance(component, Container) else component
                 self.insert_component_before(insert_before, new_component)
             else:
