@@ -165,12 +165,7 @@ def _app_from_dict(app_dict):
 
     app_dict["content"] = content
 
-    app = App(**app_dict)
-
-    # Sanity check!
-    #assert app.as_dict() == app_dict
-
-    return app
+    return App(**app_dict)
 
 
 def _component_from_dict(component_dict):
@@ -178,8 +173,7 @@ def _component_from_dict(component_dict):
 
     from invent import ui
 
-    cls_name = component_dict["type"]
-    cls = getattr(ui, cls_name)
+    cls = getattr(ui, component_dict["type"])
 
     if issubclass(cls, Container):
         content = [
