@@ -29,8 +29,11 @@
 
 .drop-zone-active {
     background-color: #ede9fe;
-    border-color: #8b5cf6;
-    border-color: rgb(209 213 219);
+    border-color: red;
+    border-width: 4px;
+    border-style: solid;
+    bbbborder-color: #8b5cf6;
+    bbbborder-color: rgb(209 213 219);
 }
 
 .drop-zone-active-above {
