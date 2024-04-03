@@ -6,7 +6,7 @@ from pyscript.ffi import create_proxy
 
 import invent
 from invent.ui import (
-    App, AVAILABLE_COMPONENTS, Column, Container, create_component, export, Page,
+    App, AVAILABLE_COMPONENTS, Column, Container, create_component, export, Grid, Page,
     Row, Widget, from_datastore
 )
 from invent.ui.core import Component
@@ -456,10 +456,9 @@ class Builder:
         if isinstance(container, Column):
             insertion_position = "above" if event.offsetY <= (component.element.offsetHeight * .5) else "below"
 
-        elif isinstance(container, Row):
+        elif isinstance(container, Row) or isinstance(container, Grid)
             insertion_position = "left-of" if event.offsetX <= (component.element.offsetWidth * .5) else "right-of"
 
-        # TODO: We haven't looked at visually building a Grid yet!
         else:
             raise ValueError("Unsupported container type:", container)
 

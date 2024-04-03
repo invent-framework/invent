@@ -642,6 +642,22 @@ class Component:
         if self.element.parentElement:
             self.set_position(self.element.parentElement)
 
+    def on_column_span_changed(self):
+        """
+        Automatically called to update the column span information relating to
+        the HTML element associated with the component.
+        """
+        if self.element.parentElement:
+            self.parent.update_children()
+
+    def on_row_span_changed(self):
+        """
+        Automatically called to update the row span information relating to
+        the HTML element associated with the component.
+        """
+        if self.element.parentElement:
+            self.parent.update_children()
+
     @classmethod
     def _generate_name(cls):
         """
@@ -1310,6 +1326,9 @@ class Grid(Container):
         # Update the element...
         self.element.appendChild(self._wrap_child(item, len(self.content)))
 
+        # And re-calculate the grid areas of all children.
+        self.update_children()
+
     def insert(self, index, item):
         """
         Insert like a list.
@@ -1323,6 +1342,9 @@ class Grid(Container):
             self._wrap_child(item, len(self.content)),
             self.element.childNodes[index]
         )
+
+        # Update the grid indices of the container's children.
+        self.update_children()
 
     def on_columns_changed(self):
         self.element.style.gridTemplateColumns = "auto " * self.columns
@@ -1342,6 +1364,7 @@ class Grid(Container):
         return element
 
     def render_children(self, element):
+        self._manage_empty_element(element)
         for counter, child in enumerate(self.content, start=1):
             element.appendChild(self._wrap_child(child, counter))
 
@@ -1365,6 +1388,7 @@ class Grid(Container):
         return child_wrapper
 
     def update_children(self):
+        self._manage_empty_element(self.element)
         for counter, child in enumerate(self.content, start=1):
             self._update_child_wrapper(child, counter)
 
