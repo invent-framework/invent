@@ -425,6 +425,14 @@ class Builder:
         # 1) Remove any previous drop zone active classes from the element #############
         self._remove_drop_zone_active_classes(component)
 
+        # What we want here is....
+        #
+        # If component is a container
+        # And it is non-empty
+        # And the coords of the pointer are within the bounds of the first and last child...
+        #if isinstance(component, Container) and len(component.content) > 0:
+        #    return
+
         # If the dragover is still over the component being dragged :)
         if self._component_being_dragged == component:
             event.preventDefault()
