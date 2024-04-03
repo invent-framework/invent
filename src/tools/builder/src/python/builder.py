@@ -451,27 +451,15 @@ class Builder:
         Get the insertion position based on the location of the pointer on a component.
         """
 
-        pointer_offset_x = event.offsetX
-        pointer_offset_y = event.offsetY
-        component_width = component.element.offsetWidth
-        component_height = component.element.offsetHeight
-
         container = component if isinstance(component, Container) else component.parent
 
         if isinstance(container, Column):
-            if pointer_offset_y <= (component_height * .5):
-                insertion_position = "above"
-
-            elif pointer_offset_y > (component_height * .5):
-                insertion_position = "below"
+            insertion_position = "above" if event.offsetY <= (component.element.offsetHeight * .5) else "below"
 
         elif isinstance(container, Row):
-            if pointer_offset_x <= (component_width * .5):
-                insertion_position = "left-of"
+            insertion_position = "left-of" if event.offsetX <= (component.element.offsetWidth * .5) else "right-of"
 
-            elif pointer_offset_x > (component_width * .5):
-                insertion_position = "right-of"
-
+        # TODO: We haven't looked at visually building a Grid yet!
         else:
             raise ValueError("Unsupported container type:", container)
 
