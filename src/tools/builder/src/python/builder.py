@@ -456,7 +456,7 @@ class Builder:
         if isinstance(container, Column):
             insertion_position = "above" if event.offsetY <= (component.element.offsetHeight * .5) else "below"
 
-        elif isinstance(container, Row) or isinstance(container, Grid)
+        elif isinstance(container, Row) or isinstance(container, Grid):
             insertion_position = "left-of" if event.offsetX <= (component.element.offsetWidth * .5) else "right-of"
 
         else:
