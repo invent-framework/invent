@@ -578,6 +578,11 @@ class Builder:
         """
         Add the appropriate drop zone active classes to a component.
         """
+        # All components EXCEPT Pages are wrapped in a <div> that is a "grid-area".
+        #
+        # So, when we add the drop zone active classes for a Page we put them on the
+        # Page's element itself, but for everything else we put on the "grid-area"
+        # wrapper.
         element = component.element if isinstance(component, Page) else component.element.parentNode
 
         if isinstance(component, Container):
@@ -594,6 +599,11 @@ class Builder:
         """
         Remove any drop zone active classes from a component.
         """
+        # All components EXCEPT Pages are wrapped in a <div> that is a "grid-area".
+        #
+        # So, when we add the drop zone active classes for a Page we put them on the
+        # Page's element itself, but for everything else we put on the "grid-area"
+        # wrapper.
         element = component.element if isinstance(component, Page) else component.element.parentNode
 
         element.classList.remove(
