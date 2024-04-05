@@ -410,41 +410,35 @@ class Builder:
 
         event.stopPropagation()
 
-        # In JS, the data transfer data is NOT available on a "dragover" event. It is
-        # only available when the element is dropped.
-        #
-        # You can't drop a container onto one of its children!
-        if isinstance(self._component_being_dragged, Container):
-            for item in self._component_being_dragged.content:
-                if item.id == component.id:
-                    return
+        self.find_nearest_component(event)
 
-        # Preventing the default means "allow dropping here".
+        # Rule 1: You can't drop a component onto itself.
+        if self._component_being_dragged == component:
+            return
+
+        # Rule 2: You can't drop a container onto one of its own children!
+        #
+        # In JS, the data transfer data is NOT available on a "dragover" event. It is
+        # only available when the element is dropped, hence we manually keep track of
+        # the component being dragged.
+        if isinstance(self._component_being_dragged, Container) and self._component_being_dragged.contains(component):
+            return
+
+        # In browser-ville, preventing the default on the dragover event means that
+        # dropping here IS allowed and the browser will do whatever it does to indicate
+        # that (e.g. on Chrome the user will see a "plus" icon).
         event.preventDefault()
 
-        # 1) Remove any previous drop zone active classes from the element #############
+        # 1) Remove any previous drop zone active classes from the component's element.
         self._remove_drop_zone_active_classes(component)
 
-        # What we want here is....
-        #
-        # If component is a container
-        # And it is non-empty
-        # And the coords of the pointer are within the bounds of the first and last child...
-        #if isinstance(component, Container) and len(component.content) > 0:
-        #    return
+        # 2) Determine whether the current pointer position is above, below, to the
+        # left or to the right of the component the pointer is over.
+        self._insertion_position = self._get_insertion_position(event, component)
 
-        # If the dragover is still over the component being dragged :)
-        if self._component_being_dragged == component:
-            event.preventDefault()
-
-        else:
-            # 2) Determine whether the current pointer position is above, below, to the
-            # left or to the right of the component the pointer is over.
-            self._insertion_position = self._get_insertion_position(event, component)
-
-            # 3) Add an appropriate drop zone active class to the element to show where
-            # the new element would be inserted
-            self._add_drop_zone_active_classes(component)
+        # 3) Add an appropriate drop zone active class to the element to show where
+        # the new element would be inserted
+        self._add_drop_zone_active_classes(component)
 
     def _get_insertion_position(self, event, component):
         """
@@ -612,3 +606,39 @@ class Builder:
             "drop-zone-active-above",
             "drop-zone-active-below"
         )
+
+    def find_nearest_component(self, event):
+        import math
+
+        # Get the coordinates of the pointer.
+        x = event.clientX
+        y = event.clientY
+
+        # Initialize variables to track the nearest element and its distance.
+        nearest_component = None
+        min_distance = float('inf')
+
+        # Iterate through each draggable element.
+        for component in Component._components_by_id.values():
+            element = component.element
+
+            # Get the position and dimensions of the element.
+            rect = element.getBoundingClientRect()
+
+            # Calculate the center coordinates of the element.
+            center_x = rect.left + rect.width / 2
+            center_y = rect.top + rect.height / 2
+
+            # Calculate the distance between the pointer and the center of the element.
+            distance = math.sqrt((x - center_x) ** 2 + (y - center_y) ** 2)
+
+            # Update the nearest element if this element is closer.
+            if distance < min_distance:
+                min_distance = distance
+                nearest_component = component
+
+        print("Nearest component is:", nearest_component)
+        return nearest_component
+
+
+

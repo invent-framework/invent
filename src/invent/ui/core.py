@@ -1084,6 +1084,21 @@ class Container(Component):
         """
         del self.content[item]
 
+    def contains(self, component):
+        """Return True if the specified component is in this container.
+
+        This is recursive, so this really means "is a descendant of".
+        """
+        for item in self.content:
+            if item == component:
+                return True
+
+            if isinstance(item, Container):
+                if item.contains(component):
+                    return True
+
+        return False
+
     def render(self):
         """
         Return a div element representing the container (set with the expected
