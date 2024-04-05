@@ -410,6 +410,11 @@ class Builder:
 
         event.stopPropagation()
 
+        if self._component_being_dragged is None and not event.dataTransfer.getData("move"):
+            print("Nah!!")
+            event.preventDefault()
+            return
+
         self.find_nearest_component(event)
 
         # Rule 1: You can't drop a component onto itself.
@@ -489,19 +494,8 @@ class Builder:
         # a) Moving a component that is already on the page.
         move_data = event.dataTransfer.getData("move")
         if move_data:
-            # Rule 1: You can't drop a component onto itself :)
-            if move_data == component.id:
-                return
-
+            # Remove the component being moved from its old location.
             component_to_drop = Component.get_component_by_id(move_data)
-
-            # Rule 2: You also can't drop a container onto one of its own children!
-            if isinstance(component_to_drop, Container):
-                for item in component_to_drop.content:
-                    if item.id == component.id:
-                        return
-
-            # Remove the component being moved from its old container.
             component_to_drop.parent.remove(component_to_drop)
 
         # Or...
@@ -509,8 +503,13 @@ class Builder:
         # b) Adding a new component to the page.
         else:
             component_blueprint_json = event.dataTransfer.getData("widget")
-            component_blueprint = json.loads(component_blueprint_json)
-            component_to_drop = create_component(component_blueprint["name"])
+            if component_blueprint_json:
+                component_blueprint = json.loads(component_blueprint_json)
+                component_to_drop = create_component(component_blueprint["name"])
+
+            else:
+                print("Don't know what this is!")
+                return
 
         # Remove any drop zone active classes ##########################################
 
