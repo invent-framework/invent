@@ -493,18 +493,16 @@ class Builder:
             if move_data == component.id:
                 return
 
-            component_to_move = Component.get_component_by_id(move_data)
+            component_to_drop = Component.get_component_by_id(move_data)
 
             # Rule 2: You also can't drop a container onto one of its own children!
-            # TODO: Is one level enough, should this check recursively...
-            if isinstance(component_to_move, Container):
-                for item in component_to_move.content:
+            if isinstance(component_to_drop, Container):
+                for item in component_to_drop.content:
                     if item.id == component.id:
                         return
 
-            # Go ahead and do the "move" by deleting and re-inserting!
-            self.delete_component(component_to_move.id)
-            new_component = component_to_move.clone()
+            # Remove the component being moved from its old container.
+            component_to_drop.parent.remove(component_to_drop)
 
         # Or...
         #
@@ -512,7 +510,7 @@ class Builder:
         else:
             component_blueprint_json = event.dataTransfer.getData("widget")
             component_blueprint = json.loads(component_blueprint_json)
-            new_component = create_component(component_blueprint["name"])
+            component_to_drop = create_component(component_blueprint["name"])
 
         # Remove any drop zone active classes ##########################################
 
@@ -524,16 +522,16 @@ class Builder:
 
         # If the container is empty then a simple append will do...
         if len(container.content) == 0:
-            self.append_component(container, new_component)
+            self.append_component(container, component_to_drop)
 
         # Otherwise, insert the new component before or after as appropriate.
         else:
             if self._insertion_position in ["left-of", "above"]:
                 insert_before = component.content[0] if isinstance(component, Container) else component
-                self.insert_component_before(insert_before, new_component)
+                self.insert_component_before(insert_before, component_to_drop)
             else:
                 insert_after = component.content[-1] if isinstance(component, Container) else component
-                self.insert_component_after(insert_after, new_component)
+                self.insert_component_after(insert_after, component_to_drop)
 
     def _remove_js_event_handlers_from_app(self, app):
         """

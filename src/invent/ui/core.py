@@ -590,27 +590,6 @@ class Component:
         # To reference the container's parent in the DOM tree.
         self.parent = None
 
-    def clone(self):
-        """
-        Make a clone of the component.
-        """
-        from invent.ui import create_component
-
-        # Set the id here otherwise we don't update the Component by Id map!
-        # This assumes you want a destructive clone as part of a move!
-        clone = create_component(type(self).__name__, id=self.id, name=self.name)
-
-        for property_name, property_obj in type(self).properties().items():
-            value = getattr(self, property_name)
-            if property_name == "content":
-                for item in value:
-                    clone.append(item.clone())
-
-            else:
-                setattr(clone, property_name, value)
-
-        return clone
-    
     def update(self, **kwargs):
         """
         Given the **kwargs dict, iterate of the items and if the key identifies
