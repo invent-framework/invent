@@ -35,6 +35,10 @@ class Builder:
         # It will be one of "left-of", "right-of", "above", "below".
         self._insertion_position = None
 
+        # Undo/redo stacks.
+        self._undo_stack = []
+        self._redo_stack = []
+
         # TODO: We might eventually open with an existing app, but here we just create
         # one with a single, empty page.
         self.app = App(name="Invent Demo", content=[Page(name="Page 1")])
@@ -295,12 +299,6 @@ class Builder:
         """
         Pretty print a container.
         """
-
-        parent_id = None if not container.parent else container.parent.id
-        parent_pid = None if not container.parent else id(container.parent)
-
-        # Uncomment for more detail :)
-        # print(f"{indent}{type(container).__name__}({container.name}, {container.id}, {id(container)}) -> {parent_id}:{parent_pid}")
         print(f"{indent}{type(container).__name__}({container.name}, {container.id})")
         indent += "    "
 
@@ -309,10 +307,6 @@ class Builder:
                 self.pprint_container(item, indent)
 
             else:
-                parent_id = None if not item.parent else item.parent.id
-                parent_pid = None if not item.parent else id(item.parent)
-                # Uncomment for more detail :)
-                # print(f"{indent}{type(item).__name__}({item.name}, {item.id}, {id(item)}) -> {parent_id}:{parent_pid}")
                 print(f"{indent}{type(item).__name__}({item.name}, {item.id})")
 
     # Internal #########################################################################
@@ -406,16 +400,15 @@ class Builder:
     def _on_dragover_component(self, event, component):
         """
         Handle a JS "dragover" event on a component.
+
+        Note that in browser-ville, the data transfer data is NOT available on a
+        "dragover" event.
+
         """
 
         event.stopPropagation()
 
-        if self._component_being_dragged is None and not event.dataTransfer.getData("move"):
-            print("Nah!!")
-            event.preventDefault()
-            return
-
-        self.find_nearest_component(event)
+        #self.find_nearest_component(event)
 
         # Rule 1: You can't drop a component onto itself.
         if self._component_being_dragged == component:
@@ -507,8 +500,8 @@ class Builder:
                 component_blueprint = json.loads(component_blueprint_json)
                 component_to_drop = create_component(component_blueprint["name"])
 
+            # Something that we have no interest in was dropped (i.e. maybe files etc).
             else:
-                print("Don't know what this is!")
                 return
 
         # Remove any drop zone active classes ##########################################
