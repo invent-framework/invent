@@ -438,7 +438,6 @@ class Builder:
 
         # Rule 1: You can't drop a component onto itself.
         if self._component_being_dragged == component:
-            print("No-1", self._component_being_dragged.name)
             return
 
         # Rule 2: You can't drop a container onto one of its own children!
@@ -447,7 +446,6 @@ class Builder:
         # only available when the element is dropped, hence we manually keep track of
         # the component being dragged.
         if isinstance(self._component_being_dragged, Container) and self._component_being_dragged.contains(component):
-            print("No-2", self._component_being_dragged.name)
             return
 
         # In browser-ville, preventing the default on the dragover event means that
