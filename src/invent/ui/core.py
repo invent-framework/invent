@@ -590,6 +590,15 @@ class Component:
         # To reference the container's parent in the DOM tree.
         self.parent = None
 
+    @property
+    def is_container(self):
+        """
+        Return True if this component is a container, otherwise False.
+
+        Just a convenience property in place of "isinstance".
+        """
+        return isinstance(self, Container)
+
     def update(self, **kwargs):
         """
         Given the **kwargs dict, iterate of the items and if the key identifies
@@ -1090,7 +1099,7 @@ class Container(Component):
             if item is component:
                 return True
 
-            if isinstance(item, Container):
+            if item.is_container:
                 if item.contains(component):
                     return True
 
