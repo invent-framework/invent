@@ -650,6 +650,11 @@ class Builder:
         Manage an element shown when the container is empty.
         """
 
+        container.element.classList.remove("invent-empty")
+        if hasattr(container, "_empty_element"):
+            container._empty_element.remove()
+            delattr(container, "_empty_element")
+            
         if len(container.content) == 0:
             container._empty_element = document.createElement("div")
             container._empty_element.style.textAlign = "center"
@@ -661,12 +666,6 @@ class Builder:
                 container.element.classList.add("invent-empty")
 
             container.element.appendChild(container._empty_element)
-
-        else:
-            container.element.classList.remove("invent-empty")
-            if hasattr(container, "_empty_element"):
-                container._empty_element.remove()
-                delattr(container, "_empty_element")
 
         for item in container.content:
             if item.is_container:
