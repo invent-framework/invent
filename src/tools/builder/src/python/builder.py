@@ -2,6 +2,7 @@
 
 
 import json
+from pyscript import document
 from pyscript.ffi import create_proxy
 
 import invent
@@ -637,21 +638,15 @@ class Builder:
 
     def _manage_empty_elements_in_app(self, app):
         """
-        Manage the element shown when the container is empty.
+        Manage the elements shown when containers are empty.
         """
         for page in app.content:
             self._manage_empty_element_in_container(page)
 
     def _manage_empty_element_in_container(self, container):
         """
-        Manage the element shown when the container is empty.
-
-        TODO: This should be done in the builder!
+        Manage an element shown when the container is empty.
         """
-
-        from pyscript import document
-
-        element = container.element
 
         if len(container.content) == 0:
             container._empty_element = document.createElement("div")
@@ -661,15 +656,15 @@ class Builder:
             from invent.ui.page import Page
 
             if not isinstance(self, Page):
-                element.classList.add("invent-empty")
+                container.element.classList.add("invent-empty")
 
-            element.appendChild(container._empty_element)
+            container.element.appendChild(container._empty_element)
 
         else:
-            element.classList.remove("invent-empty")
-            if hasattr(container, "_empty_element") and container._empty_element is not None:
+            container.element.classList.remove("invent-empty")
+            if hasattr(container, "_empty_element"):
                 container._empty_element.remove()
-                container._empty_element = None
+                delattr(container, "_empty_element")
 
         for item in container.content:
             if item.is_container:
