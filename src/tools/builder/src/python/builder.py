@@ -353,17 +353,20 @@ class Builder:
         def on_dragleave(event):
             self._on_dragleave_component(event, component)
 
+        def on_dragend(event):
+            self._on_dragend_component(event, component)
+
         # Proxies if required by the underlying interpreter.
         #
         # It's a bit smelly, but we tag them onto the component so that we can remove
         # them if/when the component is deleted.
-        component._js_handlers = dict(
-            on_click_proxy=create_proxy(on_click),
-            on_dragstart_proxy=create_proxy(on_dragstart),
-            on_dragover_proxy=create_proxy(on_dragover),
-            on_dragleave_proxy=create_proxy(on_dragleave),
-            on_drop_proxy=create_proxy(on_drop)
-        )
+        component._on_click_proxy = create_proxy(on_click)
+        component._on_dragstart_proxy = create_proxy(on_dragstart)
+        component._on_dragover_proxy = create_proxy(on_dragover)
+        component._on_dragleave_proxy = create_proxy(on_dragleave)
+        component._on_dragend_proxy = create_proxy(on_dragend)
+
+        component._on_drop_proxy = create_proxy(on_drop)
 
         # Pages...
         if component.parent is None:
@@ -375,11 +378,12 @@ class Builder:
             element = component.element.parentNode
             element.setAttribute("draggable", "true")
 
-        element.addEventListener("click", component._js_handlers["on_click_proxy"])
-        element.addEventListener("dragstart", component._js_handlers["on_dragstart_proxy"])
-        element.addEventListener("dragover", component._js_handlers["on_dragover_proxy"])
-        element.addEventListener("dragleave", component._js_handlers["on_dragleave_proxy"])
-        element.addEventListener("drop", component._js_handlers["on_drop_proxy"])
+        element.addEventListener("click", component._on_click_proxy)
+        element.addEventListener("dragstart", component._on_dragstart_proxy)
+        element.addEventListener("dragover", component._on_dragover_proxy)
+        element.addEventListener("dragleave", component._on_dragleave_proxy)
+        element.addEventListener("dragend", component._on_dragend_proxy)
+        element.addEventListener("drop", component._on_drop_proxy)
 
         # Recursively...
         if component.is_container:
@@ -399,6 +403,16 @@ class Builder:
         self._js_builder_model.openPropertiesForComponent(
             json.dumps(type(component).blueprint()), component.id
         )
+
+    def _on_dragend_component(self, event, component):
+        """
+        Handle a JS "dragend" event on a component.
+        """
+
+        event.preventDefault()
+        event.stopPropagation()
+
+        self._component_being_dragged = None
 
     def _on_dragleave_component(self, event, component):
         """
@@ -424,6 +438,7 @@ class Builder:
 
         # Rule 1: You can't drop a component onto itself.
         if self._component_being_dragged == component:
+            print("No-1", self._component_being_dragged.name)
             return
 
         # Rule 2: You can't drop a container onto one of its own children!
@@ -432,6 +447,7 @@ class Builder:
         # only available when the element is dropped, hence we manually keep track of
         # the component being dragged.
         if isinstance(self._component_being_dragged, Container) and self._component_being_dragged.contains(component):
+            print("No-2", self._component_being_dragged.name)
             return
 
         # In browser-ville, preventing the default on the dragover event means that
@@ -481,9 +497,6 @@ class Builder:
         else:
             # In JS, the data transfer data is NOT available on a "dragover" event.
             # Hence, we track the component being moved manually.
-            #
-            # TODO: we currently also add it to the move data as we need a way to
-            # "reset" the "_component_being_dragged"... smelly...
             self._component_being_dragged = component
             event.dataTransfer.setData("move", component.id)
 
@@ -494,6 +507,8 @@ class Builder:
         event.preventDefault()
         event.stopPropagation()
 
+        self._component_being_dragged = None
+
         # Are we...
         #
         # a) Moving a component that is already on the page.
@@ -501,6 +516,7 @@ class Builder:
         if move_data:
             # Remove the component being moved from its old location.
             component_to_drop = Component.get_component_by_id(move_data)
+            self._remove_js_event_handlers_from_component(component_to_drop)
             component_to_drop.parent.remove(component_to_drop)
 
         # Or...
@@ -558,11 +574,12 @@ class Builder:
             element = component.element.parentNode
             element.setAttribute("draggable", "false")
 
-        element.removeEventListener("click", component._js_handlers["on_click_proxy"])
-        element.removeEventListener("dragstart", component._js_handlers["on_dragstart_proxy"])
-        element.removeEventListener("dragover", component._js_handlers["on_dragover_proxy"])
-        element.removeEventListener("dragleave", component._js_handlers["on_dragleave_proxy"])
-        element.removeEventListener("drop", component._js_handlers["on_drop_proxy"])
+        element.removeEventListener("click", component._on_click_proxy)
+        element.removeEventListener("dragstart", component._on_dragstart_proxy)
+        element.removeEventListener("dragover", component._on_dragover_proxy)
+        element.removeEventListener("dragleave", component._on_dragleave_proxy)
+        element.removeEventListener("dragend", component._on_dragend_proxy)
+        element.removeEventListener("drop", component._on_drop_proxy)
 
         # Recursively...
         if component.is_container:
