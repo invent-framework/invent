@@ -357,11 +357,13 @@ class Builder:
         #
         # It's a bit smelly, but we tag them onto the component so that we can remove
         # them if/when the component is deleted.
-        component._on_click_proxy = create_proxy(on_click)
-        component._on_dragstart_proxy = create_proxy(on_dragstart)
-        component._on_dragover_proxy = create_proxy(on_dragover)
-        component._on_dragleave_proxy = create_proxy(on_dragleave)
-        component._on_drop_proxy = create_proxy(on_drop)
+        component._js_handlers = dict(
+            on_click_proxy=create_proxy(on_click),
+            on_dragstart_proxy=create_proxy(on_dragstart),
+            on_dragover_proxy=create_proxy(on_dragover),
+            on_dragleave_proxy=create_proxy(on_dragleave),
+            on_drop_proxy=create_proxy(on_drop)
+        )
 
         # Pages...
         if component.parent is None:
@@ -373,11 +375,11 @@ class Builder:
             element = component.element.parentNode
             element.setAttribute("draggable", "true")
 
-        element.addEventListener("click", component._on_click_proxy)
-        element.addEventListener("dragstart", component._on_dragstart_proxy)
-        element.addEventListener("dragover", component._on_dragover_proxy)
-        element.addEventListener("dragleave", component._on_dragleave_proxy)
-        element.addEventListener("drop", component._on_drop_proxy)
+        element.addEventListener("click", component._js_handlers["on_click_proxy"])
+        element.addEventListener("dragstart", component._js_handlers["on_dragstart_proxy"])
+        element.addEventListener("dragover", component._js_handlers["on_dragover_proxy"])
+        element.addEventListener("dragleave", component._js_handlers["on_dragleave_proxy"])
+        element.addEventListener("drop", component._js_handlers["on_drop_proxy"])
 
         # Recursively...
         if component.is_container:
@@ -556,11 +558,11 @@ class Builder:
             element = component.element.parentNode
             element.setAttribute("draggable", "false")
 
-        element.removeEventListener("click", component._on_click_proxy)
-        element.removeEventListener("dragstart", component._on_dragstart_proxy)
-        element.addEventListener("dragover", component._on_dragover_proxy)
-        element.addEventListener("dragleave", component._on_dragleave_proxy)
-        element.addEventListener("drop", component._on_drop_proxy)
+        element.removeEventListener("click", component._js_handlers["on_click_proxy"])
+        element.removeEventListener("dragstart", component._js_handlers["on_dragstart_proxy"])
+        element.removeEventListener("dragover", component._js_handlers["on_dragover_proxy"])
+        element.removeEventListener("dragleave", component._js_handlers["on_dragleave_proxy"])
+        element.removeEventListener("drop", component._js_handlers["on_drop_proxy"])
 
         # Recursively...
         if component.is_container:

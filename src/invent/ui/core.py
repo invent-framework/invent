@@ -949,11 +949,6 @@ class Container(Component):
     )
 
     def __init__(self, **kwargs):
-        # An element shown when the container is empty.
-        #
-        # TODO: This should be in the builder!!!!!!!!!
-        self._empty_element = None
-
         super().__init__(**kwargs)
         for item in self.content:
             item.parent = self
