@@ -71,6 +71,9 @@ class Builder:
         # work.
         self._add_js_event_handlers_to_app(app)
 
+        # Add elements to the DOM to visualize empty containers.
+        self._manage_empty_elements_in_app(app)
+
         # The builder is now officially managing the rehydrated app!
         self._app = app
         self.pprint_app()
@@ -147,6 +150,8 @@ class Builder:
         Append a component to the specified container.
         """
         container.append(component)
+        self._manage_empty_element_in_container(container)
+
         self._add_js_event_handlers_to_component(component)
         self.pprint_app()
 
@@ -166,6 +171,7 @@ class Builder:
         """
         component_to_delete = self._app.get_component_by_id(component_id)
         component_to_delete.parent.remove(component_to_delete)
+        self._manage_empty_element_in_container(component_to_delete.parent)
 
         self._remove_js_event_handlers_from_component(component_to_delete)
         self.pprint_app()
@@ -184,6 +190,8 @@ class Builder:
         else:
             parent.insert(after_component_index + 1, component)
 
+        self._manage_empty_element_in_container(parent)
+
         self._add_js_event_handlers_to_component(component)
         self.pprint_app()
 
@@ -196,6 +204,7 @@ class Builder:
 
         before_component_index = parent.content.index(before_component)
         parent.insert(before_component_index, component)
+        self._manage_empty_element_in_container(parent)
 
         self._add_js_event_handlers_to_component(component)
         self.pprint_app()
@@ -217,7 +226,7 @@ class Builder:
             else:
                 value["value"] = getattr(component, name)
             
-        if isinstance(component, Container):
+        if component.is_container:
             properties.pop("content")
 
         return json.dumps(properties)
@@ -370,7 +379,7 @@ class Builder:
         element.addEventListener("drop", component._on_drop_proxy)
 
         # Recursively...
-        if isinstance(component, Container):
+        if component.is_container:
             for item in component.content:
                 self._add_js_event_handlers_to_component(item)
 
@@ -443,7 +452,7 @@ class Builder:
         Get the insertion position based on the location of the pointer on a component.
         """
 
-        container = component if isinstance(component, Container) else component.parent
+        container = component if component.is_container else component.parent
 
         if isinstance(container, Column):
             insertion_position = "above" if event.offsetY <= (component.element.offsetHeight * .5) else "below"
@@ -510,7 +519,7 @@ class Builder:
 
         # Dropping onto a Widget or a Container? #######################################
 
-        container = component if isinstance(component, Container) else component.parent
+        container = component if component.is_container else component.parent
 
         # If the container is empty then a simple append will do...
         if len(container.content) == 0:
@@ -519,10 +528,10 @@ class Builder:
         # Otherwise, insert the new component before or after as appropriate.
         else:
             if self._insertion_position in ["left-of", "above"]:
-                insert_before = component.content[0] if isinstance(component, Container) else component
+                insert_before = component.content[0] if component.is_container else component
                 self.insert_component_before(insert_before, component_to_drop)
             else:
-                insert_after = component.content[-1] if isinstance(component, Container) else component
+                insert_after = component.content[-1] if component.is_container else component
                 self.insert_component_after(insert_after, component_to_drop)
 
     def _remove_js_event_handlers_from_app(self, app):
@@ -553,7 +562,7 @@ class Builder:
         element.addEventListener("drop", component._on_drop_proxy)
 
         # Recursively...
-        if isinstance(component, Container):
+        if component.is_container:
             for item in component.content:
                 self._remove_js_event_handlers_from_component(item)
 
@@ -568,12 +577,8 @@ class Builder:
         # wrapper.
         element = component.element if isinstance(component, Page) else component.element.parentNode
 
-        if isinstance(component, Container):
-            if len(component.content) == 0:
-                element.classList.add(f"drop-zone-active")
-
-            else:
-                element.classList.add(f"drop-zone-active-{self._insertion_position}")
+        if component.is_container and len(component.content) == 0:
+            element.classList.add(f"drop-zone-active")
 
         else:
             element.classList.add(f"drop-zone-active-{self._insertion_position}")
@@ -630,5 +635,42 @@ class Builder:
         print("Nearest component is:", nearest_component)
         return nearest_component
 
+    def _manage_empty_elements_in_app(self, app):
+        """
+        Manage the element shown when the container is empty.
+        """
+        for page in app.content:
+            self._manage_empty_element_in_container(page)
 
+    def _manage_empty_element_in_container(self, container):
+        """
+        Manage the element shown when the container is empty.
 
+        TODO: This should be done in the builder!
+        """
+
+        from pyscript import document
+
+        element = container.element
+
+        if len(container.content) == 0:
+            container._empty_element = document.createElement("div")
+            container._empty_element.style.textAlign = "center"
+            container._empty_element.innerText = f"Empty {type(container).__name__}"
+
+            from invent.ui.page import Page
+
+            if not isinstance(self, Page):
+                element.classList.add("invent-empty")
+
+            element.appendChild(container._empty_element)
+
+        else:
+            element.classList.remove("invent-empty")
+            if hasattr(container, "_empty_element") and container._empty_element is not None:
+                container._empty_element.remove()
+                container._empty_element = None
+
+        for item in container.content:
+            if item.is_container:
+                self._manage_empty_element_in_container(item)

@@ -1119,21 +1119,21 @@ class Container(Component):
         element.classList.add(f"invent-{type(self).__name__.lower()}")
 
         # Render the container's children.
+        #
+        # See Column, Grid and Row classes for implementation details.
         self.render_children(element)
 
-        # Implementation detail: add child elements in the child class's own
-        # render method. See Column and Row classes for examples of this.
         return element
 
     def render_children(self, element):
         """
-        Render the containers children.
+        Render the container's children.
         """
         raise NotImplementedError()
     
     def update_children(self):
         """
-        Update the containers children.
+        Update the container's children.
         """
         raise NotImplementedError()
 
@@ -1147,31 +1147,6 @@ class Container(Component):
             child.as_dict() for child in self.content
         ]
         return result
-
-    def _manage_empty_element(self, element):
-        """
-        Manage the element shown when the container is empty.
-
-        TODO: This should be done in the builder!
-        """
-
-        if len(self.content) == 0:
-            self._empty_element = document.createElement("div")
-            self._empty_element.style.textAlign = "center"
-            self._empty_element.innerText = f"Empty {type(self).__name__}"
-
-            from invent.ui.page import Page
-
-            if not isinstance(self, Page):
-                element.classList.add("invent-empty")
-
-            element.appendChild(self._empty_element)
-
-        else:
-            element.classList.remove("invent-empty")
-            if self._empty_element is not None:
-                self._empty_element.remove()
-                self._empty_element = None
 
 
 class Column(Container):
@@ -1187,7 +1162,6 @@ class Column(Container):
         """
         Render the container's children.
         """
-        self._manage_empty_element(element)
         for counter, child in enumerate(self.content, start=1):
             element.appendChild(self._create_child_wrapper(child, counter))
 
@@ -1195,7 +1169,6 @@ class Column(Container):
         """
         Update the container's children.
         """
-        self._manage_empty_element(self.element)
         for counter, child in enumerate(self.content, start=1):
             self._update_child_wrapper(child, counter)
 
@@ -1259,7 +1232,6 @@ class Grid(Container):
         """
         Render the container's children.
         """
-        self._manage_empty_element(element)
         for counter, child in enumerate(self.content, start=1):
             element.appendChild(self._create_child_wrapper(child, counter))
 
@@ -1267,7 +1239,6 @@ class Grid(Container):
         """
         Update the container's children.
         """
-        self._manage_empty_element(self.element)
         for counter, child in enumerate(self.content, start=1):
             self._update_child_wrapper(child, counter)
 
@@ -1322,7 +1293,6 @@ class Row(Container):
         """
         Render the container's children.
         """
-        self._manage_empty_element(element)
         self._update_template_columns(element)
         for index, child in enumerate(self.content, start=1):
             element.appendChild(self._create_child_wrapper(child, index))
@@ -1331,7 +1301,6 @@ class Row(Container):
         """
         Update the container's children.
         """
-        self._manage_empty_element(self.element)
         self._update_template_columns(self.element)
         for counter, child in enumerate(self.content, start=1):
             self._update_child_wrapper(child, counter)
