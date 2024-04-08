@@ -654,7 +654,7 @@ class Builder:
         if hasattr(container, "_empty_element"):
             container._empty_element.remove()
             delattr(container, "_empty_element")
-            
+
         if len(container.content) == 0:
             container._empty_element = document.createElement("div")
             container._empty_element.style.textAlign = "center"

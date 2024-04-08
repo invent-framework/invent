@@ -18,11 +18,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-import invent
-import inspect
 from pyscript import document
+
+import invent
 from invent.compatability import getmembers_static
 from invent.i18n import _
+
 from .utils import random_id
 
 
@@ -1027,7 +1028,7 @@ class Container(Component):
         self.content.append(item)
 
         # Update the DOM.
-        self.element.appendChild(self._create_child_wrapper(item, len(self.content)))
+        self.element.appendChild(self.create_child_wrapper(item, len(self.content)))
 
         # Update the grid indices of the container's children.
         self.update_children()
@@ -1043,7 +1044,7 @@ class Container(Component):
         # Update the DOM.
         #
         # We wrap all children in a <div> that is a grid area.
-        wrapper = self._create_child_wrapper(item, index)
+        wrapper = self.create_child_wrapper(item, index)
         if index == len(self.element.childNodes):
             self.element.appendChild(wrapper)
 
@@ -1124,13 +1125,15 @@ class Container(Component):
         """
         Render the container's children.
         """
-        raise NotImplementedError()
-    
+        for index, child in enumerate(self.content, start=1):
+            element.appendChild(self.create_child_wrapper(child, index))
+
     def update_children(self):
         """
         Update the container's children.
         """
-        raise NotImplementedError()
+        for counter, child in enumerate(self.content, start=1):
+            self.update_child_wrapper(child, counter)
 
     def as_dict(self):
         """
@@ -1153,23 +1156,9 @@ class Column(Container):
     def icon(cls):
         return '<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 256 256"><path fill="currentColor" d="M104 32H64a16 16 0 0 0-16 16v160a16 16 0 0 0 16 16h40a16 16 0 0 0 16-16V48a16 16 0 0 0-16-16m0 176H64V48h40Zm88-176h-40a16 16 0 0 0-16 16v160a16 16 0 0 0 16 16h40a16 16 0 0 0 16-16V48a16 16 0 0 0-16-16m0 176h-40V48h40Z"/></svg>'  # noqa
 
-    def render_children(self, element):
-        """
-        Render the container's children.
-        """
-        for counter, child in enumerate(self.content, start=1):
-            element.appendChild(self._create_child_wrapper(child, counter))
+    # Component ########################################################################
 
-    def update_children(self):
-        """
-        Update the container's children.
-        """
-        for counter, child in enumerate(self.content, start=1):
-            self._update_child_wrapper(child, counter)
-
-    # Internal #########################################################################
-
-    def _create_child_wrapper(self, child, index):
+    def create_child_wrapper(self, child, index):
         """
         Wrap the child element in a div with grid styles set appropriately.
         """
@@ -1181,7 +1170,7 @@ class Column(Container):
 
         return child_wrapper
 
-    def _update_child_wrapper(self, child, index):
+    def update_child_wrapper(self, child, index):
         """
         Wrap the child element in a div with grid styles set appropriately.
         """
@@ -1209,7 +1198,9 @@ class Grid(Container):
         self.element.style.gridTemplateColumns = "auto " * self.columns
 
     def render(self):
-        """Render the component."""
+        """
+        Render the component.
+        """
         element = document.createElement("div")
         element.style.display = "grid"
         element.style.gridTemplateColumns = "auto " * self.columns
@@ -1223,23 +1214,9 @@ class Grid(Container):
         # render method. See Column and Row classes for examples of this.
         return element
 
-    def render_children(self, element):
-        """
-        Render the container's children.
-        """
-        for counter, child in enumerate(self.content, start=1):
-            element.appendChild(self._create_child_wrapper(child, counter))
-
-    def update_children(self):
-        """
-        Update the container's children.
-        """
-        for counter, child in enumerate(self.content, start=1):
-            self._update_child_wrapper(child, counter)
-
     # Internal #########################################################################
 
-    def _create_child_wrapper(self, child, index):
+    def create_child_wrapper(self, child, index):
         """
         Wrap the child element in a div with grid styles set appropriately.
         """
@@ -1258,7 +1235,7 @@ class Grid(Container):
 
         return child_wrapper
 
-    def _update_child_wrapper(self, child, index):
+    def update_child_wrapper(self, child, index):
         """
         Wrap the child element in a div with grid styles set appropriately.
         """
@@ -1284,25 +1261,23 @@ class Row(Container):
     def icon(cls):
         return '<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 256 256"><path fill="currentColor" d="M208 136H48a16 16 0 0 0-16 16v40a16 16 0 0 0 16 16h160a16 16 0 0 0 16-16v-40a16 16 0 0 0-16-16m0 56H48v-40h160zm0-144H48a16 16 0 0 0-16 16v40a16 16 0 0 0 16 16h160a16 16 0 0 0 16-16V64a16 16 0 0 0-16-16m0 56H48V64h160z"/></svg>'  # noqa
 
+    # Container ########################################################################
+
     def render_children(self, element):
         """
         Render the container's children.
         """
         self._update_template_columns(element)
-        for index, child in enumerate(self.content, start=1):
-            element.appendChild(self._create_child_wrapper(child, index))
+        super().render_children(element)
 
     def update_children(self):
         """
         Update the container's children.
         """
         self._update_template_columns(self.element)
-        for counter, child in enumerate(self.content, start=1):
-            self._update_child_wrapper(child, counter)
+        super().update_children()
 
-    # Internal #########################################################################
-
-    def _create_child_wrapper(self, child, index):
+    def create_child_wrapper(self, child, index):
         """
         Wrap the child element in a div with grid styles set appropriately.
         """
@@ -1314,7 +1289,7 @@ class Row(Container):
 
         return child_wrapper
 
-    def _update_child_wrapper(self, child, index):
+    def update_child_wrapper(self, child, index):
         """
         Wrap the child element in a div with grid styles set appropriately.
         """
@@ -1323,6 +1298,8 @@ class Row(Container):
         child_wrapper.style.setProperty("grid-row", 1)
         child_wrapper.appendChild(child.element)
         child.set_position(child_wrapper)
+
+    # Internal #########################################################################
 
     def _update_template_columns(self, element):
         """
