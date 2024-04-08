@@ -1197,6 +1197,8 @@ class Grid(Container):
     def on_columns_changed(self):
         self.element.style.gridTemplateColumns = "auto " * self.columns
 
+    # Container ########################################################################
+
     def render(self):
         """
         Render the component.
@@ -1206,6 +1208,7 @@ class Grid(Container):
         element.style.gridTemplateColumns = "auto " * self.columns
         element.style.columnGap = self.column_gap
         element.style.rowGap = self.row_gap
+        element.classList.add(f"invent-{type(self).__name__.lower()}")
 
         # Render the container's children.
         self.render_children(element)
@@ -1213,8 +1216,6 @@ class Grid(Container):
         # Implementation detail: add child elements in the child class's own
         # render method. See Column and Row classes for examples of this.
         return element
-
-    # Internal #########################################################################
 
     def create_child_wrapper(self, child, index):
         """
