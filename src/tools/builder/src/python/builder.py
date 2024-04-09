@@ -677,7 +677,7 @@ class Builder:
 
             from invent.ui.page import Page
 
-            if not isinstance(self, Page):
+            if not isinstance(container, Page):
                 container.element.classList.add("invent-empty")
 
             container.element.appendChild(container._empty_element)
