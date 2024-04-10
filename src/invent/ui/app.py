@@ -19,19 +19,20 @@ limitations under the License.
 """
 
 import json
+import os
 from pyscript import document
+import toga
 
 import invent
 from ..i18n import load_translations, _
-
 
 __all__ = [
     "App",
 ]
 
+os.environ["TOGA_BACKEND"] = "toga_invent"
 
 __app__ = None
-
 
 class App:
     """
@@ -62,6 +63,14 @@ class App:
         self.license = license
         self.content = content or []
         self._current_page = None
+
+        # We don't use any features of the App class, but the Window requires it to
+        # exist.
+        toga.App("Invent app", "io.github.invent-framework")
+
+        # toga_invent uses the window ID as a CSS selector determining which element to
+        # display the content in.
+        self.toga_window = toga.Window("body")
 
         invent.set_media_root(media_root)
 
@@ -125,13 +134,8 @@ class App:
         return page
 
     def show_page(self, page_name):
-        if self._current_page:
-            self._current_page.hide()
-
         page = self.get_page_by_name(page_name)
-        if page is not None:
-            self._current_page = page
-            page.show()
+        self.toga_window.content = page
 
     def go(self):
         """
@@ -139,10 +143,8 @@ class App:
         """
         # Load the i18n stuff.
         load_translations()
-        # Render all the pages to the DOM.
+
         if self.content:
-            for page in self.content:
-                document.body.appendChild(page.element)
             # Show the first page.
             self.show_page(self.content[0].name)
         else:

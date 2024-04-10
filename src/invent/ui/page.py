@@ -20,7 +20,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-from .core import Column
+from .box import Column
 
 
 class Page(Column):
@@ -29,28 +29,11 @@ class Page(Column):
     widgets to achieve some aim.
     """
 
-    def render(self):
-        """
-        Returns an HTML element to insert into the DOM.
-        """
-        element = super().render()
+    def __init__(self, *args, name=None, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.name = name
+
+        element = self._impl.element
         element.classList.add("paper")
         element.classList.add("container")
 
-        # Why this?
-        #element.classList.add("form-group")
-
-        element.style.display = "None"
-        return element
-
-    def show(self):
-        """
-        Make the page visible to the user.
-        """
-        self.element.style.display = "grid"
-
-    def hide(self):
-        """
-        Hide the page from the user.
-        """
-        self.element.style.display = "None"  # Hidden by default.

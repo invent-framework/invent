@@ -18,68 +18,96 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
+from toga import Box, Button, Label, TextInput, Widget
+from toga.sources import ValueSource
+from toga.style import Pack
+
+import invent
+from .. import Message, publish, subscribe
 from ..i18n import _
 from .app import App
-from .core import Widget, Container, Column, Grid, Row, from_datastore
+from .box import Row, Column
 from .page import Page
 from .utils import random_id, sanitize
-from .widgets.audio import Audio
-from .widgets.button import Button
-from .widgets.checkbox import CheckBox
-from .widgets.code import Code
-from .widgets.fileupload import FileUpload
-from .widgets.html import Html
-from .widgets.image import Image
-from .widgets.slider import Slider
-from .widgets.switch import Switch
-from .widgets.textbox import TextBox
-from .widgets.textinput import TextInput
-
 
 __all__ = [
     "random_id",
     "sanitize",
     "App",
-    "Code",
+    # "Code",
     "Page",
     "Widget",
-    "Container",
+    "Box",
     "Column",
-    "Grid",
+    # "Grid",
     "Row",
     "from_datastore",
-    "Audio",
+    "to_channel",
+    # "Audio",
     "Button",
-    "CheckBox",
-    "Code",
-    "FileUpload",
-    "Html",
-    "Image",
-    "Slider",
-    "Switch",
-    "TextBox",
+    # "CheckBox",
+    # "Code",
+    # "FileUpload",
+    # "Html",
+    # "Image",
+    # "Slider",
+    # "Switch",
+    "Label",
     "TextInput",
+
+    "Pack",
 ]
 
 
-AVAILABLE_COMPONENTS = {
-    # Containers...
-    _("Column"): Column,
-    _("Row"): Row,
-    _("Grid"): Grid,
-    # Widgets...
-    _("Audio"): Audio,
-    _("Button"): Button,
-    _("CheckBox"): CheckBox,
-    _("Code"): Code,
-    _("FileUpload"): FileUpload,
-    _("Html"): Html,
-    _("Image"): Image,
-    _("Slider"): Slider,
-    _("Switch"): Switch,
-    _("TextBox"): TextBox,
-    _("TextInput"): TextInput,
-}
+def to_channel(channel):
+    def handler(widget, **kwargs):
+        # TODO: generalize `press` and `button`.
+        publish(Message("press", button=widget), channel)
+
+    return handler
+
+
+class from_datastore(ValueSource):
+    def __init__(self, key, with_function=None):
+        super().__init__()
+        self.key = key
+        self.with_function = with_function
+        self.accessor = "value"
+        subscribe(self.reactor, "store-data", when_subject=key)
+
+    def reactor(self, message):
+        self.notify("change", item=self.value)
+
+    @property
+    def value(self):
+        result = invent.datastore.get(self.key)
+        if self.with_function:
+            result = self.with_function(result)
+        return result
+
+    @value.setter
+    def value(self, new_value):
+        pass  # TODO
+
+
+# AVAILABLE_COMPONENTS = {
+#     # Containers...
+#     _("Column"): Column,
+#     _("Row"): Row,
+#     _("Grid"): Grid,
+#     # Widgets...
+#     _("Audio"): Audio,
+#     _("Button"): Button,
+#     _("CheckBox"): CheckBox,
+#     _("Code"): Code,
+#     _("FileUpload"): FileUpload,
+#     _("Html"): Html,
+#     _("Image"): Image,
+#     _("Slider"): Slider,
+#     _("Switch"): Switch,
+#     _("TextBox"): TextBox,
+#     _("TextInput"): TextInput,
+# }
 
 
 def create_component(component_cls_name, **kwargs):
