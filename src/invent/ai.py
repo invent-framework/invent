@@ -63,7 +63,7 @@ class AIClient:
                 for user_message in user_messages
             ])
 
-        result = await fetch(
+        response = await fetch(
             f"{self.url}/chat/completions",
             method="POST",
             headers={
@@ -74,6 +74,8 @@ class AIClient:
                 "messages": messages,
                 "temperature": 0.7
             }),
-        ).json()
+        )
+
+        result = await response.json()
 
         return result["choices"][0]["message"]["content"]
