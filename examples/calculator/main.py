@@ -104,31 +104,80 @@ invent.ui.App(
                 invent.ui.Grid(
                     columns=4,
                     content=[
-                        invent.ui.TextInput(column_span=4, value=invent.ui.from_datastore("numbers")),
-
-                        invent.ui.Button(label="AC", purpose="SECONDARY", channel="calculator"),
-                        invent.ui.Button(label="C", purpose="SECONDARY", channel="calculator"),
-                        invent.ui.Button(label="+/-", purpose="SECONDARY", channel="calculator"),
-                        invent.ui.Button(label="÷", purpose="SUCCESS", channel="calculator"),
-
-                        invent.ui.Button(label="7", purpose="DEFAULT", channel="calculator"),
-                        invent.ui.Button(label="8", purpose="DEFAULT", channel="calculator"),
-                        invent.ui.Button(label="9", purpose="DEFAULT", channel="calculator"),
-                        invent.ui.Button(label="x", purpose="SUCCESS", channel="calculator"),
-
-                        invent.ui.Button(label="4", purpose="DEFAULT", channel="calculator"),
-                        invent.ui.Button(label="5", purpose="DEFAULT", channel="calculator"),
-                        invent.ui.Button(label="6", purpose="DEFAULT", channel="calculator"),
-                        invent.ui.Button(label="-", purpose="SUCCESS", channel="calculator"),
-
-                        invent.ui.Button(label="1", purpose="DEFAULT", channel="calculator"),
-                        invent.ui.Button(label="2", purpose="DEFAULT", channel="calculator"),
-                        invent.ui.Button(label="3", purpose="DEFAULT", channel="calculator"),
-                        invent.ui.Button(label="+", purpose="SUCCESS", channel="calculator" ),
-
-                        invent.ui.Button(column_span=2, label="0", purpose="DEFAULT", channel="calculator"),
-                        invent.ui.Button(label=".", purpose="SECONDARY", channel="calculator"),
-                        invent.ui.Button(label="=", purpose="SECONDARY", channel="calculator"),
+                        invent.ui.TextInput(
+                            column_span=4,
+                            value=invent.ui.from_datastore("numbers"),
+                        ),
+                        invent.ui.Button(
+                            label="AC",
+                            purpose="SECONDARY",
+                            channel="calculator",
+                        ),
+                        invent.ui.Button(
+                            label="C",
+                            purpose="SECONDARY",
+                            channel="calculator",
+                        ),
+                        invent.ui.Button(
+                            label="+/-",
+                            purpose="SECONDARY",
+                            channel="calculator",
+                        ),
+                        invent.ui.Button(
+                            label="÷", purpose="SUCCESS", channel="calculator"
+                        ),
+                        invent.ui.Button(
+                            label="7", purpose="DEFAULT", channel="calculator"
+                        ),
+                        invent.ui.Button(
+                            label="8", purpose="DEFAULT", channel="calculator"
+                        ),
+                        invent.ui.Button(
+                            label="9", purpose="DEFAULT", channel="calculator"
+                        ),
+                        invent.ui.Button(
+                            label="x", purpose="SUCCESS", channel="calculator"
+                        ),
+                        invent.ui.Button(
+                            label="4", purpose="DEFAULT", channel="calculator"
+                        ),
+                        invent.ui.Button(
+                            label="5", purpose="DEFAULT", channel="calculator"
+                        ),
+                        invent.ui.Button(
+                            label="6", purpose="DEFAULT", channel="calculator"
+                        ),
+                        invent.ui.Button(
+                            label="-", purpose="SUCCESS", channel="calculator"
+                        ),
+                        invent.ui.Button(
+                            label="1", purpose="DEFAULT", channel="calculator"
+                        ),
+                        invent.ui.Button(
+                            label="2", purpose="DEFAULT", channel="calculator"
+                        ),
+                        invent.ui.Button(
+                            label="3", purpose="DEFAULT", channel="calculator"
+                        ),
+                        invent.ui.Button(
+                            label="+", purpose="SUCCESS", channel="calculator"
+                        ),
+                        invent.ui.Button(
+                            column_span=2,
+                            label="0",
+                            purpose="DEFAULT",
+                            channel="calculator",
+                        ),
+                        invent.ui.Button(
+                            label=".",
+                            purpose="SECONDARY",
+                            channel="calculator",
+                        ),
+                        invent.ui.Button(
+                            label="=",
+                            purpose="SECONDARY",
+                            channel="calculator",
+                        ),
                     ],
                 ),
             ]

@@ -30,9 +30,7 @@ class Switch(Widget):
     A switch for indicating a boolean value.
     """
 
-    value = BooleanProperty(
-        "The value of the switch.", default_value=False
-    )
+    value = BooleanProperty("The value of the switch.", default_value=False)
 
     label = TextProperty(
         "An optional label shown next to the switch", default_value=""
@@ -40,7 +38,7 @@ class Switch(Widget):
 
     @classmethod
     def icon(cls):
-        return '<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 256 256"><path fill="currentColor" d="M176 56H80a72 72 0 0 0 0 144h96a72 72 0 0 0 0-144m0 128H80a56 56 0 0 1 0-112h96a56 56 0 0 1 0 112M80 88a40 40 0 1 0 40 40a40 40 0 0 0-40-40m0 64a24 24 0 1 1 24-24a24 24 0 0 1-24 24"/></svg>'
+        return '<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 256 256"><path fill="currentColor" d="M176 56H80a72 72 0 0 0 0 144h96a72 72 0 0 0 0-144m0 128H80a56 56 0 0 1 0-112h96a56 56 0 0 1 0 112M80 88a40 40 0 1 0 40 40a40 40 0 0 0-40-40m0 64a24 24 0 1 1 24-24a24 24 0 0 1-24 24"/></svg>'  # noqa
 
     def on_js_changed(self, event):
         """

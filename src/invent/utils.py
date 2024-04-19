@@ -2,7 +2,6 @@
 Utility functions.
 """
 
-
 from pyscript import window
 from invent.ui import App
 
@@ -33,7 +32,6 @@ async def read_files(filenames):
     """
     return [
         await read_file(get_file_by_name(filename))
-
         for filename in filenames or []
     ]
 

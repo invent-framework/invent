@@ -38,7 +38,7 @@ class Page(Column):
         element.classList.add("container")
 
         # Why this?
-        #element.classList.add("form-group")
+        # element.classList.add("form-group")
 
         element.style.display = "None"
         return element

@@ -17,6 +17,7 @@ all:
 clean:
 	rm -rf .pytest_cache
 	rm -rf dist
+	rm -rf invent.zip
 	find . | grep -E "(__pycache__)" | xargs rm -rf
 
 tidy:
@@ -51,3 +52,6 @@ publish-live: dist
 	@echo "Packaging complete... Uploading to LIVE instance of PyPi..."
 	python3 -m pip install --upgrade twine
 	python3 -m twine upload --sign dist/*
+
+zip: clean lint
+	cd src && zip -r ../invent.zip invent/*

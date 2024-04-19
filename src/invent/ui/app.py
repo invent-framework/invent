@@ -89,7 +89,8 @@ class App:
 
     def get_component_by_id(self, component_id):
         """
-        Return the component with the specified id or None if no such component exists.
+        Return the component with the specified id or None if no such component
+        exists.
         """
 
         from invent.ui.core import Component

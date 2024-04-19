@@ -1,4 +1,4 @@
-from pyscript import fetch, window
+from pyscript import window
 from pyscript.ffi import create_proxy
 
 
@@ -55,6 +55,8 @@ def get_voice_by_name(voice_name):
 
 
 preferred_voice_name = None
+
+
 def set_voice(voice_name):
     global preferred_voice_name
 

@@ -18,7 +18,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-
 from .channels import Message, subscribe, publish, unsubscribe
 from .compatability import is_micropython
 from .datastore import DataStore
@@ -50,7 +49,7 @@ __all__ = [
     "go",
     "listen",
     "say",
-    "set_voice"
+    "set_voice",
 ]
 
 
