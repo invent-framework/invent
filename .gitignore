@@ -112,3 +112,7 @@ venv.bak/
 
 # vim
 *.swp
+
+# Zipped up assets
+/invent.zip
+/test_suite.zip

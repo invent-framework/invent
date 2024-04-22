@@ -741,7 +741,7 @@ def test_component_blueprint():
     assert result["properties"]["channel"]["property_type"] == "TextProperty"
     assert result["properties"]["channel"]["default_value"] is None
     assert result["properties"]["position"]["property_type"] == "TextProperty"
-    assert result["properties"]["position"]["default_value"] is "FILL"
+    assert result["properties"]["position"]["default_value"] == "FILL"
     assert result["properties"]["foo"]["property_type"] == "TextProperty"
     assert result["properties"]["foo"]["default_value"] == "bar"
     assert (
@@ -898,7 +898,6 @@ def test_widget_publish():
         w = MyWidget()
         w.channel = "my_channel"
         w.publish("ping", strength=100)
-        x = 2
         assert mock_publish.call_count == 1
 
 

@@ -13,11 +13,14 @@ all:
 	@echo "make dist - build the module as a package."
 	@echo "make publish-test - upload the package to the PyPI test instance."
 	@echo "make publish-live - upload the package to the PyPI LIVE instance."
+	@exho "make zip - create a zip archive of the framework and test suite."
 
 clean:
 	rm -rf .pytest_cache
 	rm -rf dist
 	rm -rf invent.zip
+	rm -rf test_suite.zip
+	rm -rf src/tools/builder/src/python/invent.zip
 	find . | grep -E "(__pycache__)" | xargs rm -rf
 
 tidy:
@@ -53,5 +56,13 @@ publish-live: dist
 	python3 -m pip install --upgrade twine
 	python3 -m twine upload --sign dist/*
 
-zip: clean lint
+zip: clean lint-all
 	cd src && zip -r ../invent.zip invent/*
+	mkdir test_suite
+	cp -r src/invent test_suite
+	cp -r tests test_suite
+	cd test_suite && zip -r ../test_suite.zip tests/* invent/*
+	rm -rf test_suite
+	cp invent.zip static/
+	cp invent.zip src/tools/builder/src/python/
+	cp test_suite.zip static/
