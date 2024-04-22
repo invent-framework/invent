@@ -18,22 +18,21 @@ def on_voices_changed(event):
 try:
     synth = window.speechSynthesis
     synth.onvoiceschanged = create_proxy(on_voices_changed)
-
 except AttributeError:
-    print("Sorry, your browser doesn't support text to speech!")
-    raise
+    window.console.error(
+        "Sorry, your browser doesn't support text to speech!"
+    )
 
 
 try:
     SpeechRecognition = window.SpeechRecognition
-
 except AttributeError:
     try:
         SpeechRecognition = window.webkitSpeechRecognition
-
     except AttributeError:
-        print("Sorry, your browser doesn't support speech recognition!")
-        raise
+        window.console.error(
+            "Sorry, your browser doesn't support speech recognition!"
+        )
 
 
 def get_voice_by_name(voice_name):
