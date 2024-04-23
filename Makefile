@@ -57,6 +57,7 @@ publish-live: dist
 	python3 -m twine upload --sign dist/*
 
 zip: clean lint-all
+	# cd src && tar -czf ../invent.tar.gz invent/*
 	cd src && zip -r ../invent.zip invent/*
 	mkdir test_suite
 	cp -r src/invent test_suite
