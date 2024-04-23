@@ -1,0 +1,5 @@
+[files]
+#
+# invent.
+#
+"/static/invent.zip" = "./*"
