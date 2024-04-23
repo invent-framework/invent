@@ -18,7 +18,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-from invent import publish, Message
 from invent.ui.core import Widget, TextProperty, MessageBlueprint
 from pyscript import document
 
@@ -49,12 +48,12 @@ class Image(Widget):
     def on_image_changed(self):
         self.element.src = self.image
 
-    def touch(self, event):
+    def touch_handler(self, event):
         self.publish("touch")
 
     def render(self):
         element = document.createElement("img")
         element.id = self.id
         element.src = self.image
-        element.addEventListener("click", self.touch)
+        element.addEventListener("click", self.touch_handler)
         return element

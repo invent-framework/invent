@@ -29,8 +29,8 @@ async def summarize(context=""):
 
     {context}
 
-    Please summarize them in no more than 30 words in the style of a very articulate
-    business analyst.
+    Please summarize them in no more than 30 words in the style of a very
+    articulate business analyst.
 
     """
 
@@ -50,18 +50,20 @@ class AIClient:
 
         messages = []
         if system_messages:
-            messages.extend([
-                {"role": "system", "content": system_message}
-
-                for system_message in system_messages
-            ])
+            messages.extend(
+                [
+                    {"role": "system", "content": system_message}
+                    for system_message in system_messages
+                ]
+            )
 
         if user_messages:
-            messages.extend([
-                {"role": "user", "content": user_message}
-
-                for user_message in user_messages
-            ])
+            messages.extend(
+                [
+                    {"role": "user", "content": user_message}
+                    for user_message in user_messages
+                ]
+            )
 
         response = await fetch(
             f"{self.url}/chat/completions",
@@ -77,5 +79,4 @@ class AIClient:
         )
 
         result = await response.json()
-
         return result["choices"][0]["message"]["content"]

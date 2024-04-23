@@ -18,7 +18,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-
 from pyscript import document
 from pyscript.ffi import create_proxy
 
@@ -30,9 +29,9 @@ class FileUpload(Widget):
     A file upload widget.
     """
 
-    # JS Proxy objects are not JSON serializable, which means we can't put them in the
-    # datastore. Hence, this widget just maintains a dictionary that maps a filename
-    # to its associated proxy.
+    # JS Proxy objects are not JSON serializable, which means we can't put them
+    # in the datastore. Hence, this widget just maintains a dictionary that
+    # maps a filename to its associated proxy.
     _files_ = {}
 
     @classmethod
@@ -67,12 +66,12 @@ class FileUpload(Widget):
 
         file = event.target.files.item(0)
 
-        # Put the jsproxy in the class-scope dictionary since we can't json serialize it
-        # if the files property if bound to the datastore.
+        # Put the jsproxy in the class-scope dictionary since we can't json
+        # serialize it if the files property if bound to the datastore.
         FileUpload._files_[file.name] = file
 
-        # We do list addition here to make the property change (just mutating the list
-        # would be unnoticeable).
+        # We do list addition here to make the property change (just mutating
+        # the list would be unnoticeable).
         self.files = self.files + [file.name]
 
     def render(self):

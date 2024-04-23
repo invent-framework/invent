@@ -18,7 +18,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-from . compatability import is_micropython, iscoroutinefunction
+from .compatability import is_micropython, iscoroutinefunction
 
 if not is_micropython:
     import asyncio

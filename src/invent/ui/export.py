@@ -29,11 +29,14 @@ INDEX_HTML = """
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
 
     <!-- PyScript -->
-    <link rel="stylesheet" href="https://pyscript.net/releases/2024.4.1/core.css">
-    <script type="module" src="https://pyscript.net/releases/2024.4.1/core.js"></script>
+    <link rel="stylesheet"
+      href="https://pyscript.net/releases/2024.4.1/core.css">
+    <script type="module"
+      src="https://pyscript.net/releases/2024.4.1/core.js"></script>
 
     <!-- App CSS Styles -->
-    <link rel="stylesheet" href="https://unpkg.com/papercss@1.9.2/dist/paper.min.css">
+    <link rel="stylesheet"
+      href="https://unpkg.com/papercss@1.9.2/dist/paper.min.css">
 </head>
 <body>
   <script type="py" src="./main.py" config="./pyscript.toml" async></script>
@@ -111,9 +114,7 @@ def as_pyscript_app(app, imports=IMPORTS, datastore="", code="", to_psdc=True):
     """Generate the index.html, main.py and pyscript.toml files for an app."""
 
     # index.html
-    index_html = INDEX_HTML.format(
-        title=app.name
-    )
+    index_html = INDEX_HTML.format(title=app.name)
 
     # main.py
     main_py = MAIN_PY_TEMPLATE.format(
@@ -138,12 +139,7 @@ def as_pyscript_app(app, imports=IMPORTS, datastore="", code="", to_psdc=True):
 def as_dict(app, imports=IMPORTS, datastore="", code="", to_psdc=True):
     """Export an app as a dictionary."""
 
-    return dict(
-        imports={},
-        datastore={},
-        blocks={},
-        app=app.as_dict()
-    )
+    return dict(imports={}, datastore={}, blocks={}, app=app.as_dict())
 
 
 def from_dict(bundle_dict):
@@ -160,7 +156,8 @@ def _app_from_dict(app_dict):
     from invent.ui.app import App
 
     content = [
-        _component_from_dict(component_dict) for component_dict in app_dict["content"]
+        _component_from_dict(component_dict)
+        for component_dict in app_dict["content"]
     ]
 
     app_dict["content"] = content
@@ -178,7 +175,6 @@ def _component_from_dict(component_dict):
     if issubclass(cls, Container):
         content = [
             _component_from_dict(component_dict)
-
             for component_dict in component_dict["properties"]["content"]
         ]
 

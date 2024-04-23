@@ -17,7 +17,7 @@ class PageEditorModel extends ComponentModelBase {
 		return `
 			<html>
 				<head>
-				    <link rel="stylesheet" href="https://unpkg.com/papercss@1.9.2/dist/paper.min.css">
+				    <link rel="stylesheet" href="/css/paper.min.css">
 				    <link rel="stylesheet" href="/css/page-editor.css">
 				</head>
 				<body></body>

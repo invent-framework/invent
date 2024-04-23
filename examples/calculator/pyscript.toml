@@ -2,37 +2,4 @@
 #
 # invent.
 #
-"{INVENT}" = "../../src/invent"
-#"{INVENT}" = "https://mchilvers.pyscriptapps.com/invent/latest/invent/"
-"{INVENT_TO}" = "./invent"
-"{INVENT}/__init__.py"="{INVENT_TO}/__init__.py"
-"{INVENT}/__about__.py"="{INVENT_TO}/__about__.py"
-"{INVENT}/ai.py"="{INVENT_TO}/ai.py"
-"{INVENT}/channels.py"="{INVENT_TO}/channels.py"
-"{INVENT}/compatability.py"="{INVENT_TO}/compatability.py"
-"{INVENT}/datastore.py"="{INVENT_TO}/datastore.py"
-"{INVENT}/i18n.py"="{INVENT_TO}/i18n.py"
-"{INVENT}/media.py"="{INVENT_TO}/media.py"
-"{INVENT}/speech.py"="{INVENT_TO}/speech.py"
-"{INVENT}/utils.py"="{INVENT_TO}/utils.py"
-#
-# invent.ui
-#
-"{INVENT}/ui/__init__.py"="{INVENT_TO}/ui/__init__.py"
-"{INVENT}/ui/app.py"="{INVENT_TO}/ui/app.py"
-"{INVENT}/ui/core.py"="{INVENT_TO}/ui/core.py"
-"{INVENT}/ui/export.py"="{INVENT_TO}/ui/export.py"
-"{INVENT}/ui/page.py"="{INVENT_TO}/ui/page.py"
-"{INVENT}/ui/utils.py"="{INVENT_TO}/ui/utils.py"
-"{INVENT}/ui/widgets/__init__.py"="{INVENT_TO}/ui/widgets/__init__.py"
-"{INVENT}/ui/widgets/audio.py"="{INVENT_TO}/ui/widgets/audio.py"
-"{INVENT}/ui/widgets/button.py"="{INVENT_TO}/ui/widgets/button.py"
-"{INVENT}/ui/widgets/checkbox.py"="{INVENT_TO}/ui/widgets/checkbox.py"
-"{INVENT}/ui/widgets/code.py"="{INVENT_TO}/ui/widgets/code.py"
-"{INVENT}/ui/widgets/fileupload.py"="{INVENT_TO}/ui/widgets/fileupload.py"
-"{INVENT}/ui/widgets/html.py"="{INVENT_TO}/ui/widgets/html.py"
-"{INVENT}/ui/widgets/image.py"="{INVENT_TO}/ui/widgets/image.py"
-"{INVENT}/ui/widgets/slider.py"="{INVENT_TO}/ui/widgets/slider.py"
-"{INVENT}/ui/widgets/switch.py"="{INVENT_TO}/ui/widgets/switch.py"
-"{INVENT}/ui/widgets/textbox.py"="{INVENT_TO}/ui/widgets/textbox.py"
-"{INVENT}/ui/widgets/textinput.py"="{INVENT_TO}/ui/widgets/textinput.py"
+"/static/invent.zip" = "./*"
