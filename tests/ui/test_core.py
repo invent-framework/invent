@@ -582,14 +582,14 @@ def test_choice_property_as_dict():
     }
 
 
-def test_content_property_validation():
+def test_list_property_validation():
     """
-    ContentProperty works with None and lists.
+    ListProperty works with None and lists.
     """
 
     class TestComponent(core.Component):
 
-        content = core.ContentProperty("The child components.")
+        content = core.ListProperty("The child components.")
 
         def render(self):
             return document.createElement("div")

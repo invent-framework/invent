@@ -24,8 +24,6 @@ import invent
 from invent.compatability import getmembers_static
 from invent.i18n import _
 
-from .utils import random_id
-
 
 #: Valid flags for horizontal positions.
 _VALID_HORIZONTALS = {"LEFT", "CENTER", "RIGHT"}
@@ -579,12 +577,9 @@ class Component:
                 property_obj.__set_name__(self, property_name)
         self.element = self.render()
         self.update(**kwargs)
-
-        Component._components_by_id[self.id] = self
-        Component._component_counter += 1
-
+        type(self)._component_counter += 1
         if not self.id:
-            self.id = random_id()
+            self.id = type(self)._generate_unique_id()
         if not self.name:
             self.name = type(self)._generate_name()
         Component._components_by_id[self.id] = self
@@ -648,6 +643,19 @@ class Component:
             self.parent.update_children()
 
     @classmethod
+    def _generate_unique_id(cls):
+        """
+        Create a unique but meaningful id for the component.
+
+        E.g.
+
+        "invent-button-1"
+
+        The pattern is "invent-classname-counter".
+        """
+        return f"invent-{cls.__name__.lower()}-{cls._component_counter}"
+
+    @classmethod
     def _generate_name(cls):
         """
         Create a human friendly name for the component.
@@ -656,8 +664,7 @@ class Component:
 
         "Button 1"
         """
-        # cls._component_counter += 1
-        return f"{cls.__name__} {Component._component_counter}"
+        return f"{cls.__name__} {cls._component_counter}"
 
     @classmethod
     def get_component_by_id(cls, component_id):

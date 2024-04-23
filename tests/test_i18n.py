@@ -19,7 +19,7 @@ def test_load_translations_from_default_location():
     The load_translations method uses the translations.json file in the home
     directory by default.
     """
-    with open("./translations.json", "r") as tr:
+    with open("./invent/translations.json", "r") as tr:
         expected = json.load(tr)
     invent.load_translations()
     assert invent.i18n.__translations == expected
@@ -29,7 +29,7 @@ def test_load_translations_from_given_location():
     """
     The load_translations method will use the referenced file for translations.
     """
-    path = "translations.json"
+    path = "./tests/translations.json"
     with open(path, "r") as tr:
         expected = json.load(tr)
     invent.load_translations(path)
@@ -84,7 +84,7 @@ def test_():
     # No translations, so just return the string.
     assert "hello" == invent._("hello")
     # Load translations.
-    invent.load_translations()
+    invent.load_translations("./tests/translations.json")
     # No translation for the default language (en).
     invent.i18n.set_language("en")
     # So just return the string.

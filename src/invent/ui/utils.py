@@ -21,6 +21,7 @@ limitations under the License.
 
 import random
 from pyscript import document
+from invent.compatability import is_micropython
 
 
 __all__ = [
@@ -57,12 +58,6 @@ def sanitize(raw):
     return temp.innerHTML
 
 
-def is_micro_python():
-    import time
-
-    return not hasattr(time, "time")
-
-
 def proxy(function):
     if not function:
         return None
@@ -70,6 +65,6 @@ def proxy(function):
 
     return (
         pyodide.ffi.create_proxy(function)
-        if not is_micro_python()
+        if not is_micropython
         else function
     )
