@@ -19,9 +19,7 @@ try:
     synth = window.speechSynthesis
     synth.onvoiceschanged = create_proxy(on_voices_changed)
 except AttributeError:
-    window.console.error(
-        "Sorry, your browser doesn't support text to speech!"
-    )
+    window.console.error("Sorry, your browser doesn't support text to speech!")
 
 
 try:

@@ -29,7 +29,7 @@ class Image(Widget):
 
     image = TextProperty(
         "The path to the image media.",
-        default_value="http://placekitten.com/400/400",
+        default_value="https://loremflickr.com/400/400",
     )
 
     touch = MessageBlueprint(

@@ -18,6 +18,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
+from .task import Task
 from .compatability import is_micropython, iscoroutinefunction
 
 if not is_micropython:
@@ -105,9 +106,10 @@ def publish(message, to_channel):
         channel_info = _channels.get(channel, {})
         if message._subject in channel_info:
             for handler in channel_info[message._subject]:
-                if iscoroutinefunction(handler):
+                if isinstance(handler, Task):
+                    handler.go()
+                elif iscoroutinefunction(handler):
                     asyncio.create_task(handler(message))
-
                 else:
                     handler(message)
 

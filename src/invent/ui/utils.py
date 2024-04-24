@@ -64,7 +64,5 @@ def proxy(function):
     import pyodide
 
     return (
-        pyodide.ffi.create_proxy(function)
-        if not is_micropython
-        else function
+        pyodide.ffi.create_proxy(function) if not is_micropython else function
     )

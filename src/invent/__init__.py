@@ -26,6 +26,7 @@ from .media import Media, set_media_root, get_media_root
 from .ui.app import App
 from .utils import get_filenames, play_sound, read_files, show_page
 from .speech import listen, say, set_voice
+from .task import Task
 
 
 __all__ = [
@@ -50,6 +51,7 @@ __all__ = [
     "listen",
     "say",
     "set_voice",
+    "Task",
 ]
 
 

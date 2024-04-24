@@ -1,29 +1,53 @@
 """
 Example application that uses a Task to get cat facts.
 """
+
+import pyscript
 import invent
+import asyncio
 from invent.ui import *
+from invent import tasks
+from invent import utils
 
-URL = "https://catfact.ninja/"
-
-
-# Datastore ############################################################################
-
-invent.datastore["catfact"] = ""
-
-# Code #################################################################################
+URL = "https://catfact.ninja/fact"
 
 
+# Datastore ###################################################################
 
-# Channels #############################################################################
-
-
-invent.subscribe(navigate, to_channel="navigate", when_subject=["press"])
-invent.subscribe(make_honk, to_channel="honk", when_subject=["press", "touch"])
-invent.subscribe(make_oink, to_channel="oink", when_subject=["press", "touch"])
+invent.datastore["cat_fact"] = ""
+invent.datastore["working"] = False
 
 
-# User Interface #######################################################################
+# Code ########################################################################
+
+
+def handle_cat_fact(value):
+    if value:
+        utils.play_sound(invent.media.sounds.meow.mp3)
+        return value["fact"]
+    return value
+
+
+def ready(value):
+    return not value
+
+
+# Channels ####################################################################
+
+
+invent.subscribe(
+    invent.Task(
+        tasks.fetch,
+        key="cat_fact",
+        indicator="working",
+        url=URL,
+    ),
+    to_channel="get_cat_facts",
+    when_subject=["press"],
+)
+
+
+# User Interface ##############################################################
 
 
 app = App(
@@ -35,87 +59,27 @@ app = App(
                 Column(
                     content=[
                         Image(
-                            image=invent.media.images.goose.png,
-                            channel="honk",
-                            position="MIDDLE-CENTER",
-                        ),
-                        Row(
-                            position="CENTER",
-                            content=[
-                                Button(
-                                    name="button honk",
-                                    label="HONK!",
-                                    channel="honk",
-                                    position="FILL",
-                                ),
-                                Button(
-                                    name="to_percy",
-                                    label="Visit Percy",
-                                    channel="navigate",
-                                    position="FILL",
-                                ),
-                            ],
+                            image=invent.media.images.puff.svg,
+                            visible=from_datastore("working"),
                         ),
                         Button(
-                            name="to_code",
+                            name="cat_fact_button",
                             label="Get Facts",
                             channel="get_cat_facts",
                             position="FILL",
+                            purpose="SUCCESS",
+                            enabled=from_datastore(
+                                "working", with_function=ready
+                            ),
                         ),
                         TextBox(
                             name="a_cat_fact",
-                            text=from_datastore("cat_fact"),
+                            text=from_datastore(
+                                "cat_fact", with_function=handle_cat_fact
+                            ),
                             position="MIDDLE-CENTER",
                         ),
                     ]
-                ),
-            ],
-        ),
-        Page(
-            name="Percy",
-            content=[
-                Column(
-                    content=[
-                        Image(
-                            image=invent.media.images.pig.png,
-                            channel="oink",
-                            position="MIDDLE-CENTER",
-                        ),
-                        Row(
-                            position="CENTER",
-                            content=[
-                                Button(
-                                    name="button oink",
-                                    label="OINK!!",
-                                    channel="oink",
-                                ),
-                                Button(
-                                    name="to_lucy",
-                                    label="Visit Lucy",
-                                    channel="navigate",
-                                    position="FILL",
-                                ),
-                                TextBox(
-                                    name="number_of_oinks",
-                                    text=from_datastore("number_of_oinks"),
-                                    position="MIDDLE-CENTER",
-                                ),
-                            ],
-                        ),
-                        Row(
-                            id="pigs",
-                            position="CENTER",
-                            content=from_datastore(
-                                "number_of_oinks", with_function=make_pigs
-                            ),
-                        ),
-                        Button(
-                            name="to_code",
-                            label="Show Code",
-                            channel="navigate",
-                            position="FILL",
-                        ),
-                    ],
                 ),
             ],
         ),
@@ -123,36 +87,7 @@ app = App(
 )
 
 
-# Add a page that shows the code! ######################################################
-
-
-app.content.append(
-    Page(
-        name="Code",
-        content=[
-            Row(
-                content=[
-                    Button(
-                        name="to_lucy",
-                        label="Visit Lucy",
-                        channel="navigate",
-                        position="FILL",
-                    ),
-                    Button(
-                        name="to_percy",
-                        label="Visit Percy",
-                        channel="navigate",
-                        position="FILL",
-                    ),
-                ]
-            ),
-            Code(code=export.as_pyscript_app(app)[1]),
-        ],
-    )
-)
-
-
-# GO! ##################################################################################
+# GO! #########################################################################
 
 
 invent.go()

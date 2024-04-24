@@ -209,6 +209,7 @@ class DataStore:
         Publishes a message whose type is the item's key, along with the new
         value, to the "store-data" channel.
         """
+        # TODO: check if callable, extract arg names, store somewhere.
         result = self.store.setItem(
             self._namespace_key(key), json.dumps(value)
         )

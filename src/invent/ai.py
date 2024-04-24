@@ -68,14 +68,14 @@ class AIClient:
         response = await fetch(
             f"{self.url}/chat/completions",
             method="POST",
-            headers={
-                "Content-Type": "application/json"
-            },
-            body=json.dumps({
-                "model": "gpt-3.5-turbo",
-                "messages": messages,
-                "temperature": 0.7
-            }),
+            headers={"Content-Type": "application/json"},
+            body=json.dumps(
+                {
+                    "model": "gpt-3.5-turbo",
+                    "messages": messages,
+                    "temperature": 0.7,
+                }
+            ),
         )
 
         result = await response.json()

@@ -552,6 +552,8 @@ class Component:
         "The meaningful name of the widget instance.",
         map_to_attribute="name",
     )
+    enabled = BooleanProperty("Indicates if the component is enabled.")
+    visible = BooleanProperty("The component is visible is set to True.")
 
     # Properties that are used by the container that a component is in.
     position = TextProperty(
@@ -617,6 +619,19 @@ class Component:
         with the component.
         """
         self.element.id = self.id
+
+    def on_enabled_changed(self):
+        """
+        Ensure the underlying HTML element is enabled/disabled according to
+        the value of the property.
+        """
+        self.element.disabled = not self.enabled
+
+    def on_visible_changed(self):
+        """
+        Show / hide the element depending on the value of the property.
+        """
+        self.element.style.visibility = "visible" if self.visible else "hidden"
 
     def on_position_changed(self):
         """
