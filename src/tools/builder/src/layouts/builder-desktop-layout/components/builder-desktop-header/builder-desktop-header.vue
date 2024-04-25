@@ -21,9 +21,7 @@
 </template>
 
 <script setup lang="ts">
-import { component } from "./builder-desktop-header-model";
-
 defineProps<{
-	buttons: Array<object>;
+	buttons: Array<any>;
 }>();
 </script>

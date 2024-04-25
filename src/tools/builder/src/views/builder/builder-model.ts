@@ -102,12 +102,12 @@ export class BuilderModel extends ViewModelBase {
 	}
 
 	public addComponentToPage(widgetBlueprint: WidgetModel) {
-		let parentId: string;
+		let parentId: any;
 
 		if (!this.state.activeWidgetId) {
 			parentId = this.state.activePage?.properties?.id;
 		} else {
-			if (["Row", "Page", "Column", "Grid"].includes(this.state.activeWidgetBlueprint?.name)) {
+			if (["Row", "Page", "Column", "Grid"].includes(this.state.activeWidgetBlueprint?.name as string)) {
 				parentId = this.state.activeWidgetId;
 			} else {
 				// If a widget (hint, not a container) is selected, should we add to the

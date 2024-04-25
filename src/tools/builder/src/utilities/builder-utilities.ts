@@ -79,7 +79,7 @@ export class BuilderUtilities {
 		return JSON.parse(this.builder().get_app_as_dict());
 	}
 
-	public static getAppFromDict(app_dict: object): object {
+	public static getAppFromDict(app_dict: object): any {
 		this.builder().get_app_from_dict(JSON.stringify(app_dict));
 	}
 }
