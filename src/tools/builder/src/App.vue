@@ -1,5 +1,5 @@
 <template>
-  <router-view />
+  <builder />
 
   <!-- Modal Dynamic Component -->
   <transition
@@ -18,6 +18,6 @@
 </template>
 
 <script setup lang="ts">
-import { RouterView } from 'vue-router'
+import Builder from './views/builder/builder.vue';
 import { ModalUtilities } from './utilities/modal-utilities';
 </script>

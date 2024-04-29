@@ -1,6 +1,5 @@
 import { createApp } from 'vue'
 import App from './App.vue'
-import router from './router'
 import "@/assets/tailwind.css"
 import { LocalizationUtilities } from './utilities/localization-utilities'
 
@@ -15,7 +14,6 @@ import { whenDefined } from "https://pyscript.net/releases/2024.4.1/core.js";
 whenDefined("py").then(() => {
     LocalizationUtilities.loadPreferredLanguageAsync().then(() => {
         createApp(App)
-            .use(router)
             .use(Components)
             .use(Modals)
             .use(InventWidgets)

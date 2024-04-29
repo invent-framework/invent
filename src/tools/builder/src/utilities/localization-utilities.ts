@@ -67,7 +67,7 @@ export class LocalizationUtilities {
 	private static async loadLanguage(code: string): Promise<LocalizationTableModel> {
 		let result: LocalizationTableModel = {};
 
-		const response: Response = await fetch(`/languages/${code}.json`);
+		const response: Response = await fetch(`${import.meta.env.BASE_URL}/languages/${code}.json`);
 
 		if (response.ok) {
 			result = await response.json() as LocalizationTableModel;

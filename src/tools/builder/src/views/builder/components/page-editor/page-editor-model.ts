@@ -17,8 +17,8 @@ class PageEditorModel extends ComponentModelBase {
 		return `
 			<html>
 				<head>
-				    <link rel="stylesheet" href="/css/paper.min.css">
-				    <link rel="stylesheet" href="/css/page-editor.css">
+				    <link rel="stylesheet" href="/invent/css/paper.min.css">
+				    <link rel="stylesheet" href="/invent/css/page-editor.css">
 				</head>
 				<body></body>
 			</html>
