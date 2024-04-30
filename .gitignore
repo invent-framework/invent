@@ -1,5 +1,6 @@
-# PyCharm
+# Editor configuration
 .idea
+.vscode
 
 # MacOS
 .DS_Store

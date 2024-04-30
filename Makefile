@@ -26,7 +26,7 @@ clean:
 tidy:
 	black -l 79 src/invent
 	black -l 79 tests
-	black -l 79 utils 
+	black -l 79 utils
 	black -l 79 examples
 
 lint:
@@ -56,7 +56,7 @@ publish-live: dist
 	python3 -m pip install --upgrade twine
 	python3 -m twine upload --sign dist/*
 
-zip: clean lint-all
+zip: lint-all clean
 	# cd src && tar -czf ../invent.tar.gz invent/*
 	cd src && zip -r ../invent.zip invent/*
 	mkdir test_suite
@@ -65,5 +65,5 @@ zip: clean lint-all
 	cd test_suite && zip -r ../test_suite.zip tests/* invent/*
 	rm -rf test_suite
 	cp invent.zip static/
-	cp invent.zip src/tools/builder/src/python/
+	cp invent.zip src/tools/builder/public/python/
 	cp test_suite.zip static/

@@ -21,7 +21,8 @@ limitations under the License.
 from pyscript import document
 from pyscript.ffi import create_proxy
 
-from invent.ui.core import Widget, BooleanProperty, TextProperty
+from invent.ui.core import Widget
+from invent.ui.properties import BooleanProperty, TextProperty
 from ..utils import random_id
 
 

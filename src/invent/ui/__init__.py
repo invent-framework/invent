@@ -20,8 +20,9 @@ limitations under the License.
 
 from ..i18n import _
 from .app import App
-from .core import Widget, Container, Column, Grid, Row, from_datastore
+from .core import Widget, Container, Column, Grid, Row
 from .page import Page
+from .properties import from_datastore
 from .utils import random_id, sanitize
 from .widgets.audio import Audio
 from .widgets.button import Button
