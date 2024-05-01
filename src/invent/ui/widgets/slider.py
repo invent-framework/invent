@@ -21,8 +21,7 @@ limitations under the License.
 from pyscript import document
 from pyscript.ffi import create_proxy
 
-from invent.ui.core import Widget
-from invent.ui.properties import NumericProperty
+from invent.ui.core import Widget, NumericProperty
 
 
 class Slider(Widget):

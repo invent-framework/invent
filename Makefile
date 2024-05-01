@@ -58,11 +58,11 @@ publish-live: dist
 
 zip: lint-all clean
 	# cd src && tar -czf ../invent.tar.gz invent/*
-	cd src && zip -r ../invent.zip invent/*
+	cd src && zip -qr ../invent.zip invent/*
 	mkdir test_suite
 	cp -r src/invent test_suite
 	cp -r tests test_suite
-	cd test_suite && zip -r ../test_suite.zip tests/* invent/*
+	cd test_suite && zip -qr ../test_suite.zip tests/* invent/*
 	rm -rf test_suite
 	cp invent.zip static/
 	cp invent.zip src/tools/builder/public/python/

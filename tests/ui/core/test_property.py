@@ -1,6 +1,6 @@
 import pytest
 from unittest import mock
-from invent.ui.properties import (
+from invent.ui.core import (
     BooleanProperty,
     ChoiceProperty,
     FloatProperty,

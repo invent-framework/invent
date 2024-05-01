@@ -2,13 +2,6 @@ import pytest
 from pyscript import document
 from unittest import mock
 from invent.ui import core
-from invent.ui.properties import (
-    BooleanProperty,
-    FloatProperty,
-    IntegerProperty,
-    TextProperty,
-    ValidationError,
-)
 
 
 def test_message_blueprint():
@@ -108,12 +101,12 @@ def test_component_init_with_properties():
     """
 
     class TestComponent(core.Component):
-        text = TextProperty(
+        text = core.TextProperty(
             "A text property", default_value="test", required=True
         )
-        integer = IntegerProperty("An integer property")
-        val = FloatProperty("A float property", default_value=1.23)
-        flag = BooleanProperty("A test property", default_value=False)
+        integer = core.IntegerProperty("An integer property")
+        val = core.FloatProperty("A float property", default_value=1.23)
+        flag = core.BooleanProperty("A test property", default_value=False)
 
         def render(self):
             return document.createElement("div")
@@ -132,7 +125,7 @@ def test_component_init_with_properties():
     assert tc.flag is False
 
     # Cannot initialize a required property with None.
-    with pytest.raises(ValidationError):
+    with pytest.raises(core.ValidationError):
         TestComponent(text=None)
 
 

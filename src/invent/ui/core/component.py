@@ -23,7 +23,7 @@ from pyscript import document
 import invent
 from invent.compatability import getmembers_static
 from invent.i18n import _
-from .properties import (
+from .property import (
     BooleanProperty,
     ChoiceProperty,
     IntegerProperty,

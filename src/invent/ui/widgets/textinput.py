@@ -21,12 +21,13 @@ limitations under the License.
 from pyscript import document
 from pyscript.ffi import create_proxy
 
-from invent.ui.core import Widget, MessageBlueprint
-from invent.ui.properties import (
+from invent.ui.core import (
+    Widget,
     TextProperty,
     IntegerProperty,
     BooleanProperty,
     ChoiceProperty,
+    MessageBlueprint,
 )
 
 

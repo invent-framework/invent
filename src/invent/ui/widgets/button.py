@@ -18,8 +18,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-from invent.ui.core import Widget, MessageBlueprint
-from invent.ui.properties import TextProperty, BooleanProperty, ChoiceProperty
+from invent.ui.core import (
+    Widget,
+    TextProperty,
+    BooleanProperty,
+    ChoiceProperty,
+    MessageBlueprint,
+)
+
 from pyscript import document
 from pyscript.ffi import create_proxy
 
