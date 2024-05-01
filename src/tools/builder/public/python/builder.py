@@ -226,12 +226,12 @@ class Builder:
                 value["value"] = datastore_value.key
             else:
                 value["value"] = getattr(component, name)
-
+            
         if component.is_container:
             properties.pop("content")
 
         return json.dumps(properties)
-
+    
     def set_component_property(self, component_id, property_name, value, is_from_datastore=False):
         """
         Set a property on a component (that has already been added to the page).
@@ -246,9 +246,9 @@ class Builder:
         result = self._app.get_page_by_id(page_id)
         if result:
             return result.element
-
+        
     # Channels ####################################################################
-
+        
     def get_channels(self):
         channels = set()
         for component in Component._components_by_id.values():
@@ -257,7 +257,7 @@ class Builder:
         channels.add("store-data")
         channels.add("delete-data")
         return json.dumps(list(channels))
-
+    
     def get_subjects(self):
         subjects = set()
         for component in Component._components_by_id.values():

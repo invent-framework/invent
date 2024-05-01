@@ -26,7 +26,7 @@ clean:
 tidy:
 	black -l 79 src/invent
 	black -l 79 tests
-	black -l 79 utils
+	black -l 79 utils 
 	black -l 79 examples
 
 lint:
