@@ -100,7 +100,7 @@ class Builder:
         """
         Add an empty page with the specified name.
         """
-        new_page = invent.ui.Page(name=page_name)
+        new_page = Page(name=page_name)
 
         self._app.content.append(new_page)
 
@@ -674,8 +674,6 @@ class Builder:
             container._empty_element = document.createElement("div")
             container._empty_element.style.textAlign = "center"
             container._empty_element.innerText = f"Empty {type(container).__name__}"
-
-            from invent.ui.page import Page
 
             if not isinstance(container, Page):
                 container.element.classList.add("invent-empty")
