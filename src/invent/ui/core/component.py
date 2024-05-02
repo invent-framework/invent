@@ -124,8 +124,12 @@ class Component:
         "The meaningful name of the widget instance.",
         map_to_attribute="name",
     )
-    enabled = BooleanProperty("Indicates if the component is enabled.")
-    visible = BooleanProperty("The component is visible is set to True.")
+    enabled = BooleanProperty(
+        "Indicates if the component is enabled.",  default_value=True
+    )
+    visible = BooleanProperty(
+        "The component is visible is set to True.",  default_value=True
+    )
 
     # Properties that are used by the container that a component is in.
     position = TextProperty(
