@@ -49,28 +49,6 @@
                         :color="view.getBuilderTabColor('media')" 
                         @click="view.onBuilderTabClicked('media')"
                     />
-
-                    <ib-button 
-                        label="Load" 
-                        size="sm" 
-                        :icon="['fas', 'upload']"
-                        @click="view.loadBlocks()" 
-                    />
-
-                    <ib-button 
-                        label="Save" 
-                        size="sm" 
-                        :icon="['fas', 'save']"
-                        @click="view.saveBlocks()" 
-                    />
-
-                    <ib-button 
-                        label="Publish" 
-                        size="sm" 
-                        :is-loading="view.state.isPublishing"
-                        :icon="['fas', 'rocket']"
-                        @click="view.getPythonCode()" 
-                    />
                 </ib-h-stack>
             </div>
         </template>

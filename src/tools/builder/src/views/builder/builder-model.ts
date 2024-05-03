@@ -45,6 +45,8 @@ export class BuilderModel extends ViewModelBase {
 		 * the view model).
 		 */
 		BuilderUtilities.init(this);
+
+		this.listenForIframeMessages();
 	}
 
 	private async setupProject(): Promise<void> {
@@ -68,6 +70,31 @@ export class BuilderModel extends ViewModelBase {
 		if (this.state.pages){
 			this.setActivePage(this.state.pages[0])
 		}
+	}
+
+	public listenForIframeMessages(): void {
+		window.addEventListener("message", (event: MessageEvent) => {
+			const data = event.data;
+			
+			console.log(data);
+
+			switch (data.type){
+				case "save": {
+					const app = this.save();
+
+					window.postMessage({
+						type: "save",
+						data: app
+					}, "*");
+					
+					break;
+				}
+				case "load": {
+					this.load(data.data);
+					break;
+				}
+			}
+		});
 	}
 
 	/**
@@ -218,32 +245,31 @@ export class BuilderModel extends ViewModelBase {
 		});
 	}
 
-	public async loadBlocks(): Promise<void> {
-		if (localStorage.getItem("blocks")){
-			Blockly.serialization.workspaces.load(JSON.parse(localStorage.getItem("blocks") as string), Blockly.getMainWorkspace())
-		}
+	public async load(data: any): Promise<void> {
+		// Load Blocks
+		Blockly.serialization.workspaces.load(data.blocks, Blockly.getMainWorkspace());
 
-		if (localStorage.getItem("app")){
-			BuilderUtilities.getAppFromDict(JSON.parse(localStorage.getItem("app") as string));
-			this.state.pages = [];
-			nextTick(() => {
-				//this.state.pages = BuilderUtilities.getPages();
-				//this.state.activePage = this.state.pages[0];
-				this.init();
-			});
-		}
+		// Load App
+		BuilderUtilities.getAppFromDict(data.app);
+		this.state.pages = [];
+		nextTick(() => {
+			this.init();
+		});
 
+		// Load Datastore
+		this.state.datastore = data.datastore;
 	}
 
-	public saveBlocks(): void {
-		// Save the blocks...
-		localStorage.setItem("blocks", JSON.stringify(Blockly.serialization.workspaces.save(Blockly.getMainWorkspace())));
-
+	public save(): any {
 		// Save the WOM...
-		console.log("Saving app...")
 		const appJSON: string = JSON.stringify(BuilderUtilities.getAppAsDict());
-		console.log(appJSON);
-		localStorage.setItem("app", appJSON);
+		const datastoreJSON: string = JSON.stringify(this.state.datastore);
+
+		return {
+			app: appJSON,
+			datastore: datastoreJSON,
+			blocks: Blockly.serialization.workspaces.save(Blockly.getMainWorkspace())
+		}
 	}
 
 	/**
