@@ -74,23 +74,19 @@ export class BuilderModel extends ViewModelBase {
 
 	public listenForIframeMessages(): void {
 		window.addEventListener("message", (event: MessageEvent) => {
-			const data = event.data;
-			
-			console.log(data);
+			console.log(event.data);
 
-			switch (data.type){
+			switch (event.data.type){
 				case "save": {
-					const app = this.save();
-
 					window.postMessage({
 						type: "save",
-						data: app
+						data: this.save(),
 					}, "*");
 					
 					break;
 				}
 				case "load": {
-					this.load(data.data);
+					this.load(event.data.data);
 					break;
 				}
 			}
@@ -246,9 +242,6 @@ export class BuilderModel extends ViewModelBase {
 	}
 
 	public async load(data: any): Promise<void> {
-		// Load Blocks
-		Blockly.serialization.workspaces.load(data.blocks, Blockly.getMainWorkspace());
-
 		// Load App
 		BuilderUtilities.getAppFromDict(data.app);
 		this.state.pages = [];
@@ -256,19 +249,18 @@ export class BuilderModel extends ViewModelBase {
 			this.init();
 		});
 
+		// Load Blocks
+		Blockly.serialization.workspaces.load(data.blocks, Blockly.getMainWorkspace());
+
 		// Load Datastore
 		this.state.datastore = data.datastore;
 	}
 
 	public save(): any {
-		// Save the WOM...
-		const appJSON: string = JSON.stringify(BuilderUtilities.getAppAsDict());
-		const datastoreJSON: string = JSON.stringify(this.state.datastore);
-
 		return {
-			app: appJSON,
-			datastore: datastoreJSON,
-			blocks: Blockly.serialization.workspaces.save(Blockly.getMainWorkspace())
+			app: JSON.stringify(BuilderUtilities.getAppAsDict()),
+			blocks: Blockly.serialization.workspaces.save(Blockly.getMainWorkspace()),
+			datastore: JSON.stringify(this.state.datastore),
 		}
 	}
 
