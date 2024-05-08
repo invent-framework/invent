@@ -35,18 +35,26 @@ export class BuilderModel extends ViewModelBase {
 	public state: BuilderState = reactive(new BuilderState());
 
 	public async init(): Promise<void> {
-		await this.setupProject();
-		this.getPages();
-		this.setDefaultPage();
-		this.getAvailableComponents();
-		/*
-		 * BuilderUtilities is really just a bridge between this class (the JS-side of
-		 * the view model) and the "Builder" class in "builder.py" (the Python-side of
-		 * the view model).
-		 */
-		BuilderUtilities.init(this);
+		setTimeout(async () => {
+			if (import.meta.env.DEV) {
+				await this.setupProject();
+			}
+			this.getPages();
+			this.setDefaultPage();
+			this.getAvailableComponents();
+			/*
+			 * BuilderUtilities is really just a bridge between this class (the JS-side of
+			 * the view model) and the "Builder" class in "builder.py" (the Python-side of
+			 * the view model).
+			 */
+			BuilderUtilities.init(this);
 
-		this.listenForIframeMessages();
+			this.listenForIframeMessages();
+
+			window.parent.postMessage({
+				type: "invent-ready"
+			}, location.origin);
+		}, 1000);
 	}
 
 	private async setupProject(): Promise<void> {
@@ -73,20 +81,26 @@ export class BuilderModel extends ViewModelBase {
 	}
 
 	public listenForIframeMessages(): void {
-		window.addEventListener("message", (event: MessageEvent) => {
-			console.log(event.data);
+		window.addEventListener("message", async (event: MessageEvent) => {
+			// Only allow same origin messages.
+  		if (event.origin !== location.origin) return;
 
-			switch (event.data.type){
-				case "save": {
-					window.postMessage({
-						type: "save",
+			const { type, data } = event.data;
+
+			switch (type){
+				case "save-request": {
+					console.log("Invent - received save request: we're posting something");
+					event.source?.postMessage({
+						type: "save-response",
 						data: this.save(),
-					}, "*");
-					
+					});
+
 					break;
 				}
-				case "load": {
-					this.load(event.data.data);
+
+				case "load-request": {
+					console.log('Invent - received load request:', data);
+					await this.load(data);
 					break;
 				}
 			}
@@ -154,11 +168,11 @@ export class BuilderModel extends ViewModelBase {
 		);
 	}
 
-	public getSidebarTabColor(key: string): string { 
+	public getSidebarTabColor(key: string): string {
 		return this.state.activeSidebarTab === key ? 'gray' : 'transparent';
 	}
 
-	public getPageButtonColor(page: PageModel): string { 
+	public getPageButtonColor(page: PageModel): string {
 		return this.state.activePage && this.state.activeBuilderTab === 'app' && this.state.activePage.properties.id === page.properties.id ? 'gray' : 'transparent';
 	}
 
@@ -221,7 +235,7 @@ export class BuilderModel extends ViewModelBase {
 		console.log(pyscriptToml);
 
 		await Promise.all([
-		    this.uploadFile(this.createFormDataBlob('index.html', indexHtml, 'text/html')),
+			this.uploadFile(this.createFormDataBlob('index.html', indexHtml, 'text/html')),
 			this.uploadFile(this.createFormDataBlob('pyscript.toml', pyscriptToml, 'application/toml')),
 			this.uploadFile(this.createFormDataBlob('main.py', mainPy, 'application/x-python-code')),
 	  	]).then(() => {
@@ -229,7 +243,7 @@ export class BuilderModel extends ViewModelBase {
 				particleCount: 100,
 				spread: 200
 			});
-	
+
 			ModalUtilities.showModal({
 				modal: "AppPublished",
 				options: {
@@ -246,7 +260,10 @@ export class BuilderModel extends ViewModelBase {
 		BuilderUtilities.getAppFromDict(data.app);
 		this.state.pages = [];
 		nextTick(() => {
-			this.init();
+			// this.init();
+			this.getPages();
+			this.setDefaultPage();
+			this.getAvailableComponents();
 		});
 
 		// Load Blocks
@@ -257,11 +274,17 @@ export class BuilderModel extends ViewModelBase {
 	}
 
 	public save(): any {
+		const datastore: string = this.getDatastoreValues();
+		const generatedCode: string = pythonGenerator.workspaceToCode(Blockly.getMainWorkspace());
+		const code: string = `${this.state.functions}\n${generatedCode}`;
+		const psdc: any = BuilderUtilities.exportAsPyScriptApp(datastore, code);
+
 		return {
 			app: JSON.stringify(BuilderUtilities.getAppAsDict()),
-			blocks: Blockly.serialization.workspaces.save(Blockly.getMainWorkspace()),
+			blocks: JSON.stringify(Blockly.serialization.workspaces.save(Blockly.getMainWorkspace())),
 			datastore: JSON.stringify(this.state.datastore),
-		}
+			psdc
+		};
 	}
 
 	/**
@@ -376,7 +399,7 @@ export class BuilderModel extends ViewModelBase {
 		}
 	}
 
-	public getBuilderTabColor(key: string): string { 
+	public getBuilderTabColor(key: string): string {
 		return this.state.activeBuilderTab === key ? 'gray' : 'transparent';
 	}
 
