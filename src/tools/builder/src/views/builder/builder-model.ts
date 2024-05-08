@@ -382,7 +382,8 @@ export class BuilderModel extends ViewModelBase {
 
 		const path: string = `media/${mediaFolder}/${file.name}`;
 		const formData: FormData = this.createFormDataFromBlob(path, file);
-		this.uploadFile(formData);
+
+		// this.uploadFile(formData);
 		return `https://${this.username}.pyscriptapps.com/${this.projectSlug}/latest/${path}`;
 	}
 
@@ -418,39 +419,43 @@ export class BuilderModel extends ViewModelBase {
 	}
 
 	public onAddMediaFile(): void {
-		// Create file input in order to open file chooser.
-		const fileInput: HTMLInputElement = document.createElement("input");
-		fileInput.type = "file";
-		fileInput.accept = ".png, .jpg, .gif, .jpeg, .mp3, .wav, .mp4, .mov";
-
-		// Runs when the user chooses a file.
-		fileInput.addEventListener("change", (event: Event) => {
-			const target: HTMLInputElement = event.target as HTMLInputElement;
-			const reader: FileReader = new FileReader();
-
-			reader.addEventListener("load", async (event: ProgressEvent<FileReader>) => {
-				// Parse JSON file and then open the editor with its contents.
-				if (event.target && target.files) {
-					const file: File = target.files[0];
-					const path: string = await this.uploadMediaFile(file);
-					const fileName: string = file.name;
-					this.state.media[fileName] = {
-						name: fileName,
-						type: file.type,
-						file,
-						path
-					}
-				}
-			});
-
-			// Trigger reading the uploaded files.
-			if (target.files) {
-				reader.readAsDataURL(target.files[0]);
-			}
+		window.parent.postMessage({
+			type: "add-media-request",
 		});
 
-		// Click on the file input to open a file chooser.
-		fileInput.click();
+		// // Create file input in order to open file chooser.
+		// const fileInput: HTMLInputElement = document.createElement("input");
+		// fileInput.type = "file";
+		// fileInput.accept = ".png, .jpg, .gif, .jpeg, .mp3, .wav, .mp4, .mov";
+		//
+		// // Runs when the user chooses a file.
+		// fileInput.addEventListener("change", (event: Event) => {
+		// 	const target: HTMLInputElement = event.target as HTMLInputElement;
+		// 	const reader: FileReader = new FileReader();
+		//
+		// 	reader.addEventListener("load", async (event: ProgressEvent<FileReader>) => {
+		// 		// Parse JSON file and then open the editor with its contents.
+		// 		if (event.target && target.files) {
+		// 			const file: File = target.files[0];
+		// 			const path: string = await this.uploadMediaFile(file);
+		// 			const fileName: string = file.name;
+		// 			this.state.media[fileName] = {
+		// 				name: fileName,
+		// 				type: file.type,
+		// 				file,
+		// 				path
+		// 			}
+		// 		}
+		// 	});
+		//
+		// 	// Trigger reading the uploaded files.
+		// 	if (target.files) {
+		// 		reader.readAsDataURL(target.files[0]);
+		// 	}
+		// });
+		//
+		// // Click on the file input to open a file chooser.
+		// fileInput.click();
 	}
 
 	public getImageFiles(): Array<IbSelectOption> {
