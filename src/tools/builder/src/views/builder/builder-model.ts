@@ -284,8 +284,8 @@ export class BuilderModel extends ViewModelBase {
 		// Load Datastore
 		this.state.datastore = data.datastore;
 
-		// TODO: Load media.
-		//
+		// Load media.
+		this.state.media = data.media;
 	}
 
 	public save(): any {
