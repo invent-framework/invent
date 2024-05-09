@@ -1,6 +1,6 @@
 export interface MediaFileModel {
     name: string;
-    file: Blob;
+    //file: Blob;
     type: string;
     path: string;
 }

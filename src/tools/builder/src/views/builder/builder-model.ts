@@ -36,9 +36,9 @@ export class BuilderModel extends ViewModelBase {
 
 	public async init(): Promise<void> {
 		setTimeout(async () => {
-			if (import.meta.env.DEV) {
-				await this.setupProject();
-			}
+			// if (import.meta.env.DEV) {
+			// 	await this.setupProject();
+			// }
 			this.getPages();
 			this.setDefaultPage();
 			this.getAvailableComponents();
@@ -57,12 +57,12 @@ export class BuilderModel extends ViewModelBase {
 		}, 1000);
 	}
 
-	private async setupProject(): Promise<void> {
-		this.state.project = await this.getProject();
-		if (this.state.project === null) {
-			this.state.project = await this.createProject("Invent Demo", "app");
-		}
-	}
+	// private async setupProject(): Promise<void> {
+	// 	this.state.project = await this.getProject();
+	// 	if (this.state.project === null) {
+	// 		this.state.project = await this.createProject("Invent Demo", "app");
+	// 	}
+	// }
 
 	// Pages ///////////////////////////////////////////////////////////////////////////
 
@@ -101,6 +101,18 @@ export class BuilderModel extends ViewModelBase {
 				case "load-request": {
 					console.log('Invent - received load request:', data);
 					await this.load(data);
+					break;
+				}
+
+				case "media-upload-complete": {
+					console.log('Invent - received media-upload-complete:', data);
+					this.state.media[data.path] = {
+						name: data.name,
+						type: data.type,
+						//file: File(),
+						path: data.path
+					}
+					//await this.load(data);
 					break;
 				}
 			}
@@ -271,6 +283,9 @@ export class BuilderModel extends ViewModelBase {
 
 		// Load Datastore
 		this.state.datastore = data.datastore;
+
+		// TODO: Load media.
+		//
 	}
 
 	public save(): any {
