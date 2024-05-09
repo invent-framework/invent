@@ -35,27 +35,13 @@ export class BuilderModel extends ViewModelBase {
 	public state: BuilderState = reactive(new BuilderState());
 
 	public async init(): Promise<void> {
-		setTimeout(async () => {
-			// if (import.meta.env.DEV) {
-			// 	await this.setupProject();
-			// }
-			this.getPages();
-			this.setDefaultPage();
-			this.getAvailableComponents();
-			/*
-			 * BuilderUtilities is really just a bridge between this class (the JS-side of
-			 * the view model) and the "Builder" class in "builder.py" (the Python-side of
-			 * the view model).
-			 */
-			BuilderUtilities.init(this);
-
-			this.listenForIframeMessages();
-
-			window.parent.postMessage({
-				type: "invent-ready"
-			}, location.origin);
-		}, 1000);
-	}
+		/**
+		 * Wait for the "builder" object to be available in the global scope.
+		 */
+		// @ts-ignore
+		while (!window['builder']){
+			await new Promise(r => setTimeout(r, 10));
+		}
 
 	// private async setupProject(): Promise<void> {
 	// 	this.state.project = await this.getProject();
