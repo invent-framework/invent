@@ -87,9 +87,10 @@ export class BuilderModel extends ViewModelBase {
 
 			const { type, data } = event.data;
 
+			console.log(`Invent - received message type ${type}:`, data);
+
 			switch (type){
 				case "save-request": {
-					console.log("Invent - received save request: we're posting something");
 					event.source?.postMessage({
 						type: "save-response",
 						data: this.save(),
@@ -99,20 +100,16 @@ export class BuilderModel extends ViewModelBase {
 				}
 
 				case "load-request": {
-					console.log('Invent - received load request:', data);
 					await this.load(data);
 					break;
 				}
 
 				case "media-upload-complete": {
-					console.log('Invent - received media-upload-complete:', data);
-					this.state.media[data.path] = {
+					this.state.media[data.name] = {
 						name: data.name,
 						type: data.type,
-						//file: File(),
 						path: data.path
 					}
-					//await this.load(data);
 					break;
 				}
 			}
