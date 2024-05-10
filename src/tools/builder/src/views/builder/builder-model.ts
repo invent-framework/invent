@@ -226,7 +226,7 @@ export class BuilderModel extends ViewModelBase {
 	public async load(data: any): Promise<void> {
 		// Load App
 		BuilderUtilities.getAppFromDict(data.app);
-		this.state.pages = [];
+
 		nextTick(() => {
 			this.getPages();
 			this.setDefaultPage();
@@ -242,7 +242,6 @@ export class BuilderModel extends ViewModelBase {
 
 		// Load Datastore
 		this.state.datastore = data.datastore;
-
 	}
 
 	public save(): any {
