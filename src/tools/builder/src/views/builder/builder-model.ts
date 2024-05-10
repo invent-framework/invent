@@ -30,25 +30,32 @@ export class BuilderModel extends ViewModelBase {
 
 	public async init(): Promise<void> {
 		/**
-		 * Wait for the "builder" object to be available in the global scope.
+		 * Wait for the "builder" object to be available in the global window scope.
 		 */
 		// @ts-ignore
 		while (!window['builder']){
 			await new Promise(r => setTimeout(r, 10));
 		}
 
-		this.getPages();
-		this.setDefaultPage();
-		this.getAvailableComponents();
-		/*
-			* BuilderUtilities is really just a bridge between this class (the JS-side of
-			* the view model) and the "Builder" class in "builder.py" (the Python-side of
-			* the view model).
-			*/
+		/**
+		 * BuilderUtilities is really just a bridge between this class (the JS-side of
+		 * the view model) and the "Builder" class in "builder.py" (the Python-side of
+		 * the view model).
+		 *
+		 * Here we just pass a reference to this object (the JS side) to the Python
+		 * side.
+		 */
 		BuilderUtilities.init(this);
 
+		/**
+		 * Start listening for messages from the hosting application (probably PSDC!).
+		 */
 		this.listenForIframeMessages();
 
+		/**
+		 * Let the hosting application know that we are ready (and we can now load an
+		 * app.
+		 */
 		window.parent.postMessage({
 			type: "invent-ready"
 		}, location.origin);
@@ -73,11 +80,11 @@ export class BuilderModel extends ViewModelBase {
 	public listenForIframeMessages(): void {
 		window.addEventListener("message", async (event: MessageEvent) => {
 			// Only allow same origin messages.
-  		if (event.origin !== location.origin) return;
+			if (event.origin !== location.origin) return;
 
 			const { type, data } = event.data;
 
-			console.log(`Invent - received message type ${type}:`, data);
+			console.log(`Invent - received message type: ${type}:`, data);
 
 			switch (type){
 				case "save-request": {
@@ -85,7 +92,6 @@ export class BuilderModel extends ViewModelBase {
 						type: "save-response",
 						data: this.save(),
 					});
-
 					break;
 				}
 
