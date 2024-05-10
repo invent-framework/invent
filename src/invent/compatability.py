@@ -2,7 +2,6 @@
 
 import inspect
 import sys
-import types
 
 
 #: A flag to show if MicroPython is the current Python interpreter.
@@ -25,6 +24,6 @@ def iscoroutinefunction(obj):
 
     if is_micropython:  # pragma: no cover
         # MicroPython seems to treat coroutines as generators :)
-        return type(obj) is types.GeneratorType
+        return inspect.isgeneratorfunction(obj)
 
     return inspect.iscoroutinefunction(obj)

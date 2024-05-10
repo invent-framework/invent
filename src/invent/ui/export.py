@@ -30,16 +30,16 @@ INDEX_HTML = """
 
     <!-- PyScript -->
     <link rel="stylesheet"
-      href="https://pyscript.net/releases/2024.4.1/core.css">
+      href="https://pyscript.net/releases/2024.5.1/core.css">
     <script type="module"
-      src="https://pyscript.net/releases/2024.4.1/core.js"></script>
+      src="https://pyscript.net/releases/2024.5.1/core.js"></script>
 
     <!-- App CSS Styles -->
     <link rel="stylesheet"
       href="https://unpkg.com/papercss@1.9.2/dist/paper.min.css">
 </head>
 <body>
-  <script type="py" src="./main.py" config="./pyscript.toml" async></script>
+  <script type="mpy" src="./main.py" config="./pyscript.toml" async></script>
 </body>
 </html>
 """
@@ -68,51 +68,10 @@ invent.go()
 
 
 PYSCRIPT_TOML_TEMPLATE = """
-packages = [ "pyodide_http", "requests" ]
 experimental_create_proxy = "auto"
+
 [files]
-#
-# invent
-#
-"{{INVENT}}" = "{invent_src}"
-"{{INVENT_TO}}" = "./invent"
-"{{INVENT}}/__init__.py"="{{INVENT_TO}}/__init__.py"
-"{{INVENT}}/__about__.py"="{{INVENT_TO}}/__about__.py"
-"{{INVENT}}/ai.py"="{{INVENT_TO}}/ai.py"
-"{{INVENT}}/channels.py"="{{INVENT_TO}}/channels.py"
-"{{INVENT}}/compatability.py"="{{INVENT_TO}}/compatability.py"
-"{{INVENT}}/datastore.py"="{{INVENT_TO}}/datastore.py"
-"{{INVENT}}/i18n.py"="{{INVENT_TO}}/i18n.py"
-"{{INVENT}}/media.py"="{{INVENT_TO}}/media.py"
-"{{INVENT}}/speech.py"="{{INVENT_TO}}/speech.py"
-"{{INVENT}}/utils.py"="{{INVENT_TO}}/utils.py"
-#
-# invent.ui
-#
-"{{INVENT}}/ui/__init__.py"="{{INVENT_TO}}/ui/__init__.py"
-"{{INVENT}}/ui/app.py"="{{INVENT_TO}}/ui/app.py"
-"{{INVENT}}/ui/containers/__init__.py"="{{INVENT_TO}}/ui/containers/__init__.py"
-"{{INVENT}}/ui/containers/column.py"="{{INVENT_TO}}/ui/containers/column.py"
-"{{INVENT}}/ui/containers/grid.py"="{{INVENT_TO}}/ui/containers/grid.py"
-"{{INVENT}}/ui/containers/page.py"="{{INVENT_TO}}/ui/containers/page.py"
-"{{INVENT}}/ui/containers/row.py"="{{INVENT_TO}}/ui/containers/row.py"
-"{{INVENT}}/ui/core/__init__.py"="{{INVENT_TO}}/ui/core/__init__.py"
-"{{INVENT}}/ui/core/component.py"="{{INVENT_TO}}/ui/core/component.py"
-"{{INVENT}}/ui/core/property.py"="{{INVENT_TO}}/ui/core/property.py"
-"{{INVENT}}/ui/export.py"="{{INVENT_TO}}/ui/export.py"
-"{{INVENT}}/ui/utils.py"="{{INVENT_TO}}/ui/utils.py"
-"{{INVENT}}/ui/widgets/__init__.py"="{{INVENT_TO}}/ui/widgets/__init__.py"
-"{{INVENT}}/ui/widgets/audio.py"="{{INVENT_TO}}/ui/widgets/audio.py"
-"{{INVENT}}/ui/widgets/button.py"="{{INVENT_TO}}/ui/widgets/button.py"
-"{{INVENT}}/ui/widgets/checkbox.py"="{{INVENT_TO}}/ui/widgets/checkbox.py"
-"{{INVENT}}/ui/widgets/code.py"="{{INVENT_TO}}/ui/widgets/code.py"
-"{{INVENT}}/ui/widgets/html.py"="{{INVENT_TO}}/ui/widgets/html.py"
-"{{INVENT}}/ui/widgets/image.py"="{{INVENT_TO}}/ui/widgets/image.py"
-"{{INVENT}}/ui/widgets/slider.py"="{{INVENT_TO}}/ui/widgets/slider.py"
-"{{INVENT}}/ui/widgets/switch.py"="{{INVENT_TO}}/ui/widgets/switch.py"
-"{{INVENT}}/ui/widgets/textbox.py"="{{INVENT_TO}}/ui/widgets/textbox.py"
-"{{INVENT}}/ui/widgets/textinput.py"="{{INVENT_TO}}/ui/widgets/textinput.py"
-"{{INVENT}}/ui/widgets/fileupload.py"="{{INVENT_TO}}/ui/widgets/fileupload.py"
+"https://invent.pyscriptapps-dev.com/invent/latest/invent.zip" = "./*"
 """
 
 

@@ -1,6 +1,5 @@
 import invent
 import pyscript
-import asyncio
 
 
 async def fetch(task, url, json=True):
@@ -11,7 +10,7 @@ async def fetch(task, url, json=True):
     """
     if task.indicator:
         invent.datastore[task.indicator] = True
-    await asyncio.sleep(4)
+
     response = await pyscript.fetch(url)
     if task.indicator:
         invent.datastore[task.indicator] = False
