@@ -228,7 +228,6 @@ export class BuilderModel extends ViewModelBase {
 		BuilderUtilities.getAppFromDict(data.app);
 		this.state.pages = [];
 		nextTick(() => {
-			// this.init();
 			this.getPages();
 			this.setDefaultPage();
 			this.getAvailableComponents();
