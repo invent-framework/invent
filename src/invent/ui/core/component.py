@@ -645,7 +645,8 @@ class Container(Component):
         #
         # We wrap all children in a <div> that is a grid area.
         wrapper = self.create_child_wrapper(item, index)
-        if index == len(self.element.childNodes):
+
+        if item is self.content[-1]:
             self.element.appendChild(wrapper)
 
         else:
