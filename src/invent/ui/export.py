@@ -36,8 +36,7 @@ INDEX_HTML = """
 
     <!-- App CSS Styles -->
     <link rel="stylesheet"
-      href="https://unpkg.com/papercss@1.9.2/dist/paper.min.css"
-      crossorigin="anonymous">
+      href="https://unpkg.com/papercss@1.9.2/dist/paper.min.css">
 </head>
 <body>
   <script type="mpy" src="./main.py" config="./pyscript.toml" async></script>
