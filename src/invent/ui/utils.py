@@ -21,7 +21,7 @@ limitations under the License.
 
 import random
 from pyscript import document
-from invent.compatability import is_micropython
+from pyscript.ffi import create_proxy
 
 
 __all__ = [
@@ -61,8 +61,5 @@ def sanitize(raw):
 def proxy(function):
     if not function:
         return None
-    import pyodide
 
-    return (
-        pyodide.ffi.create_proxy(function) if not is_micropython else function
-    )
+    return create_proxy(function)

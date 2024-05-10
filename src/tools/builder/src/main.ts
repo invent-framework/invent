@@ -9,9 +9,9 @@ import InventWidgets from "@/views/builder/components/page-editor/widgets";
 import "@/data/providers/icon-provider";
 
 // @ts-ignore
-import { whenDefined } from "https://pyscript.net/releases/2024.4.1/core.js";
+import { whenDefined } from "https://pyscript.net/releases/2024.5.1/core.js";
 
-whenDefined("py").then(() => {
+whenDefined("mpy").then(() => {
     LocalizationUtilities.loadPreferredLanguageAsync().then(() => {
         createApp(App)
             .use(Components)
