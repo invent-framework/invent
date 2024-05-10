@@ -228,14 +228,16 @@ export class BuilderModel extends ViewModelBase {
 			this.getAvailableComponents();
 		});
 
+		// Load media (this MUST be done before loading the blocks so that it can
+		// reference the media files in blocks such as playing sounds etc.).
+		this.state.media = data.media;
+
 		// Load Blocks
 		Blockly.serialization.workspaces.load(data.blocks, Blockly.getMainWorkspace());
 
 		// Load Datastore
 		this.state.datastore = data.datastore;
 
-		// Load media.
-		this.state.media = data.media;
 	}
 
 	public save(): any {

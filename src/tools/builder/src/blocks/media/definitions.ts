@@ -6,10 +6,9 @@ function getSoundFiles(): any {
   const audioFiles: Array<MediaFileModel> = Object.values(builder.state.media).filter((file: MediaFileModel) => {
     return file.type.startsWith("audio")
   });
-
   if (audioFiles.length > 0){
       return audioFiles.map((file: MediaFileModel) => {
-          return [file.name, file.path];
+          return [file.name, file.name];
       });
   }
   else {
