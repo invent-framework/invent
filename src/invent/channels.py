@@ -18,11 +18,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-from .task import Task
-from .compatability import is_micropython, iscoroutinefunction
 
-if not is_micropython:
-    import asyncio
+import asyncio
+
+from .task import Task
+from .compatability import iscoroutinefunction
 
 
 __all__ = [

@@ -40,7 +40,7 @@ INDEX_HTML = """
       crossorigin="anonymous">
 </head>
 <body>
-  <script type="py" src="./main.py" config="./pyscript.toml" async></script>
+  <script type="mpy" src="./main.py" config="./pyscript.toml" async></script>
 </body>
 </html>
 """
@@ -69,7 +69,6 @@ invent.go()
 
 
 PYSCRIPT_TOML_TEMPLATE = """
-packages = [ "pyodide_http", "requests" ]
 experimental_create_proxy = "auto"
 
 [files]
