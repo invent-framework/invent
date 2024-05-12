@@ -37,8 +37,7 @@ export class BuilderModel extends ViewModelBase {
 		 * Python instance that looks after the Invent application model.
 		 *
 		 * Here, we wait for the Python instance to be available in the global window
-		 * scope as it is only created once PyScript has got an interpreter up and
-		 * running.
+		 * scope as it is created after PyScript has got an interpreter up and running.
 		 */
 		// @ts-ignore
 		while (!window['builder']){
@@ -47,7 +46,7 @@ export class BuilderModel extends ViewModelBase {
 
 		/**
 		 * Now we have the Python-side available, we can pass a reference to this object
-		 * (the JS side) into it.
+		 * (i.e. the JS side) into it.
 		 */
 		BuilderUtilities.init(this);
 
@@ -118,7 +117,7 @@ export class BuilderModel extends ViewModelBase {
 
 		const { type, data } = event.data;
 
-		console.log(`BuilderModel.onMessage: type: ${type}:`, data);
+		console.log(`BuilderModel.onMessage: type: ${type}: `, data);
 
 		switch (type){
 			/**
@@ -133,7 +132,7 @@ export class BuilderModel extends ViewModelBase {
 			/**
 			 * The host application wants to save the Invent app that we are currently
 			 * building. We just serialize the app and send it back - it is up to the
-			 * host to decide where it is actually persisted.
+			 * host to decide where it is actually saved.
 			 */
 			case "save-request": {
 				event.source?.postMessage({
@@ -320,9 +319,9 @@ export class BuilderModel extends ViewModelBase {
 	 */
 	public onAddMediaFile(): void {
 		/**
-		 * Send a message to the host application to prompt the user to add a media
-		 * file. The host will send us an "add-media-response" message if/when a media
-		 * file has been added.
+		 * Send a message to the host application to let it know that the user wants to
+		 * add a media file. The host will send us an "add-media-response" message
+		 * if/when a media file has been added.
 		 */
 		window.parent.postMessage({type: "add-media-request"});
 	}

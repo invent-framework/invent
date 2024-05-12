@@ -5,7 +5,6 @@ import json
 from pyscript import document
 from pyscript.ffi import create_proxy
 
-import invent
 from invent.ui import (
     App, AVAILABLE_COMPONENTS, Column, Container, create_component, export, Grid, Page,
     Row, Widget, from_datastore
