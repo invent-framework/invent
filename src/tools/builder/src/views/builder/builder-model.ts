@@ -28,9 +28,17 @@ export class BuilderModel extends ViewModelBase {
 	 */
 	public state: BuilderState = reactive(new BuilderState());
 
+	/**
+	 * Initialize the view model.
+	 */
 	public async init(): Promise<void> {
 		/**
-		 * Wait for the "builder" object to be available in the global window scope.
+		 * This view model has 2 sides; a JS object that looks after the UI, and a
+		 * Python instance that looks after the Invent application model.
+		 *
+		 * Here, we wait for the Python instance to be available in the global window
+		 * scope as it is only created once PyScript has got an interpreter up and
+		 * running.
 		 */
 		// @ts-ignore
 		while (!window['builder']){
@@ -38,27 +46,115 @@ export class BuilderModel extends ViewModelBase {
 		}
 
 		/**
-		 * BuilderUtilities is really just a bridge between this class (the JS-side of
-		 * the view model) and the "Builder" class in "builder.py" (the Python-side of
-		 * the view model).
-		 *
-		 * Here we just pass a reference to this object (the JS side) to the Python
-		 * side.
+		 * Now we have the Python-side available, we can pass a reference to this object
+		 * (the JS side) into it.
 		 */
 		BuilderUtilities.init(this);
 
 		/**
-		 * Start listening for messages from the hosting application (probably PSDC!).
+		 * Start listening for messages from the host application.
 		 */
-		this.listenForIframeMessages();
+		window.addEventListener("message", this.onMessage);
 
 		/**
-		 * Let the hosting application know that we are ready (and we can now load an
-		 * app.
+		 * Let the host application know that we are ready to roll (the host should
+		 * NOT send any other messages to us until this message has been received).
 		 */
-		window.parent.postMessage({
-			type: "invent-ready"
-		}, location.origin);
+		window.parent.postMessage({type: "invent-ready"}, location.origin);
+	}
+
+	/**
+	 * Load an existing Invent application.
+	 */
+	public async load(data: any): Promise<void> {
+		// Load App.
+		BuilderUtilities.getAppFromDict(data.app);
+
+		nextTick(() => {
+			this.getPages();
+			this.setDefaultPage();
+			this.getAvailableComponents();
+		});
+
+		// Load Media.
+		//
+		// This MUST be done *before* loading the blocks as they may well reference the
+		// media files.
+		this.state.media = data.media;
+
+		// Load Datastore.
+		this.state.datastore = data.datastore;
+
+		// Load Blocks.
+		Blockly.serialization.workspaces.load(data.blocks, Blockly.getMainWorkspace());
+	}
+
+	/**
+	 * Save the Invent application that we are currently building.
+	 *
+	 * We actually just serialize the application, it is up to the host to decide where
+	 * it is persisted.
+	 */
+	public save(): any {
+		const datastore: string = this.getDatastoreValues();
+		const generatedCode: string = pythonGenerator.workspaceToCode(Blockly.getMainWorkspace());
+		const code: string = `${this.state.functions}\n${generatedCode}`;
+		const psdc: any = BuilderUtilities.exportAsPyScriptApp(datastore, code);
+
+		return {
+			app: JSON.stringify(BuilderUtilities.getAppAsDict()),
+			blocks: JSON.stringify(Blockly.serialization.workspaces.save(Blockly.getMainWorkspace())),
+			datastore: JSON.stringify(this.state.datastore),
+			psdc
+		};
+	}
+
+	/**
+	 * Called when a message is received from the host application.
+	 */
+	async onMessage(event: MessageEvent) {
+		// Only allow same origin messages.
+		if (event.origin !== location.origin) return;
+
+		const { type, data } = event.data;
+
+		console.log(`BuilderModel.onMessage: type: ${type}:`, data);
+
+		switch (type){
+			/**
+			 * The host application wants to us to load an Invent app from the
+			 * data passed in the event (as yet, this doesn't require a response).
+			 */
+			case "load-request": {
+				await this.load(data);
+				break;
+			}
+
+			/**
+			 * The host application wants to save the Invent app that we are currently
+			 * building. We just serialize the app and send it back - it is up to the
+			 * host to decide where it is actually persisted.
+			 */
+			case "save-request": {
+				event.source?.postMessage({
+					type: "save-response",
+					data: this.save(),
+				});
+				break;
+			}
+
+			/**
+			 * The host application has uploaded a new media file.
+			 */
+			case "add-media-response": {
+				this.state.media[data.name] = {
+					name: data.name,
+					type: data.type,
+					path: data.path
+				}
+				break;
+			}
+		}
 	}
 
 	// Pages ///////////////////////////////////////////////////////////////////////////
@@ -75,41 +171,6 @@ export class BuilderModel extends ViewModelBase {
 		if (this.state.pages){
 			this.setActivePage(this.state.pages[0])
 		}
-	}
-
-	public listenForIframeMessages(): void {
-		window.addEventListener("message", async (event: MessageEvent) => {
-			// Only allow same origin messages.
-			if (event.origin !== location.origin) return;
-
-			const { type, data } = event.data;
-
-			console.log(`Invent - received message type: ${type}:`, data);
-
-			switch (type){
-				case "save-request": {
-					event.source?.postMessage({
-						type: "save-response",
-						data: this.save(),
-					});
-					break;
-				}
-
-				case "load-request": {
-					await this.load(data);
-					break;
-				}
-
-				case "media-upload-complete": {
-					this.state.media[data.name] = {
-						name: data.name,
-						type: data.type,
-						path: data.path
-					}
-					break;
-				}
-			}
-		});
 	}
 
 	/**
@@ -181,7 +242,7 @@ export class BuilderModel extends ViewModelBase {
 		return this.state.activePage && this.state.activeBuilderTab === 'app' && this.state.activePage.properties.id === page.properties.id ? 'gray' : 'transparent';
 	}
 
-	// Drag and Drop Prototype
+	// Drag and Drop Prototype.
 	public onDragStart(event: DragEvent, widget: WidgetModel) {
 		event.dataTransfer?.setData("widget", JSON.stringify(widget));
 	}
@@ -223,58 +284,6 @@ export class BuilderModel extends ViewModelBase {
 		return datastoreCode.join("\n");
 	}
 
-	public async load(data: any): Promise<void> {
-		// Load App
-		BuilderUtilities.getAppFromDict(data.app);
-
-		nextTick(() => {
-			this.getPages();
-			this.setDefaultPage();
-			this.getAvailableComponents();
-		});
-
-		// Load media (this MUST be done before loading the blocks so that it can
-		// reference the media files in blocks such as playing sounds etc.).
-		this.state.media = data.media;
-
-		// Load Blocks
-		Blockly.serialization.workspaces.load(data.blocks, Blockly.getMainWorkspace());
-
-		// Load Datastore
-		this.state.datastore = data.datastore;
-	}
-
-	public save(): any {
-		const datastore: string = this.getDatastoreValues();
-		const generatedCode: string = pythonGenerator.workspaceToCode(Blockly.getMainWorkspace());
-		const code: string = `${this.state.functions}\n${generatedCode}`;
-		const psdc: any = BuilderUtilities.exportAsPyScriptApp(datastore, code);
-
-		return {
-			app: JSON.stringify(BuilderUtilities.getAppAsDict()),
-			blocks: JSON.stringify(Blockly.serialization.workspaces.save(Blockly.getMainWorkspace())),
-			datastore: JSON.stringify(this.state.datastore),
-			psdc
-		};
-	}
-
-	/**
-	 * The path argument should be relative to the project root and contain the filename.
-	 * For example: some/folder/here/file.js
-	 */
-	public createFormDataBlob(path: string, content = '', type = 'text/plain') {
-		const blobManifest = new Blob([content], { type });
-		const formData = new FormData();
-		formData.append('file', blobManifest, path);
-		return formData;
-	}
-
-	public createFormDataFromBlob(path: string, blob: Blob) {
-		const formData = new FormData();
-		formData.append('file', blob, path);
-		return formData;
-	}
-
 	public onBuilderTabClicked(tab: string) {
 		this.state.activeBuilderTab = tab;
 
@@ -306,34 +315,29 @@ export class BuilderModel extends ViewModelBase {
 		})
 	}
 
+	/**
+	 * Called when the "Add" button on the Media tab is clicked.
+	 */
 	public onAddMediaFile(): void {
-		window.parent.postMessage({
-			type: "add-media-request",
-		});
+		/**
+		 * Send a message to the host application to prompt the user to add a media
+		 * file. The host will send us an "add-media-response" message if/when a media
+		 * file has been added.
+		 */
+		window.parent.postMessage({type: "add-media-request"});
 	}
 
 	public getImageFiles(): Array<IbSelectOption> {
-		const images: Array<IbSelectOption> = Object.values(this.state.media).filter((file: MediaFileModel) => {
-			return file.type.startsWith('image')
-		}).map((file: MediaFileModel) => {
-			return {
-				label: file.name,
-				value: file.path
-			};
-		})
-
-		return [
-			{
-				label: "Select a file...",
-				value: ""
-			},
-			...images
-		]
+		return this.filterMediaFiles("image");
 	}
 
 	public getSoundFiles(): Array<IbSelectOption> {
-		const sounds: Array<IbSelectOption> = Object.values(this.state.media).filter((file: MediaFileModel) => {
-			return file.type.startsWith('audio')
+		return this.filterMediaFiles("audio");
+	}
+
+	private filterMediaFiles(typePrefix: string): Array<IbSelectOption> {
+		const mediaFiles: Array<IbSelectOption> = Object.values(this.state.media).filter((file: MediaFileModel) => {
+			return file.type.startsWith(typePrefix)
 		}).map((file: MediaFileModel) => {
 			return {
 				label: file.name,
@@ -346,7 +350,7 @@ export class BuilderModel extends ViewModelBase {
 				label: "Select a file...",
 				value: ""
 			},
-			...sounds
+			...mediaFiles
 		]
 	}
 
