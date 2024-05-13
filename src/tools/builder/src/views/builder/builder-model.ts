@@ -53,7 +53,7 @@ export class BuilderModel extends ViewModelBase {
 		/**
 		 * Start listening for messages from the host application.
 		 */
-		window.addEventListener("message", this.onMessage);
+		window.addEventListener("message", this.onMessage.bind(this));
 
 		/**
 		 * Let the host application know that we are ready to roll (the host should
