@@ -35,10 +35,6 @@ class Builder:
         # It will be one of "left-of", "right-of", "above", "below".
         self._insertion_position = None
 
-        # Undo/redo stacks.
-        self._undo_stack = []
-        self._redo_stack = []
-
         # TODO: We might eventually open with an existing app, but here we just create
         # one with a single, empty page.
         self.app = App(name="Invent Demo", content=[Page(name="Page 1")])
