@@ -153,6 +153,14 @@ export class BuilderModel extends ViewModelBase {
 				}
 				break;
 			}
+
+			case "show-code-request": {
+				event.source?.postMessage({
+					type: "show-code-response",
+					data: this.save(),
+				});
+				break;
+			}
 		}
 	}
 
