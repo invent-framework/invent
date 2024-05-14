@@ -660,6 +660,10 @@ class Builder:
         Manage an element shown when the container is empty.
         """
 
+        if container is None:
+            # It has been deleted!
+            return
+        
         container.element.classList.remove("invent-empty")
         if hasattr(container, "_empty_element"):
             container._empty_element.remove()
