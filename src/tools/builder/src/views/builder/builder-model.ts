@@ -121,8 +121,8 @@ export class BuilderModel extends ViewModelBase {
 
 		switch (type){
 			/**
-			 * The host application wants to us to load an Invent app from the
-			 * data passed in the event (as yet, this doesn't require a response).
+			 * The host application wants us to load an Invent app from the data it
+			 * passed in the event (as yet, this doesn't require a response).
 			 */
 			case "load-request": {
 				await this.load(data);
@@ -144,6 +144,9 @@ export class BuilderModel extends ViewModelBase {
 
 			/**
 			 * The host application has uploaded a new media file.
+			 *
+			 * This is in response to the 'add-media-request' we sent when the "Add"
+			 * button was pressed on the Media tab.
 			 */
 			case "add-media-response": {
 				this.state.media[data.name] = {
@@ -151,14 +154,6 @@ export class BuilderModel extends ViewModelBase {
 					type: data.type,
 					path: data.path
 				}
-				break;
-			}
-
-			case "show-code-request": {
-				event.source?.postMessage({
-					type: "show-code-response",
-					data: this.save(),
-				});
 				break;
 			}
 		}
