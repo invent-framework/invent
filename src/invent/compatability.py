@@ -1,5 +1,7 @@
 """MicroPython/pyodide compatability layer."""
 
+
+import asyncio
 import inspect
 import sys
 
@@ -27,3 +29,13 @@ def iscoroutinefunction(obj):
         return inspect.isgeneratorfunction(obj)
 
     return inspect.iscoroutinefunction(obj)
+
+
+async def sleep_ms(ms):
+    """Asynchronous sleep for 'ms' milliseconds."""
+
+    if is_micropython:
+        await asyncio.sleep_ms(ms)
+
+    else:
+        await asyncio.sleep(ms/1000)

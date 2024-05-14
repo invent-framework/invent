@@ -1,6 +1,8 @@
 from pyscript import window
 from pyscript.ffi import create_proxy
 
+from invent.compatability import sleep_ms
+
 
 _VOICES_BY_NAME = None
 
@@ -81,28 +83,35 @@ def say(text):
     synth.speak(utterance)
 
 
+class RecognitionStatus:
+    """A class to encapsulate the status of speech recognition."""
+
+    def __init__(self):
+        self.done = False
+        self.transcript = None
+        self.error = None
+
+
 async def listen():
     """
     Speech recognition via the microphone.
     """
 
-    import asyncio
-
     recognition = SpeechRecognition.new()
 
-    # The speech recognition API is non-blocking but uses callbacks, so here
-    # we wrap it with a Future, so we can create this awaitable function.
-    future = asyncio.Future()
+    status = RecognitionStatus()
 
     def on_result(event):
-        transcript = event.results.item(0).item(0).transcript
-        future.set_result(transcript)
+        status.transcript = event.results.item(0).item(0).transcript
+        status.done = True
 
     def on_stop(event):
         recognition.stop()
+        status.done = True
 
     def on_error(event):
-        raise Exception(str(event))
+        status.error = Exception(str(event))
+        status.done = True
 
     recognition.onresult = create_proxy(on_result)
     recognition.onstop = create_proxy(on_stop)
@@ -114,8 +123,14 @@ async def listen():
     # If the speech synthesizer is still speaking, wait for it to shut up,
     # otherwise the microphone will pick up what it is saying :)
     while synth.speaking:
-        await asyncio.sleep(0.1)
+        await sleep_ms(100)
 
     recognition.start()
 
-    return await future
+    while not status.done:
+        await sleep_ms(10)
+
+    if status.error:
+        raise status.error
+
+    return status.transcript
