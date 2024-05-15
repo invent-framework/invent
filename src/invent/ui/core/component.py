@@ -335,9 +335,33 @@ class Component:
         Return a dict representation of the state of this instance's
         properties and message blueprints.
         """
-        properties = {
-            key: getattr(self, key) for key in type(self).properties()
-        }
+        properties = {}
+        for property_name, property_obj in type(self).properties().items():
+            # If the component is a Container, we deal with its content
+            # separately (for the recursive case). A Widget may well define
+            # its own custom "content" property though, so we handle that
+            # just like any other property.
+            if isinstance(self, Container) and property_name == "content":
+                continue
+
+            from_datastore = self.get_from_datastore(property_name)
+            if from_datastore:
+                property_value = repr(from_datastore)
+
+            else:
+                property_value = getattr(self, property_name)
+
+            properties[property_name] = property_value
+
+        if isinstance(self, Container):
+            from_datastore = self.get_from_datastore("content")
+            if from_datastore:
+                properties["content"] = repr(from_datastore)
+
+            else:
+                properties["content"] = [
+                    item.as_dict() for item in self.content
+                ]
 
         return {
             "type": type(self).__name__,
@@ -347,6 +371,14 @@ class Component:
                 for key, value in type(self).message_blueprints().items()
             },
         }
+
+    def get_from_datastore(self, property_name):
+        """
+        Return the "from_datastore" instance for a property or None if it is a
+        simple/literal property.
+        """
+
+        return getattr(self, f"_{property_name}_from_datastore", None)
 
     def parse_position(self):
         """

@@ -4,6 +4,7 @@ Where "variety" currently means "as python code" :)
 
 """
 
+from invent.ui.core import from_datastore
 from invent.ui import Container
 
 
@@ -148,7 +149,19 @@ def _component_from_dict(component_dict):
 
     component_dict["properties"]["content"] = content
 
-    return cls(**component_dict["properties"])
+    properties = {}
+    for property_name, property_value in component_dict["properties"].items():
+        if (
+            type(property_value) is str
+            and property_value.startswith("from_datastore(")
+        ):
+            property_value = eval(
+                property_value, {}, dict(from_datastore=from_datastore)
+            )
+
+        properties[property_name] = property_value
+
+    return cls(**properties)
 
 
 # Internal ###################################################################
@@ -221,7 +234,7 @@ def _pretty_repr_component_properties(component, lines, indent):
         if isinstance(component, Container) and property_name == "content":
             continue
 
-        from_datastore = _get_from_datastore(component, property_name)
+        from_datastore = component.get_from_datastore(property_name)
         property_value = (
             from_datastore
             if from_datastore
@@ -236,7 +249,7 @@ def _pretty_repr_container_content_property(component, lines, indent):
     Generate a pretty repr of a Container's "content" property.
     """
 
-    from_datastore = _get_from_datastore(component, "content")
+    from_datastore = component.get_from_datastore("content")
     if from_datastore:
         lines.append(f"{indent}content={repr(from_datastore)},")
 
@@ -245,12 +258,3 @@ def _pretty_repr_container_content_property(component, lines, indent):
         for child in component.content:
             _pretty_repr_component(child, lines=lines, indent=indent + "    ")
         lines.append(f"{indent}],")
-
-
-def _get_from_datastore(component, property_name):
-    """
-    Return the "from_datastore" instance for a property or None if it is a
-    simple/literal property.
-    """
-
-    return getattr(component, f"_{property_name}_from_datastore", None)
