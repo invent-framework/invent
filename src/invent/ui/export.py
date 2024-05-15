@@ -136,21 +136,11 @@ def _component_from_dict(component_dict):
 
     from invent import ui
 
-    cls = getattr(ui, component_dict["type"])
-
-    if issubclass(cls, Container):
-        content = [
-            _component_from_dict(component_dict)
-            for component_dict in component_dict["properties"]["content"]
-        ]
-
-    else:
-        content = None
-
-    component_dict["properties"]["content"] = content
-
     properties = {}
     for property_name, property_value in component_dict["properties"].items():
+        if property_name == "content":
+            continue
+
         if (
             type(property_value) is str
             and property_value.startswith("from_datastore(")
@@ -160,6 +150,23 @@ def _component_from_dict(component_dict):
             )
 
         properties[property_name] = property_value
+
+    cls = getattr(ui, component_dict["type"])
+
+    if issubclass(cls, Container):
+        property_value = component_dict["properties"]["content"]
+        if type(property_value) is str:
+            content = eval(
+                property_value, {}, dict(from_datastore=from_datastore)
+            )
+
+        else:
+            content = [
+                _component_from_dict(component_dict)
+                for component_dict in component_dict["properties"]["content"]
+            ]
+
+        properties["content"] = content
 
     return cls(**properties)
 
