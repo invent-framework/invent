@@ -136,9 +136,11 @@ def _component_from_dict(component_dict):
 
     from invent import ui
 
+    cls = getattr(ui, component_dict["type"])
+
     properties = {}
     for property_name, property_value in component_dict["properties"].items():
-        if property_name == "content":
+        if issubclass(cls, Container) and property_name == "content":
             continue
 
         if (
@@ -163,7 +165,7 @@ def _component_from_dict(component_dict):
         else:
             content = [
                 _component_from_dict(component_dict)
-                for component_dict in component_dict["properties"]["content"]
+                for component_dict in property_value
             ]
 
         properties["content"] = content
