@@ -31,9 +31,9 @@ INDEX_HTML = """
 
     <!-- PyScript -->
     <link rel="stylesheet"
-      href="https://pyscript.net/releases/2024.5.1/core.css">
+      href="https://pyscript.net/releases/2024.5.2/core.css">
     <script type="module"
-      src="https://pyscript.net/releases/2024.5.1/core.js"></script>
+      src="https://pyscript.net/releases/2024.5.2/core.js"></script>
 
     <!-- App CSS Styles -->
     <link rel="stylesheet"
