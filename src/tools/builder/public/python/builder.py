@@ -35,10 +35,6 @@ class Builder:
         # It will be one of "left-of", "right-of", "above", "below".
         self._insertion_position = None
 
-        # TODO: We might eventually open with an existing app, but here we just create
-        # one with a single, empty page.
-        self.app = App(name="Invent Demo", content=[Page(name="Page 1")])
-
     def set_js_builder_model(self, js_builder_model):
         """
         Connects the Python side of the view model to the JS side.
@@ -98,6 +94,15 @@ class Builder:
         new_page = Page(name=page_name)
 
         self._app.content.append(new_page)
+
+        # Inject the JS event handlers to make component selection and drag-and-drop
+        # work.
+        self._add_js_event_handlers_to_component(new_page)
+
+        # Add elements to the DOM to visualize empty containers.
+        self._manage_empty_element_in_container(new_page)
+
+        self.pprint_app()
 
         return json.dumps(new_page.as_dict())
 

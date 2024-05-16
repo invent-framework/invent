@@ -767,14 +767,3 @@ class Container(Component):
         """
         for counter, child in enumerate(self.content, start=1):
             self.update_child_wrapper(child, counter)
-
-    def as_dict(self):
-        """
-        Return a dict representation of the container, including the ordered
-        content of children.
-        """
-        result = super().as_dict()
-        result["properties"]["content"] = [
-            child.as_dict() for child in self.content
-        ]
-        return result

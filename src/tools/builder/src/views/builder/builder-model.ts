@@ -69,6 +69,8 @@ export class BuilderModel extends ViewModelBase {
 		// Load App.
 		BuilderUtilities.getAppFromDict(data.app);
 
+		// TODO: Not sure we need to do this on the next tick - please check after
+		// PyCon! :)
 		nextTick(() => {
 			this.getPages();
 			this.setDefaultPage();
@@ -101,7 +103,7 @@ export class BuilderModel extends ViewModelBase {
 		const psdc: any = BuilderUtilities.exportAsPyScriptApp(datastore, code);
 
 		return {
-			app: JSON.stringify(BuilderUtilities.getAppAsDict()),
+			app: JSON.stringify(BuilderUtilities.getAppAsDict(), null, 2),
 			blocks: JSON.stringify(Blockly.serialization.workspaces.save(Blockly.getMainWorkspace())),
 			datastore: JSON.stringify(this.state.datastore),
 			psdc

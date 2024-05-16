@@ -7,7 +7,7 @@
             :id="`${page.properties.id}-editor`"
             :srcdoc="component.getSrcDoc()" 
             class="w-full h-full"
-            @load="component.onPageLoad(pages, activePage, addWidgetToPage)"
+            @load="component.onPageLoad(pages, page, addWidgetToPage)"
         />
     </div>
 </template>
