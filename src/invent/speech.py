@@ -83,8 +83,8 @@ def say(text):
     synth.speak(utterance)
 
 
-class RecognitionStatus:
-    """A class to encapsulate the status of speech recognition."""
+class SpeechRecognitionStatus:
+    """Encapsulates the status of a speech recognition operation."""
 
     def __init__(self):
         self.done = False
@@ -98,8 +98,7 @@ async def listen():
     """
 
     recognition = SpeechRecognition.new()
-
-    status = RecognitionStatus()
+    status = SpeechRecognitionStatus()
 
     def on_result(event):
         status.transcript = event.results.item(0).item(0).transcript
