@@ -183,7 +183,7 @@ class DataStore:
         """
         Convenience method to create a properly namespaced key.
         """
-        return f"{self.namespace}{key}"
+        return f"{self.namespace}-{key}"
 
     def __len__(self):
         """
