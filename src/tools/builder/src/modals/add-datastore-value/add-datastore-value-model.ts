@@ -64,8 +64,7 @@ export class AddDatastoreValueModel extends ModalModelBase {
 				.string()
 				.required(FormUtilities.getValidationMessage("required", [this.getText("type")])),
 			default_value: yup
-				.string()
-				.required(FormUtilities.getValidationMessage("required", [this.getText("default-value")])),
+				.string(),
 			reset: yup
 				.boolean()
 		};

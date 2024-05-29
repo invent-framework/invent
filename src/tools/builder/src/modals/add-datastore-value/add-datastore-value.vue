@@ -38,7 +38,6 @@
           :placeholder="modal.getText('enter-default-value')"
           :error="modal.state.errors['default_value']" 
           :type="modal.state.data['type']"
-          required
           @input="modal.validateField('default_value')"
         />
 
