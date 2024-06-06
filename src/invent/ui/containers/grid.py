@@ -1,5 +1,10 @@
-from pyscript import document
 from ..core import Container, IntegerProperty
+
+
+#: Valid flags for horizontal positions.
+_VALID_HORIZONTALS = {"LEFT", "CENTER", "RIGHT", "FILL"}
+#: Valid flags for vertical positions.
+_VALID_VERTICALS = {"TOP", "MIDDLE", "BOTTOM", "FILL"}
 
 
 class Grid(Container):
@@ -22,51 +27,80 @@ class Grid(Container):
         """
         Render the component.
         """
-        element = document.createElement("div")
+        element = super().render()
         element.style.display = "grid"
         element.style.gridTemplateColumns = "auto " * self.columns
         element.style.columnGap = self.column_gap
         element.style.rowGap = self.row_gap
-        element.classList.add(f"invent-{type(self).__name__.lower()}")
-
-        # Render the container's children.
-        self.render_children(element)
-
-        # Implementation detail: add child elements in the child class's own
-        # render method. See Column and Row classes for examples of this.
         return element
 
-    def create_child_wrapper(self, child, index):
-        """
-        Wrap the child element in a div with grid styles set appropriately.
-        """
-        child_wrapper = document.createElement("div")
-
+    def update_child(self, child, index):
         grid_row_span = child.row_span
         if grid_row_span:
-            child_wrapper.style.gridRow = "span " + str(grid_row_span)
+            child.element.style.gridRow = "span " + str(grid_row_span)
 
         grid_column_span = child.column_span
         if grid_column_span:
-            child_wrapper.style.gridColumn = "span " + str(grid_column_span)
+            child.element.style.gridColumn = "span " + str(grid_column_span)
 
-        child_wrapper.appendChild(child.element)
-        child.set_position(child_wrapper)
+        set_position(child.element, child.position)
 
-        return child_wrapper
 
-    def update_child_wrapper(self, child, index):
-        """
-        Wrap the child element in a div with grid styles set appropriately.
-        """
-        child_wrapper = child.element.parentElement
-        grid_row_span = child.row_span
-        if grid_row_span:
-            child_wrapper.style.gridRow = "span " + str(grid_row_span)
+def parse_position(position):
+    """
+    Parse "position" as: "VERTICAL-HORIZONTAL", "VERTICAL" or "HORIZONTAL"
+    values.
 
-        grid_column_span = child.column_span
-        if grid_column_span:
-            child_wrapper.style.gridColumn = "span " + str(grid_column_span)
+    Valid values are defined in _VALID_VERTICALS and _VALID_HORIZONTALS.
 
-        child_wrapper.appendChild(child.element)
-        child.set_position(child_wrapper)
+    Returns a tuple of (vertical_position, horizontal_position). Missing or
+    invalid values will be replaced by FILL.
+    """
+    definition = position.upper().split("-")
+    # Default values for the horizontal and vertical positions.
+    horizontal_position = "FILL"
+    vertical_position = "FILL"
+    if len(definition) == 1:
+        # Unary position (e.g. "TOP" or "CENTER")
+        unary_position = definition[0]
+        if unary_position in _VALID_HORIZONTALS:
+            horizontal_position = unary_position
+        if unary_position in _VALID_VERTICALS:
+            vertical_position = unary_position
+    elif len(definition) == 2:
+        # Binary position (e.g. "TOP-CENTER" or "BOTTOM-RIGHT")
+        if definition[0] in _VALID_VERTICALS:
+            vertical_position = definition[0]
+        if definition[1] in _VALID_HORIZONTALS:
+            horizontal_position = definition[1]
+    return vertical_position, horizontal_position
+
+
+def set_position(element, position):
+    """
+    Given the value of "position", will adjust the CSS for the rendered
+    "element" so the resulting HTML puts the element into the expected position
+    in its grid cell.
+    """
+    try:
+        vertical_position, horizontal_position = parse_position(position)
+    except ValueError:
+        return
+
+    if vertical_position == "TOP":
+        element.style.setProperty("align-self", "start")
+    elif vertical_position == "MIDDLE":
+        element.style.setProperty("align-self", "center")
+    elif vertical_position == "BOTTOM":
+        element.style.setProperty("align-self", "end")
+    elif vertical_position == "FILL":
+        element.style.setProperty("align-self", "stretch")
+
+    if horizontal_position == "LEFT":
+        element.style.setProperty("justify-self", "start")
+    elif horizontal_position == "CENTER":
+        element.style.setProperty("justify-self", "center")
+    elif horizontal_position == "RIGHT":
+        element.style.setProperty("justify-self", "end")
+    elif horizontal_position == "FILL":
+        element.style.setProperty("justify-self", "stretch")

@@ -20,7 +20,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-from .column import Column
+from .. import Column
 
 
 class Page(Column):
