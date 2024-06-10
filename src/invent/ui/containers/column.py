@@ -1,5 +1,4 @@
 from .box import Box
-from .grid import set_position
 
 
 class Column(Box):
@@ -14,4 +13,3 @@ class Column(Box):
     def update_child(self, child, index):
         child.element.style.setProperty("grid-column", 1)
         child.element.style.setProperty("grid-row", index)
-        set_position(child.element, child.position)

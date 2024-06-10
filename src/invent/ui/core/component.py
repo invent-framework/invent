@@ -33,6 +33,10 @@ from .property import (
 )
 
 
+#: Valid flags for horizontal positions.
+_VALID_HORIZONTALS = {"LEFT", "CENTER", "RIGHT", "FILL"}
+#: Valid flags for vertical positions.
+_VALID_VERTICALS = {"TOP", "MIDDLE", "BOTTOM", "FILL"}
 #: T-shirt sizes used to indicate relative sizes of things.
 _TSHIRT_SIZES = (
     None,
@@ -210,8 +214,7 @@ class Component:
         Automatically called to update the position information relating to
         the HTML element associated with the component.
         """
-        if self.element.parentElement:
-            self.set_position(self.element.parentElement)
+        self.set_position()
 
     def on_column_span_changed(self):
         """
@@ -375,6 +378,78 @@ class Component:
         """
 
         return getattr(self, f"_{property_name}_from_datastore", None)
+
+    def parse_position(self):
+        """
+        Parse "self.position" as: "VERTICAL-HORIZONTAL", "VERTICAL" or
+        "HORIZONTAL" values.
+
+        Valid values are defined in _VALID_VERTICALS and _VALID_HORIZONTALS.
+
+        Returns a tuple of (vertical_position, horizontal_position). Missing
+        values will be replaced by FILL. Invalid values will raise a
+        ValueError.
+        """
+        definition = self.position.upper().split("-")
+        # Default values for the horizontal and vertical positions.
+        horizontal_position = None
+        vertical_position = None
+        if len(definition) == 1:
+            # Unary position (e.g. "TOP" or "CENTER")
+            unary_position = definition[0]
+            if unary_position in _VALID_HORIZONTALS:
+                horizontal_position = unary_position
+            if unary_position in _VALID_VERTICALS:
+                vertical_position = unary_position
+        elif len(definition) == 2:
+            # Binary position (e.g. "TOP-CENTER" or "BOTTOM-RIGHT")
+            if definition[0] in _VALID_VERTICALS:
+                vertical_position = definition[0]
+            else:
+                raise ValueError(
+                    f"'{definition[0]}' is not a valid vertical position."
+                )
+            if definition[1] in _VALID_HORIZONTALS:
+                horizontal_position = definition[1]
+            else:
+                raise ValueError(
+                    f"'{definition[1]}' is not a valid horizontal position."
+                )
+
+        if not (horizontal_position or vertical_position):
+            # Bail out if we don't have a valid position state.
+            raise ValueError(f"'{self.position}' is not a valid position.")
+        return (vertical_position or "FILL", horizontal_position or "FILL")
+
+    def set_position(self):
+        """
+        Given the value of "self.position", will adjust the CSS for the
+        rendered "self.element" so the resulting HTML puts the element into the
+        expected position in its grid cell.
+        """
+        try:
+            vertical_position, horizontal_position = self.parse_position()
+        except ValueError:
+            return
+
+        container = self.element
+        if vertical_position == "TOP":
+            container.style.setProperty("align-self", "start")
+        elif vertical_position == "MIDDLE":
+            container.style.setProperty("align-self", "center")
+        elif vertical_position == "BOTTOM":
+            container.style.setProperty("align-self", "end")
+        elif vertical_position == "FILL":
+            container.style.setProperty("align-self", "stretch")
+
+        if horizontal_position == "LEFT":
+            container.style.setProperty("justify-self", "start")
+        elif horizontal_position == "CENTER":
+            container.style.setProperty("justify-self", "center")
+        elif horizontal_position == "RIGHT":
+            container.style.setProperty("justify-self", "end")
+        elif horizontal_position == "FILL":
+            container.style.setProperty("justify-self", "stretch")
 
     def update_attribute(self, attribute_name, attribute_value):
         """

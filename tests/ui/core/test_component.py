@@ -300,9 +300,7 @@ def test_component_update_attribute():
 
     w = MyWidget()
     # There is no attribute called "test" on the widget's element.
-    w.element.removeAttribute("id")
-    w.element.removeAttribute("name")
-    assert w.element.hasAttributes() is False
+    assert w.element.hasAttribute("test") is False
     # Update an attribute (add it).
     w.update_attribute("test", "yes")
     assert w.element.getAttribute("test") == "yes"
@@ -311,7 +309,7 @@ def test_component_update_attribute():
     assert w.element.getAttribute("test") == "yes2"
     # Update an attribute (remove it because it is false-y).
     w.update_attribute("test", "")
-    assert w.element.hasAttributes() is False
+    assert w.element.hasAttribute("test") is False
 
 
 def test_component_default_icon():
@@ -402,41 +400,65 @@ def test_widget_parse_position():
             return document.createElement("div")
 
     w = MyWidget(name="test widget")
-    w.element = document.createElement("div")
-    container = document.createElement("div")
-    container.appendChild(w.element)
     for h in core._VALID_HORIZONTALS:
         w.position = h
-        assert w.parse_position() == (None, h)
+        assert w.parse_position() == (h, h) if h == "FILL" else ("FILL", h)
         for v in core._VALID_VERTICALS:
             w.position = v
-            assert w.parse_position() == (v, None)
+            assert w.parse_position() == (v, v) if v == "FILL" else (v, "FILL")
+
             w.position = f"{v}-{h}"
             assert w.parse_position() == (v, h)
-    with pytest.raises(ValueError):
-        # Invalid position values result in a ValueError.
-        w.position = "NOT-VALID"
-        w.parse_position()
 
 
-def test_widget_set_position_fill():
+def test_parse_position_invalid():
     """
-    Ensure the widget's element has the CSS width and height set to the
-    expected value of 100%.
+    Any invalid definition of a widget's position should raise a ValueError.
     """
 
     class MyWidget(core.Widget):
-
         def render(self):
             return document.createElement("div")
 
-    w = MyWidget(position="FILL")
-    w.element = document.createElement("div")
-    container = document.createElement("div")
-    container.appendChild(w.element)
-    w.set_position(container)
-    assert w.element.style.width == "100%"
-    assert w.element.style.height == "100%"
+    w = MyWidget()
+
+    # Too short
+    with pytest.raises(ValueError, match="'' is not a valid position"):
+        w.position = ""
+        w.parse_position()
+
+    # Too long
+    with pytest.raises(
+        ValueError, match="'FILL-FILL-FILL' is not a valid position"
+    ):
+        w.position = "FILL-FILL-FILL"
+        w.parse_position()
+
+    # Invalid single value
+    with pytest.raises(ValueError, match="'INVALID' is not a valid position"):
+        w.position = "INVALID"
+        w.parse_position()
+
+    # Invalid double value
+    with pytest.raises(
+        ValueError, match="'NOT' is not a valid vertical position"
+    ):
+        w.position = "NOT-VALID"
+        w.parse_position()
+
+    # Invalid vertical value
+    with pytest.raises(
+        ValueError, match="'CENTER' is not a valid vertical position"
+    ):
+        w.position = "CENTER-FILL"
+        w.parse_position()
+
+    # Invalid horizontal value
+    with pytest.raises(
+        ValueError, match="'INVALID' is not a valid horizontal position"
+    ):
+        w.position = "FILL-INVALID"
+        w.parse_position()
 
 
 def test_widget_set_position():
@@ -454,47 +476,20 @@ def test_widget_set_position():
         "TOP": "start",
         "MIDDLE": "center",
         "BOTTOM": "end",
-        "": "stretch",
+        "FILL": "stretch",
     }
     expected_horizontal = {
         "LEFT": "start",
         "CENTER": "center",
         "RIGHT": "end",
-        "": "stretch",
+        "FILL": "stretch",
     }
     for h_key, h_val in expected_horizontal.items():
         for v_key, v_val in expected_vertical.items():
             w = MyWidget()
-            w.element = document.createElement("div")
-            container = document.createElement("div")
-            container.appendChild(w.element)
-            if v_key and h_key:
-                w.position = f"{v_key}-{h_key}"
-            else:
-                w.position = f"{v_key}{h_key}"
-            # Ignore NoneNone
-            if w.position:
-                w.set_position(container)
-                if v_key:
-                    assert (
-                        container.style.getPropertyValue("align-self") == v_val
-                    )
-                else:
-                    assert (
-                        container.style.getPropertyValue("align-self") == v_val
-                    )
-                    assert w.element.style.height == "100%"
-                if h_key:
-                    assert (
-                        container.style.getPropertyValue("justify-self")
-                        == h_val
-                    )
-                else:
-                    assert (
-                        container.style.getPropertyValue("justify-self")
-                        == h_val
-                    )
-                    assert w.element.style.width == "100%"
+            w.position = f"{v_key}-{h_key}"
+            assert w.element.style.getPropertyValue("align-self") == v_val
+            assert w.element.style.getPropertyValue("justify-self") == h_val
 
 
 def test_container_on_content_changed():

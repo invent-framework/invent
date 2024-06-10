@@ -1,5 +1,4 @@
 from .box import Box
-from .grid import set_position
 
 
 class Row(Box):
@@ -18,7 +17,6 @@ class Row(Box):
     def update_child(self, child, index):
         child.element.style.setProperty("grid-column", index)
         child.element.style.setProperty("grid-row", 1)
-        set_position(child.element, child.position)
 
     def _update_template_columns(self):
         template_columns = []
