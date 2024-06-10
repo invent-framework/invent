@@ -64,53 +64,57 @@ app = App(
         Page(
             name="Lucy",
             content=[
-                Slider(
-                    value=from_datastore("number_of_honks"),
-                    name="Honk Slider",
-                    position="FILL",
-                    step=1,
-                ),
                 Column(
+                    align_items="center",
                     content=[
                         Image(
                             image=invent.media.images.goose.png,
                             channel="honk",
-                            position="MIDDLE-CENTER",
                         ),
                         Row(
-                            position="CENTER",
                             content=[
                                 Button(
                                     name="button honk",
                                     label="HONK!",
                                     channel="honk",
-                                    position="FILL",
                                 ),
                                 Button(
                                     name="to_percy",
                                     label="Visit Percy",
                                     channel="navigate",
-                                    position="FILL",
-                                ),
-                                TextBox(
-                                    name="number_of_honks",
-                                    text=from_datastore("number_of_honks"),
-                                    position="MIDDLE-CENTER",
                                 ),
                             ],
                         ),
                         Row(
+                            align_self="stretch",
+                            align_items="center",
+                            content=[
+                                TextBox(
+                                    name="number_of_honks",
+                                    text=from_datastore("number_of_honks"),
+                                ),
+                                Slider(
+                                    value=from_datastore("number_of_honks"),
+                                    name="Honk Slider",
+                                    step=1,
+                                    flex=1,
+                                ),
+                            ]
+                        ),
+                        Row(
                             id="geese",
-                            position="CENTER",
                             content=from_datastore(
                                 "number_of_honks", with_function=make_geese
                             ),
+                            align_self="stretch",
+                            justify_content="center",
+                            flex_wrap=True,
                         ),
                         Button(
                             name="to_code",
                             label="Show Code",
                             channel="navigate",
-                            position="FILL",
+                            align_self="stretch",
                         ),
                     ]
                 ),
@@ -120,14 +124,13 @@ app = App(
             name="Percy",
             content=[
                 Column(
+                    align_items="center",
                     content=[
                         Image(
                             image=invent.media.images.pig.png,
                             channel="oink",
-                            position="MIDDLE-CENTER",
                         ),
                         Row(
-                            position="CENTER",
                             content=[
                                 Button(
                                     name="button oink",
@@ -138,27 +141,28 @@ app = App(
                                     name="to_lucy",
                                     label="Visit Lucy",
                                     channel="navigate",
-                                    position="FILL",
                                 ),
                                 TextBox(
                                     name="number_of_oinks",
                                     text=from_datastore("number_of_oinks"),
-                                    position="MIDDLE-CENTER",
+                                    align_self="center",
                                 ),
                             ],
                         ),
                         Row(
                             id="pigs",
-                            position="CENTER",
                             content=from_datastore(
                                 "number_of_oinks", with_function=make_pigs
                             ),
+                            align_self="stretch",
+                            justify_content="center",
+                            flex_wrap=True,
                         ),
                         Button(
                             name="to_code",
                             label="Show Code",
                             channel="navigate",
-                            position="FILL",
+                            align_self="stretch",
                         ),
                     ],
                 ),
@@ -181,13 +185,13 @@ app.content.append(
                         name="to_lucy",
                         label="Visit Lucy",
                         channel="navigate",
-                        position="FILL",
+                        flex=1,
                     ),
                     Button(
                         name="to_percy",
                         label="Visit Percy",
                         channel="navigate",
-                        position="FILL",
+                        flex=1,
                     ),
                 ]
             ),

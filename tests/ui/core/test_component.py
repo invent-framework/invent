@@ -70,10 +70,10 @@ def test_component_init_with_given_values():
         def render(self):
             return document.createElement("div")
 
-    tc = TestComponent(name="test1", id="12345", position="TOP-LEFT")
+    tc = TestComponent(name="test1", id="12345", visible=False)
     assert tc.name == "test1"
     assert tc.id == "12345"
-    assert tc.position == "TOP-LEFT"
+    assert tc.visible is False
     assert tc.parent is None
 
 
@@ -229,8 +229,6 @@ def test_component_blueprint():
     assert result["properties"]["id"]["default_value"] is None
     assert result["properties"]["channel"]["property_type"] == "TextProperty"
     assert result["properties"]["channel"]["default_value"] is None
-    assert result["properties"]["position"]["property_type"] == "TextProperty"
-    assert result["properties"]["position"]["default_value"] == "FILL"
     assert result["properties"]["foo"]["property_type"] == "TextProperty"
     assert result["properties"]["foo"]["default_value"] == "bar"
     assert (
@@ -328,7 +326,7 @@ def test_component_default_icon():
 
 def test_widget_init_defaults():
     """
-    Ensure an instance of a Widget class has a default id, position and
+    Ensure an instance of a Widget class has default values for id, visible and
     channel.
     """
 
@@ -342,15 +340,15 @@ def test_widget_init_defaults():
     assert w.id is not None
     assert w.id.startswith("invent-")
     assert len(w.id[7:]) == 10
-    # The default position is FILL.
-    assert w.position == "FILL"
+    # The default visibility is True.
+    assert w.visible is True
     # The default channel for widget related messages is None.
     assert w.channel is None
 
 
 def test_widget_init_override():
     """
-    It's possible to override the default values for id, position and channel.
+    It's possible to override the default values for id, visible and channel.
     """
 
     class MyWidget(core.Widget):
@@ -359,10 +357,10 @@ def test_widget_init_override():
             return document.createElement("div")
 
     w = MyWidget(
-        name="test", id="foo", position="FILL", channel="test_channel"
+        name="test", id="foo", visible=False, channel="test_channel"
     )
     assert w.id == "foo"
-    assert w.position == "FILL"
+    assert w.visible is False
     assert w.channel == "test_channel"
 
 
@@ -386,110 +384,6 @@ def test_widget_publish():
         w.channel = "my_channel"
         w.publish("ping", strength=100)
         assert mock_publish.call_count == 1
-
-
-def test_widget_parse_position():
-    """
-    Any valid definition of a widget's position should result in the correct
-    horizontal and vertical values.
-    """
-
-    class MyWidget(core.Widget):
-
-        def render(self):
-            return document.createElement("div")
-
-    w = MyWidget(name="test widget")
-    for h in core._VALID_HORIZONTALS:
-        w.position = h
-        assert w.parse_position() == (h, h) if h == "FILL" else ("FILL", h)
-        for v in core._VALID_VERTICALS:
-            w.position = v
-            assert w.parse_position() == (v, v) if v == "FILL" else (v, "FILL")
-
-            w.position = f"{v}-{h}"
-            assert w.parse_position() == (v, h)
-
-
-def test_parse_position_invalid():
-    """
-    Any invalid definition of a widget's position should raise a ValueError.
-    """
-
-    class MyWidget(core.Widget):
-        def render(self):
-            return document.createElement("div")
-
-    w = MyWidget()
-
-    # Too short
-    with pytest.raises(ValueError, match="'' is not a valid position"):
-        w.position = ""
-        w.parse_position()
-
-    # Too long
-    with pytest.raises(
-        ValueError, match="'FILL-FILL-FILL' is not a valid position"
-    ):
-        w.position = "FILL-FILL-FILL"
-        w.parse_position()
-
-    # Invalid single value
-    with pytest.raises(ValueError, match="'INVALID' is not a valid position"):
-        w.position = "INVALID"
-        w.parse_position()
-
-    # Invalid double value
-    with pytest.raises(
-        ValueError, match="'NOT' is not a valid vertical position"
-    ):
-        w.position = "NOT-VALID"
-        w.parse_position()
-
-    # Invalid vertical value
-    with pytest.raises(
-        ValueError, match="'CENTER' is not a valid vertical position"
-    ):
-        w.position = "CENTER-FILL"
-        w.parse_position()
-
-    # Invalid horizontal value
-    with pytest.raises(
-        ValueError, match="'INVALID' is not a valid horizontal position"
-    ):
-        w.position = "FILL-INVALID"
-        w.parse_position()
-
-
-def test_widget_set_position():
-    """
-    The widget's container has the expected alignment/justify value set for
-    each combination of the valid horizontal and vertical positions.
-    """
-
-    class MyWidget(core.Widget):
-
-        def render(self):
-            return document.createElement("div")
-
-    expected_vertical = {
-        "TOP": "start",
-        "MIDDLE": "center",
-        "BOTTOM": "end",
-        "FILL": "stretch",
-    }
-    expected_horizontal = {
-        "LEFT": "start",
-        "CENTER": "center",
-        "RIGHT": "end",
-        "FILL": "stretch",
-    }
-    for h_key, h_val in expected_horizontal.items():
-        for v_key, v_val in expected_vertical.items():
-            w = MyWidget()
-            w.position = f"{v_key}-{h_key}"
-            assert w.element.style.getPropertyValue("align-self") == v_val
-            assert w.element.style.getPropertyValue("justify-self") == h_val
 
 
 def test_container_on_content_changed():

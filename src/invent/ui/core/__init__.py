@@ -1,6 +1,4 @@
 from .component import (
-    _VALID_HORIZONTALS,
-    _VALID_VERTICALS,
     _DEFAULT_ICON,
     Component,
     Container,
@@ -21,8 +19,6 @@ from .property import (
 )
 
 __all__ = [
-    "_VALID_HORIZONTALS",
-    "_VALID_VERTICALS",
     "_DEFAULT_ICON",
     "Component",
     "Container",

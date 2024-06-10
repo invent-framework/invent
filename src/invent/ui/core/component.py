@@ -33,10 +33,9 @@ from .property import (
 )
 
 
-#: Valid flags for horizontal positions.
-_VALID_HORIZONTALS = {"LEFT", "CENTER", "RIGHT", "FILL"}
-#: Valid flags for vertical positions.
-_VALID_VERTICALS = {"TOP", "MIDDLE", "BOTTOM", "FILL"}
+ALIGNMENTS = ["start", "center", "end"]
+ALIGNMENTS_STRETCH = ALIGNMENTS + ["stretch"]
+
 #: T-shirt sizes used to indicate relative sizes of things.
 _TSHIRT_SIZES = (
     None,
@@ -110,8 +109,7 @@ class Component:
     A base class for all user interface components (Widget, Container).
 
     Ensures they all have optional names and ids. If they're not given, will
-    auto-generate them for the user. The position of the component determines
-    how it will be drawn in its parent.
+    auto-generate them for the user.
     """
 
     # Used for quick component look-up.
@@ -131,10 +129,36 @@ class Component:
         "The component is visible is set to True.",  default_value=True
     )
 
-    # Properties that are used by the container that a component is in.
-    position = TextProperty(
-        "The component's position inside it's parent.",
-        default_value="FILL",
+    # TODO: once this is extracted into a layout class, make the description
+    # say whether the alignment is:
+    #   * horizontal (Column) or vertical (Row and Grid)
+    #   * inside its parent (Row and Column) or inside its grid cell (Grid)
+    align_self = ChoiceProperty(
+        "The component's alignment. Defaults to the align_items of the "
+        "parent.",
+        choices=[""] + ALIGNMENTS_STRETCH,
+        default_value="",
+        map_to_style="align-self",
+    )
+
+    # This property is only valid in a Grid, so its description can be more
+    # specific.
+    justify_self = ChoiceProperty(
+        "The component's horizontal alignment inside its grid cell. Defaults "
+        "to the justify_items of the parent.",
+        choices=[""] + ALIGNMENTS_STRETCH,
+        default_value="",
+        map_to_style="justify-self",
+    )
+
+    # TODO: validate input
+    # TODO: once this is extracted into a layout class, make the description
+    # say whether the space is horizontal (Row) or vertical (Column).
+    flex = TextProperty(
+        "How much space the component will consume. May be blank to take no "
+        "extra space, 'auto' to take an equal portion of any free space, or "
+        "an integer to take the given proportion of the total space.",
+        map_to_style="flex",
     )
 
     column_span = TextProperty(
@@ -208,13 +232,6 @@ class Component:
         Show / hide the element depending on the value of the property.
         """
         self.element.style.visibility = "visible" if self.visible else "hidden"
-
-    def on_position_changed(self):
-        """
-        Automatically called to update the position information relating to
-        the HTML element associated with the component.
-        """
-        self.set_position()
 
     def on_column_span_changed(self):
         """
@@ -379,78 +396,6 @@ class Component:
 
         return getattr(self, f"_{property_name}_from_datastore", None)
 
-    def parse_position(self):
-        """
-        Parse "self.position" as: "VERTICAL-HORIZONTAL", "VERTICAL" or
-        "HORIZONTAL" values.
-
-        Valid values are defined in _VALID_VERTICALS and _VALID_HORIZONTALS.
-
-        Returns a tuple of (vertical_position, horizontal_position). Missing
-        values will be replaced by FILL. Invalid values will raise a
-        ValueError.
-        """
-        definition = self.position.upper().split("-")
-        # Default values for the horizontal and vertical positions.
-        horizontal_position = None
-        vertical_position = None
-        if len(definition) == 1:
-            # Unary position (e.g. "TOP" or "CENTER")
-            unary_position = definition[0]
-            if unary_position in _VALID_HORIZONTALS:
-                horizontal_position = unary_position
-            if unary_position in _VALID_VERTICALS:
-                vertical_position = unary_position
-        elif len(definition) == 2:
-            # Binary position (e.g. "TOP-CENTER" or "BOTTOM-RIGHT")
-            if definition[0] in _VALID_VERTICALS:
-                vertical_position = definition[0]
-            else:
-                raise ValueError(
-                    f"'{definition[0]}' is not a valid vertical position."
-                )
-            if definition[1] in _VALID_HORIZONTALS:
-                horizontal_position = definition[1]
-            else:
-                raise ValueError(
-                    f"'{definition[1]}' is not a valid horizontal position."
-                )
-
-        if not (horizontal_position or vertical_position):
-            # Bail out if we don't have a valid position state.
-            raise ValueError(f"'{self.position}' is not a valid position.")
-        return (vertical_position or "FILL", horizontal_position or "FILL")
-
-    def set_position(self):
-        """
-        Given the value of "self.position", will adjust the CSS for the
-        rendered "self.element" so the resulting HTML puts the element into the
-        expected position in its grid cell.
-        """
-        try:
-            vertical_position, horizontal_position = self.parse_position()
-        except ValueError:
-            return
-
-        container = self.element
-        if vertical_position == "TOP":
-            container.style.setProperty("align-self", "start")
-        elif vertical_position == "MIDDLE":
-            container.style.setProperty("align-self", "center")
-        elif vertical_position == "BOTTOM":
-            container.style.setProperty("align-self", "end")
-        elif vertical_position == "FILL":
-            container.style.setProperty("align-self", "stretch")
-
-        if horizontal_position == "LEFT":
-            container.style.setProperty("justify-self", "start")
-        elif horizontal_position == "CENTER":
-            container.style.setProperty("justify-self", "center")
-        elif horizontal_position == "RIGHT":
-            container.style.setProperty("justify-self", "end")
-        elif horizontal_position == "FILL":
-            container.style.setProperty("justify-self", "stretch")
-
     def update_attribute(self, attribute_name, attribute_value):
         """
         Convenience method to update an HTML attribute on self.element. If
@@ -472,7 +417,6 @@ class Widget(Component):
     * A unique human friendly name that's meaningful in the context of the
       application (if none is given, one is automatically generated).
     * A unique id (if none is given, one is automatically generated).
-    * An indication of the widget's preferred position.
     * A render function that takes the widget's container and renders
       itself as an HTML element into the container.
     * An optional indication of the channel[s] to which it broadcasts
@@ -735,3 +679,6 @@ class Container(Component):
         """
         for counter, child in enumerate(self.content, start=1):
             self.update_child(child, counter)
+
+    def update_child(self, child, index):
+        pass

@@ -57,6 +57,7 @@ app = App(
             name="Facts",
             content=[
                 Column(
+                    align_items="center",
                     content=[
                         Image(
                             image=invent.media.images.puff.svg,
@@ -66,18 +67,17 @@ app = App(
                             name="cat_fact_button",
                             label="Get Facts",
                             channel="get_cat_facts",
-                            position="FILL",
                             purpose="SUCCESS",
                             enabled=from_datastore(
                                 "working", with_function=ready
                             ),
+                            align_self="stretch",
                         ),
                         TextBox(
                             name="a_cat_fact",
                             text=from_datastore(
                                 "cat_fact", with_function=handle_cat_fact
                             ),
-                            position="MIDDLE-CENTER",
                         ),
                     ]
                 ),
