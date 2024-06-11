@@ -39,7 +39,7 @@ class Task:
         self.args = args
         self.kwargs = kwargs
 
-    def go(self, ignore_no_result=False):
+    def go(self):
         """
         Schedule the defined task to start.
 
@@ -50,11 +50,10 @@ class Task:
         async def wrapper():
             try:
                 result = await self.function(*self.args, **self.kwargs)
-                if result and not ignore_no_result:
-                    if self.key:
-                        invent.datastore[self.key] = result
+                if self.key:
                     if self.handler:
-                        self.handler(result)
+                        result = self.handler(result)
+                    invent.datastore[self.key] = result
             except Exception as ex:
                 if self.error:
                     self.error(ex)
