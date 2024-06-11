@@ -1,5 +1,5 @@
 """
-Tasks!
+Tasks get stuff done in the background.
 """
 
 import asyncio
@@ -8,28 +8,54 @@ import invent
 
 class Task:
     """
-    Represents an asynchronous task.
-
-    1. Task is easy to teach (no need to know about Python await etc...)
-    2. Lifecycle of a Task.
-    3. Arbitrary messages emitted by a task (e.g. as part of a pipeline-ish).
-    4. Setting of datastore value as the final result.
+    Instances of this class represent a background task.
     """
 
     def __init__(
-        self, function, key=None, indicator="", channel="", *args, **kwargs
+        self, function, key=None, handler=None, error=None, *args, **kwargs
     ):
+        """
+        Initialise with an awaitable `function`.
+
+        The optional `key` in the datastore will be populated with the result
+        of the awaitable function.
+
+        If an optional `handler` function is provided it will also be called
+        with the result of the awaitable.
+
+        An optional `error` function will be called if awaiting the function
+        results in an exception. The `error` function will be called with the
+        exception as its single argument.
+
+        All further arguments passed in at initialisation of the Task are
+        passed into the awaitable function.
+
+        Once instantiated, call the object's `go` method to start the task.
+        """
         self.function = function
         self.key = key
-        self.indicator = indicator
-        self.channel = channel
+        self.handler = handler
+        self.error = error
         self.args = args
         self.kwargs = kwargs
 
-    def go(self):
-        async def wrapper():
-            result = await self.function(self, *self.args, **self.kwargs)
-            if self.key:
-                invent.datastore[self.key] = result
+    def go(self, ignore_no_result=False):
+        """
+        Schedule the defined task to start.
 
+        If the ignore_no_result flag is set to True (default False), then
+        false-y / empty / None results are ignored. Otherwise, handle any
+        results.
+        """
+        async def wrapper():
+            try:
+                result = await self.function(*self.args, **self.kwargs)
+                if result and not ignore_no_result:
+                    if self.key:
+                        invent.datastore[self.key] = result
+                    if self.handler:
+                        self.handler(result)
+            except Exception as ex:
+                if self.error:
+                    self.error(ex)
         asyncio.create_task(wrapper())
