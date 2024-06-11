@@ -42,10 +42,6 @@ class Task:
     def go(self):
         """
         Schedule the defined task to start.
-
-        If the ignore_no_result flag is set to True (default False), then
-        false-y / empty / None results are ignored. Otherwise, handle any
-        results.
         """
         async def wrapper():
             try:
