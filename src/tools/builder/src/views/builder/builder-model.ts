@@ -59,7 +59,7 @@ export class BuilderModel extends ViewModelBase {
 		 * Let the host application know that we are ready to roll (the host should
 		 * NOT send any other messages to us until this message has been received).
 		 */
-		window.parent.postMessage({type: "invent-ready"}, location.origin);
+		window.parent.postMessage({type: "invent-ready"}, "*");
 	}
 
 	/**
@@ -67,6 +67,14 @@ export class BuilderModel extends ViewModelBase {
 	 */
 	public async load(data: any): Promise<void> {
 		// Load App.
+		if(!data) {
+			data = {
+				"app": BuilderUtilities.getAppAsDict(),
+				"media": {},
+				"datastore": {},
+				"blocks": {}
+			}
+		}
 		BuilderUtilities.getAppFromDict(data.app);
 
 		// TODO: Not sure we need to do this on the next tick - please check after
@@ -78,7 +86,6 @@ export class BuilderModel extends ViewModelBase {
 		});
 
 		// Load Media.
-		//
 		// This MUST be done *before* loading the blocks as they may well reference the
 		// media files.
 		this.state.media = data.media;
@@ -114,9 +121,6 @@ export class BuilderModel extends ViewModelBase {
 	 * Called when a message is received from the host application.
 	 */
 	async onMessage(event: MessageEvent) {
-		// Only allow same origin messages.
-		if (event.origin !== location.origin) return;
-
 		const { type, data } = event.data;
 
 		console.log(`BuilderModel.onMessage: type: ${type}: `, data);
