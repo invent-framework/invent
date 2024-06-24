@@ -1,6 +1,9 @@
 """
 A very simple PubSub message bus for the Invent framework.
 
+For convenience, we also provide two "when" abstractions that sit on top of the
+pubsub mechanism.
+
 Based on original pre-COVID work by [Nicholas H.Tollervey.](https://ntoll.org/)
 
 Copyright (c) 2024 Invent contributors.
@@ -18,7 +21,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-
 import asyncio
 
 from .task import Task
@@ -30,6 +32,7 @@ __all__ = [
     "subscribe",
     "publish",
     "unsubscribe",
+    "when",
 ]
 
 
@@ -149,3 +152,24 @@ def unsubscribe(handler, from_channel, when_subject):
             raise ValueError(
                 f"Cannot unsubscribe from unknown channel: {channel}"
             )
+
+
+def when(subject, to_channel, do=None):
+    """
+    Convenience function for wrapping subscriptions.
+
+    If no "do" handler is given, we assume this function is decorating the
+    handler to "do" the stuff.
+
+    The subject and to_channel can be either individual strings or a
+    list of strings to indicate the channel[s] and message subject[s] to match.
+    """
+    if do:
+        # Block friendly subscription of a given handler.
+        subscribe(handler=do, to_channel=to_channel, when_subject=subject)
+    else:
+        # Decorator friendly subscription.
+        def inner_function(handler):
+            subscribe(handler=do, to_channel=to_channel, when_subject=subject)
+
+        return inner_function

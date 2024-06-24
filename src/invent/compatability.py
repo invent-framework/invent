@@ -1,6 +1,5 @@
 """MicroPython/pyodide compatability layer."""
 
-
 import asyncio
 import inspect
 import sys
@@ -38,4 +37,4 @@ async def sleep_ms(ms):
         await asyncio.sleep_ms(ms)
 
     else:
-        await asyncio.sleep(ms/1000)
+        await asyncio.sleep(ms / 1000)

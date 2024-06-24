@@ -143,9 +143,8 @@ def _component_from_dict(component_dict):
         if issubclass(cls, Container) and property_name == "content":
             continue
 
-        if (
-            type(property_value) is str
-            and property_value.startswith("from_datastore(")
+        if type(property_value) is str and property_value.startswith(
+            "from_datastore("
         ):
             property_value = eval(
                 property_value, {}, dict(from_datastore=from_datastore)

@@ -35,7 +35,7 @@ lint:
 lint-all:
 	flake8 src/invent tests/*
 
-serve:
+serve: clean tidy zip
 	python utils/serve.py
 
 test:

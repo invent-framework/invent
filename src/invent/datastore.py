@@ -79,7 +79,7 @@ class DataStore:
         to the dictionary. All keys are silently prepended with the value of
         self.namespace.
         """
-        self.namespace = "invent"
+        self.namespace = "invent-"
         self.store = localStorage
         if kwargs:
             self.update(kwargs)
@@ -183,7 +183,7 @@ class DataStore:
         """
         Convenience method to create a properly namespaced key.
         """
-        return f"{self.namespace}-{key}"
+        return f"{self.namespace}{key}"
 
     def __len__(self):
         """

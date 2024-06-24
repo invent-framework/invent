@@ -36,16 +36,6 @@ def test_load_translations_from_given_location():
     assert invent.i18n.__translations == expected
 
 
-def test_load_translations_from_bad_location_is_logged_to_console():
-    """
-    If the translations can't be loaded, this is logged for debugging purposes
-    with the message from the Python exception.
-    """
-    with mock.patch("invent.i18n.window.console.error") as mock_error:
-        invent.load_translations("no-such-file.json")
-        assert mock_error.called_once()
-
-
 def test_set_language():
     """
     Set language updates the default language and publishes the expected

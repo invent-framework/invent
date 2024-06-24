@@ -227,9 +227,7 @@ def test_numeric_property_as_dict():
     The expected JSON serializable Python dictionary defining the property's
     structure and attributes is returned.
     """
-    np = NumericProperty(
-        "A test property", default_value=150, minimum=100
-    )
+    np = NumericProperty("A test property", default_value=150, minimum=100)
     assert np.as_dict() == {
         "property_type": "NumericProperty",
         "description": "A test property",
@@ -246,9 +244,7 @@ def test_integer_property():
     """
 
     class FakeWidget:
-        integer = IntegerProperty(
-            "A test integer property", default_value=123
-        )
+        integer = IntegerProperty("A test integer property", default_value=123)
 
     fw = FakeWidget()
     assert fw.integer == 123
@@ -335,9 +331,7 @@ def test_text_property_value_with_min_max_length():
 
     # Both min and max length are defined.
     class FakeWidget:
-        text = TextProperty(
-            "A test property", min_length=4, max_length=10
-        )
+        text = TextProperty("A test property", min_length=4, max_length=10)
 
     widget = FakeWidget()
     # A None value is ignored if it is not a required property.
