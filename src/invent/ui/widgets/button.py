@@ -23,7 +23,7 @@ from invent.ui.core import (
     TextProperty,
     BooleanProperty,
     ChoiceProperty,
-    MessageBlueprint,
+    MessageTemplate,
 )
 
 from pyscript import document
@@ -63,7 +63,7 @@ class Button(Widget):
         map_to_attribute="disabled",
     )
 
-    press = MessageBlueprint(
+    press = MessageTemplate(
         "Sent when the button is pressed.",
         button="The button that was clicked.",
     )

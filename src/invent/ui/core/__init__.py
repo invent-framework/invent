@@ -4,7 +4,7 @@ from .component import (
     _DEFAULT_ICON,
     Component,
     Container,
-    MessageBlueprint,
+    MessageTemplate,
     Widget,
 )
 from .property import (
@@ -28,7 +28,7 @@ __all__ = [
     "Component",
     "Container",
     "Grid",
-    "MessageBlueprint",
+    "MessageTemplate",
     "Row",
     "Widget",
     "BooleanProperty",

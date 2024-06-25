@@ -24,7 +24,7 @@ def test_message_blueprint():
             self.element = document.createElement("button")
             self.element.addEventListener("click", self._handle_hold)
     """
-    mbp = core.MessageBlueprint("This is a test", foo="A foo to handle")
+    mbp = core.MessageTemplate("This is a test", foo="A foo to handle")
     assert mbp.description == "This is a test"
     assert "foo" in mbp.content
     assert mbp.content["foo"] == "A foo to handle"
@@ -34,7 +34,7 @@ def test_message_blueprint_create_message():
     """
     A MessageBlueprint creates the expected message.
     """
-    mbp = core.MessageBlueprint("This is a test", foo="A foo to handle")
+    mbp = core.MessageTemplate("This is a test", foo="A foo to handle")
     # Cannot include fields that have not been specified.
     with pytest.raises(ValueError):
         mbp.create_message("subject", baz="This will fail")
@@ -51,7 +51,7 @@ def test_message_blueprint_as_dict():
     """
     The expected dictionary definition of a MessageBlueprint is generated.
     """
-    mbp = core.MessageBlueprint("This is a test", foo="A foo to handle")
+    mbp = core.MessageTemplate("This is a test", foo="A foo to handle")
     assert mbp.as_dict() == {
         "description": "This is a test",
         "content": {
@@ -184,12 +184,12 @@ def test_component_message_blueprints():
         A test widget.
         """
 
-        ping = core.MessageBlueprint(
+        ping = core.MessageTemplate(
             "Send a ping.", strength="The strength of the ping."
         )
 
     mbp = MyWidget.message_blueprints()
-    assert isinstance(mbp["ping"], core.MessageBlueprint)
+    assert isinstance(mbp["ping"], core.MessageTemplate)
 
 
 def test_component_blueprint():
@@ -434,7 +434,7 @@ def test_widget_publish():
 
     class MyWidget(core.Widget):
 
-        ping = core.MessageBlueprint(
+        ping = core.MessageTemplate(
             "Send a ping.", strength="Strength of ping"
         )
 
