@@ -123,10 +123,10 @@ class Component:
         map_to_attribute="name",
     )
     enabled = BooleanProperty(
-        "Indicates if the component is enabled.",  default_value=True
+        "Indicates if the component is enabled.", default_value=True
     )
     visible = BooleanProperty(
-        "The component is visible is set to True.",  default_value=True
+        "The component is visible is set to True.", default_value=True
     )
 
     # TODO: once this is extracted into a layout class, make the description
@@ -406,6 +406,35 @@ class Component:
             self.element.setAttribute(attribute_name, str(attribute_value))
         else:
             self.element.removeAttribute(attribute_name)
+
+    def when(self, subject, to_channel=None, do=None):
+        """
+        Convenience method for wrapping subscriptions.
+
+        If no "do" handler is given, we assume this function is decorating the
+        handler to "do" the stuff.
+
+        The subject and to_channel can be either individual strings or a
+        list of strings to indicate the channel[s] and message subject[s] to
+        match.
+        """
+        if not to_channel:
+            to_channel = self.id
+
+        if do:
+            invent.subscribe(
+                handler=do, to_channel=to_channel, when_subject=subject
+            )
+        else:
+
+            def inner_function(handler):
+                invent.subscribe(
+                    handler=handler,
+                    to_channel=to_channel,
+                    when_subject=subject,
+                )
+
+            return inner_function
 
 
 class Widget(Component):

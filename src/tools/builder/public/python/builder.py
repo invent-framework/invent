@@ -23,6 +23,7 @@ class Builder:
 
         # The Invent app that the builder is building.
         self._app = None
+        self.app = App(name="Invent Demo", content=[])
 
         # The JS-side of the Invent-Builder.
         self._js_builder_model = None
@@ -40,6 +41,7 @@ class Builder:
         Connects the Python side of the view model to the JS side.
         """
         self._js_builder_model = js_builder_model
+        self._js_builder_model.load()
 
     # App ##############################################################################
 

@@ -18,7 +18,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-from .channels import Message, subscribe, publish, unsubscribe
+from .channels import Message, subscribe, publish, unsubscribe, when
 from .compatability import is_micropython
 from .datastore import DataStore
 from .i18n import _, load_translations
@@ -34,6 +34,7 @@ __all__ = [
     "subscribe",
     "publish",
     "unsubscribe",
+    "when",
     "is_micropython",
     "DataStore",
     "datastore",

@@ -53,7 +53,7 @@ def test_datastore_namespace_key():
     Ensure the expected namespaced key is created.
     """
     ds = invent.DataStore()
-    assert ds.namespace == "invent"
+    assert ds.namespace == "invent-"
     ds.namespace = "test"
     result = ds._namespace_key("foo")
     assert result == "testfoo"

@@ -4,6 +4,7 @@
     },
     "packages": [
         "pytest",
-        "pytest-cov"
+        "pytest-cov",
+        "pytest-asyncio"
     ]
 }

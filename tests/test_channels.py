@@ -1,6 +1,12 @@
+import asyncio
 import invent
 import pytest
 from unittest import mock
+
+
+pytestmark = pytest.mark.asyncio(scope="module")
+
+loop: asyncio.AbstractEventLoop
 
 
 def test_message_str():
@@ -88,6 +94,44 @@ def test_subscribe_and_publish_multi_channel_and_subject():
     # four occassions when both the channel and message type matched the
     # subscription specifications.
     assert handler.call_count == 4
+
+
+# TODO: Fix this
+@pytest.mark.asyncio
+async def test_subscribe_and_publish_task_and_awaitable():
+    """
+    Ensure that if a Task instance or a Python awaitable is subscribed, they
+    are handled correctly.
+    """
+    mock_await = mock.MagicMock()
+
+    async def an_awaitable_for_a_task():
+        """
+        An asynchronous function to be wrapped in a Task.
+        """
+        mock_await()
+        return
+
+    # A task instance to subscribe to something.
+    t = invent.Task(an_awaitable_for_a_task)
+
+    async def an_awaitable(message):
+        """
+        An asynchronous function to handle a message.
+        """
+        mock_await()
+        return
+
+    invent.subscribe(t, to_channel="testing", when_subject="test_task")
+    invent.subscribe(
+        an_awaitable, to_channel="testing", when_subject="test_await"
+    )
+    m1 = invent.Message(subject="test_task", data="Test")
+    m2 = invent.Message(subject="test_await", data="Test")
+    invent.publish(m1, to_channel="testing")
+    invent.publish(m2, to_channel="testing")
+    await asyncio.sleep(0.2)
+    assert mock_await.call_count == 2
 
 
 def test_subscribe_is_idempotent():
@@ -194,3 +238,38 @@ def test_unsubscribe_missing_channel():
         invent.unsubscribe(
             handler, from_channel="testing", when_subject="test"
         )
+
+
+def test_when_do_handler_is_given():
+    """
+    The expected subscription call happens at the time "when" is called with
+    an existing "do" handler function. (A "do" handler, does stuff.)
+    """
+
+    def my_handler(message):
+        return
+
+    with mock.patch("invent.channels.subscribe") as mock_sub:
+        invent.when(
+            subject="test_subject", to_channel="test_channel", do=my_handler
+        )
+        mock_sub.assert_called_once_with(
+            handler=my_handler,
+            to_channel="test_channel",
+            when_subject="test_subject",
+        )
+
+
+def test_when_handler_is_decorated():
+    """
+    the expected subscription call happens at the time "when" decorates a given
+    function.
+    """
+
+    with mock.patch("invent.channels.subscribe") as mock_sub:
+
+        @invent.when(subject="test_subject", to_channel="test_channel")
+        def my_handler(message):
+            return
+
+        assert mock_sub.call_count == 1
