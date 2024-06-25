@@ -360,7 +360,7 @@ class Component:
 
             else:
                 properties["content"] = [
-                    item.as_dict() for item in self.content
+                    item.as_dict() for item in self.children
                 ]
 
         return {
@@ -565,7 +565,7 @@ class Container(Component):
       insert the children into the container in the correct manner.
     """
 
-    content = ListProperty(
+    children = ListProperty(
         "The contents of the container",
         default_value=None,
     )
@@ -610,10 +610,10 @@ class Container(Component):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        for item in self.content:
+        for item in self.children:
             item.parent = self
 
-    def on_content_changed(self):
+    def on_children_changed(self):
         self.element.innerHTML = ""
         self.render_children(self.element)
 
@@ -684,11 +684,11 @@ class Container(Component):
         """
         # Update the object model.
         item.parent = self
-        self.content.append(item)
+        self.children.append(item)
 
         # Update the DOM.
         self.element.appendChild(
-            self.create_child_wrapper(item, len(self.content))
+            self.create_child_wrapper(item, len(self.children))
         )
 
         # Update the grid indices of the container's children.
@@ -700,14 +700,14 @@ class Container(Component):
         """
         # Update the object model.
         item.parent = self
-        self.content.insert(index, item)
+        self.children.insert(index, item)
 
         # Update the DOM.
         #
         # We wrap all children in a <div> that is a grid area.
         wrapper = self.create_child_wrapper(item, index)
 
-        if item is self.content[-1]:
+        if item is self.children[-1]:
             self.element.appendChild(wrapper)
 
         else:
@@ -722,7 +722,7 @@ class Container(Component):
         """
         # Update the object model.
         item.parent = None
-        self.content.remove(item)
+        self.children.remove(item)
 
         # Update the DOM.
         item.element.parentElement.remove()
@@ -734,13 +734,13 @@ class Container(Component):
         """
         Index items like a list.
         """
-        return self.content[index]
+        return self.children[index]
 
     def __iter__(self):
         """
         Iterate like a list.
         """
-        return iter(self.content)
+        return iter(self.children)
 
     def __delitem__(self, item):
         """
@@ -753,7 +753,7 @@ class Container(Component):
 
         This is recursive, so this really means "is a descendant of".
         """
-        for item in self.content:
+        for item in self.children:
             if item is component:
                 return True
 
@@ -787,12 +787,12 @@ class Container(Component):
         """
         Render the container's children.
         """
-        for index, child in enumerate(self.content, start=1):
+        for index, child in enumerate(self.children, start=1):
             element.appendChild(self.create_child_wrapper(child, index))
 
     def update_children(self):
         """
         Update the container's children.
         """
-        for counter, child in enumerate(self.content, start=1):
+        for counter, child in enumerate(self.children, start=1):
             self.update_child_wrapper(child, counter)

@@ -53,10 +53,10 @@ class Row(Container):
         """
 
         template_columns = []
-        for item in self.content:
+        for item in self.children:
             if (
                 item.element.classList.contains("drop-zone")
-                and len(self.content) > 1
+                and len(self.children) > 1
             ):
                 template_columns.append("0px")
 

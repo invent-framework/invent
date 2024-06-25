@@ -37,7 +37,7 @@ class App:
     """
     An instance of App is the root object for an Invent application. General
     app related metadata hangs off an object of this type. E.g. name, author,
-    icon, description, license and other such things. In addition, the content
+    icon, description, license and other such things. In addition, the children
     of Pages defines the UI tree.
     """
 
@@ -49,7 +49,7 @@ class App:
         description=None,
         author=None,
         license=None,
-        content=None,
+        children=None,
     ):
         global __app__
         if not __app__:
@@ -60,7 +60,7 @@ class App:
         self.description = description
         self.author = author
         self.license = license
-        self.content = content or []
+        self.children = children or []
         self._current_page = None
 
         invent.set_media_root(media_root)
@@ -76,7 +76,7 @@ class App:
             description=self.description,
             author=self.author,
             license=self.license,
-            content=[item.as_dict() for item in self.content],
+            children=[item.as_dict() for item in self.children],
         )
 
     def as_json(self):
@@ -102,7 +102,7 @@ class App:
         Return the page with the specified id or None if no such page exists.
         """
 
-        for page in self.content:
+        for page in self.children:
             if page.id == page_id:
                 break
 
@@ -116,7 +116,7 @@ class App:
         Return the page with the specified name or None if no such page exists.
         """
 
-        for page in self.content:
+        for page in self.children:
             if page.name == page_name:
                 break
 
@@ -141,10 +141,10 @@ class App:
         # Load the i18n stuff.
         load_translations()
         # Render all the pages to the DOM.
-        if self.content:
-            for page in self.content:
+        if self.children:
+            for page in self.children:
                 document.body.appendChild(page.element)
             # Show the first page.
-            self.show_page(self.content[0].name)
+            self.show_page(self.children[0].name)
         else:
             raise ValueError(_("No pages in the app!"))
