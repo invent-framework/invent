@@ -23,7 +23,7 @@ class Builder:
 
         # The Invent app that the builder is building.
         self._app = None
-        self.app = App(name="Invent Demo", children=[])
+        self.app = App(name="Invent Demo", pages=[])
 
         # The JS-side of the Invent-Builder.
         self._js_builder_model = None
@@ -95,7 +95,7 @@ class Builder:
         """
         new_page = Page(name=page_name)
 
-        self._app.children.append(new_page)
+        self._app.pages.append(new_page)
 
         # Inject the JS event handlers to make component selection and drag-and-drop
         # work.
@@ -122,7 +122,7 @@ class Builder:
         """
         Return a list of all the pages in the app.
         """
-        return json.dumps(self._app.as_dict()["children"])
+        return json.dumps(self._app.as_dict()["pages"])
 
     def update_page(self, page_name, **properties_to_update):
         """
@@ -304,7 +304,7 @@ class Builder:
         print(f"App({self._app.name})")
 
         indent = "    "
-        for page in self._app.children:
+        for page in self._app.pages:
             self.pprint_container(page, indent)
 
     def pprint_container(self, container, indent):
@@ -332,7 +332,7 @@ class Builder:
         a) catch click events so that we can show a component's property sheet.
         b) handle drag and drop events for adding/moving components on a page.
         """
-        for page in app.children:
+        for page in app.pages:
             self._add_js_event_handlers_to_component(page)
 
     def _add_js_event_handlers_to_component(self, component):
@@ -557,7 +557,7 @@ class Builder:
         """
         Remove JS event handlers from all components in the specified app.
         """
-        for page in app.children:
+        for page in app.pages:
             self._remove_js_event_handlers_from_component(page)
 
     def _remove_js_event_handlers_from_component(self, component):
@@ -659,7 +659,7 @@ class Builder:
         """
         Manage the elements shown when containers are empty.
         """
-        for page in app.children:
+        for page in app.pages:
             self._manage_empty_element_in_container(page)
 
     def _manage_empty_element_in_container(self, container):

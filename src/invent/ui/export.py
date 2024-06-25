@@ -121,12 +121,12 @@ def _app_from_dict(app_dict):
 
     from invent.ui.app import App
 
-    children = [
+    pages = [
         _component_from_dict(component_dict)
-        for component_dict in app_dict["children"]
+        for component_dict in app_dict["pages"]
     ]
 
-    app_dict["children"] = children
+    app_dict["pages"] = pages
 
     return App(**app_dict)
 
@@ -191,7 +191,7 @@ def _pretty_repr_app(app):
     """Generate a pretty repr of the App's UI."""
 
     return APP_TEMPLATE.format(
-        name=app.name, pages=_pretty_repr_pages(app.children)
+        name=app.name, pages=_pretty_repr_pages(app.pages)
     )
 
 
@@ -263,6 +263,6 @@ def _pretty_repr_container_children_property(component, lines, indent):
 
     else:
         lines.append(f"{indent}children=[")
-        for child in component.children:
+        for child in component.pages:
             _pretty_repr_component(child, lines=lines, indent=indent + "    ")
         lines.append(f"{indent}],")

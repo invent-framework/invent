@@ -49,7 +49,7 @@ class App:
         description=None,
         author=None,
         license=None,
-        children=None,
+        pages=None,
     ):
         global __app__
         if not __app__:
@@ -60,7 +60,7 @@ class App:
         self.description = description
         self.author = author
         self.license = license
-        self.children = children or []
+        self.pages = pages or []
         self._current_page = None
 
         invent.set_media_root(media_root)
@@ -76,7 +76,7 @@ class App:
             description=self.description,
             author=self.author,
             license=self.license,
-            children=[item.as_dict() for item in self.children],
+            pages=[item.as_dict() for item in self.pages],
         )
 
     def as_json(self):
@@ -102,7 +102,7 @@ class App:
         Return the page with the specified id or None if no such page exists.
         """
 
-        for page in self.children:
+        for page in self.pages:
             if page.id == page_id:
                 break
 
@@ -116,7 +116,7 @@ class App:
         Return the page with the specified name or None if no such page exists.
         """
 
-        for page in self.children:
+        for page in self.pages:
             if page.name == page_name:
                 break
 
@@ -141,10 +141,10 @@ class App:
         # Load the i18n stuff.
         load_translations()
         # Render all the pages to the DOM.
-        if self.children:
-            for page in self.children:
+        if self.pages:
+            for page in self.pages:
                 document.body.appendChild(page.element)
             # Show the first page.
-            self.show_page(self.children[0].name)
+            self.show_page(self.pages[0].name)
         else:
             raise ValueError(_("No pages in the app!"))
