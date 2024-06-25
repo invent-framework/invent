@@ -297,7 +297,7 @@ class Component:
         }
 
     @classmethod
-    def message_blueprints(cls):
+    def message_templates(cls):
         """
         Returns a dictionary of the message blueprints that define the sort of
         messages a component may send during its lifetime.
@@ -323,9 +323,9 @@ class Component:
             "properties": {
                 name: prop.as_dict() for name, prop in cls.properties().items()
             },
-            "message_blueprints": {
+            "message_templates": {
                 key: value.as_dict()
-                for key, value in cls.message_blueprints().items()
+                for key, value in cls.message_templates().items()
             },
             "icon": cls.icon(),
         }
@@ -366,9 +366,9 @@ class Component:
         return {
             "type": type(self).__name__,
             "properties": properties,
-            "message_blueprints": {
+            "message_templates": {
                 key: value.as_dict()
-                for key, value in type(self).message_blueprints().items()
+                for key, value in type(self).message_templates().items()
             },
         }
 
