@@ -297,7 +297,6 @@ def test_component_update_attribute():
             return document.createElement("div")
 
     w = MyWidget()
-    
     # There is no attribute called "test" on the widget's element.
     assert w.element.hasAttribute("test") is False
     # Update an attribute (add it).
