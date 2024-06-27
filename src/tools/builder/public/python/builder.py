@@ -1,6 +1,7 @@
 """The Python-side of the Invent Builder."""
 
 
+from collections import OrderedDict
 import json
 from pyscript import document
 from pyscript.ffi import create_proxy
@@ -220,7 +221,11 @@ class Builder:
         if component is None:
             raise ValueError(f"No such component: {component_id}")
 
-        properties = type(component).blueprint()["properties"]
+        # Plain dicts aren't ordered yet in Micropython
+        # (https://github.com/micropython/micropython/issues/6170).
+        properties = OrderedDict(
+            sorted(type(component).blueprint()["properties"].items())
+        )
         for name, value in properties.items():
             if hasattr(component, f"_{name}_from_datastore"):
                 value["is_from_datastore"] = True
