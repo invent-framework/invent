@@ -211,6 +211,7 @@ class NumericProperty(Property):
     def __init__(
         self,
         description,
+        default_value=None,
         minimum=None,
         maximum=None,
         **kwargs
@@ -222,7 +223,7 @@ class NumericProperty(Property):
         """
         self.minimum = minimum
         self.maximum = maximum
-        super().__init__(description, **kwargs)
+        super().__init__(description, default_value, **kwargs)
 
     def coerce(self, value):
         """
@@ -315,6 +316,7 @@ class TextProperty(Property):
     def __init__(
         self,
         description,
+        default_value=None,
         min_length=None,
         max_length=None,
         **kwargs,
@@ -326,7 +328,7 @@ class TextProperty(Property):
         """
         self.min_length = min_length
         self.max_length = max_length
-        super().__init__(description, **kwargs)
+        super().__init__(description, default_value, **kwargs)
 
     def coerce(self, value):
         """

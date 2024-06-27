@@ -510,11 +510,6 @@ class Container(Component):
         maximum=100,
         minimum=0,
     )
-    gap = ChoiceProperty(
-        "The gap between items in the container",
-        choices=_TSHIRT_SIZES,
-        default_value="M",
-    )
     background_color = TextProperty("The color of the container's background.")
     border_color = TextProperty("The color of the container's border.")
     border_width = ChoiceProperty(
@@ -590,11 +585,7 @@ class Container(Component):
         else:
             self.element.style.removeProperty("border-style")
 
-    def on_gap_changed(self):
-        """
-        Set the gap between elements in the container (translating from t-shirt
-        sizes).
-        """
+    def _set_gap(self, gap, attr):
         sizes = {
             "XS": "2px",
             "S": "4px",
@@ -604,9 +595,9 @@ class Container(Component):
         }
         size = "0px"
 
-        if self.gap is not None:
-            size = sizes[self.gap.upper()]
-        self.element.style.setProperty("gap", size)
+        if gap is not None:
+            size = sizes[gap.upper()]
+        self.element.style.setProperty(attr, size)
 
     def append(self, item):
         """
