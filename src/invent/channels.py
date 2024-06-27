@@ -169,7 +169,7 @@ def when(subject, to_channel, do=None):
         subscribe(handler=do, to_channel=to_channel, when_subject=subject)
     else:
         # Decorator friendly subscription.
-        def inner_function(handler):
+        def inner_function(do):
             subscribe(handler=do, to_channel=to_channel, when_subject=subject)
 
         return inner_function
