@@ -476,6 +476,55 @@ class Component:
         else:
             self.element.removeAttribute(attribute_name)
 
+
+class Widget(Component):
+    """
+    A widget is a UI component drawn onto the interface in some way.
+
+    All widgets have these things:
+
+    * A unique human friendly name that's meaningful in the context of the
+      application (if none is given, one is automatically generated).
+    * A unique id (if none is given, one is automatically generated).
+    * An indication of the widget's preferred position.
+    * A render function that takes the widget's container and renders
+      itself as an HTML element into the container.
+    * An optional indication of the channel[s] to which it broadcasts
+      messages (defaults to the id).
+    * A publish method that takes the name of a message blueprint, and
+      associated kwargs, and publishes it to the channel[s] set for the
+      widget.
+    """
+
+    channel = TextProperty(
+        "A comma separated list of channels to which the widget broadcasts.",
+        default_value=None,
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.channel is None:
+            self.channel = self.id
+
+    def publish(self, blueprint, **kwargs):
+        """
+        Given the name of one of the class's MessageBlueprints, publish
+        a message to all the widget's channels with the message content
+        defined in kwargs.
+        """
+        # Ensure self.channel is treated as a comma-separated list of channel
+        # names.
+        if self.channel is not None:
+            channels = [
+                channel.strip()
+                for channel in self.channel.split(",")
+                if channel.strip()
+            ]
+            message = getattr(self, blueprint).create_message(
+                blueprint, **kwargs
+            )
+            invent.publish(message, to_channel=channels)
+
     def when(self, subject, to_channel=None, do=None):
         """
         Convenience method for wrapping subscriptions.
@@ -504,50 +553,6 @@ class Component:
                 )
 
             return inner_function
-
-
-class Widget(Component):
-    """
-    A widget is a UI component drawn onto the interface in some way.
-
-    All widgets have these things:
-
-    * A unique human friendly name that's meaningful in the context of the
-      application (if none is given, one is automatically generated).
-    * A unique id (if none is given, one is automatically generated).
-    * An indication of the widget's preferred position.
-    * A render function that takes the widget's container and renders
-      itself as an HTML element into the container.
-    * An optional indication of the channel[s] to which it broadcasts
-      messages (defaults to the id).
-    * A publish method that takes the name of a message blueprint, and
-      associated kwargs, and publishes it to the channel[s] set for the
-      widget.
-    """
-
-    channel = TextProperty(
-        "A comma separated list of channels to which the widget broadcasts.",
-        default_value=None,
-    )
-
-    def publish(self, blueprint, **kwargs):
-        """
-        Given the name of one of the class's MessageBlueprints, publish
-        a message to all the widget's channels with the message content
-        defined in kwargs.
-        """
-        # Ensure self.channel is treated as a comma-separated list of channel
-        # names.
-        if self.channel is not None:
-            channels = [
-                channel.strip()
-                for channel in self.channel.split(",")
-                if channel.strip()
-            ]
-            message = getattr(self, blueprint).create_message(
-                blueprint, **kwargs
-            )
-            invent.publish(message, to_channel=channels)
 
 
 class Container(Component):
