@@ -134,20 +134,18 @@ class Component:
     #   * horizontal (Column) or vertical (Row and Grid)
     #   * inside its parent (Row and Column) or inside its grid cell (Grid)
     align_self = ChoiceProperty(
-        "The component's alignment. Defaults to the align_items of the "
-        "parent.",
-        choices=[""] + ALIGNMENTS_STRETCH,
-        default_value="",
+        "The component's alignment.",
+        choices=ALIGNMENTS_STRETCH,
+        default_value="stretch",
         map_to_style="align-self",
     )
 
     # This property is only valid in a Grid, so its description can be more
     # specific.
     justify_self = ChoiceProperty(
-        "The component's horizontal alignment inside its grid cell. Defaults "
-        "to the justify_items of the parent.",
-        choices=[""] + ALIGNMENTS_STRETCH,
-        default_value="",
+        "The component's horizontal alignment inside its grid cell.",
+        choices=ALIGNMENTS_STRETCH,
+        default_value="stretch",
         map_to_style="justify-self",
     )
 

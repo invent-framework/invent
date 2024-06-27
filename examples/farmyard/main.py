@@ -65,13 +65,14 @@ app = App(
             name="Lucy",
             content=[
                 Column(
-                    align_items="center",
                     content=[
                         Image(
                             image=invent.media.images.goose.png,
                             channel="honk",
+                            align_self="center",
                         ),
                         Row(
+                            align_self="center",
                             content=[
                                 Button(
                                     name="button honk",
@@ -86,12 +87,11 @@ app = App(
                             ],
                         ),
                         Row(
-                            align_self="stretch",
-                            align_items="center",
                             content=[
                                 TextBox(
                                     name="number_of_honks",
                                     text=from_datastore("number_of_honks"),
+                                    align_self="center",
                                 ),
                                 Slider(
                                     value=from_datastore("number_of_honks"),
@@ -103,18 +103,15 @@ app = App(
                         ),
                         Row(
                             id="geese",
+                            justify_content="center",
                             content=from_datastore(
                                 "number_of_honks", with_function=make_geese
                             ),
-                            align_self="stretch",
-                            justify_content="center",
-                            flex_wrap=True,
                         ),
                         Button(
                             name="to_code",
                             label="Show Code",
                             channel="navigate",
-                            align_self="stretch",
                         ),
                     ]
                 ),
@@ -124,13 +121,14 @@ app = App(
             name="Percy",
             content=[
                 Column(
-                    align_items="center",
                     content=[
                         Image(
                             image=invent.media.images.pig.png,
                             channel="oink",
+                            align_self="center",
                         ),
                         Row(
+                            align_self="center",
                             content=[
                                 Button(
                                     name="button oink",
@@ -151,18 +149,15 @@ app = App(
                         ),
                         Row(
                             id="pigs",
+                            justify_content="center",
                             content=from_datastore(
                                 "number_of_oinks", with_function=make_pigs
                             ),
-                            align_self="stretch",
-                            justify_content="center",
-                            flex_wrap=True,
                         ),
                         Button(
                             name="to_code",
                             label="Show Code",
                             channel="navigate",
-                            align_self="stretch",
                         ),
                     ],
                 ),

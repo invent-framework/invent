@@ -1,5 +1,4 @@
-from ..core import ChoiceProperty, Container, IntegerProperty
-from ..core.component import ALIGNMENTS_STRETCH
+from ..core import Container, IntegerProperty
 
 
 class Grid(Container):
@@ -12,19 +11,6 @@ class Grid(Container):
         "Space between columns", 0, map_to_style="column-gap"
     )
     row_gap = IntegerProperty("Space between rows", 0, map_to_style="row-gap")
-
-    align_items = ChoiceProperty(
-        "Default vertical alignment of children",
-        choices=ALIGNMENTS_STRETCH,
-        default_value="stretch",
-        map_to_style="align-items"
-    )
-    justify_items = ChoiceProperty(
-        "Default horizontal alignment of children",
-        choices=ALIGNMENTS_STRETCH,
-        default_value="stretch",
-        map_to_style="justify-items"
-    )
 
     @classmethod
     def icon(cls):

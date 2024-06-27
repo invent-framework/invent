@@ -1,5 +1,5 @@
 from ..core import ChoiceProperty
-from .box import Box, align_items_kwargs, justify_content_kwargs
+from .box import Box, justify_content_kwargs
 
 
 class Row(Box):
@@ -12,11 +12,6 @@ class Row(Box):
         return '<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 256 256"><path fill="currentColor" d="M208 136H48a16 16 0 0 0-16 16v40a16 16 0 0 0 16 16h160a16 16 0 0 0 16-16v-40a16 16 0 0 0-16-16m0 56H48v-40h160zm0-144H48a16 16 0 0 0-16 16v40a16 16 0 0 0 16 16h160a16 16 0 0 0 16-16V64a16 16 0 0 0-16-16m0 56H48V64h160z"/></svg>'  # noqa
 
     flex_direction = "row"
-
-    align_items = ChoiceProperty(
-        "Default vertical alignment of children",
-        **align_items_kwargs,
-    )
 
     justify_content = ChoiceProperty(
         "Horizontal alignment of children",
