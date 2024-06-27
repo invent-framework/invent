@@ -33,7 +33,7 @@ class Builder:
 
         # The current component insertion position.
         #
-        # It will be one of "left-of", "right-of", "above", "below".
+        # It will be one of "left", "right", "top", "bottom".
         self._insertion_position = None
 
     def set_js_builder_model(self, js_builder_model):
@@ -244,9 +244,10 @@ class Builder:
         else:
             setattr(component, property_name, value)
 
-    def get_page_element_by_id(self, page_id):
+    def show_page(self, page_id):
         result = self._app.get_page_by_id(page_id)
         if result:
+            result.show()
             return result.element
         
     # Channels ####################################################################
@@ -370,14 +371,8 @@ class Builder:
 
         component._on_drop_proxy = create_proxy(on_drop)
 
-        # Pages...
-        if component.parent is None:
-            element = component.element
-
-        # Everything else...
-        else:
-            # Attach to the *wrapper* we put around each grid item.
-            element = component.element.parentNode
+        element = component.element
+        if component.parent is not None:
             element.setAttribute("draggable", "true")
 
         element.addEventListener("click", component._on_click_proxy)
@@ -474,10 +469,10 @@ class Builder:
         container = component if component.is_container else component.parent
 
         if isinstance(container, Column):
-            insertion_position = "above" if event.offsetY <= (component.element.offsetHeight * .5) else "below"
+            insertion_position = "top" if event.offsetY <= (component.element.offsetHeight * .5) else "bottom"
 
         elif isinstance(container, Row) or isinstance(container, Grid):
-            insertion_position = "left-of" if event.offsetX <= (component.element.offsetWidth * .5) else "right-of"
+            insertion_position = "left" if event.offsetX <= (component.element.offsetWidth * .5) else "right"
 
         else:
             raise ValueError("Unsupported container type:", container)
@@ -546,7 +541,7 @@ class Builder:
 
         # Otherwise, insert the new component before or after as appropriate.
         else:
-            if self._insertion_position in ["left-of", "above"]:
+            if self._insertion_position in ["left", "top"]:
                 insert_before = component.content[0] if component.is_container else component
                 self.insert_component_before(insert_before, component_to_drop)
             else:
@@ -564,14 +559,8 @@ class Builder:
         """
         Recursively remove JS event handlers from the specified component.
         """
-        # Pages...
-        if component.parent is None:
-            element = component.element
-
-        # Everything else...
-        else:
-            # Remove from the *wrapper* we put around every grid item.
-            element = component.element.parentNode
+        element = component.element
+        if component.parent is not None:
             element.setAttribute("draggable", "false")
 
         element.removeEventListener("click", component._on_click_proxy)
@@ -590,37 +579,77 @@ class Builder:
         """
         Add the appropriate drop zone active classes to a component.
         """
-        # All components EXCEPT Pages are wrapped in a <div> that is a "grid-area".
-        #
-        # So, when we add the drop zone active classes for a Page we put them on the
-        # Page's element itself, but for everything else we put them on the "grid-area"
-        # wrapper.
-        element = component.element if isinstance(component, Page) else component.element.parentNode
+        element = component.element
 
         if component.is_container and len(component.content) == 0:
-            element.classList.add(f"drop-zone-active")
+            element.classList.add("drop-zone-outside")
 
         else:
-            element.classList.add(f"drop-zone-active-{self._insertion_position}")
+            drop_zone = document.createElement("div")
+            element.parentElement.append(drop_zone)
+            drop_zone.className = "drop-zone-inside"
+            drop_zone.style.position = "absolute"
+
+            if self._insertion_position in ["top", "bottom"]:
+                self._position_drop_zone(
+                    element, drop_zone, "top", "bottom", "height", "left", "width"
+                )
+            elif self._insertion_position in ["left", "right"]:
+                self._position_drop_zone(
+                    element, drop_zone, "left", "right", "width", "top", "height"
+                )
+            else:
+                raise AssertionError(
+                    f"unknown position {self._insertion_position!r}"
+                )
+
+    def _position_drop_zone(
+        self,
+        element,
+        drop_zone,
+        main_start_attr,
+        main_end_attr,
+        main_size_attr,
+        cross_start_attr,
+        cross_size_attr,
+    ):
+        # Converts e.g. "top" to "offsetTop"
+        def offset(attr):
+            return "offset" + attr[0].upper() + attr[1:]
+
+        thickness = 4  # px
+
+        main_start = getattr(element, offset(main_start_attr))
+        main_size = getattr(element, offset(main_size_attr))
+        if self._insertion_position == main_start_attr:
+            setattr(drop_zone.style, main_start_attr, f"{main_start}px")
+        elif self._insertion_position == main_end_attr:
+            setattr(
+                drop_zone.style,
+                main_start_attr,
+                f"{main_start + main_size - thickness}px",
+            )
+        else:
+            raise AssertionError(
+                f"unknown position {self._insertion_position!r}"
+            )
+        setattr(drop_zone.style, main_size_attr, f"{thickness}px")
+
+        cross_start = getattr(element, offset(cross_start_attr))
+        cross_size = getattr(element, offset(cross_size_attr))
+        setattr(drop_zone.style, cross_start_attr, f"{cross_start}px")
+        setattr(drop_zone.style, cross_size_attr, f"{cross_size}px")
 
     def _remove_drop_zone_active_classes(self, component):
         """
         Remove any drop zone active classes from a component.
         """
-        # All components EXCEPT Pages are wrapped in a <div> that is a "grid-area".
-        #
-        # So, when we add the drop zone active classes for a Page we put them on the
-        # Page's element itself, but for everything else we put them on the "grid-area"
-        # wrapper.
-        element = component.element if isinstance(component, Page) else component.element.parentNode
+        element = component.element
 
-        element.classList.remove(
-            "drop-zone-active",
-            "drop-zone-active-left-of",
-            "drop-zone-active-right-of",
-            "drop-zone-active-above",
-            "drop-zone-active-below"
-        )
+        element.classList.remove("drop-zone-outside")
+        drop_zone = element.parentElement.querySelector(".drop-zone-inside")
+        if drop_zone:
+            drop_zone.remove()
 
     def find_nearest_component(self, event):
         import math

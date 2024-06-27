@@ -652,7 +652,7 @@ class Container(Component):
         self.content.remove(item)
 
         # Update the DOM.
-        item.element.parentElement.remove()
+        item.element.remove()
 
         # Update the grid indices of the container's children.
         self.update_children()
