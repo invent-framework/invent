@@ -61,12 +61,12 @@ app = App(
                         Image(
                             image=invent.media.images.puff.svg,
                             visible=from_datastore("working"),
+                            align_self="center",
                         ),
                         Button(
                             name="cat_fact_button",
                             label="Get Facts",
                             channel="get_cat_facts",
-                            position="FILL",
                             purpose="SUCCESS",
                             enabled=from_datastore(
                                 "working", with_function=ready
@@ -77,7 +77,7 @@ app = App(
                             text=from_datastore(
                                 "cat_fact", with_function=handle_cat_fact
                             ),
-                            position="MIDDLE-CENTER",
+                            align_self="center",
                         ),
                     ]
                 ),

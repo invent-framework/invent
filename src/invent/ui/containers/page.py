@@ -47,7 +47,7 @@ class Page(Column):
         """
         Make the page visible to the user.
         """
-        self.element.style.display = "grid"
+        self.element.style.display = "flex"
 
     def hide(self):
         """

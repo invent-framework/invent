@@ -70,10 +70,10 @@ def test_component_init_with_given_values():
         def render(self):
             return document.createElement("div")
 
-    tc = TestComponent(name="test1", id="12345", position="TOP-LEFT")
+    tc = TestComponent(name="test1", id="12345", visible=False)
     assert tc.name == "test1"
     assert tc.id == "12345"
-    assert tc.position == "TOP-LEFT"
+    assert tc.visible is False
     assert tc.parent is None
 
 
@@ -229,8 +229,6 @@ def test_component_blueprint():
     assert result["properties"]["id"]["default_value"] is None
     assert result["properties"]["channel"]["property_type"] == "TextProperty"
     assert result["properties"]["channel"]["default_value"] is None
-    assert result["properties"]["position"]["property_type"] == "TextProperty"
-    assert result["properties"]["position"]["default_value"] == "FILL"
     assert result["properties"]["foo"]["property_type"] == "TextProperty"
     assert result["properties"]["foo"]["default_value"] == "bar"
     assert (
@@ -299,6 +297,7 @@ def test_component_update_attribute():
             return document.createElement("div")
 
     w = MyWidget()
+    # There is no attribute called "test" on the widget's element.
     assert w.element.hasAttribute("test") is False
     # Update an attribute (add it).
     w.update_attribute("test", "yes")
@@ -388,7 +387,7 @@ def test_component_when_as_decorator():
 
 def test_widget_init_defaults():
     """
-    Ensure an instance of a Widget class has a default id, position and
+    Ensure an instance of a Widget class has default values for id, visible and
     channel.
     """
 
@@ -402,15 +401,15 @@ def test_widget_init_defaults():
     assert w.id is not None
     assert w.id.startswith("invent-")
     assert len(w.id[7:]) == 10
-    # The default position is FILL.
-    assert w.position == "FILL"
+    # The default visibility is True.
+    assert w.visible is True
     # The default channel for widget related messages is None.
     assert w.channel is None
 
 
 def test_widget_init_override():
     """
-    It's possible to override the default values for id, position and channel.
+    It's possible to override the default values for id, visible and channel.
     """
 
     class MyWidget(core.Widget):
@@ -419,10 +418,10 @@ def test_widget_init_override():
             return document.createElement("div")
 
     w = MyWidget(
-        name="test", id="foo", position="FILL", channel="test_channel"
+        name="test", id="foo", visible=False, channel="test_channel"
     )
     assert w.id == "foo"
-    assert w.position == "FILL"
+    assert w.visible is False
     assert w.channel == "test_channel"
 
 
@@ -446,113 +445,6 @@ def test_widget_publish():
         w.channel = "my_channel"
         w.publish("ping", strength=100)
         assert mock_publish.call_count == 1
-
-
-def test_widget_parse_position():
-    """
-    Any valid definition of a widget's position should result in the correct
-    horizontal and vertical values.
-    """
-
-    class MyWidget(core.Widget):
-
-        def render(self):
-            return document.createElement("div")
-
-    w = MyWidget(name="test widget")
-    w.element = document.createElement("div")
-    container = document.createElement("div")
-    container.appendChild(w.element)
-    for h in core._VALID_HORIZONTALS:
-        w.position = h
-        assert w.parse_position() == (None, h)
-        for v in core._VALID_VERTICALS:
-            w.position = v
-            assert w.parse_position() == (v, None)
-            w.position = f"{v}-{h}"
-            assert w.parse_position() == (v, h)
-    with pytest.raises(ValueError):
-        # Invalid position values result in a ValueError.
-        w.position = "NOT-VALID"
-        w.parse_position()
-
-
-def test_widget_set_position_fill():
-    """
-    Ensure the widget's element has the CSS width and height set to the
-    expected value of 100%.
-    """
-
-    class MyWidget(core.Widget):
-
-        def render(self):
-            return document.createElement("div")
-
-    w = MyWidget(position="FILL")
-    w.element = document.createElement("div")
-    container = document.createElement("div")
-    container.appendChild(w.element)
-    w.set_position(container)
-    assert w.element.style.width == "100%"
-    assert w.element.style.height == "100%"
-
-
-def test_widget_set_position():
-    """
-    The widget's container has the expected alignment/justify value set for
-    each combination of the valid horizontal and vertical positions.
-    """
-
-    class MyWidget(core.Widget):
-
-        def render(self):
-            return document.createElement("div")
-
-    expected_vertical = {
-        "TOP": "start",
-        "MIDDLE": "center",
-        "BOTTOM": "end",
-        "": "stretch",
-    }
-    expected_horizontal = {
-        "LEFT": "start",
-        "CENTER": "center",
-        "RIGHT": "end",
-        "": "stretch",
-    }
-    for h_key, h_val in expected_horizontal.items():
-        for v_key, v_val in expected_vertical.items():
-            w = MyWidget()
-            w.element = document.createElement("div")
-            container = document.createElement("div")
-            container.appendChild(w.element)
-            if v_key and h_key:
-                w.position = f"{v_key}-{h_key}"
-            else:
-                w.position = f"{v_key}{h_key}"
-            # Ignore NoneNone
-            if w.position:
-                w.set_position(container)
-                if v_key:
-                    assert (
-                        container.style.getPropertyValue("align-self") == v_val
-                    )
-                else:
-                    assert (
-                        container.style.getPropertyValue("align-self") == v_val
-                    )
-                    assert w.element.style.height == "100%"
-                if h_key:
-                    assert (
-                        container.style.getPropertyValue("justify-self")
-                        == h_val
-                    )
-                else:
-                    assert (
-                        container.style.getPropertyValue("justify-self")
-                        == h_val
-                    )
-                    assert w.element.style.width == "100%"
 
 
 def test_container_on_content_changed():

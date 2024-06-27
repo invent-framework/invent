@@ -63,17 +63,19 @@ class Property:
         default_value=None,
         required=False,
         map_to_attribute=None,
+        map_to_style=None,
     ):
         """
         All properties must have a description. They may have a default value,
         a flag indicating if it is a required property and an indication of the
-        default HTML attribute of the parent object's element to which to map
+        HTML or CSS attribute of the parent object's element to which to map
         its value.
         """
         self.description = description
         self.required = required
         self.default_value = self.validate(default_value)
         self.map_to_attribute = map_to_attribute
+        self.map_to_style = map_to_style
 
     def __set_name__(self, owner, name):
         """
@@ -149,9 +151,8 @@ class Property:
         Ensure any reactive behaviour relating to the setting of the property
         is enacted. This involves two steps:
 
-        1. If the property has a map_to_attribute value, ensure the new value
-           is directly set on the parent object's element's attribute whose
-           name is the value of map_to_attribute.
+        1. If the property has a map_to_attribute or map_to_style value, ensure
+           the new value is directly set on the object's element.
         2. Call the object's on_changed handler for the specified property
            name, if it exists.
         """
@@ -161,6 +162,13 @@ class Property:
             obj.update_attribute(
                 self.map_to_attribute, getattr(obj, self.private_name)
             )
+
+        # Map the value to a CSS property.
+        if self.map_to_style and obj.element:
+            obj.element.style.setProperty(
+                self.map_to_style, getattr(obj, self.private_name)
+            )
+
         # Handle the existence of an on_FOO_changed function.
         on_changed = getattr(obj, "on" + property_name + "_changed", None)
         if on_changed:
@@ -204,10 +212,9 @@ class NumericProperty(Property):
         self,
         description,
         default_value=None,
-        required=False,
-        map_to_attribute=None,
         minimum=None,
         maximum=None,
+        **kwargs
     ):
         """
         In addition to the Property related attributes, the min and max
@@ -216,9 +223,7 @@ class NumericProperty(Property):
         """
         self.minimum = minimum
         self.maximum = maximum
-        super().__init__(
-            description, default_value, required, map_to_attribute
-        )
+        super().__init__(description, default_value, **kwargs)
 
     def coerce(self, value):
         """
@@ -312,10 +317,9 @@ class TextProperty(Property):
         self,
         description,
         default_value=None,
-        required=False,
-        map_to_attribute=None,
         min_length=None,
         max_length=None,
+        **kwargs,
     ):
         """
         In addition to the Property related attributes, the min_length and
@@ -324,9 +328,7 @@ class TextProperty(Property):
         """
         self.min_length = min_length
         self.max_length = max_length
-        super().__init__(
-            description, default_value, required, map_to_attribute
-        )
+        super().__init__(description, default_value, **kwargs)
 
     def coerce(self, value):
         """
@@ -383,12 +385,9 @@ class ListProperty(Property):
         self,
         description,
         default_value=None,
-        required=False,
-        map_to_attribute=None,
+        **kwargs,
     ):
-        super().__init__(
-            description, default_value or list(), required, map_to_attribute
-        )
+        super().__init__(description, default_value or list(), **kwargs)
 
     def coerce(self, value):
         if value is None:
@@ -407,18 +406,14 @@ class ChoiceProperty(Property):
         self,
         description,
         choices,
-        default_value=None,
-        required=False,
-        map_to_attribute=None,
+        **kwargs,
     ):
         """
         In addition to the Property related attributes, the choices enumerate
         a set of valid values.
         """
         self.choices = choices
-        super().__init__(
-            description, default_value, required, map_to_attribute
-        )
+        super().__init__(description, **kwargs)
 
     def validate(self, value):
         """
