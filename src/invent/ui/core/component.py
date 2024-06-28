@@ -183,26 +183,39 @@ class Component(Model):
 
     @layout.setter
     def layout(self, layout):
-        if self.parent and isinstance(layout, self.parent.Layout):
-            # Copy all properties into a new Layout object for this component.
-            self._layout = self.parent.Layout(
-                self,
-                {
-                    key: getattr(layout, key)
-                    for key, prop in layout.properties()
-                }
+        def type_error():
+            raise TypeError(
+                f"container type {type(self.parent).__qualname__} " +
+                f"doesn't support layout type {type(layout).__qualname__}"
             )
+
+        if isinstance(layout, BaseLayout):
+            if self.parent:
+                if type(layout) is self.parent.Layout:
+                    # Create a new Layout object for this component, and copy
+                    # all properties.
+                    self._layout = self.parent.Layout(
+                        self,
+                        {
+                            key: getattr(layout, key)
+                            for key, prop in layout.properties()
+                        }
+                    )
+                else:
+                    type_error()
+            else:
+                # Validate it later, when we have a parent.
+                self._layout = layout
+
         elif isinstance(layout, dict):
             if self.parent:
                 self._layout = self.parent.Layout(self, **layout)
             else:
-                # Keep the dict until we have a parent.
+                # Validate it later, when we have a parent.
                 self._layout = layout
+
         else:
-            raise TypeError(
-                f"can't set layout to {type(layout).__name__} " +
-                f"when parent is {type(self.parent).__name__}"
-            )
+            type_error()
 
     def on_id_changed(self):
         """

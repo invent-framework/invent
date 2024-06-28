@@ -8,6 +8,12 @@ class Model:
     """
 
     def __init__(self, **kwargs):
+        # MicroPython incorrectly calls __set_name__ with the Model instance,
+        # not the class. And it doesn't call it on Layout classes at all, maybe
+        # because they're nested.
+        for key, prop in self.properties().items():
+            prop.__set_name__(type(self), key)
+
         self.update(**kwargs)
 
         # Set default values.

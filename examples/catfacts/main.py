@@ -61,7 +61,7 @@ app = App(
                         Image(
                             image=invent.media.images.puff.svg,
                             visible=from_datastore("working"),
-                            align_self="center",
+                            layout=dict(align_self="center"),
                         ),
                         Button(
                             name="cat_fact_button",
@@ -77,7 +77,7 @@ app = App(
                             text=from_datastore(
                                 "cat_fact", with_function=handle_cat_fact
                             ),
-                            align_self="center",
+                            layout=dict(align_self="center"),
                         ),
                     ]
                 ),
