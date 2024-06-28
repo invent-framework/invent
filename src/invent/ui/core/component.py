@@ -196,9 +196,9 @@ class Component(Model):
                     # all properties.
                     self._layout = self.parent.Layout(
                         self,
-                        {
+                        **{
                             key: getattr(layout, key)
-                            for key, prop in layout.properties()
+                            for key, prop in layout.properties().items()
                         }
                     )
                 else:

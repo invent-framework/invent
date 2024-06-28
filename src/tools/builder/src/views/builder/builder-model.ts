@@ -236,9 +236,9 @@ export class BuilderModel extends ViewModelBase {
 		this.state.activeWidgetProperties = BuilderUtilities.getComponentProperties(componentId);
 	}
 
-	public setComponentProperty(key: string, value: string, isFromDatastore?: boolean) {
+	public setComponentProperty(key: string, value: string, isLayout: boolean, isFromDatastore?: boolean,) {
 		BuilderUtilities.setComponentProperty(
-			this.state.activeWidgetId, key, value, isFromDatastore
+			this.state.activeWidgetId, key, value, isLayout, isFromDatastore
 		);
 	}
 

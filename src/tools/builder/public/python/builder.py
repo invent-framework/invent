@@ -226,28 +226,44 @@ class Builder:
         properties = OrderedDict(
             sorted(type(component).blueprint()["properties"].items())
         )
+
+        for name, value in component.layout.properties().items():
+            properties[name] = value.as_dict()
+            properties[name]["is_layout"] = True
+
         for name, value in properties.items():
+            if value.get("is_layout"):
+                target = component.layout
+            else:
+                target = component
+
             if hasattr(component, f"_{name}_from_datastore"):
                 value["is_from_datastore"] = True
-                datastore_value = getattr(component, f"_{name}_from_datastore")
+                datastore_value = getattr(target, f"_{name}_from_datastore")
                 value["value"] = datastore_value.key
             else:
-                value["value"] = getattr(component, name)
+                value["value"] = getattr(target, name)
             
         if component.is_container:
             properties.pop("content")
 
         return json.dumps(properties)
     
-    def set_component_property(self, component_id, property_name, value, is_from_datastore=False):
+    def set_component_property(self, component_id, property_name, value, is_layout, is_from_datastore=False):
         """
         Set a property on a component (that has already been added to the page).
         """
         component = self._app.get_component_by_id(component_id)
-        if is_from_datastore:
-            setattr(component, property_name, from_datastore(value))
+
+        if is_layout:
+            target = component.layout
         else:
-            setattr(component, property_name, value)
+            target = component
+
+        if is_from_datastore:
+            setattr(target, property_name, from_datastore(value))
+        else:
+            setattr(target, property_name, value)
 
     def show_page(self, page_id):
         result = self._app.get_page_by_id(page_id)
@@ -517,12 +533,14 @@ class Builder:
             # Remove the component being moved from its old location.
             component_to_drop = Component.get_component_by_id(move_data)
             self._remove_js_event_handlers_from_component(component_to_drop)
+            old_container = component_to_drop.parent
             component_to_drop.parent.remove(component_to_drop)
 
         # Or...
         #
         # b) Adding a new component to the page.
         else:
+            old_container = None
             component_blueprint_json = event.dataTransfer.getData("widget")
             if component_blueprint_json:
                 component_blueprint = json.loads(component_blueprint_json)
@@ -540,6 +558,9 @@ class Builder:
 
         container = component if component.is_container else component.parent
 
+        if old_container is not container:
+            component_to_drop.layout = {}
+
         # If the container is empty then a simple append will do...
         if len(container.content) == 0:
             self.append_component(container, component_to_drop)
@@ -552,6 +573,10 @@ class Builder:
             else:
                 insert_after = component.content[-1] if component.is_container else component
                 self.insert_component_after(insert_after, component_to_drop)
+        
+        self._js_builder_model.openPropertiesForComponent(
+            json.dumps(type(component_to_drop).blueprint()), component_to_drop.id
+        )
 
     def _remove_js_event_handlers_from_app(self, app):
         """
