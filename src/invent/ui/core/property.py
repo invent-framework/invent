@@ -214,7 +214,7 @@ class NumericProperty(Property):
         default_value=None,
         minimum=None,
         maximum=None,
-        **kwargs
+        **kwargs,
     ):
         """
         In addition to the Property related attributes, the min and max

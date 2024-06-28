@@ -2,9 +2,7 @@ from ..core import Container, ChoiceProperty
 from ..core.component import _TSHIRT_SIZES, ALIGNMENTS
 
 justify_content_kwargs = dict(
-    choices=ALIGNMENTS,
-    default_value="start",
-    map_to_style="justify-content"
+    choices=ALIGNMENTS, default_value="start", map_to_style="justify-content"
 )
 
 

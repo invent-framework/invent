@@ -116,6 +116,7 @@ def test_property_map_to_style():
     """
     If the property is given a map_to_style, any value is set as a CSS style.
     """
+
     class FakeWidget:
         my_property = Property("A test", map_to_style="hyphenated-name")
 

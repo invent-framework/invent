@@ -324,67 +324,6 @@ def test_component_default_icon():
     assert TestComponent.icon() == core._DEFAULT_ICON
 
 
-def test_component_when_with_do():
-    """
-    A component's when method can be used to short-cut message subscriptions.
-    """
-
-    class TestComponent(core.Component):
-
-        def render(self):
-            return document.createElement("div")
-
-    tc = TestComponent(name="test1", id="12345", position="TOP-LEFT")
-
-    def my_handler(message):
-        return
-
-    # Simple case with default channel name (component's id).
-    with mock.patch("invent.ui.core.component.invent.subscribe") as mock_sub:
-        tc.when("push", do=my_handler)
-        mock_sub.assert_called_once_with(
-            handler=my_handler, to_channel="12345", when_subject="push"
-        )
-
-    # Specialised case with explicit channel name[s].
-    with mock.patch("invent.ui.core.component.invent.subscribe") as mock_sub:
-        tc.when("push", to_channel="test_channel", do=my_handler)
-        mock_sub.assert_called_once_with(
-            handler=my_handler, to_channel="test_channel", when_subject="push"
-        )
-
-
-def test_component_when_as_decorator():
-    """
-    A component's when method can be used to short-cut decorating handler
-    functions.
-    """
-
-    class TestComponent(core.Component):
-
-        def render(self):
-            return document.createElement("div")
-
-    tc = TestComponent(name="test1", id="12345", position="TOP-LEFT")
-
-    # Simple case with default channel name (component's id).
-    with mock.patch("invent.ui.core.component.invent.subscribe") as mock_sub:
-
-        @tc.when("push")
-        def my_first_handler(message):
-            return
-
-        assert mock_sub.call_count == 1
-
-        mock_sub.reset_mock()
-
-        @tc.when("push", to_channel="test_channel")
-        def my_second_handler(message):
-            return
-
-        assert mock_sub.call_count == 1
-
-
 def test_widget_init_defaults():
     """
     Ensure an instance of a Widget class has default values for id, visible and
@@ -403,8 +342,8 @@ def test_widget_init_defaults():
     assert len(w.id[7:]) == 10
     # The default visibility is True.
     assert w.visible is True
-    # The default channel for widget related messages is None.
-    assert w.channel is None
+    # The default channel for widget related messages is the same as its id.
+    assert w.channel == w.id
 
 
 def test_widget_init_override():
@@ -417,9 +356,7 @@ def test_widget_init_override():
         def render(self):
             return document.createElement("div")
 
-    w = MyWidget(
-        name="test", id="foo", visible=False, channel="test_channel"
-    )
+    w = MyWidget(name="test", id="foo", visible=False, channel="test_channel")
     assert w.id == "foo"
     assert w.visible is False
     assert w.channel == "test_channel"
@@ -445,6 +382,67 @@ def test_widget_publish():
         w.channel = "my_channel"
         w.publish("ping", strength=100)
         assert mock_publish.call_count == 1
+
+
+def test_widget_when_with_do():
+    """
+    A widget's when method can be used to short-cut message subscriptions.
+    """
+
+    class TestWidget(core.Widget):
+
+        def render(self):
+            return document.createElement("div")
+
+    tw = TestWidget(name="test1", id="12345")
+
+    def my_handler(message):
+        return
+
+    # Simple case with default channel name (component's id).
+    with mock.patch("invent.ui.core.component.invent.subscribe") as mock_sub:
+        tw.when("push", do=my_handler)
+        mock_sub.assert_called_once_with(
+            handler=my_handler, to_channel="12345", when_subject="push"
+        )
+
+    # Specialised case with explicit channel name[s].
+    with mock.patch("invent.ui.core.component.invent.subscribe") as mock_sub:
+        tw.when("push", to_channel="test_channel", do=my_handler)
+        mock_sub.assert_called_once_with(
+            handler=my_handler, to_channel="test_channel", when_subject="push"
+        )
+
+
+def test_widget_when_as_decorator():
+    """
+    A widget's when method can be used to short-cut decorating handler
+    functions.
+    """
+
+    class TestWidget(core.Widget):
+
+        def render(self):
+            return document.createElement("div")
+
+    tw = TestWidget(name="test1", id="12345")
+
+    # Simple case with default channel name (component's id).
+    with mock.patch("invent.ui.core.component.invent.subscribe") as mock_sub:
+
+        @tw.when("push")
+        def my_first_handler(message):
+            return
+
+        assert mock_sub.call_count == 1
+
+        mock_sub.reset_mock()
+
+        @tw.when("push", to_channel="test_channel")
+        def my_second_handler(message):
+            return
+
+        assert mock_sub.call_count == 1
 
 
 def test_container_on_content_changed():
