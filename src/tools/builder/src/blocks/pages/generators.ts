@@ -1,5 +1,5 @@
 import * as Blockly from 'blockly/core';
-import { pythonGenerator } from 'blockly/python';
+import { PythonGenerator, pythonGenerator } from 'blockly/python';
 
 pythonGenerator.forBlock['pages'] = function(block: Blockly.Block) {
     const page: string = block.getFieldValue('page');
@@ -7,7 +7,7 @@ pythonGenerator.forBlock['pages'] = function(block: Blockly.Block) {
     return [code, 0];  
 };
 
-pythonGenerator.forBlock['show_page'] = function(block: Blockly.Block, generator: Blockly.Generator) {
+pythonGenerator.forBlock['show_page'] = function(block: Blockly.Block, generator: PythonGenerator) {
     const page: string = generator.valueToCode(block, 'page', 0);
     const code = `invent.show_page("${page}")\n`;
     return code;

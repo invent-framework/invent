@@ -66,7 +66,6 @@ def test_component_init_with_given_values():
     """
 
     class TestComponent(core.Component):
-
         def render(self):
             return document.createElement("div")
 
@@ -83,7 +82,6 @@ def test_component_init_with_no_values():
     """
 
     class TestComponent(core.Component):
-
         def render(self):
             return document.createElement("div")
 
@@ -135,7 +133,6 @@ def test_component_get_component_by_id():
     """
 
     class TestComponent(core.Component):
-
         def render(self):
             return document.createElement("div")
 
@@ -318,7 +315,6 @@ def test_component_default_icon():
     """
 
     class TestComponent(core.Component):
-
         def render(self):
             return document.createElement("div")
 
@@ -331,7 +327,6 @@ def test_component_when_with_do():
     """
 
     class TestComponent(core.Component):
-
         def render(self):
             return document.createElement("div")
 
@@ -362,7 +357,6 @@ def test_component_when_as_decorator():
     """
 
     class TestComponent(core.Component):
-
         def render(self):
             return document.createElement("div")
 
@@ -393,7 +387,6 @@ def test_widget_init_defaults():
     """
 
     class MyWidget(core.Widget):
-
         def render(self):
             return document.createElement("div")
 
@@ -414,7 +407,6 @@ def test_widget_init_override():
     """
 
     class MyWidget(core.Widget):
-
         def render(self):
             return document.createElement("div")
 
@@ -455,7 +447,6 @@ def test_widget_parse_position():
     """
 
     class MyWidget(core.Widget):
-
         def render(self):
             return document.createElement("div")
 
@@ -484,7 +475,6 @@ def test_widget_set_position_fill():
     """
 
     class MyWidget(core.Widget):
-
         def render(self):
             return document.createElement("div")
 
@@ -504,7 +494,6 @@ def test_widget_set_position():
     """
 
     class MyWidget(core.Widget):
-
         def render(self):
             return document.createElement("div")
 

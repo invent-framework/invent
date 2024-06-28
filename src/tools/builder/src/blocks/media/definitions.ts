@@ -2,6 +2,8 @@ import * as Blockly from 'blockly/core';
 import { view as builder } from "@/views/builder/builder-model";
 import type { MediaFileModel } from '@/data/models/media-file-model';
 
+const mediaColor = "#ca65cc";
+
 function getSoundFiles(): any {
   const audioFiles: Array<MediaFileModel> = Object.values(builder.state.media).filter((file: MediaFileModel) => {
     return file.type.startsWith("audio")
@@ -16,17 +18,17 @@ function getSoundFiles(): any {
   }
 }
 
-Blockly.Blocks["sound_files"] = {
+Blockly.Blocks["media_sound_files"] = {
   init: function(): void {
       this.appendDummyInput()
           .appendField(new Blockly.FieldDropdown(getSoundFiles()), "file");
       this.setInputsInline(true);
       this.setOutput(true, null);
-      this.setColour("#ca65cc");
+      this.setColour(mediaColor);
   }
 };
 
-Blockly.Blocks['play_sound'] = {
+Blockly.Blocks['media_play_sound'] = {
     init: function() {
       this.appendDummyInput()
           .appendField("play");
@@ -35,7 +37,7 @@ Blockly.Blocks['play_sound'] = {
       this.setInputsInline(true);
       this.setPreviousStatement(true, null);
       this.setNextStatement(true, null);
-      this.setColour("#ca65cc");
+      this.setColour(mediaColor);
     }
 };
   

@@ -2,28 +2,17 @@ import { ComponentModelBase } from "@/components/base-classes/component-model-ba
 import * as Blockly from "blockly/core";
 import * as En from "blockly/msg/en";
 import "blockly/blocks";
+import '@blockly/block-plus-minus';
 
 // Blocks
 import "@/blocks/common/definitions";
-import "@/blocks/common/generators";
-
-import "@/blocks/channels/definitions";
-import "@/blocks/channels/generators";
-
+import "@/blocks/components/definitions";
+import "@/blocks/data/definitions";
 import "@/blocks/media/definitions";
-import "@/blocks/media/generators";
+import "@/blocks/channels/definitions";
+import "@/blocks/loops/definitions";
+import "@/blocks/logic/definitions";
 
-import "@/blocks/datastore/definitions";
-import "@/blocks/datastore/generators";
-
-import "@/blocks/ai/definitions";
-import "@/blocks/ai/generators";
-
-import "@/blocks/pages/definitions";
-import "@/blocks/pages/generators";
-
-import "@/blocks/speech/definitions";
-import "@/blocks/speech/generators";
 
 /**
  *  Model for the block editor component.
@@ -39,7 +28,7 @@ class BlockEditorModel extends ComponentModelBase {
 	public init(): void {
 		Blockly.setLocale(En); 
 
-		Blockly.inject("block-editor", {
+		const workspace: Blockly.WorkspaceSvg = Blockly.inject("block-editor", {
 			renderer: "zelos", 
 			zoom: {
 				startScale: 0.95
@@ -55,93 +44,47 @@ class BlockEditorModel extends ComponentModelBase {
 		contents: [
 			{
 				kind: "category",
-				name: "Channels",
+				name: "Components",
 				colour: "#FCC331",
 				contents: [
 					{
+						kind: "label",
+						text: "Components"
+					},
+					{
 						kind: "block",
-						type: "subscribe",
+						type: "components_when",
 						inputs: {
-							channels: {
+							component: {
 								shadow: {
-									type: "channels"
+									type: "components_component_dropdown"
 								}
 							},
-							subjects: {
+							event: {
 								shadow: {
-									type: "subjects"
+									type: "components_events_dropdown"
 								}
-							}
+							},
 						}
 					}
 				]
 			},
 			{
 				kind: "category",
-				name: "Media",
-				colour: "#ca65cc",
-				contents: [
-					{
-						kind: "block",
-						type: "play_sound",
-						inputs: {
-							file: {
-								shadow: {
-									type: "sound_files"
-								}
-							}
-						}
-					},
-					{
-						kind: "block",
-						type: "set_voice",
-						inputs: {
-							value: {
-								shadow: {
-									type: "inline_text",
-									fields: {
-										value: "value"
-									}
-								}
-							}
-						}
-					},
-					{
-						kind: "block",
-						type: "say",
-						inputs: {
-							text: {
-								shadow: {
-									type: "inline_text",
-									fields: {
-										value: "text"
-									}
-								}
-							}
-						}
-					},
-					{
-						kind: "block",
-						type: "listen",
-					},
-				]
-			},
-			{
-				kind: "category",
-				name: "Datastore",
+				name: "Data",
 				colour: "#ff8c1b",
 				contents: [
 					{
-						kind: "block",
-						type: "get_datastore_value"
+						kind: "label",
+						text: "Data"
 					},
 					{
 						kind: "block",
-						type: "set_datastore",
+						type: "data_set_value",
 						inputs: {
 							key: {
 								shadow: {
-									type: "datastore_values"
+									type: "data_values"
 								}
 							},
 							value: {
@@ -156,11 +99,11 @@ class BlockEditorModel extends ComponentModelBase {
 					},
 					{
 						kind: "block",
-						type: "change_datastore_value_by",
+						type: "data_change_value_by",
 						inputs: {
 							key: {
 								shadow: {
-									type: "datastore_values"
+									type: "data_values"
 								}
 							},
 							value: {
@@ -172,21 +115,105 @@ class BlockEditorModel extends ComponentModelBase {
 								}
 							}
 						}
+					},
+					{
+						kind: "block",
+						type: "data_get_value"
 					}
 				]
 			},
 			{
 				kind: "category",
-				name: "Pages",
-				colour: "#9966ff",
+				name: "Media",
+				colour: "#ca65cc",
 				contents: [
 					{
+						kind: "label",
+						text: "Media"
+					},
+					{
 						kind: "block",
-						type: "show_page",
+						type: "media_play_sound",
 						inputs: {
-							page: {
+							file: {
 								shadow: {
-									type: "pages"
+									type: "media_sound_files"
+								}
+							}
+						}
+					},
+				]
+			},
+			{
+				kind: "category",
+				name: "Channels",
+				colour: "#ffac1a",
+				contents: [
+					{
+						kind: "label",
+						text: "Channels"
+					},
+					{
+						kind: "block",
+						type: "channels_subscribe",
+						inputs: {
+							message: {
+								shadow: {
+									type: "channels_subjects"
+								}
+							},
+							channel: {
+								shadow: {
+									type: "channels_channels"
+								}
+							}
+						}
+					},
+					{
+						kind: "block",
+						type: "channels_unsubscribe",
+						inputs: {
+							message: {
+								shadow: {
+									type: "channels_subjects"
+								}
+							},
+							channel: {
+								shadow: {
+									type: "channels_channels"
+								}
+							}
+						}
+					},
+					{
+						kind: "block",
+						type: "channels_publish",
+						inputs: {
+							message: {
+								shadow: {
+									type: "inline_text",
+									fields: {
+										value: "message"
+									}
+								}
+							},
+							channel: {
+								shadow: {
+									type: "channels_channels"
+								}
+							}
+						}
+					},
+					{
+						kind: "block",
+						type: "channels_create_message",
+						inputs: {
+							subject: {
+								shadow: {
+									type: "inline_text",
+									fields: {
+										value: ""
+									}
 								}
 							}
 						}
@@ -195,138 +222,54 @@ class BlockEditorModel extends ComponentModelBase {
 			},
 			{
 				kind: "category",
-				name: "AI",
-				colour: "#3EB049",
+				name: "Loops",
+				colour: "#4c97ff",
 				contents: [
+					{
+						kind: "label",
+						text: "Loops"
+					},
 					{
 						kind: "block",
-						type: "summarize"
+						type: "loops_forever",
 					},
 					{
 						kind: "block",
-						type: "prompt"
-					}
-				]
-			},
-			{
-				kind: "CATEGORY",
-				name: "Logic",
-				colour: 210,
-				contents: [
-				  {
-					kind: "block",
-					type: "controls_if",
-				  },
-				  {
-					kind: "block",
-					type: "logic_compare",
-				  },
-				  {
-					kind: "block",
-					type: "logic_operation",
-				  },
-				  {
-					kind: "block",
-					type: "logic_negate",
-				  },
-				  {
-					kind: "block",
-					type: "logic_boolean",
-				  },
-				  {
-					kind: "block",
-					type: "logic_ternary",
-				  },
-				],
-			},
-			{
-			kind: "CATEGORY",
-			name: "Loops",
-			colour: 122,
-			contents: [
-				{
-				kind: "block",
-				type: "controls_repeat_ext",
-				inputs: {
-					TIMES: {
-					shadow: {
-						type: "math_number",
-						fields: {NUM: 10},
-					},
-					},
-				},
-				},
-				{
-				kind: "block",
-				type: "controls_whileUntil",
-				},
-				{
-				kind: "block",
-				type: "controls_for",
-				inputs: {
-					FROM: {
-					shadow: {
-						type: "math_number",
-						fields: {NUM: 1},
-					},
-					},
-					TO: {
-					shadow: {
-						type: "math_number",
-						fields: {NUM: 10},
-					},
-					},
-					BY: {
-					shadow: {
-						type: "math_number",
-						fields: {NUM: 1},
-					},
-					},
-				},
-				},
-				{
-				kind: "block",
-				type: "controls_forEach",
-				},
-				{
-				kind: "block",
-				type: "controls_flow_statements",
-				},
-			],
-			},
-			{
-				// Text Category
-				kind: 'CATEGORY',
-				name: "Text",
-				colour: 46,
-				contents: [
-				  {
-					kind: 'BLOCK',
-					type: 'text',
-				  }
-				],
-			},
-			{
-				// Lists Category
-				kind: 'CATEGORY',
-				name: "Lists",
-				colour: 172,
-				contents: [
-					{
-						kind: 'BLOCK',
-						type: 'lists_split',
+						type: "loops_repeat_count",
 						inputs: {
-						  DELIM: {
-							shadow: {
-							  type: 'text',
-							  fields: {TEXT: ','},
-							},
-						  },
-						},
+							loop_count: {
+								shadow: {
+									type: "inline_number",
+									fields: {
+										value: 10
+									}
+								}
+							}
+						}
+					},
+				]
+			},
+			{
+				kind: "category",
+				name: "Logic",
+				colour: "#58c059",
+				contents: [
+					{
+						kind: "label",
+						text: "Logic"
+					},
+					{
+						kind: "block",
+						type: "controls_if",
 					}
 				]
-			  },
-		  
+			},
+			{
+				kind: "category",
+				name: "Functions",
+				colour: "#ff6680",
+				custom: "FUNCTIONS"
+			}
 		]
 	};
 

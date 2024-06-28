@@ -13,12 +13,14 @@
     "format": "prettier --write src/"
   },
   "dependencies": {
+    "@blockly/block-plus-minus": "^8.0.2",
+    "@blockly/block-shareable-procedures": "^5.0.2",
     "@fortawesome/fontawesome-free": "^6.5.2",
     "@fortawesome/fontawesome-svg-core": "^6.5.2",
     "@fortawesome/free-solid-svg-icons": "^6.5.2",
     "@fortawesome/vue-fontawesome": "3.0.1",
     "@types/canvas-confetti": "^1.6.4",
-    "blockly": "^10.4.3",
+    "blockly": "^11.1.1",
     "canvas-confetti": "^1.9.3",
     "class-variance-authority": "^0.7.0",
     "jszip": "^3.10.1",
