@@ -27,8 +27,7 @@ class PageEditorModel extends ComponentModelBase {
 
 	public onPageLoad(pages: Array<PageModel>, page: PageModel, addWidgetToPage: Function): void {
 		const pageEditor: HTMLIFrameElement = document.getElementById(`${page.properties.id}-editor`) as HTMLIFrameElement;
-		const pageElement: HTMLElement = BuilderUtilities.getPageElementById(page.properties.id);
-		pageElement.style.display = "grid";
+		const pageElement: HTMLElement = BuilderUtilities.showPage(page.properties.id);
 		pageEditor.contentDocument?.body.insertBefore(pageElement, pageEditor.contentDocument?.body.firstChild);
 	}
 }

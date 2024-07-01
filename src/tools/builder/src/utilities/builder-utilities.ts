@@ -23,8 +23,8 @@ export class BuilderUtilities {
 		return JSON.parse(this.builder().get_pages());
 	}
 
-	public static getPageElementById(pageId: WidgetPropertyModel): HTMLElement {
-		return this.builder().get_page_element_by_id(pageId);
+	public static showPage(pageId: WidgetPropertyModel): HTMLElement {
+		return this.builder().show_page(pageId);
 	}
 
 	public static addPage(name: string): PageModel {

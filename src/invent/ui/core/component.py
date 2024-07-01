@@ -33,10 +33,9 @@ from .property import (
 )
 
 
-#: Valid flags for horizontal positions.
-_VALID_HORIZONTALS = {"LEFT", "CENTER", "RIGHT"}
-#: Valid flags for vertical positions.
-_VALID_VERTICALS = {"TOP", "MIDDLE", "BOTTOM"}
+ALIGNMENTS = ["start", "center", "end"]
+ALIGNMENTS_STRETCH = ALIGNMENTS + ["stretch"]
+
 #: T-shirt sizes used to indicate relative sizes of things.
 _TSHIRT_SIZES = (
     None,
@@ -110,8 +109,7 @@ class Component:
     A base class for all user interface components (Widget, Container).
 
     Ensures they all have optional names and ids. If they're not given, will
-    auto-generate them for the user. The position of the component determines
-    how it will be drawn in its parent.
+    auto-generate them for the user.
     """
 
     # Used for quick component look-up.
@@ -131,10 +129,34 @@ class Component:
         "The component is visible is set to True.", default_value=True
     )
 
-    # Properties that are used by the container that a component is in.
-    position = TextProperty(
-        "The component's position inside it's parent.",
-        default_value="FILL",
+    # TODO: once this is extracted into a layout class, make the description
+    # say whether the alignment is:
+    #   * horizontal (Column) or vertical (Row and Grid)
+    #   * inside its parent (Row and Column) or inside its grid cell (Grid)
+    align_self = ChoiceProperty(
+        "The component's alignment.",
+        choices=ALIGNMENTS_STRETCH,
+        default_value="stretch",
+        map_to_style="align-self",
+    )
+
+    # This property is only valid in a Grid, so its description can be more
+    # specific.
+    justify_self = ChoiceProperty(
+        "The component's horizontal alignment inside its grid cell.",
+        choices=ALIGNMENTS_STRETCH,
+        default_value="stretch",
+        map_to_style="justify-self",
+    )
+
+    # TODO: validate input
+    # TODO: once this is extracted into a layout class, make the description
+    # say whether the space is horizontal (Row) or vertical (Column).
+    flex = TextProperty(
+        "How much space the component will consume. May be blank to take no "
+        "extra space, 'auto' to take an equal portion of any free space, or "
+        "an integer to take the given proportion of the total space.",
+        map_to_style="flex",
     )
 
     column_span = TextProperty(
@@ -208,14 +230,6 @@ class Component:
         Show / hide the element depending on the value of the property.
         """
         self.element.style.visibility = "visible" if self.visible else "hidden"
-
-    def on_position_changed(self):
-        """
-        Automatically called to update the position information relating to
-        the HTML element associated with the component.
-        """
-        if self.element.parentElement:
-            self.set_position(self.element.parentElement)
 
     def on_column_span_changed(self):
         """
@@ -380,91 +394,6 @@ class Component:
 
         return getattr(self, f"_{property_name}_from_datastore", None)
 
-    def parse_position(self):
-        """
-        Parse "self.position" as: "VERTICAL-HORIZONTAL", "VERTICAL" or
-        "HORIZONTAL" values.
-
-        Valid values are defined in _VALID_VERTICALS and _VALID_HORIZONTALS.
-
-        Returns a tuple of (vertical_position, horizontal_position). Each
-        return value could be None.
-        """
-        definition = self.position.upper().split("-")
-        # Default values for the horizontal and vertical positions.
-        horizontal_position = None
-        vertical_position = None
-        if len(definition) == 1:
-            # Unary position (e.g. "TOP" or "CENTER")
-            unary_position = definition[0]
-            if unary_position in _VALID_HORIZONTALS:
-                horizontal_position = unary_position
-            elif unary_position in _VALID_VERTICALS:
-                vertical_position = unary_position
-        elif len(definition) == 2:
-            # Binary position (e.g. "TOP-CENTER" or "BOTTOM-RIGHT")
-            if definition[0] in _VALID_VERTICALS:
-                vertical_position = definition[0]
-            if definition[1] in _VALID_HORIZONTALS:
-                horizontal_position = definition[1]
-        if not (horizontal_position or vertical_position):
-            # Bail out if we don't have a valid position state.
-            raise ValueError(f"'{self.position}' is not a valid position.")
-        return vertical_position, horizontal_position
-
-    def set_position(self, container):
-        """
-        Given the value of "self.position", will adjust the CSS for the
-        rendered "self.element", and its container, so the resulting HTML puts
-        the element into the expected position in the container.
-        """
-
-        def reset():
-            """
-            Reset the style state for the component and its parent container.
-            """
-            self.element.style.removeProperty("width")
-            self.element.style.removeProperty("height")
-            container.style.removeProperty("align-self")
-            container.style.removeProperty("justify-self")
-
-        if self.position.upper() == "FILL":
-            reset()
-            # Fill the full extent of the container.
-            self.element.style.width = "100%"
-            self.element.style.height = "100%"
-            return
-
-        # Parse into horizontal and vertical positions.
-        try:
-            vertical_position, horizontal_position = self.parse_position()
-            reset()
-        except ValueError:
-            return
-
-        # Check vertical position and adjust the container via CSS magic.
-        if vertical_position == "TOP":
-            container.style.setProperty("align-self", "start")
-        elif vertical_position == "MIDDLE":
-            container.style.setProperty("align-self", "center")
-        elif vertical_position == "BOTTOM":
-            container.style.setProperty("align-self", "end")
-        # Check the horizontal position and adjust the container.
-        if horizontal_position == "LEFT":
-            container.style.setProperty("justify-self", "start")
-        elif horizontal_position == "CENTER":
-            container.style.setProperty("justify-self", "center")
-        elif horizontal_position == "RIGHT":
-            container.style.setProperty("justify-self", "end")
-        # Ensure a vertical only position ensures a full horizontal fill.
-        if not horizontal_position:
-            container.style.setProperty("justify-self", "stretch")
-            self.element.style.width = "100%"
-        # Ensure a horizontal only position ensures a full vertical fill.
-        if not vertical_position:
-            container.style.setProperty("align-self", "stretch")
-            self.element.style.height = "100%"
-
     def update_attribute(self, attribute_name, attribute_value):
         """
         Convenience method to update an HTML attribute on self.element. If
@@ -486,7 +415,6 @@ class Widget(Component):
     * A unique human friendly name that's meaningful in the context of the
       application (if none is given, one is automatically generated).
     * A unique id (if none is given, one is automatically generated).
-    * An indication of the widget's preferred position.
     * A render function that takes the widget's container and renders
       itself as an HTML element into the container.
     * An optional indication of the channel[s] to which it broadcasts
@@ -587,11 +515,6 @@ class Container(Component):
         maximum=100,
         minimum=0,
     )
-    gap = ChoiceProperty(
-        "The gap between items in the container",
-        choices=_TSHIRT_SIZES,
-        default_value="M",
-    )
     background_color = TextProperty("The color of the container's background.")
     border_color = TextProperty("The color of the container's border.")
     border_width = ChoiceProperty(
@@ -620,7 +543,9 @@ class Container(Component):
 
     def on_content_changed(self):
         self.element.innerHTML = ""
-        self.render_children(self.element)
+        for child in self.content:
+            self.element.appendChild(child.element)
+        self.update_children()
 
     def on_height_changed(self):
         self.element.style.height = f"{self.height}%"
@@ -665,11 +590,7 @@ class Container(Component):
         else:
             self.element.style.removeProperty("border-style")
 
-    def on_gap_changed(self):
-        """
-        Set the gap between elements in the container (translating from t-shirt
-        sizes).
-        """
+    def _set_gap(self, gap, attr):
         sizes = {
             "XS": "2px",
             "S": "4px",
@@ -679,9 +600,9 @@ class Container(Component):
         }
         size = "0px"
 
-        if self.gap is not None:
-            size = sizes[self.gap.upper()]
-        self.element.style.setProperty("gap", size)
+        if gap is not None:
+            size = sizes[gap.upper()]
+        self.element.style.setProperty(attr, size)
 
     def append(self, item):
         """
@@ -692,9 +613,7 @@ class Container(Component):
         self.content.append(item)
 
         # Update the DOM.
-        self.element.appendChild(
-            self.create_child_wrapper(item, len(self.content))
-        )
+        self.element.appendChild(item.element)
 
         # Update the grid indices of the container's children.
         self.update_children()
@@ -708,15 +627,12 @@ class Container(Component):
         self.content.insert(index, item)
 
         # Update the DOM.
-        #
-        # We wrap all children in a <div> that is a grid area.
-        wrapper = self.create_child_wrapper(item, index)
-
         if item is self.content[-1]:
-            self.element.appendChild(wrapper)
-
+            self.element.appendChild(item.element)
         else:
-            self.element.insertBefore(wrapper, self.element.childNodes[index])
+            self.element.insertBefore(
+                item.element, self.element.childNodes[index]
+            )
 
         # Update the grid indices of the container's children.
         self.update_children()
@@ -730,7 +646,7 @@ class Container(Component):
         self.content.remove(item)
 
         # Update the DOM.
-        item.element.parentElement.remove()
+        item.element.remove()
 
         # Update the grid indices of the container's children.
         self.update_children()
@@ -770,34 +686,22 @@ class Container(Component):
 
     def render(self):
         """
-        Return a div element representing the container (set with the expected
-        height and width).
+        Return a div element representing the container.
 
         Subclasses should call this, then override with the specific details
         for how to add their children in a way that reflects the way they
         lay out their widgets.
         """
         element = document.createElement("div")
-        element.style.display = "grid"
         element.classList.add(f"invent-{type(self).__name__.lower()}")
-
-        # Render the container's children.
-        #
-        # See Column, Grid and Row classes for implementation details.
-        self.render_children(element)
-
         return element
-
-    def render_children(self, element):
-        """
-        Render the container's children.
-        """
-        for index, child in enumerate(self.content, start=1):
-            element.appendChild(self.create_child_wrapper(child, index))
 
     def update_children(self):
         """
         Update the container's children.
         """
         for counter, child in enumerate(self.content, start=1):
-            self.update_child_wrapper(child, counter)
+            self.update_child(child, counter)
+
+    def update_child(self, child, index):
+        pass

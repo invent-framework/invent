@@ -112,6 +112,22 @@ def test_property_react_on_change():
     fw.on_my_property_changed.assert_called_once_with()
 
 
+def test_property_map_to_style():
+    """
+    If the property is given a map_to_style, any value is set as a CSS style.
+    """
+
+    class FakeWidget:
+        my_property = Property("A test", map_to_style="hyphenated-name")
+
+    fw = FakeWidget()
+    fw.element = mock.Mock()
+    fw.my_property = "the value"
+    fw.element.style.setProperty.assert_called_once_with(
+        "hyphenated-name", "the value"
+    )
+
+
 def test_property_as_dict():
     """
     The expected JSON serializable Python dictionary defining the property's
