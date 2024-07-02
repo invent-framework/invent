@@ -36,7 +36,7 @@ lint-all:
 	flake8 src/invent tests/*
 
 serve: clean tidy zip
-	python utils/serve.py
+	python utils/serve.py 8000
 
 test:
 	python -m webbrowser http://localhost:8000/index.html
