@@ -19,6 +19,7 @@ def flex_property(direction):
         "May be blank to take no extra space, "
         "'auto' to take an equal portion of any free space, "
         "or an integer to take the given proportion of the total space.",
+        default_value="",
         map_to_style="flex",
     )
 

@@ -223,16 +223,20 @@ class Builder:
 
         # Plain dicts aren't ordered yet in Micropython
         # (https://github.com/micropython/micropython/issues/6170).
-        properties = OrderedDict(
-            sorted(type(component).blueprint()["properties"].items())
-        )
-
-        for name, value in component.layout.properties().items():
+        properties = OrderedDict()
+        for name, value in sorted(component.properties().items()):
             properties[name] = value.as_dict()
-            properties[name]["is_layout"] = True
+            properties[name]["is_layout"] = False
+
+        # The root component (Page) will have layout={}.
+        layout = component.layout
+        if layout:
+            for name, value in sorted(layout.properties().items()):
+                properties[name] = value.as_dict()
+                properties[name]["is_layout"] = True
 
         for name, value in properties.items():
-            if value.get("is_layout"):
+            if value["is_layout"]:
                 target = component.layout
             else:
                 target = component
@@ -417,7 +421,9 @@ class Builder:
 
         event.preventDefault()
         event.stopPropagation()
+        self._open_properties(component)
 
+    def _open_properties(self, component):
         self._js_builder_model.openPropertiesForComponent(
             json.dumps(type(component).blueprint()), component.id
         )
@@ -558,6 +564,7 @@ class Builder:
 
         container = component if component.is_container else component.parent
 
+        # When moving to a different container, clear the layout properties.
         if old_container is not container:
             component_to_drop.layout = {}
 
@@ -574,9 +581,9 @@ class Builder:
                 insert_after = component.content[-1] if component.is_container else component
                 self.insert_component_after(insert_after, component_to_drop)
         
-        self._js_builder_model.openPropertiesForComponent(
-            json.dumps(type(component_to_drop).blueprint()), component_to_drop.id
-        )
+        # Moving to a different container will clear the layout properties, so
+        # refresh the properties panel.
+        self._open_properties(component_to_drop)
 
     def _remove_js_event_handlers_from_app(self, app):
         """
