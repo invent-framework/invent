@@ -23,7 +23,7 @@ class MyHTTPRequestHandler(server.SimpleHTTPRequestHandler):
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument("port", type=int, default=8000)
+    parser.add_argument("port", type=int, default=8000, nargs="?")
     args = parser.parse_args()
     server.test(
         HandlerClass=MyHTTPRequestHandler, bind="localhost", port=args.port

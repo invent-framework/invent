@@ -1,5 +1,5 @@
-from ..core import ChoiceProperty
-from .box import Box, justify_content_kwargs
+from ..core.component import BaseLayout, align_self_property
+from .box import Box, flex_property, justify_content_property
 
 
 class Row(Box):
@@ -13,7 +13,8 @@ class Row(Box):
 
     flex_direction = "row"
 
-    justify_content = ChoiceProperty(
-        "Horizontal alignment of children",
-        **justify_content_kwargs,
-    )
+    justify_content = justify_content_property("horizontal")
+
+    class Layout(BaseLayout):
+        align_self = align_self_property("vertical")
+        flex = flex_property("horizontal")

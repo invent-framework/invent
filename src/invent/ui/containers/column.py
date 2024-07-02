@@ -1,5 +1,5 @@
-from ..core import ChoiceProperty
-from .box import Box, justify_content_kwargs
+from ..core.component import align_self_property, BaseLayout
+from .box import Box, flex_property, justify_content_property
 
 
 class Column(Box):
@@ -13,7 +13,8 @@ class Column(Box):
 
     flex_direction = "column"
 
-    justify_content = ChoiceProperty(
-        "Vertical alignment of children",
-        **justify_content_kwargs,
-    )
+    justify_content = justify_content_property("vertical")
+
+    class Layout(BaseLayout):
+        align_self = align_self_property("horizontal")
+        flex = flex_property("vertical")

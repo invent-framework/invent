@@ -69,10 +69,10 @@ app = App(
                         Image(
                             image=invent.media.images.goose.png,
                             channel="honk",
-                            align_self="center",
+                            layout=dict(align_self="center"),
                         ),
                         Row(
-                            align_self="center",
+                            layout=dict(align_self="center"),
                             content=[
                                 Button(
                                     name="button honk",
@@ -91,13 +91,13 @@ app = App(
                                 TextBox(
                                     name="number_of_honks",
                                     text=from_datastore("number_of_honks"),
-                                    align_self="center",
+                                    layout=dict(align_self="center"),
                                 ),
                                 Slider(
                                     value=from_datastore("number_of_honks"),
                                     name="Honk Slider",
                                     step=1,
-                                    flex=1,
+                                    layout=dict(flex=1),
                                 ),
                             ]
                         ),
@@ -125,10 +125,10 @@ app = App(
                         Image(
                             image=invent.media.images.pig.png,
                             channel="oink",
-                            align_self="center",
+                            layout=dict(align_self="center"),
                         ),
                         Row(
-                            align_self="center",
+                            layout=dict(align_self="center"),
                             content=[
                                 Button(
                                     name="button oink",
@@ -143,7 +143,7 @@ app = App(
                                 TextBox(
                                     name="number_of_oinks",
                                     text=from_datastore("number_of_oinks"),
-                                    align_self="center",
+                                    layout=dict(align_self="center"),
                                 ),
                             ],
                         ),
@@ -180,13 +180,13 @@ app.content.append(
                         name="to_lucy",
                         label="Visit Lucy",
                         channel="navigate",
-                        flex=1,
+                        layout=dict(flex=1),
                     ),
                     Button(
                         name="to_percy",
                         label="Visit Percy",
                         channel="navigate",
-                        flex=1,
+                        layout=dict(flex=1),
                     ),
                 ]
             ),
