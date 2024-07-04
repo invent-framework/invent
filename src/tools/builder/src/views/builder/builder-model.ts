@@ -75,6 +75,7 @@ export class BuilderModel extends ViewModelBase {
 				"blocks": {}
 			}
 		}
+		
 		BuilderUtilities.getAppFromDict(data.app);
 
 		// TODO: Not sure we need to do this on the next tick - please check after
@@ -107,13 +108,13 @@ export class BuilderModel extends ViewModelBase {
 		const datastore: string = this.getDatastoreValues();
 		const generatedCode: string = pythonGenerator.workspaceToCode(Blockly.getMainWorkspace());
 		const code: string = `${this.state.functions}\n${generatedCode}`;
-		const psdc: any = BuilderUtilities.exportAsPyScriptApp(datastore, code);
+		const sourceCode: any = BuilderUtilities.exportAsPyScriptApp(datastore, code);
 
 		return {
 			app: JSON.stringify(BuilderUtilities.getAppAsDict(), null, 2),
 			blocks: JSON.stringify(Blockly.serialization.workspaces.save(Blockly.getMainWorkspace())),
 			datastore: JSON.stringify(this.state.datastore),
-			psdc
+			sourceCode
 		};
 	}
 
@@ -141,10 +142,10 @@ export class BuilderModel extends ViewModelBase {
 			 * host to decide where it is actually saved.
 			 */
 			case "save-request": {
-				event.source?.postMessage({
+				window.parent.postMessage({
 					type: "save-response",
 					data: this.save(),
-				});
+				}, "*");
 				break;
 			}
 
@@ -335,7 +336,7 @@ export class BuilderModel extends ViewModelBase {
 		 * add a media file. The host will send us an "add-media-response" message
 		 * if/when a media file has been added.
 		 */
-		window.parent.postMessage({type: "add-media-request"});
+		window.parent.postMessage({type: "add-media-request"}, "*");
 	}
 
 	public getImageFiles(): Array<IbSelectOption> {
