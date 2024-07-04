@@ -36,3 +36,17 @@ class Model:
                 setattr(self, k, v)
             else:
                 raise AttributeError(k)
+
+    def get_from_datastore(self, property_name):
+        """
+        Return the "from_datastore" instance for a property, or None if it is
+        an unbound property.
+        """
+        return self.properties()[property_name].get_from_datastore(self)
+
+    def set_from_datastore(self, property_name, *args, **kwargs):
+        """
+        Set the "from_datastore" instance for a property. Pass None to make it
+        an unbound property.
+        """
+        self.properties()[property_name].set_from_datastore(*args, **kwargs)

@@ -6,6 +6,7 @@ import json
 from pyscript import document
 from pyscript.ffi import create_proxy
 
+from invent import datastore
 from invent.ui import (
     App, AVAILABLE_COMPONENTS, Column, Container, create_component, export, Grid, Page,
     Row, Widget, from_datastore
@@ -241,10 +242,10 @@ class Builder:
             else:
                 target = component
 
-            if hasattr(component, f"_{name}_from_datastore"):
+            binding = target.get_from_datastore(name)
+            if binding:
                 value["is_from_datastore"] = True
-                datastore_value = getattr(target, f"_{name}_from_datastore")
-                value["value"] = datastore_value.key
+                value["value"] = binding.key
             else:
                 value["value"] = getattr(target, name)
             
@@ -267,6 +268,7 @@ class Builder:
         if is_from_datastore:
             setattr(target, property_name, from_datastore(value))
         else:
+            target.set_from_datastore(property_name, None)
             setattr(target, property_name, value)
 
     def show_page(self, page_id):
@@ -274,7 +276,12 @@ class Builder:
         if result:
             result.show()
             return result.element
-        
+
+    # Datastore ###################################################################
+
+    def update_datastore(self, key, value):
+        datastore[key] = value
+
     # Channels ####################################################################
         
     def get_channels(self):

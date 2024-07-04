@@ -78,12 +78,40 @@ def test_property_from_datastore():
 
     test_fn = mock.MagicMock()
     fw = FakeWidget()
-    with mock.patch("invent.subscribe") as mock_sub:
+    with (
+        mock.patch("invent.subscribe") as mock_sub,
+        mock.patch("invent.unsubscribe") as mock_unsub,
+    ):
         fw.my_property = from_datastore("test", with_function=test_fn)
+        assert mock_unsub.call_count == 0
         assert mock_sub.call_args[1]["to_channel"] == "store-data"
         assert mock_sub.call_args[1]["when_subject"] == "test"
         assert mock_sub.call_count == 1
         test_fn.assert_called_once_with(None)
+
+        fw.my_property = from_datastore("test2")
+        assert mock_unsub.call_count == 1
+        assert mock_unsub.call_args[1]["to_channel"] == "store-data"
+        assert mock_unsub.call_args[1]["when_subject"] == "test"
+        assert mock_sub.call_count == 2
+        assert mock_sub.call_args[1]["to_channel"] == "store-data"
+        assert mock_sub.call_args[1]["when_subject"] == "test2"
+
+
+def test_from_datastore_react_on_change():
+    """
+    If the property is set a value from_datastore, subsequently setting it to
+    another value should update the datastore.
+    """
+
+    class FakeWidget:
+        my_property = Property("A test property")
+
+    fw = FakeWidget()
+    with mock.patch("invent.datastore", {}) as datastore:
+        fw.my_property = from_datastore("test")
+        fw.my_property = "value1"
+        assert datastore == {"test": "value1"}
 
 
 def test_property_react_on_change():

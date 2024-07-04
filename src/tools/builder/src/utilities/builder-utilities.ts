@@ -53,6 +53,12 @@ export class BuilderUtilities {
 		this.builder().set_component_property(componentId, key, value, is_layout, isFromDatastore);
 	}
 
+	// Datastore ///////////////////////////////////////////////////////////////////////
+
+	public static updateDatastore(key: string, value: string) {
+		this.builder().update_datastore(key, value);
+	}
+
 	// Channels ////////////////////////////////////////////////////////////////////////
 
 	public static getChannels(): Array<string> {

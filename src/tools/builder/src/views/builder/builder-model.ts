@@ -315,6 +315,9 @@ export class BuilderModel extends ViewModelBase {
 			options: {
 				onAddValue: (isValid: boolean, datastoreValue: DatastoreValueModel): void => {
 					if (isValid){
+						BuilderUtilities.updateDatastore(
+							datastoreValue.key, datastoreValue.default_value
+						);
 						this.state.datastore[datastoreValue.key] = datastoreValue;
 						ModalUtilities.closeModal();
 					}

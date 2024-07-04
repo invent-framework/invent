@@ -82,7 +82,9 @@ class Property:
         Helps with the descriptor protocol, as it provides a name against
         which to store the descriptor's value.
         """
-        self.private_name = "_" + name
+        self.name = name
+        self.private_name = f"_{name}"
+        self.from_datastore_name = f"_{name}_from_datastore"
 
     def __get__(self, obj, objtype=None):
         """
@@ -105,8 +107,8 @@ class Property:
         # to set the value *in* the datastore. This will then trigger the
         # property's reactor. This is used when any "input" properties are
         # changed on a widget (e.g. a value setting on a slider).
-        binding = getattr(obj, self.private_name + "_from_datastore", None)
-        if binding:
+        binding = self.get_from_datastore(obj)
+        if binding and not isinstance(value, from_datastore):
             validated_value = self.validate(value)
             invent.datastore[binding.key] = validated_value
             return
@@ -129,11 +131,8 @@ class Property:
                 self._react_on_change(obj, self.private_name)
 
             # Attach the "from_datastore" instance to the object.
-            setattr(obj, self.private_name + "_from_datastore", value)
-            # Subscribe to store events for the specified key.
-            invent.subscribe(
-                reactor, to_channel="store-data", when_subject=value.key
-            )
+            self.set_from_datastore(obj, value, reactor)
+
             # Update value to the actual value from the datastore.
             value = invent.datastore.get(value.key, self.default_value)
 
@@ -145,6 +144,27 @@ class Property:
         # Set the value in the widget.
         setattr(obj, self.private_name, self.validate(value))
         self._react_on_change(obj, self.private_name)
+
+    def get_from_datastore(self, obj):
+        return getattr(obj, self.from_datastore_name, None)
+
+    def set_from_datastore(self, obj, value, reactor=None):
+        reactor_prop = f"_{self.name}_reactor"
+        old_value = self.get_from_datastore(obj)
+        if old_value:
+            invent.unsubscribe(
+                getattr(obj, reactor_prop),
+                to_channel="store-data",
+                when_subject=old_value.key,
+            )
+            delattr(obj, reactor_prop)
+
+        setattr(obj, self.from_datastore_name, value)
+        if value:
+            invent.subscribe(
+                reactor, to_channel="store-data", when_subject=value.key
+            )
+            setattr(obj, reactor_prop, reactor)
 
     def _react_on_change(self, obj, property_name):
         """
@@ -179,7 +199,7 @@ class Property:
         Return value as an acceptable type (or raise an exception while doing
         so).
         """
-        return value  # pragma: no cover
+        return value
 
     def validate(self, value):
         """
@@ -421,7 +441,10 @@ class ChoiceProperty(Property):
         """
         if value in self.choices or value is None:
             return super().validate(value)
-        raise ValidationError(_("The value must be one of the valid choices."))
+        raise ValidationError(
+            f"The value {value!r} is not one of the valid choices " +
+            f"{self.choices}"
+        )
 
     def as_dict(self):
         """

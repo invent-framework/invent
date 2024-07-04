@@ -360,14 +360,6 @@ class Component(Model):
             },
         }
 
-    def get_from_datastore(self, property_name):
-        """
-        Return the "from_datastore" instance for a property or None if it is a
-        simple/literal property.
-        """
-
-        return getattr(self, f"_{property_name}_from_datastore", None)
-
     def update_attribute(self, attribute_name, attribute_value):
         """
         Convenience method to update an HTML attribute on self.element. If
