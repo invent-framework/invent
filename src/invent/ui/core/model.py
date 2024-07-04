@@ -49,4 +49,6 @@ class Model:
         Set the "from_datastore" instance for a property. Pass None to make it
         an unbound property.
         """
-        self.properties()[property_name].set_from_datastore(*args, **kwargs)
+        self.properties()[property_name].set_from_datastore(
+            self, *args, **kwargs
+        )

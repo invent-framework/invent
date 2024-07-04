@@ -172,10 +172,16 @@ class Component(Model):
 
     @parent.setter
     def parent(self, parent):
+        old_parent = self._parent
         self._parent = parent
 
-        # Validate the layout against the new parent.
-        self.layout = self.layout
+        if parent:
+            # Validate the layout against the new parent.
+            try:
+                self.layout = self.layout
+            except Exception:
+                self._parent = old_parent
+                raise
 
     @property
     def layout(self):
@@ -185,16 +191,16 @@ class Component(Model):
     def layout(self, layout):
         def type_error():
             raise TypeError(
-                f"container type {type(self.parent).__qualname__} " +
-                f"doesn't support layout type {type(layout).__qualname__}"
+                f"container type {type(self.parent).__name__} " +
+                f"doesn't support layout type {type(layout).__name__}"
             )
 
-        if isinstance(layout, BaseLayout):
+        if isinstance(layout, Layout):
             if self.parent:
-                if type(layout) is self.parent.Layout:
+                if type(layout) is self.parent.layout_class:
                     # Create a new Layout object for this component, and copy
                     # all properties.
-                    self._layout = self.parent.Layout(
+                    self._layout = self.parent.layout_class(
                         self,
                         **{
                             key: getattr(layout, key)
@@ -209,7 +215,7 @@ class Component(Model):
 
         elif isinstance(layout, dict):
             if self.parent:
-                self._layout = self.parent.Layout(self, **layout)
+                self._layout = self.parent.layout_class(self, **layout)
             else:
                 # Validate it later, when we have a parent.
                 self._layout = layout
@@ -673,7 +679,7 @@ class Container(Component):
         pass
 
 
-class BaseLayout(Model):
+class Layout(Model):
     def __init__(self, component, **kwargs):
         self.component = component
         self.element = self.component.element

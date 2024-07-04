@@ -128,6 +128,10 @@ def test_component_init_with_properties():
     with pytest.raises(core.ValidationError):
         TestComponent(text=None)
 
+    # Cannot initialize a nonexistent property.
+    with pytest.raises(AttributeError, match="no_such_prop"):
+        TestComponent(no_such_prop=None)
+
 
 def test_component_get_component_by_id():
     """
@@ -443,6 +447,100 @@ def test_widget_when_as_decorator():
             return
 
         assert mock_sub.call_count == 1
+
+
+def test_layout():
+    """
+    A component's layout property interacts correctly with its parent.
+    """
+
+    class LayoutA(core.Layout):
+        alpha = core.TextProperty("Alpha", "a")
+
+    class LayoutB(core.Layout):
+        bravo = core.TextProperty("Bravo", "b")
+
+    class ContainerA(core.Container):
+        layout_class = LayoutA
+
+    class ContainerB(core.Container):
+        layout_class = LayoutB
+
+    class TestComponent(core.Component):
+        def render(self):
+            return document.createElement("div")
+
+    tc = TestComponent(layout=dict(alpha="apple"))
+    assert tc.layout == dict(alpha="apple")
+
+    # A Layout object is created from the dict when the widget gets a parent.
+    a = ContainerA()
+    a.append(tc)
+    layout_a = tc.layout
+    assert type(tc.layout) is LayoutA
+    assert tc.layout.element is tc.element
+    assert tc.layout.alpha == "apple"
+    assert tc.layout.component is tc
+    assert tc.layout.element is tc.element
+
+    # Layout can be set from a dict with compatible keys.
+    tc.layout = dict(alpha="avocado")
+    assert tc.layout is not layout_a
+    layout_a1 = tc.layout
+    assert type(tc.layout) is LayoutA
+    assert tc.layout.alpha == "avocado"
+
+    with pytest.raises(AttributeError, match="no_such_prop"):
+        tc.layout = dict(alpha="aardvark", no_such_prop=None)
+    assert tc.layout is layout_a1
+    assert tc.layout.alpha == "avocado"
+
+    # Layout can be set from a layout object of the correct type.
+    layout_a2 = LayoutA(tc, alpha="apple")
+    tc.layout = layout_a2
+    assert tc.layout is not layout_a2  # A copy has been made.
+    assert type(tc.layout) is LayoutA
+    assert tc.layout.alpha == "apple"
+
+    # Layout cannot be set from any other type.
+    for value in [LayoutB(tc), "a string", ["a list"]]:
+        with pytest.raises(
+            TypeError,
+            match=(
+                "container type ContainerA doesn't support layout type "
+                + type(value).__name__
+            ),
+        ):
+            tc.layout = value
+
+    # The layout object is kept when the widget loses its parent, and can be
+    # copied to another parent of the same type.
+    layout_a3 = tc.layout
+    a.remove(tc)
+    assert tc.layout is layout_a3
+    assert layout_a3.alpha == "apple"
+
+    a2 = ContainerA()
+    a2.append(tc)
+    assert tc.layout is not layout_a3  # A copy has been made.
+    assert layout_a3.alpha == "apple"
+
+    # A different parent type requires a different layout type.
+    a2.remove(tc)
+    b = ContainerB()
+    with pytest.raises(
+        TypeError,
+        match="container type ContainerB doesn't support layout type LayoutA",
+    ):
+        b.append(tc)
+
+    layout_b = LayoutB(tc, bravo="banana")
+    tc.layout = layout_b
+    assert tc.layout is layout_b
+    b.append(tc)
+    assert tc.layout is not layout_b  # A copy has been made.
+    assert type(tc.layout) is LayoutB
+    assert tc.layout.bravo == "banana"
 
 
 def test_container_on_content_changed():
