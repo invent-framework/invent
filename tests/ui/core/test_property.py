@@ -26,7 +26,7 @@ def test_from_datastore():
     fds = from_datastore("foo", with_function=test_fn)
     assert fds.key == "foo"
     assert fds.with_function == test_fn
-    assert repr(fds) == 'from_datastore("foo", with_function=test_fn)'
+    assert repr(fds) == "from_datastore('foo', with_function=test_fn)"
 
 
 def test_property_init():

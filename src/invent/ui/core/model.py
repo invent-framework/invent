@@ -9,8 +9,9 @@ class Model:
 
     def __init__(self, **kwargs):
         # MicroPython incorrectly calls __set_name__ with the Model instance,
-        # not the class. And it doesn't call it on Layout classes at all, maybe
-        # because they're nested.
+        # not the class. And it doesn't call it early enough on Layout classes
+        # for some reason, which would cause the default values loop below to
+        # fail.
         for key, prop in self.properties().items():
             prop.__set_name__(type(self), key)
 
@@ -36,6 +37,19 @@ class Model:
                 setattr(self, k, v)
             else:
                 raise AttributeError(k)
+
+    def as_dict(self):
+        properties = {}
+        for property_name, property_obj in sorted(self.properties().items()):
+            from_datastore = self.get_from_datastore(property_name)
+            if from_datastore:
+                property_value = repr(from_datastore)
+            else:
+                property_value = getattr(self, property_name)
+
+            properties[property_name] = property_value
+
+        return properties
 
     def get_from_datastore(self, property_name):
         """

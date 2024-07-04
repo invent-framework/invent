@@ -325,27 +325,16 @@ class Component(Model):
 
     def as_dict(self):
         """
-        Return a dict representation of the state of this instance's
-        properties and message blueprints.
+        Return a dict representation of the state of this instance.
         """
-        properties = {}
-        for property_name, property_obj in type(self).properties().items():
-            # If the component is a Container, we deal with its content
-            # separately (for the recursive case). A Widget may well define
-            # its own custom "content" property though, so we handle that
-            # just like any other property.
-            if isinstance(self, Container) and property_name == "content":
-                continue
+        properties = super().as_dict()
+        properties["layout"] = (
+            self.layout
+            if isinstance(self.layout, dict)
+            else self.layout.as_dict()
+        )
 
-            from_datastore = self.get_from_datastore(property_name)
-            if from_datastore:
-                property_value = repr(from_datastore)
-
-            else:
-                property_value = getattr(self, property_name)
-
-            properties[property_name] = property_value
-
+        # If the component is a Container, we format its content recursively.
         if isinstance(self, Container):
             from_datastore = self.get_from_datastore("content")
             if from_datastore:
@@ -359,10 +348,6 @@ class Component(Model):
         return {
             "type": type(self).__name__,
             "properties": properties,
-            "message_blueprints": {
-                key: value.as_dict()
-                for key, value in type(self).message_blueprints().items()
-            },
         }
 
     def update_attribute(self, attribute_name, attribute_value):

@@ -1,7 +1,7 @@
 import pytest
 from pyscript import document
 from unittest import mock
-from invent.ui import core
+from invent.ui import core, export
 
 
 def test_message_blueprint():
@@ -254,7 +254,7 @@ def test_component_as_dict():
     dictionary.
     """
 
-    class MyWidget(core.Widget):
+    class MyWidget(core.Component):
         """
         A test widget.
         """
@@ -277,12 +277,113 @@ def test_component_as_dict():
         def render(self):
             return document.createElement("div")
 
-    w = MyWidget()
-    result = w.as_dict()
-    assert result["type"] == "MyWidget"
-    assert result["properties"]["foo"] == "bar"
-    assert result["properties"]["numberwang"] == 42
-    assert result["properties"]["favourite_colour"] == "black"
+    mw = MyWidget(
+        foo=core.from_datastore("ds_key"),
+        numberwang=55,
+        layout=dict(alpha="a", bravo="b"),
+    )
+    expected = {
+        "type": "MyWidget",
+        "properties": {
+            "foo": "from_datastore('ds_key')",
+            "numberwang": 55,
+            "favourite_colour": "black",
+            "id": "invent-mywidget-1",
+            "name": "MyWidget 1",
+            "enabled": True,
+            "visible": True,
+            "layout": {"alpha": "a", "bravo": "b"},
+        }
+    }
+    assert mw.as_dict() == expected
+
+    with mock.patch("invent.ui.MyWidget", MyWidget, create=True):
+        mw2 = export._component_from_dict(expected)
+        assert isinstance(mw2, MyWidget)
+        assert mw2.foo == "bar"
+        assert isinstance(
+            foo_fd := mw2.get_from_datastore("foo"), core.from_datastore
+        )
+        assert foo_fd.key == "ds_key"
+        assert mw2.numberwang == 55
+        assert mw2.layout == dict(alpha="a", bravo="b")
+
+    export._pretty_repr_component(mw, lines := [])
+    assert lines == [
+        "MyWidget(",
+        "    enabled=True,",
+        "    favourite_colour='black',",
+        "    foo=from_datastore('ds_key'),",
+        "    id='invent-mywidget-1',",
+        "    name='MyWidget 1',",
+        "    numberwang=55,",
+        "    visible=True,",
+        "    layout={'alpha': 'a', 'bravo': 'b'},",
+        "),"
+    ]
+
+
+def test_container_as_dict():
+    """
+    Ensure the expected state of a container is returned as a Python
+    dictionary.
+    """
+
+    class MyLayout(core.Layout):
+        layout_prop = core.TextProperty("Layout prop", "lp")
+
+    class MyContainer(core.Container):
+        layout_class = MyLayout
+        container_prop = core.TextProperty("Container prop", "cp")
+
+    class MyWidget(core.Component):
+        widget_prop = core.TextProperty("Widget prop", "wp")
+
+        def render(self):
+            return document.createElement("div")
+
+    mc = MyContainer()
+    mc.append(MyWidget())
+    expected = {
+        "type": "MyContainer",
+        "properties": {
+            "container_prop": "cp",
+            "id": "invent-mycontainer-1",
+            "name": "MyContainer 1",
+            "enabled": True,
+            "visible": True,
+            "background_color": None,
+            "border_color": None,
+            "border_width": None,
+            "border_style": None,
+            "layout": {},
+            "content": [
+                {
+                    "type": "MyWidget",
+                    "properties": {
+                        "widget_prop": "wp",
+                        "id": "invent-mywidget-1",
+                        "name": "MyWidget 1",
+                        "enabled": True,
+                        "visible": True,
+                        "layout": {"layout_prop": "lp"},
+                    }
+                }
+            ]
+        }
+    }
+    assert mc.as_dict() == expected
+
+    with (
+        mock.patch("invent.ui.MyContainer", MyContainer, create=True),
+        mock.patch("invent.ui.MyWidget", MyWidget, create=True),
+    ):
+        mc2 = export._component_from_dict(expected)
+        assert isinstance(mc2, MyContainer)
+        assert len(mc2.content) == 1
+        mw2 = mc2.content[0]
+        assert isinstance(mw2, MyWidget)
+        assert isinstance(mw2.layout, MyLayout)
 
 
 def test_component_update_attribute():
@@ -482,6 +583,10 @@ def test_layout():
     assert tc.layout.alpha == "apple"
     assert tc.layout.component is tc
     assert tc.layout.element is tc.element
+
+    # Layout properties can be set like any other property.
+    tc.layout.alpha = "antelope"
+    assert tc.layout.alpha == "antelope"
 
     # Layout can be set from a dict with compatible keys.
     tc.layout = dict(alpha="avocado")

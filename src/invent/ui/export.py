@@ -219,6 +219,9 @@ def _pretty_repr_component(component, lines, indent=""):
     # The component's properties.
     _pretty_repr_component_properties(component, lines, indent + "    ")
 
+    # The component's layout.
+    _pretty_repr_component_layout(component, lines, indent + "    ")
+
     # If the component is a Container, its "content" property.
     if isinstance(component, Container):
         _pretty_repr_container_content_property(
@@ -250,6 +253,15 @@ def _pretty_repr_component_properties(component, lines, indent):
         )
 
         lines.append(f"{indent}{property_name}={repr(property_value)},")
+
+
+def _pretty_repr_component_layout(component, lines, indent):
+    layout_dict = (
+        component.layout
+        if isinstance(component.layout, dict)
+        else component.layout.as_dict()
+    )
+    lines.append(f"{indent}layout={layout_dict},")
 
 
 def _pretty_repr_container_content_property(component, lines, indent):
