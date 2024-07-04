@@ -27,7 +27,6 @@ from .model import Model
 from .property import (
     BooleanProperty,
     ChoiceProperty,
-    IntegerProperty,
     ListProperty,
     TextProperty,
 )
@@ -475,18 +474,6 @@ class Container(Component):
         default_value=None,
     )
 
-    column_width = IntegerProperty(
-        "The default width of the container.",
-        default_value=100,
-        maximum=100,
-        minimum=0,
-    )
-    height = IntegerProperty(
-        "The default height of the container.",
-        default_value=100,
-        maximum=100,
-        minimum=0,
-    )
     background_color = TextProperty("The color of the container's background.")
     border_color = TextProperty("The color of the container's border.")
     border_width = ChoiceProperty(
@@ -518,12 +505,6 @@ class Container(Component):
         for child in self.content:
             self.element.appendChild(child.element)
         self.update_children()
-
-    def on_height_changed(self):
-        self.element.style.height = f"{self.height}%"
-
-    def on_width_changed(self):
-        self.element.style.width = f"{self.width}%"
 
     def on_background_color_changed(self):
         if self.background_color:
