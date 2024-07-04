@@ -153,17 +153,13 @@ class Property:
         old_value = self.get_from_datastore(obj)
         if old_value:
             invent.unsubscribe(
-                getattr(obj, reactor_prop),
-                to_channel="store-data",
-                when_subject=old_value.key,
+                getattr(obj, reactor_prop), "store-data", old_value.key
             )
             delattr(obj, reactor_prop)
 
         setattr(obj, self.from_datastore_name, value)
         if value:
-            invent.subscribe(
-                reactor, to_channel="store-data", when_subject=value.key
-            )
+            invent.subscribe(reactor, "store-data", value.key)
             setattr(obj, reactor_prop, reactor)
 
     def _react_on_change(self, obj, property_name):

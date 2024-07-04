@@ -83,19 +83,15 @@ def test_property_from_datastore():
         mock.patch("invent.unsubscribe") as mock_unsub,
     ):
         fw.my_property = from_datastore("test", with_function=test_fn)
-        assert mock_unsub.call_count == 0
-        assert mock_sub.call_args[1]["to_channel"] == "store-data"
-        assert mock_sub.call_args[1]["when_subject"] == "test"
-        assert mock_sub.call_count == 1
+        mock_unsub.assert_not_called()
+        mock_sub.assert_called_once_with(mock.ANY, "store-data", "test")
+        reactor = mock_sub.call_args.args[0]
         test_fn.assert_called_once_with(None)
 
+        mock_sub.reset_mock()
         fw.my_property = from_datastore("test2")
-        assert mock_unsub.call_count == 1
-        assert mock_unsub.call_args[1]["to_channel"] == "store-data"
-        assert mock_unsub.call_args[1]["when_subject"] == "test"
-        assert mock_sub.call_count == 2
-        assert mock_sub.call_args[1]["to_channel"] == "store-data"
-        assert mock_sub.call_args[1]["when_subject"] == "test2"
+        mock_unsub.assert_called_once_with(reactor, "store-data", "test")
+        mock_sub.assert_called_once_with(mock.ANY, "store-data", "test2")
 
 
 def test_from_datastore_react_on_change():
