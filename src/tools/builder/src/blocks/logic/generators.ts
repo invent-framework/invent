@@ -1,18 +1,42 @@
 import * as Blockly from 'blockly/core';
-import { pythonGenerator } from 'blockly/python';
+import { pythonGenerator, Order } from 'blockly/python';
 
-pythonGenerator.forBlock['loops_forever'] = function(block, generator) {
-    const statements_loop_body = generator.statementToCode(block, 'loop_body');
-    const code = '...\n';
-    return code;
-};
+pythonGenerator.forBlock['logic_compare'] = function(block, generator) {
+    // TODO: change Order.ATOMIC to the correct operator precedence strength
+    const value_this = generator.valueToCode(block, 'this', Order.ATOMIC);
+  
+    const dropdown_operator = block.getFieldValue('operator');
+  
+    // TODO: change Order.ATOMIC to the correct operator precedence strength
+    const value_that = generator.valueToCode(block, 'that', Order.ATOMIC);
+  
+    // TODO: Assemble python into the code variable.
+    const code = '...';
+    // TODO: Change Order.NONE to the correct operator precedence strength
+    return [code, Order.NONE];
+  }
+  
+pythonGenerator.forBlock['logic_boolean'] = function(block, generator) {
+    // TODO: change Order.ATOMIC to the correct operator precedence strength
+    const value_this = generator.valueToCode(block, 'this', Order.ATOMIC);
 
-pythonGenerator.forBlock['loops_repeat'] = function(block, generator) {
-    const value_loop_count = generator.valueToCode(block, 'loop_count', python.Order.ATOMIC);
-    const statements_loop_body = generator.statementToCode(block, 'loop_body');
-    // TODO: Assemble python into code variable.
-    const code = '...\n';
-    return code;
-};
+    const dropdown_operator = block.getFieldValue('operator');
+
+    // TODO: change Order.ATOMIC to the correct operator precedence strength
+    const value_that = generator.valueToCode(block, 'that', Order.ATOMIC);
+
+    // TODO: Assemble python into the code variable.
+    const code = '...';
+    // TODO: Change Order.NONE to the correct operator precedence strength
+    return [code, Order.NONE];
+}
+
+pythonGenerator.forBlock['logic_not'] = function(block, generator) {
+    // TODO: change Order.ATOMIC to the correct operator precedence strength
+    const value_this = generator.valueToCode(block, 'this', Order.ATOMIC);
   
-  
+    // TODO: Assemble python into the code variable.
+    const code = '...';
+    // TODO: Change Order.NONE to the correct operator precedence strength
+    return [code, Order.NONE];
+  }

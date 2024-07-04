@@ -8,6 +8,7 @@
     "playwright.config.*"
   ],
   "compilerOptions": {
+    "lib": ["ES2021"],
     "composite": true,
     "noEmit": true,
     "module": "ESNext",

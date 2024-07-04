@@ -72,7 +72,7 @@ PYSCRIPT_TOML_TEMPLATE = """
 experimental_create_proxy = "auto"
 
 [files]
-"https://invent.pyscriptapps-dev.com/invent/latest/invent.zip" = "./*"
+"http://127.0.0.1:3000/invent/python/invent.zip" = "./*"
 """
 
 
@@ -91,13 +91,7 @@ def as_pyscript_app(app, imports=IMPORTS, datastore="", code="", to_psdc=True):
     )
 
     # pyscript.toml
-    pyscript_toml = PYSCRIPT_TOML_TEMPLATE.format(
-        invent_src=(
-            "https://mchilvers.pyscriptapps.com/invent/latest/invent"
-            if to_psdc
-            else "../../src/invent"
-        )
-    )
+    pyscript_toml = PYSCRIPT_TOML_TEMPLATE
 
     return index_html, main_py, pyscript_toml
 

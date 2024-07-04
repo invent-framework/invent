@@ -1,7 +1,7 @@
 <template>
     <builder-desktop-layout>
         <template #header>
-            <div class="w-full grid grid-cols-3">
+            <div v-if="view.state.isToolbarVisible" class="h-16 py-3 px-4 w-full grid grid-cols-3">
                 <ib-h-stack is-full-width align-y="center">
                     <img src="/logo.svg" class="h-7">
                 </ib-h-stack>
@@ -92,70 +92,100 @@
                     />
                 </div>
 
-                <div class="h-full w-72 overflow-y-auto overflow-x-hidden bg-white border-l border-gray-300 p-4 flex-none">
-                    <ib-v-stack v-if="view.state.activeWidgetProperties" :spacing="4">
-                        <ib-icon :icon="['fas', 'trash']" @click="view.deleteComponent()" class="hover:text-red-500" />
-                        <div>{{ view.state.activeWidgetProperties.name.value }}</div>
-                        <template v-for="(property, key) in view.state.activeWidgetProperties" :key="key">
-                            <ib-h-stack is-full-width :spacing="4" align-y="center">
-                                <ib-select
-                                    v-if="property.is_from_datastore" 
-                                    :label="key" 
-                                    :options="view.getDatastoreOptions()" 
-                                    v-model="property.value"
-                                    @input="view.setComponentProperty(key as string, $event, true)"
-                                />
-                                <div class="w-full" v-else>
-                                    <ib-select 
-                                        v-if="key === 'image'" 
-                                        :label="key" 
-                                        :options="view.getImageFiles()" 
-                                        v-model="property.value"
-                                        @input="view.setComponentProperty(key as string, $event)"
-                                    />
+                <div class="h-full w-72 overflow-y-auto overflow-x-hidden bg-white border-l border-gray-300 flex-none">
+                    <ib-v-stack v-if="view.state.activeWidgetProperties && view.state.activeWidgetBlueprint">
+                        <div class="bg-violet-100 px-4 py-3 space-y-3 w-full text-left sticky top-0 shadow-sm">
+                            <ib-h-stack justify-content="between" is-full-width>
+                                <ib-h-stack align-y="center" :spacing="2" class=" w-3/4">
+                                    <div v-html="view.state.activeWidgetBlueprint.icon" class="text-xl text-violet-500" />
 
-                                    <ib-select 
-                                        v-else-if="key === 'source'" 
-                                        :label="key" 
-                                        :options="view.getSoundFiles()" 
-                                        v-model="property.value"
-                                        @input="view.setComponentProperty(key as string, $event)"
+                                    <ib-heading 
+                                        :label="view.state.activeWidgetProperties.name.value"
+                                        size="medium" 
+                                        weight="semibold"
+                                        color="gray"
+                                        class="truncate"
                                     />
-
-                                    <ib-select 
-                                        v-else-if="property.property_type === 'ChoiceProperty'" 
-                                        :label="key" 
-                                        :options="view.getChoicePropertyOptions(property.choices)" 
-                                        v-model="property.value"
-                                        @input="view.setComponentProperty(key as string, $event)"
-                                    />
-
-                                    <ib-toggle 
-                                        v-else-if="property.property_type === 'BooleanProperty'" 
-                                        :label="key" 
-                                        v-model="property.value"
-                                        @input="view.setComponentProperty(key as string, $event)"
-                                    />
-
-                                    <ib-input 
-                                        v-else
-                                        :label="key"
-                                        type="text"
-                                        :required="property.required" 
-                                        v-model="property.value"
-                                        @input="view.setComponentProperty(key as string, $event)"
-                                    />
-                                </div>
+                                </ib-h-stack>
 
                                 <ib-icon 
-                                    :icon="['fas', 'database']" 
-                                    color="gray" 
-                                    class="hover:text-violet-500 cursor-pointer transition-colors" 
-                                    :class="[property.property_type !== 'BooleanProperty' ? 'mt-6' : '', property.is_from_datastore ? '!text-violet-500' : '']" 
-                                    @click="property.is_from_datastore = !property.is_from_datastore"
+                                    :icon="['fas', 'trash']" 
+                                    class="hover:text-red-500 cursor-pointer" 
+                                    color="darkGray"
+                                    @click="view.deleteComponent()" 
                                 />
                             </ib-h-stack>
-                        </template>
+
+                            <ib-h-stack v-if="Object.keys(view.state.activeWidgetBlueprint.message_blueprints).length > 0" align-y="center" :spacing="2">
+                                <span class="font-medium text-sm">Messages: </span>
+                                <span v-for="(message, key) in view.state.activeWidgetBlueprint.message_blueprints" :key="key" class="capitalize text-xs font-medium px-2 py-0.5 rounded-full bg-violet-500 text-white">
+                                    {{ key }}
+                                </span>
+                            </ib-h-stack>
+                        </div>
+
+                        <ib-v-stack :spacing="4" class="p-4">
+                            <template v-for="(property, key) in view.state.activeWidgetProperties" :key="key">
+                                <ib-h-stack is-full-width :spacing="4" align-y="center">
+                                    <ib-select
+                                        v-if="property.is_from_datastore" 
+                                        :label="key" 
+                                        :options="view.getDatastoreOptions()" 
+                                        v-model="property.value"
+                                        @input="view.setComponentProperty(key as string, $event, true)"
+                                    />
+                                    <div class="w-full" v-else>
+                                        <ib-select 
+                                            v-if="key === 'image'" 
+                                            :label="key" 
+                                            :options="view.getImageFiles()" 
+                                            v-model="property.value"
+                                            @input="view.setComponentProperty(key as string, $event)"
+                                        />
+
+                                        <ib-select 
+                                            v-else-if="key === 'source'" 
+                                            :label="key" 
+                                            :options="view.getSoundFiles()" 
+                                            v-model="property.value"
+                                            @input="view.setComponentProperty(key as string, $event)"
+                                        />
+
+                                        <ib-select 
+                                            v-else-if="property.property_type === 'ChoiceProperty'" 
+                                            :label="key" 
+                                            :options="view.getChoicePropertyOptions(property.choices)" 
+                                            v-model="property.value"
+                                            @input="view.setComponentProperty(key as string, $event)"
+                                        />
+
+                                        <ib-toggle 
+                                            v-else-if="property.property_type === 'BooleanProperty'" 
+                                            :label="key" 
+                                            v-model="property.value"
+                                            @input="view.setComponentProperty(key as string, $event)"
+                                        />
+
+                                        <ib-input 
+                                            v-else
+                                            :label="key"
+                                            type="text"
+                                            :required="property.required" 
+                                            v-model="property.value"
+                                            @input="view.setComponentProperty(key as string, $event)"
+                                        />
+                                    </div>
+
+                                    <ib-icon 
+                                        :icon="['fas', 'database']" 
+                                        color="gray" 
+                                        class="hover:text-violet-500 cursor-pointer transition-colors" 
+                                        :class="[property.property_type !== 'BooleanProperty' ? 'mt-6' : '', property.is_from_datastore ? '!text-violet-500' : '']" 
+                                        @click="property.is_from_datastore = !property.is_from_datastore"
+                                    />
+                                </ib-h-stack>
+                            </template>
+                        </ib-v-stack>
                     </ib-v-stack>
 
                 </div>

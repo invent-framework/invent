@@ -8,13 +8,13 @@ export const functionsCategory = function(workspace: any) {
         type: "functions_define"
     });
 
-    for (const model of Blockly.getMainWorkspace().getProcedureMap().getProcedures()) {
-        console.log(model)
+    for (const model of workspace.getProcedureMap().getProcedures()) {
+        console.log(model);
         blockList.push({
             kind: "block",
             type: "functions_call",
             extraState: {
-                procedureId: model.getId()
+                name: model.getName()
             }
         })
     }

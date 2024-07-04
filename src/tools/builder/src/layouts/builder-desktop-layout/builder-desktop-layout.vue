@@ -1,6 +1,6 @@
 <template>
   <div class="h-screen w-screen flex flex-col overflow-hidden">
-    <div class="h-16 py-3 px-4 w-full bg-white border-b flex items-center flex-none">
+    <div class="w-full bg-white border-b flex items-center flex-none">
       <slot name="header" />
     </div>
 

@@ -5,7 +5,7 @@ import type { PageModel } from '@/data/models/page-model';
 function getPages(): any {
     if (builder.state.pages && builder.state.pages.length > 0){
         return builder.state.pages.map((value: PageModel) => {
-            return [value.name, value.name];
+            return [value.properties.name, value.properties.name];
         });
     }
     else {
@@ -13,17 +13,17 @@ function getPages(): any {
     }
 }
 
-Blockly.Blocks["pages"] = {
+Blockly.Blocks["pages_pages"] = {
     init: function(): void {
         this.appendDummyInput()
             .appendField(new Blockly.FieldDropdown(getPages()), "page");
         this.setInputsInline(true);
         this.setOutput(true, null);
-        this.setColour("#9966ff");
+        this.setColour("#ff6680");
     }
 };
 
-Blockly.Blocks['show_page'] = {
+Blockly.Blocks['pages_show_page'] = {
     init: function() {
       this.appendDummyInput()
           .appendField("show page");
@@ -32,6 +32,6 @@ Blockly.Blocks['show_page'] = {
       this.setInputsInline(true);
       this.setPreviousStatement(true, null);
       this.setNextStatement(true, null);
-      this.setColour("#9966ff");
+      this.setColour("#ff6680");
     }
 };

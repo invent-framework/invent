@@ -1,4 +1,7 @@
 {
+  "compilerOptions": {
+    "lib": ["ES2021"]
+  },
   "files": [],
   "references": [
     {

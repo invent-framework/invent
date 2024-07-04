@@ -48,9 +48,13 @@ export class BuilderUtilities {
 	public static getComponentProperties(componentId: string): WidgetPropertiesModel {
 		return JSON.parse(this.builder().get_component_properties(componentId));
 	}
-
+	
 	public static setComponentProperty(componentId: string, key: string, value: string, isFromDatastore?: boolean) {
 		this.builder().set_component_property(componentId, key, value, isFromDatastore);
+	}
+	
+	public static getWidgetsInAppWithMessages(): Array<WidgetModel> {
+		return JSON.parse(this.builder().get_widgets_in_app_with_messages());
 	}
 
 	// Channels ////////////////////////////////////////////////////////////////////////

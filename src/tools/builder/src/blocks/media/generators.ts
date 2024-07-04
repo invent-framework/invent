@@ -12,5 +12,3 @@ pythonGenerator.forBlock['media_play_sound'] = function(block: Blockly.Block, ge
     const code = `invent.play_sound(invent.media.sounds.${file})\n`;
     return code;
 };
-  
-  

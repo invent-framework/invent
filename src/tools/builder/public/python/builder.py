@@ -133,6 +133,23 @@ class Builder:
 
     # Widgets ##########################################################################
 
+    def get_widgets_in_app_with_messages(self):
+        """
+        Return the a list of widgets within the app that have message blueprints.
+        """
+
+        app = self._app.as_dict()
+
+        widgets = []
+
+        for page in app["content"]:
+            for widget in page["properties"]["content"]:
+                if len(widget["message_blueprints"]) > 0:
+                    widgets.append(widget)
+        
+        return json.dumps(widgets)
+
+
     def get_available_components(self):
         """
         Return a dictionary of available component blueprints by name.

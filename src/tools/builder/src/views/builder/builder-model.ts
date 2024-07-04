@@ -72,9 +72,16 @@ export class BuilderModel extends ViewModelBase {
 				"app": BuilderUtilities.getAppAsDict(),
 				"media": {},
 				"datastore": {},
-				"blocks": {}
+				"blocks": {},
+				"config": {}
 			}
 		}
+
+		// Check if the wrapper application has set the toolbar to be visible or not
+		if (data.config.toolbar === false) {
+			this.state.isToolbarVisible = false;
+		}
+
 		BuilderUtilities.getAppFromDict(data.app);
 
 		// TODO: Not sure we need to do this on the next tick - please check after
@@ -160,6 +167,55 @@ export class BuilderModel extends ViewModelBase {
 					type: data.type,
 					path: data.path
 				}
+				break;
+			}
+
+			case "show-tab": {
+				this.state.activeBuilderTab = data.tab;
+				Blockly.svgResize(Blockly.getMainWorkspace() as Blockly.WorkspaceSvg);
+				const xml = Blockly.Xml.workspaceToDom(Blockly.getMainWorkspace());
+				Blockly.getMainWorkspace().clear();
+				Blockly.Xml.domToWorkspace(xml, Blockly.getMainWorkspace());
+				break;
+			}
+
+			case "add-data-value": {
+				ModalUtilities.showModal({
+					modal: "AddDatastoreValue",
+					options: {
+						onAddValue: (isValid: boolean, datastoreValue: DatastoreValueModel): void => {
+							if (isValid){
+								this.state.datastore[datastoreValue.key] = datastoreValue;
+								window.parent.postMessage({type: "add-data-value-response", data: {
+									data: this.state.datastore
+								}})
+								ModalUtilities.closeModal();
+							}
+						}
+					}
+				});
+				break;
+			}
+
+			case "add-page": {
+				ModalUtilities.showModal({
+					modal: "AddPage",
+					options: {
+						onAddPage: (pageName: string) => {
+							BuilderUtilities.addPage(pageName);
+							this.getPages();
+							window.parent.postMessage({type: "add-page-response", data: {
+								app: BuilderUtilities.getAppAsDict()
+							}})
+							ModalUtilities.closeModal();
+						}
+					}
+				});
+				break;
+			}
+
+			case "show-page": {
+				this.setActivePage(this.state.pages![data.page]);
 				break;
 			}
 		}

@@ -1,17 +1,28 @@
 import { ComponentModelBase } from "@/components/base-classes/component-model-base";
 import * as Blockly from "blockly/core";
 import * as En from "blockly/msg/en";
-import "blockly/blocks";
-import '@blockly/block-plus-minus';
 
 // Blocks
 import "@/blocks/common/definitions";
-import "@/blocks/components/definitions";
+import "@/blocks/common/generators";
+
+import "@/blocks/widgets/definitions";
+import "@/blocks/widgets/generators";
+
 import "@/blocks/data/definitions";
+import "@/blocks/data/generators";
+
 import "@/blocks/media/definitions";
+import "@/blocks/media/generators";
+
+import "@/blocks/pages/definitions";
+import "@/blocks/pages/generators";
+
 import "@/blocks/channels/definitions";
 import "@/blocks/loops/definitions";
 import "@/blocks/logic/definitions";
+import "@/blocks/text/definitions";
+import "@/blocks/functions/definitions";
 
 
 /**
@@ -44,27 +55,49 @@ class BlockEditorModel extends ComponentModelBase {
 		contents: [
 			{
 				kind: "category",
-				name: "Components",
+				name: "Widgets",
 				colour: "#FCC331",
 				contents: [
 					{
 						kind: "label",
-						text: "Components"
+						text: "Widgets"
 					},
 					{
 						kind: "block",
-						type: "components_when",
+						type: "widgets_when",
 						inputs: {
-							component: {
+							widget: {
 								shadow: {
-									type: "components_component_dropdown"
+									type: "widgets_widgets"
 								}
 							},
 							event: {
 								shadow: {
-									type: "components_events_dropdown"
+									type: "widgets_events"
 								}
 							},
+						}
+					}
+				]
+			},
+			{
+				kind: "category",
+				name: "Pages",
+				colour: "#ff6680",
+				contents: [
+					{
+						kind: "label",
+						text: "Pages"
+					},
+					{
+						kind: "block",
+						type: "pages_show_page",
+						inputs: {
+							page: {
+								shadow: {
+									type: "pages_pages"
+								}
+							}
 						}
 					}
 				]
@@ -89,7 +122,7 @@ class BlockEditorModel extends ComponentModelBase {
 							},
 							value: {
 								shadow: {
-									type: "inline_text",
+									type: "inline_string",
 									fields: {
 										value: "value"
 									}
@@ -191,7 +224,7 @@ class BlockEditorModel extends ComponentModelBase {
 						inputs: {
 							message: {
 								shadow: {
-									type: "inline_text",
+									type: "inline_string",
 									fields: {
 										value: "message"
 									}
@@ -210,7 +243,7 @@ class BlockEditorModel extends ComponentModelBase {
 						inputs: {
 							subject: {
 								shadow: {
-									type: "inline_text",
+									type: "inline_string",
 									fields: {
 										value: ""
 									}
@@ -260,15 +293,46 @@ class BlockEditorModel extends ComponentModelBase {
 					},
 					{
 						kind: "block",
-						type: "controls_if",
-					}
+						type: "logic_if",
+						extraState: {
+							elseIfCount: 0
+						}
+					},
+					{
+						kind: "block",
+						type: "logic_if",
+						extraState: {
+							hasElse: true
+						}
+					},
+					{
+						kind: "block",
+						type: "logic_compare"
+					},
+					{
+						kind: "block",
+						type: "logic_boolean"
+					},
+					{
+						kind: "block",
+						type: "logic_not"
+					},
 				]
 			},
 			{
 				kind: "category",
-				name: "Functions",
-				colour: "#ff6680",
-				custom: "FUNCTIONS"
+				name: "Text",
+				colour: "#00c0e9",
+				contents: [
+					{
+						kind: "label",
+						text: "Text"
+					},
+					{
+						kind: "block",
+						type: "inline_string"
+					}
+				]
 			}
 		]
 	};

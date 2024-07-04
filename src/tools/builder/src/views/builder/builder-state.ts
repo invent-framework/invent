@@ -37,4 +37,6 @@ export class BuilderState {
 	public project: any;
 
 	public functions: string = "";
+
+	public isToolbarVisible: boolean = true;
 }
