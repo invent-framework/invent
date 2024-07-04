@@ -328,19 +328,17 @@ class Component(Model):
         Return a dict representation of the state of this instance.
         """
         properties = super().as_dict()
-        properties["layout"] = (
+        layout_dict = (
             self.layout
             if isinstance(self.layout, dict)
             else self.layout.as_dict()
         )
+        if layout_dict:
+            properties["layout"] = layout_dict
 
         # If the component is a Container, we format its content recursively.
         if isinstance(self, Container):
-            from_datastore = self.get_from_datastore("content")
-            if from_datastore:
-                properties["content"] = repr(from_datastore)
-
-            else:
+            if not self.get_from_datastore("content"):
                 properties["content"] = [
                     item.as_dict() for item in self.content
                 ]

@@ -292,7 +292,7 @@ def test_component_as_dict():
             "name": "MyWidget 1",
             "enabled": True,
             "visible": True,
-            "layout": {"alpha": "a", "bravo": "b"},
+            "layout": dict(alpha="a", bravo="b"),
         }
     }
     assert mw.as_dict() == expected
@@ -318,7 +318,7 @@ def test_component_as_dict():
         "    name='MyWidget 1',",
         "    numberwang=55,",
         "    visible=True,",
-        "    layout={'alpha': 'a', 'bravo': 'b'},",
+        "    layout=dict(alpha='a', bravo='b'),",
         "),"
     ]
 
@@ -356,7 +356,6 @@ def test_container_as_dict():
             "border_color": None,
             "border_width": None,
             "border_style": None,
-            "layout": {},
             "content": [
                 {
                     "type": "MyWidget",
@@ -366,7 +365,7 @@ def test_container_as_dict():
                         "name": "MyWidget 1",
                         "enabled": True,
                         "visible": True,
-                        "layout": {"layout_prop": "lp"},
+                        "layout": dict(layout_prop="lp"),
                     }
                 }
             ]
@@ -384,6 +383,31 @@ def test_container_as_dict():
         mw2 = mc2.content[0]
         assert isinstance(mw2, MyWidget)
         assert isinstance(mw2.layout, MyLayout)
+
+    export._pretty_repr_component(mc, lines := [])
+    assert lines == [
+        "MyContainer(",
+        "    background_color=None,",
+        "    border_color=None,",
+        "    border_style=None,",
+        "    border_width=None,",
+        "    container_prop='cp',",
+        "    enabled=True,",
+        "    id='invent-mycontainer-1',",
+        "    name='MyContainer 1',",
+        "    visible=True,",
+        "    content=[",
+        "        MyWidget(",
+        "            enabled=True,",
+        "            id='invent-mywidget-1',",
+        "            name='MyWidget 1',",
+        "            visible=True,",
+        "            widget_prop='wp',",
+        "            layout=dict(layout_prop='lp'),",
+        "        ),",
+        "    ],",
+        "),",
+    ]
 
 
 def test_component_update_attribute():
