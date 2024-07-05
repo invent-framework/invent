@@ -18,6 +18,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
+from pyscript import storage
 from .channels import Message, subscribe, publish, unsubscribe, when
 from .compatability import is_micropython
 from .datastore import DataStore
@@ -36,7 +37,6 @@ __all__ = [
     "unsubscribe",
     "when",
     "is_micropython",
-    "DataStore",
     "datastore",
     "_",
     "load_translations",
@@ -57,13 +57,24 @@ __all__ = [
 
 
 #: Default instance of the application's datastore.
-datastore = DataStore()
+datastore = None
+
+async def start_datastore():
+    """
+    Ensure the datastore is started and referenced properly.
+    """
+    global datastore
+    if not datastore:
+        datastore = await storage("invent", storage_class=Datastore)
 
 
 #: The root from which all media files can be found.
 media = Media([], "media")
 
 
-#: Start the app.
-def go():
+async def go():
+    """
+    Start the app.
+    """
+    await start_datastore()
     App.app().go()
