@@ -1,7 +1,7 @@
 import pytest
 from pyscript import document
 from unittest import mock
-from invent.ui import core
+from invent.ui import core, export
 
 
 def test_message_blueprint():
@@ -128,6 +128,10 @@ def test_component_init_with_properties():
     with pytest.raises(core.ValidationError):
         TestComponent(text=None)
 
+    # Cannot initialize a nonexistent property.
+    with pytest.raises(AttributeError, match="no_such_prop"):
+        TestComponent(no_such_prop=None)
+
 
 def test_component_get_component_by_id():
     """
@@ -250,7 +254,7 @@ def test_component_as_dict():
     dictionary.
     """
 
-    class MyWidget(core.Widget):
+    class MyWidget(core.Component):
         """
         A test widget.
         """
@@ -273,12 +277,137 @@ def test_component_as_dict():
         def render(self):
             return document.createElement("div")
 
-    w = MyWidget()
-    result = w.as_dict()
-    assert result["type"] == "MyWidget"
-    assert result["properties"]["foo"] == "bar"
-    assert result["properties"]["numberwang"] == 42
-    assert result["properties"]["favourite_colour"] == "black"
+    mw = MyWidget(
+        foo=core.from_datastore("ds_key"),
+        numberwang=55,
+        layout=dict(alpha="a", bravo="b"),
+    )
+    expected = {
+        "type": "MyWidget",
+        "properties": {
+            "foo": "from_datastore('ds_key')",
+            "numberwang": 55,
+            "favourite_colour": "black",
+            "id": "invent-mywidget-1",
+            "name": "MyWidget 1",
+            "enabled": True,
+            "visible": True,
+            "layout": dict(alpha="a", bravo="b"),
+        }
+    }
+    assert mw.as_dict() == expected
+
+    with mock.patch("invent.ui.MyWidget", MyWidget, create=True):
+        mw2 = export._component_from_dict(expected)
+        assert isinstance(mw2, MyWidget)
+        assert mw2.foo == "bar"
+        assert isinstance(
+            foo_fd := mw2.get_from_datastore("foo"), core.from_datastore
+        )
+        assert foo_fd.key == "ds_key"
+        assert mw2.numberwang == 55
+        assert mw2.layout == dict(alpha="a", bravo="b")
+
+    export._pretty_repr_component(mw, lines := [])
+    assert lines == [
+        "MyWidget(",
+        "    enabled=True,",
+        "    favourite_colour='black',",
+        "    foo=from_datastore('ds_key'),",
+        "    id='invent-mywidget-1',",
+        "    name='MyWidget 1',",
+        "    numberwang=55,",
+        "    visible=True,",
+        "    layout=dict(alpha='a', bravo='b'),",
+        "),"
+    ]
+
+
+def test_container_as_dict():
+    """
+    Ensure the expected state of a container is returned as a Python
+    dictionary.
+    """
+
+    class MyLayout(core.Layout):
+        layout_prop = core.TextProperty("Layout prop", "lp")
+
+    class MyContainer(core.Container):
+        layout_class = MyLayout
+        container_prop = core.TextProperty("Container prop", "cp")
+
+    class MyWidget(core.Component):
+        widget_prop = core.TextProperty("Widget prop", "wp")
+
+        def render(self):
+            return document.createElement("div")
+
+    mc = MyContainer()
+    mc.append(MyWidget())
+    expected = {
+        "type": "MyContainer",
+        "properties": {
+            "container_prop": "cp",
+            "id": "invent-mycontainer-1",
+            "name": "MyContainer 1",
+            "enabled": True,
+            "visible": True,
+            "background_color": None,
+            "border_color": None,
+            "border_width": None,
+            "border_style": None,
+            "content": [
+                {
+                    "type": "MyWidget",
+                    "properties": {
+                        "widget_prop": "wp",
+                        "id": "invent-mywidget-1",
+                        "name": "MyWidget 1",
+                        "enabled": True,
+                        "visible": True,
+                        "layout": dict(layout_prop="lp"),
+                    }
+                }
+            ]
+        }
+    }
+    assert mc.as_dict() == expected
+
+    with (
+        mock.patch("invent.ui.MyContainer", MyContainer, create=True),
+        mock.patch("invent.ui.MyWidget", MyWidget, create=True),
+    ):
+        mc2 = export._component_from_dict(expected)
+        assert isinstance(mc2, MyContainer)
+        assert len(mc2.content) == 1
+        mw2 = mc2.content[0]
+        assert isinstance(mw2, MyWidget)
+        assert isinstance(mw2.layout, MyLayout)
+
+    export._pretty_repr_component(mc, lines := [])
+    assert lines == [
+        "MyContainer(",
+        "    background_color=None,",
+        "    border_color=None,",
+        "    border_style=None,",
+        "    border_width=None,",
+        "    container_prop='cp',",
+        "    enabled=True,",
+        "    id='invent-mycontainer-1',",
+        "    name='MyContainer 1',",
+        "    visible=True,",
+        "    content=[",
+        "        MyWidget(",
+        "            enabled=True,",
+        "            id='invent-mywidget-1',",
+        "            name='MyWidget 1',",
+        "            visible=True,",
+        "            widget_prop='wp',",
+        "            layout=dict(layout_prop='lp'),",
+        "        ),",
+        "    ],",
+        "),",
+    ]
 
 
 def test_component_update_attribute():
@@ -443,6 +572,104 @@ def test_widget_when_as_decorator():
             return
 
         assert mock_sub.call_count == 1
+
+
+def test_layout():
+    """
+    A component's layout property interacts correctly with its parent.
+    """
+
+    class LayoutA(core.Layout):
+        alpha = core.TextProperty("Alpha", "a")
+
+    class LayoutB(core.Layout):
+        bravo = core.TextProperty("Bravo", "b")
+
+    class ContainerA(core.Container):
+        layout_class = LayoutA
+
+    class ContainerB(core.Container):
+        layout_class = LayoutB
+
+    class TestComponent(core.Component):
+        def render(self):
+            return document.createElement("div")
+
+    tc = TestComponent(layout=dict(alpha="apple"))
+    assert tc.layout == dict(alpha="apple")
+
+    # A Layout object is created from the dict when the widget gets a parent.
+    a = ContainerA()
+    a.append(tc)
+    layout_a = tc.layout
+    assert type(tc.layout) is LayoutA
+    assert tc.layout.element is tc.element
+    assert tc.layout.alpha == "apple"
+    assert tc.layout.component is tc
+    assert tc.layout.element is tc.element
+
+    # Layout properties can be set like any other property.
+    tc.layout.alpha = "antelope"
+    assert tc.layout.alpha == "antelope"
+
+    # Layout can be set from a dict with compatible keys.
+    tc.layout = dict(alpha="avocado")
+    assert tc.layout is not layout_a
+    layout_a1 = tc.layout
+    assert type(tc.layout) is LayoutA
+    assert tc.layout.alpha == "avocado"
+
+    with pytest.raises(AttributeError, match="no_such_prop"):
+        tc.layout = dict(alpha="aardvark", no_such_prop=None)
+    assert tc.layout is layout_a1
+    assert tc.layout.alpha == "avocado"
+
+    # Layout can be set from a layout object of the correct type.
+    layout_a2 = LayoutA(tc, alpha="apple")
+    tc.layout = layout_a2
+    assert tc.layout is not layout_a2  # A copy has been made.
+    assert type(tc.layout) is LayoutA
+    assert tc.layout.alpha == "apple"
+
+    # Layout cannot be set from any other type.
+    for value in [LayoutB(tc), "a string", ["a list"]]:
+        with pytest.raises(
+            TypeError,
+            match=(
+                "container type ContainerA doesn't support layout type "
+                + type(value).__name__
+            ),
+        ):
+            tc.layout = value
+
+    # The layout object is kept when the widget loses its parent, and can be
+    # copied to another parent of the same type.
+    layout_a3 = tc.layout
+    a.remove(tc)
+    assert tc.layout is layout_a3
+    assert layout_a3.alpha == "apple"
+
+    a2 = ContainerA()
+    a2.append(tc)
+    assert tc.layout is not layout_a3  # A copy has been made.
+    assert layout_a3.alpha == "apple"
+
+    # A different parent type requires a different layout type.
+    a2.remove(tc)
+    b = ContainerB()
+    with pytest.raises(
+        TypeError,
+        match="container type ContainerB doesn't support layout type LayoutA",
+    ):
+        b.append(tc)
+
+    layout_b = LayoutB(tc, bravo="banana")
+    tc.layout = layout_b
+    assert tc.layout is layout_b
+    b.append(tc)
+    assert tc.layout is not layout_b  # A copy has been made.
+    assert type(tc.layout) is LayoutB
+    assert tc.layout.bravo == "banana"
 
 
 def test_container_on_content_changed():
