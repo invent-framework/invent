@@ -1,11 +1,37 @@
 from ..core import Container, ChoiceProperty, IntegerProperty
-from ..core.component import _TSHIRT_SIZES
+from ..core.component import (
+    _TSHIRT_SIZES,
+    ALIGNMENTS_STRETCH,
+    Layout,
+    align_self_property,
+)
+
+
+class GridLayout(Layout):
+    align_self = align_self_property("vertical")
+    justify_self = ChoiceProperty(
+        "Horizontal alignment.",
+        choices=ALIGNMENTS_STRETCH,
+        default_value="stretch",
+        map_to_style="justify-self",
+    )
+
+    column_span = IntegerProperty("Number of columns to fill.", 1)
+    row_span = IntegerProperty("Number of rows to fill.", 1)
+
+    def on_column_span_changed(self):
+        self.element.style.gridColumn = f"span {self.column_span}"
+
+    def on_row_span_changed(self):
+        self.element.style.gridRow = f"span {self.row_span}"
 
 
 class Grid(Container):
     """
     A grid.
     """
+
+    layout_class = GridLayout
 
     column_gap = ChoiceProperty(
         "The gap between columns in the grid.",
@@ -40,12 +66,3 @@ class Grid(Container):
         element = super().render()
         element.style.display = "grid"
         return element
-
-    def update_child(self, child, index):
-        grid_row_span = child.row_span
-        if grid_row_span:
-            child.element.style.gridRow = "span " + str(grid_row_span)
-
-        grid_column_span = child.column_span
-        if grid_column_span:
-            child.element.style.gridColumn = "span " + str(grid_column_span)

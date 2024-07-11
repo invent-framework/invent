@@ -30,6 +30,11 @@ def iscoroutinefunction(obj):
     return inspect.iscoroutinefunction(obj)
 
 
+def capitalize(s):
+    """Cross-interpreter implementation of str.capitalize."""
+    return s[0].upper() + s[1:].lower()
+
+
 async def sleep_ms(ms):
     """Asynchronous sleep for 'ms' milliseconds."""
 

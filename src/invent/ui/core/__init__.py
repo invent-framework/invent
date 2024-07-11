@@ -2,6 +2,7 @@ from .component import (
     _DEFAULT_ICON,
     Component,
     Container,
+    Layout,
     MessageBlueprint,
     Widget,
 )
@@ -29,6 +30,7 @@ __all__ = [
     "FloatProperty",
     "IntegerProperty",
     "ListProperty",
+    "Layout",
     "NumericProperty",
     "Property",
     "TextProperty",

@@ -21,20 +21,29 @@ limitations under the License.
 from pyscript import document
 
 import invent
-from invent.compatability import getmembers_static
+from invent.compatability import capitalize, getmembers_static
 from invent.i18n import _
+from .model import Model
 from .property import (
     BooleanProperty,
     ChoiceProperty,
-    IntegerProperty,
     ListProperty,
-    Property,
     TextProperty,
 )
 
 
 ALIGNMENTS = ["start", "center", "end"]
 ALIGNMENTS_STRETCH = ALIGNMENTS + ["stretch"]
+
+
+def align_self_property(direction):
+    return ChoiceProperty(
+        f"{capitalize(direction)} alignment.",
+        choices=ALIGNMENTS_STRETCH,
+        default_value="stretch",
+        map_to_style="align-self",
+    )
+
 
 #: T-shirt sizes used to indicate relative sizes of things.
 _TSHIRT_SIZES = (
@@ -104,7 +113,7 @@ class MessageBlueprint:
         }
 
 
-class Component:
+class Component(Model):
     """
     A base class for all user interface components (Widget, Container).
 
@@ -129,46 +138,6 @@ class Component:
         "The component is visible is set to True.", default_value=True
     )
 
-    # TODO: once this is extracted into a layout class, make the description
-    # say whether the alignment is:
-    #   * horizontal (Column) or vertical (Row and Grid)
-    #   * inside its parent (Row and Column) or inside its grid cell (Grid)
-    align_self = ChoiceProperty(
-        "The component's alignment.",
-        choices=ALIGNMENTS_STRETCH,
-        default_value="stretch",
-        map_to_style="align-self",
-    )
-
-    # This property is only valid in a Grid, so its description can be more
-    # specific.
-    justify_self = ChoiceProperty(
-        "The component's horizontal alignment inside its grid cell.",
-        choices=ALIGNMENTS_STRETCH,
-        default_value="stretch",
-        map_to_style="justify-self",
-    )
-
-    # TODO: validate input
-    # TODO: once this is extracted into a layout class, make the description
-    # say whether the space is horizontal (Row) or vertical (Column).
-    flex = TextProperty(
-        "How much space the component will consume. May be blank to take no "
-        "extra space, 'auto' to take an equal portion of any free space, or "
-        "an integer to take the given proportion of the total space.",
-        map_to_style="flex",
-    )
-
-    column_span = TextProperty(
-        "The component's requested column-span in a grid",
-        default_value="1",
-    )
-
-    row_span = TextProperty(
-        "The component's requested row-span in a grid.",
-        default_value="1",
-    )
-
     def __init__(self, **kwargs):
         if invent.is_micropython:  # pragma: no cover
             # When in MicroPython, ensure all the properties have a reference
@@ -176,15 +145,16 @@ class Component:
             for property_name, property_obj in type(self).properties().items():
                 property_obj.__set_name__(self, property_name)
         self.element = self.render()
-        self.update(**kwargs)
+        self._parent = None
+        self._layout = {}
+        super().__init__(**kwargs)
+
         type(self)._component_counter += 1
         if not self.id:
             self.id = type(self)._generate_unique_id()
         if not self.name:
             self.name = type(self)._generate_name()
         Component._components_by_id[self.id] = self
-        # To reference the container's parent in the DOM tree.
-        self.parent = None
 
     @property
     def is_container(self):
@@ -195,21 +165,62 @@ class Component:
         """
         return isinstance(self, Container)
 
-    def update(self, **kwargs):
-        """
-        Given the **kwargs dict, iterate of the items and if the key identifies
-        a property on this class, set the property's value to the associated
-        value in the dict.
-        """
-        # Set values from the **kwargs
-        for k, v in kwargs.items():
-            if hasattr(self, k):
-                setattr(self, k, v)
-        # Set values from the property's own default_values.
-        for property_name, property_obj in type(self).properties().items():
-            if property_name not in kwargs:
-                if property_obj.default_value is not None:
-                    setattr(self, property_name, property_obj.default_value)
+    @property
+    def parent(self):
+        return self._parent
+
+    @parent.setter
+    def parent(self, parent):
+        old_parent = self._parent
+        self._parent = parent
+
+        if parent:
+            # Validate the layout against the new parent.
+            try:
+                self.layout = self.layout
+            except Exception:
+                self._parent = old_parent
+                raise
+
+    @property
+    def layout(self):
+        return self._layout
+
+    @layout.setter
+    def layout(self, layout):
+        def type_error():
+            raise TypeError(
+                f"container type {type(self.parent).__name__} " +
+                f"doesn't support layout type {type(layout).__name__}"
+            )
+
+        if isinstance(layout, Layout):
+            if self.parent:
+                if type(layout) is self.parent.layout_class:
+                    # Create a new Layout object for this component, and copy
+                    # all properties.
+                    self._layout = self.parent.layout_class(
+                        self,
+                        **{
+                            key: getattr(layout, key)
+                            for key, prop in layout.properties().items()
+                        }
+                    )
+                else:
+                    type_error()
+            else:
+                # Validate it later, when we have a parent.
+                self._layout = layout
+
+        elif isinstance(layout, dict):
+            if self.parent:
+                self._layout = self.parent.layout_class(self, **layout)
+            else:
+                # Validate it later, when we have a parent.
+                self._layout = layout
+
+        else:
+            type_error()
 
     def on_id_changed(self):
         """
@@ -230,22 +241,6 @@ class Component:
         Show / hide the element depending on the value of the property.
         """
         self.element.style.visibility = "visible" if self.visible else "hidden"
-
-    def on_column_span_changed(self):
-        """
-        Automatically called to update the column span information relating to
-        the HTML element associated with the component.
-        """
-        if self.element.parentElement:
-            self.parent.update_children()
-
-    def on_row_span_changed(self):
-        """
-        Automatically called to update the row span information relating to
-        the HTML element associated with the component.
-        """
-        if self.element.parentElement:
-            self.parent.update_children()
 
     @classmethod
     def _generate_unique_id(cls):
@@ -295,22 +290,6 @@ class Component:
         return _DEFAULT_ICON
 
     @classmethod
-    def properties(cls):
-        """
-        Returns a dictionary of properties associated with the component. The
-        key is the property name, the value an instance of the relevant
-        property class.
-
-        Implementation detail: we branch on interpreter type because of the
-        different behaviour of `getmembers`.
-        """
-        return {
-            name: value
-            for name, value in getmembers_static(cls)
-            if isinstance(value, Property)
-        }
-
-    @classmethod
     def message_blueprints(cls):
         """
         Returns a dictionary of the message blueprints that define the sort of
@@ -346,33 +325,20 @@ class Component:
 
     def as_dict(self):
         """
-        Return a dict representation of the state of this instance's
-        properties and message blueprints.
+        Return a dict representation of the state of this instance.
         """
-        properties = {}
-        for property_name, property_obj in type(self).properties().items():
-            # If the component is a Container, we deal with its content
-            # separately (for the recursive case). A Widget may well define
-            # its own custom "content" property though, so we handle that
-            # just like any other property.
-            if isinstance(self, Container) and property_name == "content":
-                continue
+        properties = super().as_dict()
+        layout_dict = (
+            self.layout
+            if isinstance(self.layout, dict)
+            else self.layout.as_dict()
+        )
+        if layout_dict:
+            properties["layout"] = layout_dict
 
-            from_datastore = self.get_from_datastore(property_name)
-            if from_datastore:
-                property_value = repr(from_datastore)
-
-            else:
-                property_value = getattr(self, property_name)
-
-            properties[property_name] = property_value
-
+        # If the component is a Container, we format its content recursively.
         if isinstance(self, Container):
-            from_datastore = self.get_from_datastore("content")
-            if from_datastore:
-                properties["content"] = repr(from_datastore)
-
-            else:
+            if not self.get_from_datastore("content"):
                 properties["content"] = [
                     item.as_dict() for item in self.content
                 ]
@@ -380,19 +346,7 @@ class Component:
         return {
             "type": type(self).__name__,
             "properties": properties,
-            "message_blueprints": {
-                key: value.as_dict()
-                for key, value in type(self).message_blueprints().items()
-            },
         }
-
-    def get_from_datastore(self, property_name):
-        """
-        Return the "from_datastore" instance for a property or None if it is a
-        simple/literal property.
-        """
-
-        return getattr(self, f"_{property_name}_from_datastore", None)
 
     def update_attribute(self, attribute_name, attribute_value):
         """
@@ -503,18 +457,6 @@ class Container(Component):
         default_value=None,
     )
 
-    column_width = IntegerProperty(
-        "The default width of the container.",
-        default_value=100,
-        maximum=100,
-        minimum=0,
-    )
-    height = IntegerProperty(
-        "The default height of the container.",
-        default_value=100,
-        maximum=100,
-        minimum=0,
-    )
     background_color = TextProperty("The color of the container's background.")
     border_color = TextProperty("The color of the container's border.")
     border_width = ChoiceProperty(
@@ -546,12 +488,6 @@ class Container(Component):
         for child in self.content:
             self.element.appendChild(child.element)
         self.update_children()
-
-    def on_height_changed(self):
-        self.element.style.height = f"{self.height}%"
-
-    def on_width_changed(self):
-        self.element.style.width = f"{self.width}%"
 
     def on_background_color_changed(self):
         if self.background_color:
@@ -705,3 +641,10 @@ class Container(Component):
 
     def update_child(self, child, index):
         pass
+
+
+class Layout(Model):
+    def __init__(self, component, **kwargs):
+        self.component = component
+        self.element = self.component.element
+        super().__init__(**kwargs)

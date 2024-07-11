@@ -31,9 +31,9 @@ INDEX_HTML = """
 
     <!-- PyScript -->
     <link rel="stylesheet"
-      href="https://pyscript.net/releases/2024.5.2/core.css">
+      href="https://pyscript.net/releases/2024.7.1/core.css">
     <script type="module"
-      src="https://pyscript.net/releases/2024.5.2/core.js"></script>
+      src="https://pyscript.net/releases/2024.7.1/core.js"></script>
 
     <!-- App CSS Styles -->
     <link rel="stylesheet"
@@ -213,6 +213,9 @@ def _pretty_repr_component(component, lines, indent=""):
     # The component's properties.
     _pretty_repr_component_properties(component, lines, indent + "    ")
 
+    # The component's layout.
+    _pretty_repr_component_layout(component.layout, lines, indent + "    ")
+
     # If the component is a Container, its "content" property.
     if isinstance(component, Container):
         _pretty_repr_container_content_property(
@@ -222,13 +225,11 @@ def _pretty_repr_component(component, lines, indent=""):
     # The last line of the component's constructor e.g.")" :).
     lines.append(f"{indent}),")
 
-    return lines
-
 
 def _pretty_repr_component_properties(component, lines, indent):
     """Generate a pretty repr of a Component's properties."""
 
-    for property_name, property_obj in type(component).properties().items():
+    for property_name, property_obj in sorted(component.properties().items()):
         # If the component is a Container, we deal with its content separately
         # (for the recursive case). A Widget may well define its own custom
         # "content" property though, so we handle that just like any other
@@ -244,6 +245,15 @@ def _pretty_repr_component_properties(component, lines, indent):
         )
 
         lines.append(f"{indent}{property_name}={repr(property_value)},")
+
+
+def _pretty_repr_component_layout(layout, lines, indent):
+    layout_dict = layout if isinstance(layout, dict) else layout.as_dict()
+    if layout_dict:
+        dict_args = [
+            f"{key}={value!r}" for key, value in sorted(layout_dict.items())
+        ]
+        lines.append(f"{indent}layout=dict({', '.join(dict_args)}),")
 
 
 def _pretty_repr_container_content_property(component, lines, indent):

@@ -1,9 +1,27 @@
-from ..core import Container, ChoiceProperty
+from ...compatability import capitalize
+from ..core import Container, ChoiceProperty, TextProperty
 from ..core.component import _TSHIRT_SIZES, ALIGNMENTS
 
-justify_content_kwargs = dict(
-    choices=ALIGNMENTS, default_value="start", map_to_style="justify-content"
-)
+
+def justify_content_property(direction):
+    return ChoiceProperty(
+        f"{capitalize(direction)} alignment of children.",
+        choices=ALIGNMENTS,
+        default_value="start",
+        map_to_style="justify-content"
+    )
+
+
+def flex_property(direction):
+    # TODO: validate input
+    return TextProperty(
+        f"How much {direction} space to consume. " +
+        "May be blank to take no extra space, "
+        "'auto' to take an equal portion of any free space, "
+        "or an integer to take the given proportion of the total space.",
+        default_value="",
+        map_to_style="flex",
+    )
 
 
 class Box(Container):
