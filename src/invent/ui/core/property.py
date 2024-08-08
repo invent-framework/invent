@@ -438,8 +438,8 @@ class ChoiceProperty(Property):
         if value in self.choices or value is None:
             return super().validate(value)
         raise ValidationError(
-            f"The value {value!r} is not one of the valid choices " +
-            f"{self.choices}"
+            f"The value {value!r} is not one of the valid choices "
+            + f"{self.choices}"
         )
 
     def as_dict(self):

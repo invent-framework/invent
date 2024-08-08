@@ -59,13 +59,14 @@ __all__ = [
 #: Default instance of the application's datastore.
 datastore = None
 
+
 async def start_datastore():
     """
     Ensure the datastore is started and referenced properly.
     """
     global datastore
     if not datastore:
-        datastore = await storage("invent", storage_class=Datastore)
+        datastore = await storage("invent", storage_class=DataStore)
 
 
 #: The root from which all media files can be found.
