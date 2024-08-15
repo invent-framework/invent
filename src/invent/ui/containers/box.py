@@ -1,4 +1,4 @@
-from ...compatability import capitalize
+from ...utils import capitalize
 from ..core import Container, ChoiceProperty, TextProperty
 from ..core.component import _TSHIRT_SIZES, ALIGNMENTS
 

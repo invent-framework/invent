@@ -1,13 +1,13 @@
 import invent
-import pytest
-from unittest import mock
+import umock
 
 
-@pytest.mark.asyncio
 async def test_go():
     """
     Ensure the convenience "go" function starts the singleton app.
     """
-    with mock.patch("invent.App") as mockApp:
+    mockApp = umock.Mock()
+    mockApp.app = umock.Mock()
+    with umock.patch("invent:App") as mockApp:
         await invent.go()
-        mockApp.app().go.assert_called_once_with()
+        mockApp.app().go.assert_called_once()

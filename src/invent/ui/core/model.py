@@ -1,4 +1,4 @@
-from ...compatability import getmembers_static
+from ...utils import getmembers_static
 from .property import Property
 
 

@@ -181,8 +181,8 @@ class Property:
 
         # Map the value to a CSS property.
         if self.map_to_style and obj.element:
-            obj.element.style.setProperty(
-                self.map_to_style, getattr(obj, self.private_name)
+            obj.element.style[self.map_to_style] = getattr(
+                obj, self.private_name
             )
 
         # Handle the existence of an on_FOO_changed function.

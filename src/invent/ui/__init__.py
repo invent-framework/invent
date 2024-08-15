@@ -19,9 +19,7 @@ limitations under the License.
 """
 
 from ..i18n import _
-from .app import App
 from .core import Widget, Container, from_datastore
-from .utils import random_id, sanitize
 from .containers.column import Column
 from .containers.grid import Grid
 from .containers.page import Page
@@ -42,7 +40,6 @@ from .widgets.textinput import TextInput
 __all__ = [
     "random_id",
     "sanitize",
-    "App",
     "Code",
     "Page",
     "Widget",
@@ -83,15 +80,3 @@ AVAILABLE_COMPONENTS = {
     _("TextBox"): TextBox,
     _("TextInput"): TextInput,
 }
-
-
-def create_component(component_cls_name, **kwargs):
-    """
-    Create an instance of the subclass of Component with the specified name.
-    """
-
-    component_klass = AVAILABLE_COMPONENTS.get(component_cls_name)
-    if component_klass is None:
-        raise ValueError(f"No such component type: {component_cls_name}")
-
-    return component_klass(**kwargs)

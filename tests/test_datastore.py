@@ -1,21 +1,21 @@
 import invent
-import pytest
-from unittest import mock
+import upytest
+import umock
 
 
-@pytest.mark.skip
-def test_datastore_get_set_del_item():
+async def test_datastore_get_set_del_item():
     """
     Getting, setting and deleting an item should work as expected.
 
     Setting and deleting should publish the expected messages on the
     "datastore" channel.
     """
-    ds = invent.DataStore()
-    mock_publish = mock.MagicMock()
-    with pytest.raises(KeyError):
+    await invent.start_datastore()
+    ds = invent.datastore
+    mock_publish = umock.Mock()
+    with upytest.raises(KeyError):
         ds["a"]
-    with mock.patch("invent.datastore.publish", mock_publish):
+    with umock.patch("invent.datastore:publish", mock_publish):
         # Store the value 1 against the key "a".
         ds["a"] = 1
         # Check a message has been published on storing a value.
@@ -45,6 +45,6 @@ def test_datastore_get_set_del_item():
         assert msg._subject == "a"
         # The message was also published to the expected "datastore" channel.
         assert call_args[1]["to_channel"] == "delete-data"
-    with pytest.raises(KeyError):
+    with upytest.raises(KeyError):
         # Deleting via a non-existent key raises a KeyError.
         del ds["a"]

@@ -1,12 +1,7 @@
 import asyncio
 import invent
-import pytest
-from unittest import mock
-
-
-pytestmark = pytest.mark.asyncio(scope="module")
-
-loop: asyncio.AbstractEventLoop
+import upytest
+import umock
 
 
 def test_message_str():
@@ -42,7 +37,7 @@ def test_subscribe_and_publish_single_channel_and_subject():
     Ensure it works because the handler is called when the expected message is
     published to the right channel.
     """
-    handler = mock.MagicMock()
+    handler = umock.Mock()
     invent.subscribe(handler, to_channel="testing", when_subject="test")
     m1 = invent.Message(subject="test", data="Test")
     # This should succeed and cause the handler to fire.
@@ -65,7 +60,7 @@ def test_subscribe_and_publish_multi_channel_and_subject():
     Ensure it works because the handler is called when the expected message is
     published to the right channel.
     """
-    handler = mock.MagicMock()
+    handler = umock.Mock()
     invent.subscribe(
         handler,
         to_channel=[
@@ -96,14 +91,12 @@ def test_subscribe_and_publish_multi_channel_and_subject():
     assert handler.call_count == 4
 
 
-# TODO: Fix this
-@pytest.mark.asyncio
 async def test_subscribe_and_publish_task_and_awaitable():
     """
     Ensure that if a Task instance or a Python awaitable is subscribed, they
     are handled correctly.
     """
-    mock_await = mock.MagicMock()
+    mock_await = umock.Mock()
 
     async def an_awaitable_for_a_task():
         """
@@ -130,15 +123,15 @@ async def test_subscribe_and_publish_task_and_awaitable():
     m2 = invent.Message(subject="test_await", data="Test")
     invent.publish(m1, to_channel="testing")
     invent.publish(m2, to_channel="testing")
-    await asyncio.sleep(0.2)
-    assert mock_await.call_count == 2
+    await asyncio.sleep(0.1)
+    assert mock_await.call_count == 2, mock_await.call_count
 
 
 def test_subscribe_is_idempotent():
     """
     Multiple calls to subscribe only ever result in a single subscription.
     """
-    handler = mock.MagicMock()
+    handler = umock.Mock()
     invent.subscribe(handler, to_channel="testing", when_subject="test")
     invent.subscribe(handler, to_channel="testing", when_subject="test")
     m1 = invent.Message(subject="test", data="Test")
@@ -153,7 +146,7 @@ def test_unsubscribe_single_channel_and_subject():
     Unsubscribing from a single channel / message type ensures the message
     handler is no longer called when a matching message is sent to the channel.
     """
-    handler = mock.MagicMock()
+    handler = umock.Mock()
     invent.subscribe(handler, to_channel="testing", when_subject="test")
     m = invent.Message(subject="test", data="Test")
     # This should succeed and cause the handler to fire.
@@ -172,7 +165,7 @@ def test_unsubscribe_multi_channel_and_subject():
     handler is no longer called when matching messages are sent to the
     channels.
     """
-    handler = mock.MagicMock()
+    handler = umock.Mock()
     invent.subscribe(
         handler,
         to_channel=[
@@ -219,10 +212,10 @@ def test_unsubscribe_missing_subject():
     Unsubscribing from a channel but missing a valid message type results in
     an error.
     """
-    handler = mock.MagicMock()
+    handler = umock.Mock()
     invent.subscribe(handler, to_channel="testing", when_subject="test")
     # Unsubscribe should fail with a ValueError.
-    with pytest.raises(ValueError):
+    with upytest.raises(ValueError):
         invent.unsubscribe(
             handler, from_channel="testing", when_subject="wrong_type"
         )
@@ -232,9 +225,9 @@ def test_unsubscribe_missing_channel():
     """
     Unsubscribing from a missing channel results in an error.
     """
-    handler = mock.MagicMock()
+    handler = umock.Mock()
     # Unsubscribe should fail with a ValueError.
-    with pytest.raises(ValueError):
+    with upytest.raises(ValueError):
         invent.unsubscribe(
             handler, from_channel="testing", when_subject="test"
         )
@@ -249,7 +242,7 @@ def test_when_do_handler_is_given():
     def my_handler(message):
         return
 
-    with mock.patch("invent.channels.subscribe") as mock_sub:
+    with umock.patch("invent.channels:subscribe") as mock_sub:
         invent.when(
             subject="test_subject", to_channel="test_channel", do=my_handler
         )
@@ -266,7 +259,7 @@ def test_when_handler_is_decorated():
     function.
     """
 
-    with mock.patch("invent.channels.subscribe") as mock_sub:
+    with umock.patch("invent.channels:subscribe") as mock_sub:
 
         @invent.when(subject="test_subject", to_channel="test_channel")
         def my_handler(message):

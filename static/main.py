@@ -1,5 +1,4 @@
-import pytest
+import upytest
 
 
-pytest.main(["-vv", "--cov=invent", "--cov-report", "term-missing", "tests/"])
-
+await upytest.run("./tests")

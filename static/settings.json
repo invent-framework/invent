@@ -1,10 +1,7 @@
 {
     "files":{
-        "test_suite.zip": "./*"
-    },
-    "packages": [
-        "pytest",
-        "pytest-cov",
-        "pytest-asyncio"
-    ]
+        "test_suite.zip": "./*",
+        "https://raw.githubusercontent.com/ntoll/upytest/main/upytest.py": "",
+        "https://raw.githubusercontent.com/ntoll/umock/main/umock.py": ""
+    }
 }

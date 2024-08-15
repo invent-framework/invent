@@ -18,11 +18,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-import json
-from pyscript import document
+from pyscript.web import page as dom  # Avoid name collision with page.
 
 import invent
-from ..i18n import load_translations, _
+from .i18n import load_translations, _
 
 
 __all__ = [
@@ -30,6 +29,8 @@ __all__ = [
 ]
 
 
+# Singleton instance of the App class. There can be only one app running at a
+# time.
 __app__ = None
 
 
@@ -37,13 +38,27 @@ class App:
     """
     An instance of App is the root object for an Invent application. General
     app related metadata hangs off an object of this type. E.g. name, author,
-    icon, description, license and other such things. In addition, the content
-    of Pages defines the UI tree.
+    icon, description, license and other such things.
+
+    In addition the user interface, defined by classes found in the invent.ui
+    namespace, is rooted in the pages attribute. This is a list of Page
+    objects that define the structure of the app. The show_page method is used
+    to display a specific page by name. Append new Page instances to the app
+    or remove them with the remove method and the name of the page to remove.
+
+    Convenience methods, as_dict and get_page, are provided to return a
+    dictionary representation of the app and to retrieve a page by name. The
+    app method is a class method that returns the singleton instance of the
+    App.
+
+    The go method is used to start the app. This is typically called at the end
+    of the script that defines the app.
     """
 
     def __init__(
         self,
-        name,
+        *args,
+        name="",
         media_root=".",
         icon=None,
         description=None,
@@ -51,88 +66,121 @@ class App:
         license=None,
         content=None,
     ):
+        """
+        Create a new instance of App.
+
+        Pass in one or more Page objects as arguments to define the structure
+        of the app. Alternatively, pass in a list of Page objects as the
+        content argument.
+
+        Every app must have a name. The media_root is the root URL for
+        media files (sounds, images etc). The icon is a URL to an image that
+        represents the app. This will be used in the user's operating system to
+        identify the app. The description should explain what the application
+        does. The author is a string that identifies the author[s] of the app
+        and how to contact them. The license is a string containing the license
+        under which the app is released. The content is a list of Page objects
+        that define the structure of the app (as an explicit alternative to
+        passing them in as arguments).
+        """
         global __app__
         if not __app__:
             __app__ = self
-
+        if not name:
+            raise ValueError(_("An app must have a name."))
         self.name = name
         self.icon = icon
         self.description = description
         self.author = author
         self.license = license
-        self.content = content or []
-        self._current_page = None
-
+        self._pages = []  # Ordered list of pages.
+        self._page_lookup_table = {}  # A dict to easily look up pages by name.
+        self._current_page = None  # The name of the currently visible page.
+        if args:
+            self.append(*args)
+        if content:
+            self.append(*content)
         invent.set_media_root(media_root)
+
+    @property
+    def pages(self):
+        """
+        Return a list of all the pages in the app.
+        """
+        return self._pages
+
+    def append(self, *pages):
+        """
+        Append one or more Page objects to the app.
+        """
+        for page in pages:
+            if page.id in self._page_lookup_table:
+                raise ValueError(
+                    _("A page with the id {name} already exists.").format(
+                        name=page.id
+                    )
+                )
+            self._pages.append(page)
+            self._page_lookup_table[page.id] = page
+
+    def remove(self, *page_ids):
+        """
+        Remove one or more Page objects, referenced by id, from the app.
+        """
+        for page_id in page_ids:
+            if page_id in self._page_lookup_table:
+                page = self._page_lookup_table[page_id]
+                self._pages.remove(page)
+                del self._page_lookup_table[page_id]
+            else:
+                raise KeyError(
+                    _("No page with the id: {page_id}").format(page_id=page_id)
+                )
 
     def as_dict(self):
         """
-        Return a dictionary representation of the object.
+        Return a dictionary representation of the application. This should be
+        serializable to JSON.
         """
-
         return dict(
             name=self.name,
             icon=self.icon,
             description=self.description,
             author=self.author,
             license=self.license,
-            content=[item.as_dict() for item in self.content],
+            pages=[page.as_dict() for page in self.pages],
         )
-
-    def as_json(self):
-        return json.dumps(self.as_dict())
 
     @classmethod
     def app(cls):
+        """
+        Return the singleton instance of the App class.
+        """
         global __app__
         return __app__
 
-    def get_component_by_id(self, component_id):
+    def get_page(self, page_id):
         """
-        Return the component with the specified id or None if no such component
-        exists.
+        Return the page with the specified id or raise a KeyError if no such
+        page exists.
         """
-
-        from invent.ui.core import Component
-
-        return Component.get_component_by_id(component_id)
-
-    def get_page_by_id(self, page_id):
-        """
-        Return the page with the specified id or None if no such page exists.
-        """
-
-        for page in self.content:
-            if page.id == page_id:
-                break
-
+        if page_id in self._page_lookup_table:
+            return self._page_lookup_table[page_id]
         else:
-            page = None
+            raise KeyError(
+                _("No page with the id: {page_id}").format(page_id=page_id)
+            )
 
-        return page
-
-    def get_page_by_name(self, page_name):
+    def show_page(self, page_id):
         """
-        Return the page with the specified name or None if no such page exists.
+        Show the page with the specified id. Hide the current page if there
+        is one.
         """
-
-        for page in self.content:
-            if page.name == page_name:
-                break
-
-        else:
-            page = None
-
-        return page
-
-    def show_page(self, page_name):
-        if self._current_page:
+        new_page = self.get_page(page_id)
+        new_page.show()
+        if self._current_page and self._current_page != new_page:
             self._current_page.hide()
-
-        page = self.get_page_by_name(page_name)
-        if page is not None:
-            self._current_page = page
-            page.show()
+        self._current_page = new_page
 
     def go(self):
         """
@@ -141,10 +189,10 @@ class App:
         # Load the i18n stuff.
         load_translations()
         # Render all the pages to the DOM.
-        if self.content:
-            for page in self.content:
-                document.body.appendChild(page.element)
+        if self.pages:
+            for page in self.pages:
+                dom.append(page.element)
             # Show the first page.
-            self.show_page(self.content[0].name)
+            self.show_page(self.pages[0].id)
         else:
             raise ValueError(_("No pages in the app!"))

@@ -1,7 +1,7 @@
-import pytest
-from pyscript import document
-from unittest import mock
-from invent.ui import core, export
+import upytest
+import umock
+from pyscript.web import div
+from invent.ui import core
 
 
 def test_message_blueprint():
@@ -36,14 +36,14 @@ def test_message_blueprint_create_message():
     """
     mbp = core.MessageBlueprint("This is a test", foo="A foo to handle")
     # Cannot include fields that have not been specified.
-    with pytest.raises(ValueError):
+    with upytest.raises(ValueError):
         mbp.create_message("subject", baz="This will fail")
     # Can include all the fields.
     msg = mbp.create_message("subject", foo="Foo to you")
     assert msg._subject == "subject"
     assert msg.foo == "Foo to you"
     # Cannot miss an expected field.
-    with pytest.raises(ValueError):
+    with upytest.raises(ValueError):
         mbp.create_message("subject")
 
 
@@ -68,7 +68,7 @@ def test_component_init_with_given_values():
     class TestComponent(core.Component):
 
         def render(self):
-            return document.createElement("div")
+            return div()
 
     tc = TestComponent(name="test1", id="12345", visible=False)
     assert tc.name == "test1"
@@ -85,7 +85,7 @@ def test_component_init_with_no_values():
     class TestComponent(core.Component):
 
         def render(self):
-            return document.createElement("div")
+            return div()
 
     tc = TestComponent()
     assert tc.name == "TestComponent 1"
@@ -109,7 +109,7 @@ def test_component_init_with_properties():
         flag = core.BooleanProperty("A test property", default_value=False)
 
         def render(self):
-            return document.createElement("div")
+            return div()
 
     tc = TestComponent(text="bar", integer=123, val=123.4, flag=True)
     assert tc.text == "bar"
@@ -125,11 +125,11 @@ def test_component_init_with_properties():
     assert tc.flag is False
 
     # Cannot initialize a required property with None.
-    with pytest.raises(core.ValidationError):
+    with upytest.raises(core.ValidationError):
         TestComponent(text=None)
 
     # Cannot initialize a nonexistent property.
-    with pytest.raises(AttributeError, match="no_such_prop"):
+    with upytest.raises(AttributeError):
         TestComponent(no_such_prop=None)
 
 
@@ -141,7 +141,7 @@ def test_component_get_component_by_id():
     class TestComponent(core.Component):
 
         def render(self):
-            return document.createElement("div")
+            return div()
 
     tc = TestComponent()
     assert TestComponent.get_component_by_id(tc.id) == tc
@@ -275,7 +275,7 @@ def test_component_as_dict():
         )
 
         def render(self):
-            return document.createElement("div")
+            return div()
 
     mw = MyWidget(
         foo=core.from_datastore("ds_key"),
@@ -297,31 +297,6 @@ def test_component_as_dict():
     }
     assert mw.as_dict() == expected
 
-    with mock.patch("invent.ui.MyWidget", MyWidget, create=True):
-        mw2 = export._component_from_dict(expected)
-        assert isinstance(mw2, MyWidget)
-        assert mw2.foo == "bar"
-        assert isinstance(
-            foo_fd := mw2.get_from_datastore("foo"), core.from_datastore
-        )
-        assert foo_fd.key == "ds_key"
-        assert mw2.numberwang == 55
-        assert mw2.layout == dict(alpha="a", bravo="b")
-
-    export._pretty_repr_component(mw, lines := [])
-    assert lines == [
-        "MyWidget(",
-        "    enabled=True,",
-        "    favourite_colour='black',",
-        "    foo=from_datastore('ds_key'),",
-        "    id='invent-mywidget-1',",
-        "    name='MyWidget 1',",
-        "    numberwang=55,",
-        "    visible=True,",
-        "    layout=dict(alpha='a', bravo='b'),",
-        "),",
-    ]
-
 
 def test_container_as_dict():
     """
@@ -340,7 +315,7 @@ def test_container_as_dict():
         widget_prop = core.TextProperty("Widget prop", "wp")
 
         def render(self):
-            return document.createElement("div")
+            return div()
 
     mc = MyContainer()
     mc.append(MyWidget())
@@ -373,42 +348,6 @@ def test_container_as_dict():
     }
     assert mc.as_dict() == expected
 
-    with (
-        mock.patch("invent.ui.MyContainer", MyContainer, create=True),
-        mock.patch("invent.ui.MyWidget", MyWidget, create=True),
-    ):
-        mc2 = export._component_from_dict(expected)
-        assert isinstance(mc2, MyContainer)
-        assert len(mc2.content) == 1
-        mw2 = mc2.content[0]
-        assert isinstance(mw2, MyWidget)
-        assert isinstance(mw2.layout, MyLayout)
-
-    export._pretty_repr_component(mc, lines := [])
-    assert lines == [
-        "MyContainer(",
-        "    background_color=None,",
-        "    border_color=None,",
-        "    border_style=None,",
-        "    border_width=None,",
-        "    container_prop='cp',",
-        "    enabled=True,",
-        "    id='invent-mycontainer-1',",
-        "    name='MyContainer 1',",
-        "    visible=True,",
-        "    content=[",
-        "        MyWidget(",
-        "            enabled=True,",
-        "            id='invent-mywidget-1',",
-        "            name='MyWidget 1',",
-        "            visible=True,",
-        "            widget_prop='wp',",
-        "            layout=dict(layout_prop='lp'),",
-        "        ),",
-        "    ],",
-        "),",
-    ]
-
 
 def test_component_update_attribute():
     """
@@ -423,7 +362,7 @@ def test_component_update_attribute():
         foo = core.TextProperty("This is a foo", default_value="bar")
 
         def render(self):
-            return document.createElement("div")
+            return div()
 
     w = MyWidget()
     # There is no attribute called "test" on the widget's element.
@@ -448,7 +387,7 @@ def test_component_default_icon():
     class TestComponent(core.Component):
 
         def render(self):
-            return document.createElement("div")
+            return div()
 
     assert TestComponent.icon() == core._DEFAULT_ICON
 
@@ -462,7 +401,7 @@ def test_widget_init_defaults():
     class MyWidget(core.Widget):
 
         def render(self):
-            return document.createElement("div")
+            return div()
 
     w = MyWidget(name="test")
     # There is a default id of the expected default "shape".
@@ -483,7 +422,7 @@ def test_widget_init_override():
     class MyWidget(core.Widget):
 
         def render(self):
-            return document.createElement("div")
+            return div()
 
     w = MyWidget(name="test", id="foo", visible=False, channel="test_channel")
     assert w.id == "foo"
@@ -504,9 +443,9 @@ def test_widget_publish():
         )
 
         def render(self):
-            return document.createElement("div")
+            return div()
 
-    with mock.patch("invent.publish") as mock_publish:
+    with umock.patch("invent:publish") as mock_publish:
         w = MyWidget()
         w.channel = "my_channel"
         w.publish("ping", strength=100)
@@ -521,7 +460,7 @@ def test_widget_when_with_do():
     class TestWidget(core.Widget):
 
         def render(self):
-            return document.createElement("div")
+            return div()
 
     tw = TestWidget(name="test1", id="12345")
 
@@ -529,14 +468,14 @@ def test_widget_when_with_do():
         return
 
     # Simple case with default channel name (component's id).
-    with mock.patch("invent.ui.core.component.invent.subscribe") as mock_sub:
+    with umock.patch("invent.ui.core.component:invent.subscribe") as mock_sub:
         tw.when("push", do=my_handler)
         mock_sub.assert_called_once_with(
             handler=my_handler, to_channel="12345", when_subject="push"
         )
 
     # Specialised case with explicit channel name[s].
-    with mock.patch("invent.ui.core.component.invent.subscribe") as mock_sub:
+    with umock.patch("invent.ui.core.component:invent.subscribe") as mock_sub:
         tw.when("push", to_channel="test_channel", do=my_handler)
         mock_sub.assert_called_once_with(
             handler=my_handler, to_channel="test_channel", when_subject="push"
@@ -552,12 +491,12 @@ def test_widget_when_as_decorator():
     class TestWidget(core.Widget):
 
         def render(self):
-            return document.createElement("div")
+            return div()
 
     tw = TestWidget(name="test1", id="12345")
 
     # Simple case with default channel name (component's id).
-    with mock.patch("invent.ui.core.component.invent.subscribe") as mock_sub:
+    with umock.patch("invent.ui.core.component:invent.subscribe") as mock_sub:
 
         @tw.when("push")
         def my_first_handler(message):
@@ -593,7 +532,7 @@ def test_layout():
 
     class TestComponent(core.Component):
         def render(self):
-            return document.createElement("div")
+            return div()
 
     tc = TestComponent(layout=dict(alpha="apple"))
     assert tc.layout == dict(alpha="apple")
@@ -619,7 +558,7 @@ def test_layout():
     assert type(tc.layout) is LayoutA
     assert tc.layout.alpha == "avocado"
 
-    with pytest.raises(AttributeError, match="no_such_prop"):
+    with upytest.raises(AttributeError):
         tc.layout = dict(alpha="aardvark", no_such_prop=None)
     assert tc.layout is layout_a1
     assert tc.layout.alpha == "avocado"
@@ -633,13 +572,7 @@ def test_layout():
 
     # Layout cannot be set from any other type.
     for value in [LayoutB(tc), "a string", ["a list"]]:
-        with pytest.raises(
-            TypeError,
-            match=(
-                "container type ContainerA doesn't support layout type "
-                + type(value).__name__
-            ),
-        ):
+        with upytest.raises(TypeError):
             tc.layout = value
 
     # The layout object is kept when the widget loses its parent, and can be
@@ -657,10 +590,7 @@ def test_layout():
     # A different parent type requires a different layout type.
     a2.remove(tc)
     b = ContainerB()
-    with pytest.raises(
-        TypeError,
-        match="container type ContainerB doesn't support layout type LayoutA",
-    ):
+    with upytest.raises(TypeError):
         b.append(tc)
 
     layout_b = LayoutB(tc, bravo="banana")

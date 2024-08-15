@@ -18,10 +18,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-from pyscript import document
+from pyscript.web import div
 
 import invent
-from invent.compatability import capitalize, getmembers_static
+from invent.utils import capitalize, getmembers_static
 from invent.i18n import _
 from .model import Model
 from .property import (
@@ -538,7 +538,7 @@ class Container(Component):
 
         if gap is not None:
             size = sizes[gap.upper()]
-        self.element.style.setProperty(attr, size)
+        self.element.style[attr] = size
 
     def append(self, item):
         """
@@ -549,7 +549,7 @@ class Container(Component):
         self.content.append(item)
 
         # Update the DOM.
-        self.element.appendChild(item.element)
+        self.element.append(item.element)
 
         # Update the grid indices of the container's children.
         self.update_children()
@@ -628,8 +628,8 @@ class Container(Component):
         for how to add their children in a way that reflects the way they
         lay out their widgets.
         """
-        element = document.createElement("div")
-        element.classList.add(f"invent-{type(self).__name__.lower()}")
+        element = div()
+        element.classes.add(f"invent-{type(self).__name__.lower()}")
         return element
 
     def update_children(self):

@@ -21,6 +21,8 @@ clean:
 	rm -rf invent.zip
 	rm -rf test_suite.zip
 	rm -rf src/tools/builder/src/python/invent.zip
+	rm -rf static/*.zip
+	rm -rf test_suite
 	find . | grep -E "(__pycache__)" | xargs rm -rf
 
 tidy:
@@ -56,7 +58,7 @@ publish-live: dist
 	python3 -m pip install --upgrade twine
 	python3 -m twine upload --sign dist/*
 
-zip: lint-all clean
+zip:
 	# cd src && tar -czf ../invent.tar.gz invent/*
 	cd src && zip -qr ../invent.zip invent/*
 	mkdir test_suite
@@ -67,3 +69,7 @@ zip: lint-all clean
 	cp invent.zip static/
 	cp invent.zip src/tools/builder/public/python/
 	cp test_suite.zip static/
+	rm invent.zip
+	rm test_suite.zip
+
+zip-all: lint-all clean tidy zip

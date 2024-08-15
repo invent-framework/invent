@@ -1,16 +1,27 @@
-import pytest
-from pyscript import document, window
+from pyscript.web import page
+from pyscript import storage
+
+import invent
+import invent.app
+import invent.ui
 from invent.channels import _channels
 
 
-@pytest.fixture(autouse=True)
-def before_tests():
+async def setup():
     """
-    Ensure browser storage is always reset to empty. Remove the app
-    placeholder. Reset the page title.
+    Ensure the datastore is always reset to empty. Clear all the channels.
+    Remove the app placeholder from the page. Nullify the singleton instance of
+    the App class and reset the media root. Reset counters for required
+    Component based classes.
     """
+    if invent.datastore is None:
+        await invent.start_datastore()
+    invent.datastore.clear()
+    await invent.datastore.sync()
     _channels.clear()
-    window.localStorage.clear()
-    test_placeholder = document.querySelector("test-app")
+    test_placeholder = page.find("test-app")
     if test_placeholder:
         test_placeholder.remove()
+    invent.app.__app__ = None
+    invent.set_media_root(".")
+    invent.ui.Page._counter = 0

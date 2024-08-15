@@ -22,7 +22,6 @@ from pyscript import document
 from pyscript.ffi import create_proxy
 
 from invent.ui.core import Widget, BooleanProperty, TextProperty
-from ..utils import random_id
 
 
 class Switch(Widget):
@@ -58,7 +57,7 @@ class Switch(Widget):
             self.input_.removeAttribute("checked")
 
     def render(self):
-        input_id = random_id()
+        input_id = self.name + "-input"
 
         element = document.createElement("fieldset")
         element.classList.add("form-group")
