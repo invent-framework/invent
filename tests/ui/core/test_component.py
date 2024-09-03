@@ -4,55 +4,55 @@ from pyscript.web import div
 from invent.ui import core
 
 
-def test_message_blueprint():
+def test_event():
     """
-    MessageBlueprints have a description and key/value descriptions of the
+    Events have a description and key/value specifications of the
     content of the messages they send.
 
     class MyWidget(Widget):
 
         name = TextProperty()
-        hold = MessageBlueprint(
+        hold = Event(
             "When the button is held",
             duration="For how long the button was pressed.",
         )
 
-        def _handle_hold(self, event):
-            self.publish("hold", duration=event.duration)
+        def _handle_hold(self, e):
+            self.publish("hold", duration=e.duration)
 
         def render(self, container):
-            self.element = document.createElement("button")
+            self.element = pyscript.web.button("Click me")
             self.element.addEventListener("click", self._handle_hold)
     """
-    mbp = core.MessageBlueprint("This is a test", foo="A foo to handle")
-    assert mbp.description == "This is a test"
-    assert "foo" in mbp.content
-    assert mbp.content["foo"] == "A foo to handle"
+    ev = core.Event("This is a test", foo="A foo to handle")
+    assert ev.description == "This is a test"
+    assert "foo" in ev.content
+    assert ev.content["foo"] == "A foo to handle"
 
 
-def test_message_blueprint_create_message():
+def test_event_create_message():
     """
-    A MessageBlueprint creates the expected message.
+    An Event creates the expected message.
     """
-    mbp = core.MessageBlueprint("This is a test", foo="A foo to handle")
+    ev = core.Event("This is a test", foo="A foo to handle")
     # Cannot include fields that have not been specified.
     with upytest.raises(ValueError):
-        mbp.create_message("subject", baz="This will fail")
+        ev.create_message("subject", baz="This will fail")
     # Can include all the fields.
-    msg = mbp.create_message("subject", foo="Foo to you")
+    msg = ev.create_message("subject", foo="Foo to you")
     assert msg._subject == "subject"
     assert msg.foo == "Foo to you"
     # Cannot miss an expected field.
     with upytest.raises(ValueError):
-        mbp.create_message("subject")
+        ev.create_message("subject")
 
 
-def test_message_blueprint_as_dict():
+def test_event_as_dict():
     """
-    The expected dictionary definition of a MessageBlueprint is generated.
+    The expected dictionary definition of an Event is generated.
     """
-    mbp = core.MessageBlueprint("This is a test", foo="A foo to handle")
-    assert mbp.as_dict() == {
+    ev = core.Event("This is a test", foo="A foo to handle")
+    assert ev.as_dict() == {
         "description": "This is a test",
         "content": {
             "foo": "A foo to handle",
@@ -178,9 +178,9 @@ def test_component_properties():
     assert isinstance(properties["favourite_colour"], core.ChoiceProperty)
 
 
-def test_component_message_blueprints():
+def test_component_events():
     """
-    A component's (widget's) message blueprints are available in a dictionary.
+    A component's (widget's) events are available in a dictionary.
     """
 
     class MyWidget(core.Widget):
@@ -188,12 +188,10 @@ def test_component_message_blueprints():
         A test widget.
         """
 
-        ping = core.MessageBlueprint(
-            "Send a ping.", strength="The strength of the ping."
-        )
+        ping = core.Event("Send a ping.", strength="The strength of the ping.")
 
-    mbp = MyWidget.message_blueprints()
-    assert isinstance(mbp["ping"], core.MessageBlueprint)
+    mbp = MyWidget.events()
+    assert isinstance(mbp["ping"], core.Event)
 
 
 def test_component_blueprint():
@@ -226,7 +224,7 @@ def test_component_blueprint():
         def icon(cls):
             return "<button>Click me!</button>"
 
-    result = MyWidget.blueprint()
+    result = MyWidget.definition()
     assert result["properties"]["name"]["property_type"] == "TextProperty"
     assert result["properties"]["name"]["default_value"] is None
     assert result["properties"]["id"]["property_type"] == "TextProperty"
@@ -438,9 +436,7 @@ def test_widget_publish():
 
     class MyWidget(core.Widget):
 
-        ping = core.MessageBlueprint(
-            "Send a ping.", strength="Strength of ping"
-        )
+        ping = core.Event("Send a ping.", strength="Strength of ping")
 
         def render(self):
             return div()

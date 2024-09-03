@@ -27,7 +27,7 @@ from invent.ui.core import (
     IntegerProperty,
     BooleanProperty,
     ChoiceProperty,
-    MessageBlueprint,
+    Event,
 )
 
 
@@ -71,7 +71,7 @@ class TextInput(Widget):
         ],
         map_to_attribute="type",
     )
-    keypress = MessageBlueprint(
+    keypress = Event(
         "Triggered when a key is pressed to enter text.",
         key="The key that was pressed.",
     )

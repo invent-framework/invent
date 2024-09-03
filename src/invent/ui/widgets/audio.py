@@ -21,7 +21,7 @@ limitations under the License.
 from invent.ui.core import (
     Widget,
     TextProperty,
-    MessageBlueprint,
+    Event,
 )
 from pyscript import document
 
@@ -33,7 +33,7 @@ class Audio(Widget):
 
     source = TextProperty("The audio source file to play.")
 
-    press = MessageBlueprint(
+    press = Event(
         "Sent when the button is pressed.",
         button="The button that was clicked.",
     )

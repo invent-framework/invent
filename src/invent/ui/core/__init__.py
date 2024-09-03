@@ -3,7 +3,7 @@ from .component import (
     Component,
     Container,
     Layout,
-    MessageBlueprint,
+    Event,
     Widget,
 )
 from .property import (
@@ -23,7 +23,7 @@ __all__ = [
     "_DEFAULT_ICON",
     "Component",
     "Container",
-    "MessageBlueprint",
+    "Event",
     "Widget",
     "BooleanProperty",
     "ChoiceProperty",

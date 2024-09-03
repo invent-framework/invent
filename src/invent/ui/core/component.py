@@ -32,6 +32,7 @@ from .property import (
 )
 
 
+#: Flex properties for layout.
 ALIGNMENTS = ["start", "center", "end"]
 ALIGNMENTS_STRETCH = ALIGNMENTS + ["stretch"]
 
@@ -58,48 +59,60 @@ _TSHIRT_SIZES = (
 _DEFAULT_ICON = '<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 256 256"><path fill="currentColor" d="M140 180a12 12 0 1 1-12-12a12 12 0 0 1 12 12M128 72c-22.06 0-40 16.15-40 36v4a8 8 0 0 0 16 0v-4c0-11 10.77-20 24-20s24 9 24 20s-10.77 20-24 20a8 8 0 0 0-8 8v8a8 8 0 0 0 16 0v-.72c18.24-3.35 32-17.9 32-35.28c0-19.85-17.94-36-40-36m104 56A104 104 0 1 1 128 24a104.11 104.11 0 0 1 104 104m-16 0a88 88 0 1 0-88 88a88.1 88.1 0 0 0 88-88"/></svg>'  # noqa
 
 
-class MessageBlueprint:
+class Event:
     """
-    An instance of this class represents a type of message potentially
-    triggered in the life-cycle of a Widget object. The name assigned in the
-    parent class definition should become the message's subject (an
-    implementation detail left to the author of the Widget class).
+    An instance of this class represents an event in the life-cycle of a
+    component, expressed in the form of a message. The name assigned to the
+    instance of the Event in the component's class definition is the event's
+    name and will become the resulting message's subject (an implementation
+    detail left to the author of the related component class).
 
-    E.g.:
+    E.g. the following example defines three events called "click", "hold" and
+    "double_click" that occur in the life-cycle of a component (such as a
+    button widget):
 
-    click = MessageBlueprint("Sent when the widget it clicked.")
-    hold = MessageBlueprint(
+    click = Event("Sent when the widget it clicked.")
+    hold = Event(
         "The button is held down.",
         duration="The amount of time the button was held down.",
     )
-    double_click = MessageBlueprint()
+    double_click = Event()
 
     Instances may have an optional description to explain their intent, and
-    key/value pairs describing the fields in the content of the message. This
-    metadata is used in the visual builder.
+    key/value pairs describing the fields in the content of the resultng
+    message. This metadata could be used in associated tooling.
     """
 
     def __init__(self, description=None, **kwargs):
         """
-        Messages may have an optional description and key/value pairs
-        describing the expected content of future messages.
+        Events may have an optional description and key/value pairs
+        describing the expected content of future messages sent when the event
+        is triggered.
         """
         self.description = description
         self.content = kwargs
 
     def create_message(self, name, **kwargs):
         """
-        Returns an actual message to send to channels with the given content.
+        Returns a message representing the event with the given content
+        (kwargs). The message's subject is the name of the event. The message
+        can then be published to a channel to indicate the event has occurred.
 
-        Validates kwargs match the fields described in the blueprint's content
+        Validates kwargs match the fields described in the event's content
         specification.
         """
         for k in kwargs:
             if k not in self.content:
-                raise ValueError(_("Unknown field in message content: ") + k)
+                raise ValueError(
+                    _("Unknown field in event {event}: ").format(event=name)
+                    + k
+                )
         for k in self.content:
             if k not in kwargs:
-                raise ValueError(_("Field missing from message content:") + k)
+                raise ValueError(
+                    _("Field missing from event {event}:").format(event=name)
+                    + k
+                )
         return invent.Message(name, **kwargs)
 
     def as_dict(self):
@@ -290,35 +303,30 @@ class Component(Model):
         return _DEFAULT_ICON
 
     @classmethod
-    def message_blueprints(cls):
+    def events(cls):
         """
-        Returns a dictionary of the message blueprints that define the sort of
+        Returns a dictionary of the component's events that define the sort of
         messages a component may send during its lifetime.
-
-        Implementation detail: we branch on interpreter type because of the
-        different behaviour of `getmembers`.
         """
         return {
             name: value
             for name, value in getmembers_static(cls)
-            if isinstance(value, MessageBlueprint)
+            if isinstance(value, Event)
         }
 
     @classmethod
-    def blueprint(cls):
+    def definition(cls):
         """
-        Return a Python dictionary as a data structure representing all the
-        essential information about the components, its properties, message
-        blueprints and preview.
+        Return a dictionary defining all the essential information about the
+        component: its name, properties, events and associated icon.
         """
         return {
             "name": cls.__name__,
             "properties": {
                 name: prop.as_dict() for name, prop in cls.properties().items()
             },
-            "message_blueprints": {
-                key: value.as_dict()
-                for key, value in cls.message_blueprints().items()
+            "events": {
+                key: value.as_dict() for key, value in cls.events().items()
             },
             "icon": cls.icon(),
         }

@@ -18,7 +18,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-from invent.ui.core import Widget, TextProperty, MessageBlueprint
+from invent.ui.core import Widget, TextProperty, Event
 from pyscript import document
 
 
@@ -32,7 +32,7 @@ class Image(Widget):
         default_value="https://loremflickr.com/400/400",
     )
 
-    touch = MessageBlueprint(
+    touch = Event(
         "Sent when the image is touched.",
     )
 
