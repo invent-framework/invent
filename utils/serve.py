@@ -8,6 +8,7 @@ For more details, see:
 
 https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/SharedArrayBuffer#security_requirements
 """
+import argparse
 from http import server
 
 
@@ -21,4 +22,9 @@ class MyHTTPRequestHandler(server.SimpleHTTPRequestHandler):
 
 
 if __name__ == "__main__":
-    server.test(HandlerClass=MyHTTPRequestHandler)
+    parser = argparse.ArgumentParser()
+    parser.add_argument("port", type=int, default=8000, nargs="?")
+    args = parser.parse_args()
+    server.test(
+        HandlerClass=MyHTTPRequestHandler, bind="localhost", port=args.port
+    )

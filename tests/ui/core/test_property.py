@@ -26,7 +26,7 @@ def test_from_datastore():
     fds = from_datastore("foo", with_function=test_fn)
     assert fds.key == "foo"
     assert fds.with_function == test_fn
-    assert repr(fds) == 'from_datastore("foo", with_function=test_fn)'
+    assert repr(fds) == "from_datastore('foo', with_function=test_fn)"
 
 
 def test_property_init():
@@ -78,12 +78,36 @@ def test_property_from_datastore():
 
     test_fn = mock.MagicMock()
     fw = FakeWidget()
-    with mock.patch("invent.subscribe") as mock_sub:
+    with (
+        mock.patch("invent.subscribe") as mock_sub,
+        mock.patch("invent.unsubscribe") as mock_unsub,
+    ):
         fw.my_property = from_datastore("test", with_function=test_fn)
-        assert mock_sub.call_args[1]["to_channel"] == "store-data"
-        assert mock_sub.call_args[1]["when_subject"] == "test"
-        assert mock_sub.call_count == 1
+        mock_unsub.assert_not_called()
+        mock_sub.assert_called_once_with(mock.ANY, "store-data", "test")
+        reactor = mock_sub.call_args.args[0]
         test_fn.assert_called_once_with(None)
+
+        mock_sub.reset_mock()
+        fw.my_property = from_datastore("test2")
+        mock_unsub.assert_called_once_with(reactor, "store-data", "test")
+        mock_sub.assert_called_once_with(mock.ANY, "store-data", "test2")
+
+
+def test_from_datastore_react_on_change():
+    """
+    If the property is set a value from_datastore, subsequently setting it to
+    another value should update the datastore.
+    """
+
+    class FakeWidget:
+        my_property = Property("A test property")
+
+    fw = FakeWidget()
+    with mock.patch("invent.datastore", {}) as datastore:
+        fw.my_property = from_datastore("test")
+        fw.my_property = "value1"
+        assert datastore == {"test": "value1"}
 
 
 def test_property_react_on_change():
@@ -110,6 +134,22 @@ def test_property_react_on_change():
     fw.update_attribute.assert_called_once_with("test", "yes")
     # The on_FOO_changed function for the property has been called.
     fw.on_my_property_changed.assert_called_once_with()
+
+
+def test_property_map_to_style():
+    """
+    If the property is given a map_to_style, any value is set as a CSS style.
+    """
+
+    class FakeWidget:
+        my_property = Property("A test", map_to_style="hyphenated-name")
+
+    fw = FakeWidget()
+    fw.element = mock.Mock()
+    fw.my_property = "the value"
+    fw.element.style.setProperty.assert_called_once_with(
+        "hyphenated-name", "the value"
+    )
 
 
 def test_property_as_dict():

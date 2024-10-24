@@ -31,7 +31,7 @@ class from_datastore:  # NOQA
         Create the expression for a property that gets its value from the
         datastore.
         """
-        expression = f'from_datastore("{self.key}"'
+        expression = f"from_datastore({self.key!r}"
         if self.with_function:
             expression += f", with_function={self.with_function.__name__}"
         expression += ")"
@@ -63,24 +63,28 @@ class Property:
         default_value=None,
         required=False,
         map_to_attribute=None,
+        map_to_style=None,
     ):
         """
         All properties must have a description. They may have a default value,
         a flag indicating if it is a required property and an indication of the
-        default HTML attribute of the parent object's element to which to map
+        HTML or CSS attribute of the parent object's element to which to map
         its value.
         """
         self.description = description
         self.required = required
         self.default_value = self.validate(default_value)
         self.map_to_attribute = map_to_attribute
+        self.map_to_style = map_to_style
 
     def __set_name__(self, owner, name):
         """
         Helps with the descriptor protocol, as it provides a name against
         which to store the descriptor's value.
         """
-        self.private_name = "_" + name
+        self.name = name
+        self.private_name = f"_{name}"
+        self.from_datastore_name = f"_{name}_from_datastore"
 
     def __get__(self, obj, objtype=None):
         """
@@ -103,8 +107,8 @@ class Property:
         # to set the value *in* the datastore. This will then trigger the
         # property's reactor. This is used when any "input" properties are
         # changed on a widget (e.g. a value setting on a slider).
-        binding = getattr(obj, self.private_name + "_from_datastore", None)
-        if binding:
+        binding = self.get_from_datastore(obj)
+        if binding and not isinstance(value, from_datastore):
             validated_value = self.validate(value)
             invent.datastore[binding.key] = validated_value
             return
@@ -127,11 +131,8 @@ class Property:
                 self._react_on_change(obj, self.private_name)
 
             # Attach the "from_datastore" instance to the object.
-            setattr(obj, self.private_name + "_from_datastore", value)
-            # Subscribe to store events for the specified key.
-            invent.subscribe(
-                reactor, to_channel="store-data", when_subject=value.key
-            )
+            self.set_from_datastore(obj, value, reactor)
+
             # Update value to the actual value from the datastore.
             value = invent.datastore.get(value.key, self.default_value)
 
@@ -144,14 +145,30 @@ class Property:
         setattr(obj, self.private_name, self.validate(value))
         self._react_on_change(obj, self.private_name)
 
+    def get_from_datastore(self, obj):
+        return getattr(obj, self.from_datastore_name, None)
+
+    def set_from_datastore(self, obj, value, reactor=None):
+        reactor_prop = f"_{self.name}_reactor"
+        old_value = self.get_from_datastore(obj)
+        if old_value:
+            invent.unsubscribe(
+                getattr(obj, reactor_prop), "store-data", old_value.key
+            )
+            delattr(obj, reactor_prop)
+
+        setattr(obj, self.from_datastore_name, value)
+        if value:
+            invent.subscribe(reactor, "store-data", value.key)
+            setattr(obj, reactor_prop, reactor)
+
     def _react_on_change(self, obj, property_name):
         """
         Ensure any reactive behaviour relating to the setting of the property
         is enacted. This involves two steps:
 
-        1. If the property has a map_to_attribute value, ensure the new value
-           is directly set on the parent object's element's attribute whose
-           name is the value of map_to_attribute.
+        1. If the property has a map_to_attribute or map_to_style value, ensure
+           the new value is directly set on the object's element.
         2. Call the object's on_changed handler for the specified property
            name, if it exists.
         """
@@ -161,6 +178,13 @@ class Property:
             obj.update_attribute(
                 self.map_to_attribute, getattr(obj, self.private_name)
             )
+
+        # Map the value to a CSS property.
+        if self.map_to_style and obj.element:
+            obj.element.style.setProperty(
+                self.map_to_style, getattr(obj, self.private_name)
+            )
+
         # Handle the existence of an on_FOO_changed function.
         on_changed = getattr(obj, "on" + property_name + "_changed", None)
         if on_changed:
@@ -171,7 +195,7 @@ class Property:
         Return value as an acceptable type (or raise an exception while doing
         so).
         """
-        return value  # pragma: no cover
+        return value
 
     def validate(self, value):
         """
@@ -204,10 +228,9 @@ class NumericProperty(Property):
         self,
         description,
         default_value=None,
-        required=False,
-        map_to_attribute=None,
         minimum=None,
         maximum=None,
+        **kwargs,
     ):
         """
         In addition to the Property related attributes, the min and max
@@ -216,9 +239,7 @@ class NumericProperty(Property):
         """
         self.minimum = minimum
         self.maximum = maximum
-        super().__init__(
-            description, default_value, required, map_to_attribute
-        )
+        super().__init__(description, default_value, **kwargs)
 
     def coerce(self, value):
         """
@@ -312,10 +333,9 @@ class TextProperty(Property):
         self,
         description,
         default_value=None,
-        required=False,
-        map_to_attribute=None,
         min_length=None,
         max_length=None,
+        **kwargs,
     ):
         """
         In addition to the Property related attributes, the min_length and
@@ -324,9 +344,7 @@ class TextProperty(Property):
         """
         self.min_length = min_length
         self.max_length = max_length
-        super().__init__(
-            description, default_value, required, map_to_attribute
-        )
+        super().__init__(description, default_value, **kwargs)
 
     def coerce(self, value):
         """
@@ -383,12 +401,9 @@ class ListProperty(Property):
         self,
         description,
         default_value=None,
-        required=False,
-        map_to_attribute=None,
+        **kwargs,
     ):
-        super().__init__(
-            description, default_value or list(), required, map_to_attribute
-        )
+        super().__init__(description, default_value or list(), **kwargs)
 
     def coerce(self, value):
         if value is None:
@@ -407,18 +422,14 @@ class ChoiceProperty(Property):
         self,
         description,
         choices,
-        default_value=None,
-        required=False,
-        map_to_attribute=None,
+        **kwargs,
     ):
         """
         In addition to the Property related attributes, the choices enumerate
         a set of valid values.
         """
         self.choices = choices
-        super().__init__(
-            description, default_value, required, map_to_attribute
-        )
+        super().__init__(description, **kwargs)
 
     def validate(self, value):
         """
@@ -426,7 +437,10 @@ class ChoiceProperty(Property):
         """
         if value in self.choices or value is None:
             return super().validate(value)
-        raise ValidationError(_("The value must be one of the valid choices."))
+        raise ValidationError(
+            f"The value {value!r} is not one of the valid choices " +
+            f"{self.choices}"
+        )
 
     def as_dict(self):
         """

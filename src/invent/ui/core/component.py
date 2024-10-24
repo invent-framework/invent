@@ -21,22 +21,30 @@ limitations under the License.
 from pyscript import document
 
 import invent
-from invent.compatability import getmembers_static
+from invent.compatability import capitalize, getmembers_static
 from invent.i18n import _
+from .model import Model
 from .property import (
     BooleanProperty,
     ChoiceProperty,
-    IntegerProperty,
     ListProperty,
-    Property,
     TextProperty,
 )
 
 
-#: Valid flags for horizontal positions.
-_VALID_HORIZONTALS = {"LEFT", "CENTER", "RIGHT"}
-#: Valid flags for vertical positions.
-_VALID_VERTICALS = {"TOP", "MIDDLE", "BOTTOM"}
+ALIGNMENTS = ["start", "center", "end"]
+ALIGNMENTS_STRETCH = ALIGNMENTS + ["stretch"]
+
+
+def align_self_property(direction):
+    return ChoiceProperty(
+        f"{capitalize(direction)} alignment.",
+        choices=ALIGNMENTS_STRETCH,
+        default_value="stretch",
+        map_to_style="align-self",
+    )
+
+
 #: T-shirt sizes used to indicate relative sizes of things.
 _TSHIRT_SIZES = (
     None,
@@ -105,13 +113,12 @@ class MessageBlueprint:
         }
 
 
-class Component:
+class Component(Model):
     """
     A base class for all user interface components (Widget, Container).
 
     Ensures they all have optional names and ids. If they're not given, will
-    auto-generate them for the user. The position of the component determines
-    how it will be drawn in its parent.
+    auto-generate them for the user.
     """
 
     # Used for quick component look-up.
@@ -131,22 +138,6 @@ class Component:
         "The component is visible is set to True.", default_value=True
     )
 
-    # Properties that are used by the container that a component is in.
-    position = TextProperty(
-        "The component's position inside it's parent.",
-        default_value="FILL",
-    )
-
-    column_span = TextProperty(
-        "The component's requested column-span in a grid",
-        default_value="1",
-    )
-
-    row_span = TextProperty(
-        "The component's requested row-span in a grid.",
-        default_value="1",
-    )
-
     def __init__(self, **kwargs):
         if invent.is_micropython:  # pragma: no cover
             # When in MicroPython, ensure all the properties have a reference
@@ -154,15 +145,16 @@ class Component:
             for property_name, property_obj in type(self).properties().items():
                 property_obj.__set_name__(self, property_name)
         self.element = self.render()
-        self.update(**kwargs)
+        self._parent = None
+        self._layout = {}
+        super().__init__(**kwargs)
+
         type(self)._component_counter += 1
         if not self.id:
             self.id = type(self)._generate_unique_id()
         if not self.name:
             self.name = type(self)._generate_name()
         Component._components_by_id[self.id] = self
-        # To reference the container's parent in the DOM tree.
-        self.parent = None
 
     @property
     def is_container(self):
@@ -173,21 +165,62 @@ class Component:
         """
         return isinstance(self, Container)
 
-    def update(self, **kwargs):
-        """
-        Given the **kwargs dict, iterate of the items and if the key identifies
-        a property on this class, set the property's value to the associated
-        value in the dict.
-        """
-        # Set values from the **kwargs
-        for k, v in kwargs.items():
-            if hasattr(self, k):
-                setattr(self, k, v)
-        # Set values from the property's own default_values.
-        for property_name, property_obj in type(self).properties().items():
-            if property_name not in kwargs:
-                if property_obj.default_value is not None:
-                    setattr(self, property_name, property_obj.default_value)
+    @property
+    def parent(self):
+        return self._parent
+
+    @parent.setter
+    def parent(self, parent):
+        old_parent = self._parent
+        self._parent = parent
+
+        if parent:
+            # Validate the layout against the new parent.
+            try:
+                self.layout = self.layout
+            except Exception:
+                self._parent = old_parent
+                raise
+
+    @property
+    def layout(self):
+        return self._layout
+
+    @layout.setter
+    def layout(self, layout):
+        def type_error():
+            raise TypeError(
+                f"container type {type(self.parent).__name__} " +
+                f"doesn't support layout type {type(layout).__name__}"
+            )
+
+        if isinstance(layout, Layout):
+            if self.parent:
+                if type(layout) is self.parent.layout_class:
+                    # Create a new Layout object for this component, and copy
+                    # all properties.
+                    self._layout = self.parent.layout_class(
+                        self,
+                        **{
+                            key: getattr(layout, key)
+                            for key, prop in layout.properties().items()
+                        }
+                    )
+                else:
+                    type_error()
+            else:
+                # Validate it later, when we have a parent.
+                self._layout = layout
+
+        elif isinstance(layout, dict):
+            if self.parent:
+                self._layout = self.parent.layout_class(self, **layout)
+            else:
+                # Validate it later, when we have a parent.
+                self._layout = layout
+
+        else:
+            type_error()
 
     def on_id_changed(self):
         """
@@ -208,30 +241,6 @@ class Component:
         Show / hide the element depending on the value of the property.
         """
         self.element.style.visibility = "visible" if self.visible else "hidden"
-
-    def on_position_changed(self):
-        """
-        Automatically called to update the position information relating to
-        the HTML element associated with the component.
-        """
-        if self.element.parentElement:
-            self.set_position(self.element.parentElement)
-
-    def on_column_span_changed(self):
-        """
-        Automatically called to update the column span information relating to
-        the HTML element associated with the component.
-        """
-        if self.element.parentElement:
-            self.parent.update_children()
-
-    def on_row_span_changed(self):
-        """
-        Automatically called to update the row span information relating to
-        the HTML element associated with the component.
-        """
-        if self.element.parentElement:
-            self.parent.update_children()
 
     @classmethod
     def _generate_unique_id(cls):
@@ -281,22 +290,6 @@ class Component:
         return _DEFAULT_ICON
 
     @classmethod
-    def properties(cls):
-        """
-        Returns a dictionary of properties associated with the component. The
-        key is the property name, the value an instance of the relevant
-        property class.
-
-        Implementation detail: we branch on interpreter type because of the
-        different behaviour of `getmembers`.
-        """
-        return {
-            name: value
-            for name, value in getmembers_static(cls)
-            if isinstance(value, Property)
-        }
-
-    @classmethod
     def message_blueprints(cls):
         """
         Returns a dictionary of the message blueprints that define the sort of
@@ -332,33 +325,20 @@ class Component:
 
     def as_dict(self):
         """
-        Return a dict representation of the state of this instance's
-        properties and message blueprints.
+        Return a dict representation of the state of this instance.
         """
-        properties = {}
-        for property_name, property_obj in type(self).properties().items():
-            # If the component is a Container, we deal with its content
-            # separately (for the recursive case). A Widget may well define
-            # its own custom "content" property though, so we handle that
-            # just like any other property.
-            if isinstance(self, Container) and property_name == "content":
-                continue
+        properties = super().as_dict()
+        layout_dict = (
+            self.layout
+            if isinstance(self.layout, dict)
+            else self.layout.as_dict()
+        )
+        if layout_dict:
+            properties["layout"] = layout_dict
 
-            from_datastore = self.get_from_datastore(property_name)
-            if from_datastore:
-                property_value = repr(from_datastore)
-
-            else:
-                property_value = getattr(self, property_name)
-
-            properties[property_name] = property_value
-
+        # If the component is a Container, we format its content recursively.
         if isinstance(self, Container):
-            from_datastore = self.get_from_datastore("content")
-            if from_datastore:
-                properties["content"] = repr(from_datastore)
-
-            else:
+            if not self.get_from_datastore("content"):
                 properties["content"] = [
                     item.as_dict() for item in self.children
                 ]
@@ -366,104 +346,7 @@ class Component:
         return {
             "type": type(self).__name__,
             "properties": properties,
-            "message_blueprints": {
-                key: value.as_dict()
-                for key, value in type(self).message_blueprints().items()
-            },
         }
-
-    def get_from_datastore(self, property_name):
-        """
-        Return the "from_datastore" instance for a property or None if it is a
-        simple/literal property.
-        """
-
-        return getattr(self, f"_{property_name}_from_datastore", None)
-
-    def parse_position(self):
-        """
-        Parse "self.position" as: "VERTICAL-HORIZONTAL", "VERTICAL" or
-        "HORIZONTAL" values.
-
-        Valid values are defined in _VALID_VERTICALS and _VALID_HORIZONTALS.
-
-        Returns a tuple of (vertical_position, horizontal_position). Each
-        return value could be None.
-        """
-        definition = self.position.upper().split("-")
-        # Default values for the horizontal and vertical positions.
-        horizontal_position = None
-        vertical_position = None
-        if len(definition) == 1:
-            # Unary position (e.g. "TOP" or "CENTER")
-            unary_position = definition[0]
-            if unary_position in _VALID_HORIZONTALS:
-                horizontal_position = unary_position
-            elif unary_position in _VALID_VERTICALS:
-                vertical_position = unary_position
-        elif len(definition) == 2:
-            # Binary position (e.g. "TOP-CENTER" or "BOTTOM-RIGHT")
-            if definition[0] in _VALID_VERTICALS:
-                vertical_position = definition[0]
-            if definition[1] in _VALID_HORIZONTALS:
-                horizontal_position = definition[1]
-        if not (horizontal_position or vertical_position):
-            # Bail out if we don't have a valid position state.
-            raise ValueError(f"'{self.position}' is not a valid position.")
-        return vertical_position, horizontal_position
-
-    def set_position(self, container):
-        """
-        Given the value of "self.position", will adjust the CSS for the
-        rendered "self.element", and its container, so the resulting HTML puts
-        the element into the expected position in the container.
-        """
-
-        def reset():
-            """
-            Reset the style state for the component and its parent container.
-            """
-            self.element.style.removeProperty("width")
-            self.element.style.removeProperty("height")
-            container.style.removeProperty("align-self")
-            container.style.removeProperty("justify-self")
-
-        if self.position.upper() == "FILL":
-            reset()
-            # Fill the full extent of the container.
-            self.element.style.width = "100%"
-            self.element.style.height = "100%"
-            return
-
-        # Parse into horizontal and vertical positions.
-        try:
-            vertical_position, horizontal_position = self.parse_position()
-            reset()
-        except ValueError:
-            return
-
-        # Check vertical position and adjust the container via CSS magic.
-        if vertical_position == "TOP":
-            container.style.setProperty("align-self", "start")
-        elif vertical_position == "MIDDLE":
-            container.style.setProperty("align-self", "center")
-        elif vertical_position == "BOTTOM":
-            container.style.setProperty("align-self", "end")
-        # Check the horizontal position and adjust the container.
-        if horizontal_position == "LEFT":
-            container.style.setProperty("justify-self", "start")
-        elif horizontal_position == "CENTER":
-            container.style.setProperty("justify-self", "center")
-        elif horizontal_position == "RIGHT":
-            container.style.setProperty("justify-self", "end")
-        # Ensure a vertical only position ensures a full horizontal fill.
-        if not horizontal_position:
-            container.style.setProperty("justify-self", "stretch")
-            self.element.style.width = "100%"
-        # Ensure a horizontal only position ensures a full vertical fill.
-        if not vertical_position:
-            container.style.setProperty("align-self", "stretch")
-            self.element.style.height = "100%"
 
     def update_attribute(self, attribute_name, attribute_value):
         """
@@ -475,6 +358,54 @@ class Component:
             self.element.setAttribute(attribute_name, str(attribute_value))
         else:
             self.element.removeAttribute(attribute_name)
+
+
+class Widget(Component):
+    """
+    A widget is a UI component drawn onto the interface in some way.
+
+    All widgets have these things:
+
+    * A unique human friendly name that's meaningful in the context of the
+      application (if none is given, one is automatically generated).
+    * A unique id (if none is given, one is automatically generated).
+    * A render function that takes the widget's container and renders
+      itself as an HTML element into the container.
+    * An optional indication of the channel[s] to which it broadcasts
+      messages (defaults to the id).
+    * A publish method that takes the name of a message blueprint, and
+      associated kwargs, and publishes it to the channel[s] set for the
+      widget.
+    """
+
+    channel = TextProperty(
+        "A comma separated list of channels to which the widget broadcasts.",
+        default_value=None,
+    )
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        if self.channel is None:
+            self.channel = self.id
+
+    def publish(self, blueprint, **kwargs):
+        """
+        Given the name of one of the class's MessageBlueprints, publish
+        a message to all the widget's channels with the message content
+        defined in kwargs.
+        """
+        # Ensure self.channel is treated as a comma-separated list of channel
+        # names.
+        if self.channel is not None:
+            channels = [
+                channel.strip()
+                for channel in self.channel.split(",")
+                if channel.strip()
+            ]
+            message = getattr(self, blueprint).create_message(
+                blueprint, **kwargs
+            )
+            invent.publish(message, to_channel=channels)
 
     def when(self, subject, to_channel=None, do=None):
         """
@@ -506,50 +437,6 @@ class Component:
             return inner_function
 
 
-class Widget(Component):
-    """
-    A widget is a UI component drawn onto the interface in some way.
-
-    All widgets have these things:
-
-    * A unique human friendly name that's meaningful in the context of the
-      application (if none is given, one is automatically generated).
-    * A unique id (if none is given, one is automatically generated).
-    * An indication of the widget's preferred position.
-    * A render function that takes the widget's container and renders
-      itself as an HTML element into the container.
-    * An optional indication of the channel[s] to which it broadcasts
-      messages (defaults to the id).
-    * A publish method that takes the name of a message blueprint, and
-      associated kwargs, and publishes it to the channel[s] set for the
-      widget.
-    """
-
-    channel = TextProperty(
-        "A comma separated list of channels to which the widget broadcasts.",
-        default_value=None,
-    )
-
-    def publish(self, blueprint, **kwargs):
-        """
-        Given the name of one of the class's MessageBlueprints, publish
-        a message to all the widget's channels with the message content
-        defined in kwargs.
-        """
-        # Ensure self.channel is treated as a comma-separated list of channel
-        # names.
-        if self.channel is not None:
-            channels = [
-                channel.strip()
-                for channel in self.channel.split(",")
-                if channel.strip()
-            ]
-            message = getattr(self, blueprint).create_message(
-                blueprint, **kwargs
-            )
-            invent.publish(message, to_channel=channels)
-
-
 class Container(Component):
     """
     All containers have these things:
@@ -570,23 +457,6 @@ class Container(Component):
         default_value=None,
     )
 
-    column_width = IntegerProperty(
-        "The default width of the container.",
-        default_value=100,
-        maximum=100,
-        minimum=0,
-    )
-    height = IntegerProperty(
-        "The default height of the container.",
-        default_value=100,
-        maximum=100,
-        minimum=0,
-    )
-    gap = ChoiceProperty(
-        "The gap between items in the container",
-        choices=_TSHIRT_SIZES,
-        default_value="M",
-    )
     background_color = TextProperty("The color of the container's background.")
     border_color = TextProperty("The color of the container's border.")
     border_width = ChoiceProperty(
@@ -615,13 +485,9 @@ class Container(Component):
 
     def on_children_changed(self):
         self.element.innerHTML = ""
-        self.render_children(self.element)
-
-    def on_height_changed(self):
-        self.element.style.height = f"{self.height}%"
-
-    def on_width_changed(self):
-        self.element.style.width = f"{self.width}%"
+        for child in self.content:
+            self.element.appendChild(child.element)
+        self.update_children()
 
     def on_background_color_changed(self):
         if self.background_color:
@@ -660,11 +526,7 @@ class Container(Component):
         else:
             self.element.style.removeProperty("border-style")
 
-    def on_gap_changed(self):
-        """
-        Set the gap between elements in the container (translating from t-shirt
-        sizes).
-        """
+    def _set_gap(self, gap, attr):
         sizes = {
             "XS": "2px",
             "S": "4px",
@@ -674,9 +536,9 @@ class Container(Component):
         }
         size = "0px"
 
-        if self.gap is not None:
-            size = sizes[self.gap.upper()]
-        self.element.style.setProperty("gap", size)
+        if gap is not None:
+            size = sizes[gap.upper()]
+        self.element.style.setProperty(attr, size)
 
     def append(self, item):
         """
@@ -687,9 +549,7 @@ class Container(Component):
         self.children.append(item)
 
         # Update the DOM.
-        self.element.appendChild(
-            self.create_child_wrapper(item, len(self.children))
-        )
+        self.element.appendChild(item.element)
 
         # Update the grid indices of the container's children.
         self.update_children()
@@ -703,15 +563,12 @@ class Container(Component):
         self.children.insert(index, item)
 
         # Update the DOM.
-        #
-        # We wrap all children in a <div> that is a grid area.
-        wrapper = self.create_child_wrapper(item, index)
-
         if item is self.children[-1]:
-            self.element.appendChild(wrapper)
-
+            self.element.appendChild(item.element)
         else:
-            self.element.insertBefore(wrapper, self.element.childNodes[index])
+            self.element.insertBefore(
+                item.element, self.element.childNodes[index]
+            )
 
         # Update the grid indices of the container's children.
         self.update_children()
@@ -725,7 +582,7 @@ class Container(Component):
         self.children.remove(item)
 
         # Update the DOM.
-        item.element.parentElement.remove()
+        item.element.remove()
 
         # Update the grid indices of the container's children.
         self.update_children()
@@ -765,34 +622,29 @@ class Container(Component):
 
     def render(self):
         """
-        Return a div element representing the container (set with the expected
-        height and width).
+        Return a div element representing the container.
 
         Subclasses should call this, then override with the specific details
         for how to add their children in a way that reflects the way they
         lay out their widgets.
         """
         element = document.createElement("div")
-        element.style.display = "grid"
         element.classList.add(f"invent-{type(self).__name__.lower()}")
-
-        # Render the container's children.
-        #
-        # See Column, Grid and Row classes for implementation details.
-        self.render_children(element)
-
         return element
-
-    def render_children(self, element):
-        """
-        Render the container's children.
-        """
-        for index, child in enumerate(self.children, start=1):
-            element.appendChild(self.create_child_wrapper(child, index))
 
     def update_children(self):
         """
         Update the container's children.
         """
         for counter, child in enumerate(self.children, start=1):
-            self.update_child_wrapper(child, counter)
+            self.update_child(child, counter)
+
+    def update_child(self, child, index):
+        pass
+
+
+class Layout(Model):
+    def __init__(self, component, **kwargs):
+        self.component = component
+        self.element = self.component.element
+        super().__init__(**kwargs)
