@@ -37,8 +37,8 @@ class App:
     """
     An instance of App is the root object for an Invent application. General
     app related metadata hangs off an object of this type. E.g. name, author,
-    icon, description, license and other such things. In addition, the children
-    of Pages defines the UI tree.
+    icon, description, license and other such things. In addition, the list
+    of Pages defines the UI of the app.
     """
 
     def __init__(

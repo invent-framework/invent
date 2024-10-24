@@ -338,8 +338,8 @@ class Component(Model):
 
         # If the component is a Container, we format its content recursively.
         if isinstance(self, Container):
-            if not self.get_from_datastore("content"):
-                properties["content"] = [
+            if not self.get_from_datastore("children"):
+                properties["children"] = [
                     item.as_dict() for item in self.children
                 ]
 
@@ -485,7 +485,7 @@ class Container(Component):
 
     def on_children_changed(self):
         self.element.innerHTML = ""
-        for child in self.content:
+        for child in self.children:
             self.element.appendChild(child.element)
         self.update_children()
 

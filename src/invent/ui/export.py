@@ -273,6 +273,6 @@ def _pretty_repr_container_children_property(component, lines, indent):
 
     else:
         lines.append(f"{indent}children=[")
-        for child in component.pages:
+        for child in component.children:
             _pretty_repr_component(child, lines=lines, indent=indent + "    ")
         lines.append(f"{indent}],")

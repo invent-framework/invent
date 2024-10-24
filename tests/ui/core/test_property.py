@@ -519,14 +519,14 @@ def test_list_property_validation():
     """
 
     class TestComponent:
-        content = ListProperty("The child components.")
+        children = ListProperty("The child components.")
 
     tc = TestComponent()
-    tc.content = [
+    tc.children = [
         "foo",
         "bar",
         "baz",
     ]
-    tc.content = None
+    tc.children = None
     with pytest.raises(TypeError):
-        tc.content = False
+        tc.children = False

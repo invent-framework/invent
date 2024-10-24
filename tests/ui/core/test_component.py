@@ -356,7 +356,7 @@ def test_container_as_dict():
             "border_color": None,
             "border_width": None,
             "border_style": None,
-            "content": [
+            "children": [
                 {
                     "type": "MyWidget",
                     "properties": {
@@ -379,8 +379,8 @@ def test_container_as_dict():
     ):
         mc2 = export._component_from_dict(expected)
         assert isinstance(mc2, MyContainer)
-        assert len(mc2.content) == 1
-        mw2 = mc2.content[0]
+        assert len(mc2.children) == 1
+        mw2 = mc2.children[0]
         assert isinstance(mw2, MyWidget)
         assert isinstance(mw2.layout, MyLayout)
 
@@ -396,7 +396,7 @@ def test_container_as_dict():
         "    id='invent-mycontainer-1',",
         "    name='MyContainer 1',",
         "    visible=True,",
-        "    content=[",
+        "    children=[",
         "        MyWidget(",
         "            enabled=True,",
         "            id='invent-mywidget-1',",
