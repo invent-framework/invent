@@ -60,12 +60,12 @@ invent.subscribe(make_oink, to_channel="oink", when_subject=["press", "touch"])
 
 app = App(
     name="Farmyard!",
-    content=[
+    pages=[
         Page(
             name="Lucy",
-            content=[
+            children=[
                 Column(
-                    content=[
+                    children=[
                         Image(
                             image=invent.media.images.goose.png,
                             channel="honk",
@@ -73,7 +73,7 @@ app = App(
                         ),
                         Row(
                             layout=dict(align_self="center"),
-                            content=[
+                            children=[
                                 Button(
                                     name="button honk",
                                     label="HONK!",
@@ -87,7 +87,7 @@ app = App(
                             ],
                         ),
                         Row(
-                            content=[
+                            children=[
                                 TextBox(
                                     name="number_of_honks",
                                     text=from_datastore("number_of_honks"),
@@ -104,7 +104,7 @@ app = App(
                         Row(
                             id="geese",
                             justify_content="center",
-                            content=from_datastore(
+                            children=from_datastore(
                                 "number_of_honks", with_function=make_geese
                             ),
                         ),
@@ -119,9 +119,9 @@ app = App(
         ),
         Page(
             name="Percy",
-            content=[
+            children=[
                 Column(
-                    content=[
+                    children=[
                         Image(
                             image=invent.media.images.pig.png,
                             channel="oink",
@@ -129,7 +129,7 @@ app = App(
                         ),
                         Row(
                             layout=dict(align_self="center"),
-                            content=[
+                            children=[
                                 Button(
                                     name="button oink",
                                     label="OINK!!",
@@ -150,7 +150,7 @@ app = App(
                         Row(
                             id="pigs",
                             justify_content="center",
-                            content=from_datastore(
+                            children=from_datastore(
                                 "number_of_oinks", with_function=make_pigs
                             ),
                         ),
@@ -170,12 +170,12 @@ app = App(
 # Add a page that shows the code! ######################################################
 
 
-app.content.append(
+app.pages.append(
     Page(
         name="Code",
-        content=[
+        children=[
             Row(
-                content=[
+                children=[
                     Button(
                         name="to_lucy",
                         label="Visit Lucy",
