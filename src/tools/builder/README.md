@@ -1,5 +1,7 @@
 # Invent Builder
 
-## Make a build
+To run:
 
-
+* Install `npm`.
+* `npm install`
+* `npm run dev`

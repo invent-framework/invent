@@ -338,9 +338,9 @@ class Component(Model):
 
         # If the component is a Container, we format its content recursively.
         if isinstance(self, Container):
-            if not self.get_from_datastore("content"):
-                properties["content"] = [
-                    item.as_dict() for item in self.content
+            if not self.get_from_datastore("children"):
+                properties["children"] = [
+                    item.as_dict() for item in self.children
                 ]
 
         return {
@@ -452,7 +452,7 @@ class Container(Component):
       insert the children into the container in the correct manner.
     """
 
-    content = ListProperty(
+    children = ListProperty(
         "The contents of the container",
         default_value=None,
     )
@@ -480,12 +480,12 @@ class Container(Component):
 
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
-        for item in self.content:
+        for item in self.children:
             item.parent = self
 
-    def on_content_changed(self):
+    def on_children_changed(self):
         self.element.innerHTML = ""
-        for child in self.content:
+        for child in self.children:
             self.element.appendChild(child.element)
         self.update_children()
 
@@ -546,7 +546,7 @@ class Container(Component):
         """
         # Update the object model.
         item.parent = self
-        self.content.append(item)
+        self.children.append(item)
 
         # Update the DOM.
         self.element.appendChild(item.element)
@@ -560,10 +560,10 @@ class Container(Component):
         """
         # Update the object model.
         item.parent = self
-        self.content.insert(index, item)
+        self.children.insert(index, item)
 
         # Update the DOM.
-        if item is self.content[-1]:
+        if item is self.children[-1]:
             self.element.appendChild(item.element)
         else:
             self.element.insertBefore(
@@ -579,7 +579,7 @@ class Container(Component):
         """
         # Update the object model.
         item.parent = None
-        self.content.remove(item)
+        self.children.remove(item)
 
         # Update the DOM.
         item.element.remove()
@@ -591,13 +591,13 @@ class Container(Component):
         """
         Index items like a list.
         """
-        return self.content[index]
+        return self.children[index]
 
     def __iter__(self):
         """
         Iterate like a list.
         """
-        return iter(self.content)
+        return iter(self.children)
 
     def __delitem__(self, item):
         """
@@ -610,7 +610,7 @@ class Container(Component):
 
         This is recursive, so this really means "is a descendant of".
         """
-        for item in self.content:
+        for item in self.children:
             if item is component:
                 return True
 
@@ -636,7 +636,7 @@ class Container(Component):
         """
         Update the container's children.
         """
-        for counter, child in enumerate(self.content, start=1):
+        for counter, child in enumerate(self.children, start=1):
             self.update_child(child, counter)
 
     def update_child(self, child, index):

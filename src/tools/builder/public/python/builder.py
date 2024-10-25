@@ -25,7 +25,7 @@ class Builder:
 
         # The Invent app that the builder is building.
         self._app = None
-        self.app = App(name="Invent Demo", content=[])
+        self.app = App(name="Invent Demo", pages=[])
 
         # The JS-side of the Invent-Builder.
         self._js_builder_model = None
@@ -97,7 +97,7 @@ class Builder:
         """
         new_page = Page(name=page_name)
 
-        self._app.content.append(new_page)
+        self._app.pages.append(new_page)
 
         # Inject the JS event handlers to make component selection and drag-and-drop
         # work.
@@ -124,7 +124,7 @@ class Builder:
         """
         Return a list of all the pages in the app.
         """
-        return json.dumps(self._app.as_dict()["content"])
+        return json.dumps(self._app.as_dict()["pages"])
 
     def update_page(self, page_name, **properties_to_update):
         """
@@ -188,8 +188,8 @@ class Builder:
 
         parent = after_component.parent
 
-        after_component_index = parent.content.index(after_component)
-        if after_component_index == len(parent.content) - 1:
+        after_component_index = parent.children.index(after_component)
+        if after_component_index == len(parent.children) - 1:
             parent.append(component)
 
         else:
@@ -207,7 +207,7 @@ class Builder:
 
         parent = before_component.parent
 
-        before_component_index = parent.content.index(before_component)
+        before_component_index = parent.children.index(before_component)
         parent.insert(before_component_index, component)
         self._manage_empty_element_in_container(parent)
 
@@ -248,12 +248,12 @@ class Builder:
                 value["value"] = binding.key
             else:
                 value["value"] = getattr(target, name)
-            
+
         if component.is_container:
-            properties.pop("content")
+            properties.pop("children")
 
         return json.dumps(properties)
-    
+
     def set_component_property(self, component_id, property_name, value, is_layout, is_from_datastore=False):
         """
         Set a property on a component (that has already been added to the page).
@@ -283,7 +283,7 @@ class Builder:
         datastore[key] = value
 
     # Channels ####################################################################
-        
+
     def get_channels(self):
         channels = set()
         for component in Component._components_by_id.values():
@@ -292,7 +292,7 @@ class Builder:
         channels.add("store-data")
         channels.add("delete-data")
         return json.dumps(list(channels))
-    
+
     def get_subjects(self):
         subjects = set()
         for component in Component._components_by_id.values():
@@ -337,7 +337,7 @@ class Builder:
         print(f"App({self._app.name})")
 
         indent = "    "
-        for page in self._app.content:
+        for page in self._app.pages:
             self.pprint_container(page, indent)
 
     def pprint_container(self, container, indent):
@@ -347,7 +347,7 @@ class Builder:
         print(f"{indent}{type(container).__name__}({container.name}, {container.id})")
         indent += "    "
 
-        for item in container.content:
+        for item in container.children:
             if isinstance(item, Container):
                 self.pprint_container(item, indent)
 
@@ -365,7 +365,7 @@ class Builder:
         a) catch click events so that we can show a component's property sheet.
         b) handle drag and drop events for adding/moving components on a page.
         """
-        for page in app.content:
+        for page in app.pages:
             self._add_js_event_handlers_to_component(page)
 
     def _add_js_event_handlers_to_component(self, component):
@@ -416,7 +416,7 @@ class Builder:
 
         # Recursively...
         if component.is_container:
-            for item in component.content:
+            for item in component.children:
                 self._add_js_event_handlers_to_component(item)
 
     # JS event handlers ################################################################
@@ -576,18 +576,18 @@ class Builder:
             component_to_drop.layout = {}
 
         # If the container is empty then a simple append will do...
-        if len(container.content) == 0:
+        if len(container.children) == 0:
             self.append_component(container, component_to_drop)
 
         # Otherwise, insert the new component before or after as appropriate.
         else:
             if self._insertion_position in ["left", "top"]:
-                insert_before = component.content[0] if component.is_container else component
+                insert_before = component.children[0] if component.is_container else component
                 self.insert_component_before(insert_before, component_to_drop)
             else:
-                insert_after = component.content[-1] if component.is_container else component
+                insert_after = component.children[-1] if component.is_container else component
                 self.insert_component_after(insert_after, component_to_drop)
-        
+
         # Moving to a different container will clear the layout properties, so
         # refresh the properties panel.
         self._open_properties(component_to_drop)
@@ -596,7 +596,7 @@ class Builder:
         """
         Remove JS event handlers from all components in the specified app.
         """
-        for page in app.content:
+        for page in app.pages:
             self._remove_js_event_handlers_from_component(page)
 
     def _remove_js_event_handlers_from_component(self, component):
@@ -616,7 +616,7 @@ class Builder:
 
         # Recursively...
         if component.is_container:
-            for item in component.content:
+            for item in component.children:
                 self._remove_js_event_handlers_from_component(item)
 
     def _add_drop_zone_active_classes(self, component):
@@ -625,7 +625,7 @@ class Builder:
         """
         element = component.element
 
-        if component.is_container and len(component.content) == 0:
+        if component.is_container and len(component.children) == 0:
             element.classList.add("drop-zone-outside")
 
         else:
@@ -732,7 +732,7 @@ class Builder:
         """
         Manage the elements shown when containers are empty.
         """
-        for page in app.content:
+        for page in app.pages:
             self._manage_empty_element_in_container(page)
 
     def _manage_empty_element_in_container(self, container):
@@ -749,7 +749,7 @@ class Builder:
             container._empty_element.remove()
             delattr(container, "_empty_element")
 
-        if len(container.content) == 0:
+        if len(container.children) == 0:
             container._empty_element = document.createElement("div")
             container._empty_element.style.textAlign = "center"
             container._empty_element.innerText = f"Empty {type(container).__name__}"
@@ -759,6 +759,6 @@ class Builder:
 
             container.element.appendChild(container._empty_element)
 
-        for item in container.content:
+        for item in container.children:
             if item.is_container:
                 self._manage_empty_element_in_container(item)

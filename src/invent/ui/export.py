@@ -121,12 +121,12 @@ def _app_from_dict(app_dict):
 
     from invent.ui.app import App
 
-    content = [
+    pages = [
         _component_from_dict(component_dict)
-        for component_dict in app_dict["content"]
+        for component_dict in app_dict["pages"]
     ]
 
-    app_dict["content"] = content
+    app_dict["pages"] = pages
 
     return App(**app_dict)
 
@@ -140,7 +140,7 @@ def _component_from_dict(component_dict):
 
     properties = {}
     for property_name, property_value in component_dict["properties"].items():
-        if issubclass(cls, Container) and property_name == "content":
+        if issubclass(cls, Container) and property_name == "children":
             continue
 
         if type(property_value) is str and property_value.startswith(
@@ -155,19 +155,19 @@ def _component_from_dict(component_dict):
     cls = getattr(ui, component_dict["type"])
 
     if issubclass(cls, Container):
-        property_value = component_dict["properties"]["content"]
+        property_value = component_dict["properties"]["children"]
         if type(property_value) is str:
-            content = eval(
+            children = eval(
                 property_value, {}, dict(from_datastore=from_datastore)
             )
 
         else:
-            content = [
+            children = [
                 _component_from_dict(component_dict)
                 for component_dict in property_value
             ]
 
-        properties["content"] = content
+        properties["children"] = children
 
     return cls(**properties)
 
@@ -180,7 +180,7 @@ def _component_from_dict(component_dict):
 APP_TEMPLATE = """
 App(
     name='{name}',
-    content=[
+    children=[
 {pages}
     ],
 )
@@ -191,7 +191,7 @@ def _pretty_repr_app(app):
     """Generate a pretty repr of the App's UI."""
 
     return APP_TEMPLATE.format(
-        name=app.name, pages=_pretty_repr_pages(app.content)
+        name=app.name, pages=_pretty_repr_pages(app.pages)
     )
 
 
@@ -222,9 +222,9 @@ def _pretty_repr_component(component, lines, indent=""):
     # The component's layout.
     _pretty_repr_component_layout(component.layout, lines, indent + "    ")
 
-    # If the component is a Container, its "content" property.
+    # If the component is a Container, its "children" property.
     if isinstance(component, Container):
-        _pretty_repr_container_content_property(
+        _pretty_repr_container_children_property(
             component, lines, indent + "    "
         )
 
@@ -236,11 +236,11 @@ def _pretty_repr_component_properties(component, lines, indent):
     """Generate a pretty repr of a Component's properties."""
 
     for property_name, property_obj in sorted(component.properties().items()):
-        # If the component is a Container, we deal with its content separately
+        # If the component is a Container, we deal with its children separately
         # (for the recursive case). A Widget may well define its own custom
-        # "content" property though, so we handle that just like any other
+        # "children" property though, so we handle that just like any other
         # property.
-        if isinstance(component, Container) and property_name == "content":
+        if isinstance(component, Container) and property_name == "children":
             continue
 
         from_datastore = component.get_from_datastore(property_name)
@@ -262,17 +262,17 @@ def _pretty_repr_component_layout(layout, lines, indent):
         lines.append(f"{indent}layout=dict({', '.join(dict_args)}),")
 
 
-def _pretty_repr_container_content_property(component, lines, indent):
+def _pretty_repr_container_children_property(component, lines, indent):
     """
-    Generate a pretty repr of a Container's "content" property.
+    Generate a pretty repr of a Container's "children" property.
     """
 
-    from_datastore = component.get_from_datastore("content")
+    from_datastore = component.get_from_datastore("children")
     if from_datastore:
-        lines.append(f"{indent}content={repr(from_datastore)},")
+        lines.append(f"{indent}children={repr(from_datastore)},")
 
     else:
-        lines.append(f"{indent}content=[")
-        for child in component.content:
+        lines.append(f"{indent}children=[")
+        for child in component.children:
             _pretty_repr_component(child, lines=lines, indent=indent + "    ")
         lines.append(f"{indent}],")

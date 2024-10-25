@@ -8,7 +8,7 @@ from pyscript import document, display
 
 app = invent.ui.App(name="Widget Zoo")
 p = invent.ui.Page()
-app.content.append(p)
+app.pages.append(p)
 
 for name, component in invent.ui.AVAILABLE_COMPONENTS.items():
     c = component()
