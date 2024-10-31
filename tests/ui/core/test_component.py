@@ -293,7 +293,7 @@ def test_component_as_dict():
             "enabled": True,
             "visible": True,
             "layout": dict(alpha="a", bravo="b"),
-        }
+        },
     }
     assert mw.as_dict() == expected
 
@@ -319,7 +319,7 @@ def test_component_as_dict():
         "    numberwang=55,",
         "    visible=True,",
         "    layout=dict(alpha='a', bravo='b'),",
-        "),"
+        "),",
     ]
 
 
@@ -366,10 +366,10 @@ def test_container_as_dict():
                         "enabled": True,
                         "visible": True,
                         "layout": dict(layout_prop="lp"),
-                    }
+                    },
                 }
-            ]
-        }
+            ],
+        },
     }
     assert mc.as_dict() == expected
 

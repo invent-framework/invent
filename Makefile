@@ -24,10 +24,7 @@ clean:
 	find . | grep -E "(__pycache__)" | xargs rm -rf
 
 tidy:
-	black -l 79 src/invent
-	black -l 79 tests
-	black -l 79 utils 
-	black -l 79 examples
+	black -l 79 examples src/invent tests utils
 
 lint:
 	flake8 src/invent

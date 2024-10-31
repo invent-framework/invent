@@ -1,2 +1,2 @@
-black
-flake8
+black==24.10.0
+flake8==7.1.1
