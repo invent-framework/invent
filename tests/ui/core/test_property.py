@@ -487,7 +487,10 @@ def test_choice_property_validation():
     # A valid choice is a valid value.
     widget.select = 1
     # Outside the valid choices is invalid.
-    with pytest.raises(ValidationError):
+    with pytest.raises(
+        ValidationError,
+        match=r"The value 0 is not one of the valid choices \[1, 2, 3\]",
+    ):
         widget.select = 0
 
 

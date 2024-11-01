@@ -190,8 +190,8 @@ class Component(Model):
     def layout(self, layout):
         def type_error():
             raise TypeError(
-                f"container type {type(self.parent).__name__} " +
-                f"doesn't support layout type {type(layout).__name__}"
+                f"container type {type(self.parent).__name__} "
+                + f"doesn't support layout type {type(layout).__name__}"
             )
 
         if isinstance(layout, Layout):
@@ -204,7 +204,7 @@ class Component(Model):
                         **{
                             key: getattr(layout, key)
                             for key, prop in layout.properties().items()
-                        }
+                        },
                     )
                 else:
                     type_error()
