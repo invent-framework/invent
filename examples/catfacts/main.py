@@ -72,7 +72,7 @@ app = App(
                                 "working", with_function=ready
                             ),
                         ),
-                        TextBox(
+                        Label(
                             name="a_cat_fact",
                             text=from_datastore(
                                 "cat_fact", with_function=handle_cat_fact

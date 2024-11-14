@@ -36,7 +36,7 @@ class Model:
             if hasattr(self, k):
                 setattr(self, k, v)
             else:
-                raise AttributeError(k)
+                raise AttributeError(self, k)
 
     def as_dict(self):
         properties = {}

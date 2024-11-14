@@ -18,6 +18,7 @@ from .property import (
     ValidationError,
     from_datastore,
 )
+from .model import Model
 
 __all__ = [
     "_DEFAULT_ICON",
@@ -31,6 +32,7 @@ __all__ = [
     "IntegerProperty",
     "ListProperty",
     "Layout",
+    "Model",
     "NumericProperty",
     "Property",
     "TextProperty",

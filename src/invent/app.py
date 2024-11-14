@@ -186,12 +186,14 @@ class App:
         """
         Start the universe.
         """
-        # Load the i18n stuff.
+        # Set the page title.
+        dom.title = self.name
+        # Load the i18n assets.
         load_translations()
         # Render all the pages to the DOM.
         if self.pages:
             for page in self.pages:
-                dom.append(page.element)
+                dom.append(page.element._dom_element)
             # Show the first page.
             self.show_page(self.pages[0].id)
         else:

@@ -25,8 +25,7 @@ from invent.ui.core import (
     ChoiceProperty,
     Event,
 )
-
-from pyscript import document
+from pyscript.web import button
 from pyscript.ffi import create_proxy
 
 
@@ -39,7 +38,7 @@ class Button(Widget):
     warning or danger button.
     """
 
-    label = TextProperty("The text on the button.", default_value="Click Me")
+    text = TextProperty("The text on the button.", default_value="Click Me")
     size = ChoiceProperty(
         "The size of the button.",
         default_value="MEDIUM",
@@ -75,39 +74,37 @@ class Button(Widget):
     def click(self, event):
         self.publish("press", button=self)
 
-    def on_label_changed(self):
-        self.element.innerText = self.label
+    def on_text_changed(self):
+        self.element.innerText = self.text
 
     def on_size_changed(self):
         # Reset
-        self.element.classList.remove("btn-large")
-        self.element.classList.remove("btn-small")
+        self.element.classList.remove("large")
+        self.element.classList.remove("small")
         if self.size == "LARGE":
-            self.element.classList.add("btn-large")
+            self.element.classList.add("large")
         elif self.size == "SMALL":
-            self.element.classList.add("btn-small")
+            self.element.classList.add("small")
 
     def on_purpose_changed(self):
         # Reset
-        self.element.classList.remove("btn-primary")
-        self.element.classList.remove("btn-secondary")
-        self.element.classList.remove("btn-success")
-        self.element.classList.remove("btn-warning")
-        self.element.classList.remove("btn-danger")
+        self.element.classList.remove("primary")
+        self.element.classList.remove("secondary")
+        self.element.classList.remove("success")
+        self.element.classList.remove("warning")
+        self.element.classList.remove("danger")
         if self.purpose == "PRIMARY":
-            self.element.classList.add("btn-primary")
+            self.element.classList.add("primary")
         elif self.purpose == "SECONDARY":
-            self.element.classList.add("btn-secondary")
+            self.element.classList.add("secondary")
         elif self.purpose == "SUCCESS":
-            self.element.classList.add("btn-success")
+            self.element.classList.add("success")
         elif self.purpose == "WARNING":
-            self.element.classList.add("btn-warning")
+            self.element.classList.add("warning")
         elif self.purpose == "DANGER":
-            self.element.classList.add("btn-danger")
+            self.element.classList.add("danger")
 
     def render(self):
-        element = document.createElement("button")
-        element.id = self.id
-        element.innerText = self.label
+        element = button(self.text, id=self.id)
         element.addEventListener("click", create_proxy(self.click))
         return element

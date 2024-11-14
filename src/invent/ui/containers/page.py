@@ -34,23 +34,19 @@ class Page(Column):
         Returns an HTML element to insert into the DOM.
         """
         element = super().render()
-        element.classList.add("paper")
         element.classList.add("container")
 
-        # Why this?
-        # element.classList.add("form-group")
-
-        element.style.display = "None"
+        element.style["display"] = "None"
         return element
 
     def show(self):
         """
         Make the page visible to the user.
         """
-        self.element.style.display = "flex"
+        self.element.style["display"] = "flex"
 
     def hide(self):
         """
         Hide the page from the user.
         """
-        self.element.style.display = "None"  # Hidden by default.
+        self.element.style["display"] = "None"  # Hidden by default.

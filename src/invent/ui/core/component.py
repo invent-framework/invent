@@ -396,11 +396,10 @@ class Widget(Component):
         if self.channel is None:
             self.channel = self.id
 
-    def publish(self, blueprint, **kwargs):
+    def publish(self, event_name, **kwargs):
         """
-        Given the name of one of the class's MessageBlueprints, publish
-        a message to all the widget's channels with the message content
-        defined in kwargs.
+        Given the name of one of the class's defined events, publish a message
+        to all the widget's channels with the message content defined in kwargs.
         """
         # Ensure self.channel is treated as a comma-separated list of channel
         # names.
@@ -410,8 +409,8 @@ class Widget(Component):
                 for channel in self.channel.split(",")
                 if channel.strip()
             ]
-            message = getattr(self, blueprint).create_message(
-                blueprint, **kwargs
+            message = getattr(self, event_name).create_message(
+                event_name, **kwargs
             )
             invent.publish(message, to_channel=channels)
 
@@ -494,7 +493,7 @@ class Container(Component):
     def on_content_changed(self):
         self.element.innerHTML = ""
         for child in self.content:
-            self.element.appendChild(child.element)
+            self.element.append(child.element)
         self.update_children()
 
     def on_background_color_changed(self):
@@ -643,6 +642,8 @@ class Container(Component):
     def update_children(self):
         """
         Update the container's children.
+
+        TODO: Why do we start counting from 1?
         """
         for counter, child in enumerate(self.content, start=1):
             self.update_child(child, counter)

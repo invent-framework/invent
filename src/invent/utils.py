@@ -63,3 +63,15 @@ def sanitize(raw):
     temp = div()
     temp.innerText = raw
     return temp.innerHTML
+
+
+def from_markdown(raw_markdown):
+    """
+    Convert markdown to sanitized HTML.
+    """
+    result = raw_markdown
+    from . import marked, purify  # To avoid circular imports.
+
+    if marked:
+        result = purify.default().sanitize(marked.parse(raw_markdown))
+    return result

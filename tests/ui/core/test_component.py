@@ -194,10 +194,11 @@ def test_component_events():
     assert isinstance(mbp["ping"], core.Event)
 
 
-def test_component_blueprint():
+def test_component_definition():
     """
-    A JSON serializable data structure representing the component (widget) and
-    its properties is returned.
+    A JSON serializable data structure representing the component class is
+    returned. Should include the name, properties, events and icon for the
+    component.
     """
 
     class MyWidget(core.Widget):
@@ -219,12 +220,22 @@ def test_component_blueprint():
                 "coal",
             ],
         )
+        bloop = core.Event(
+            "Bloop the blooper", strength="The strength of the bloop."
+        )
 
         @classmethod
         def icon(cls):
             return "<button>Click me!</button>"
 
+        def render(self):
+            return div()
+
     result = MyWidget.definition()
+    assert "properties" in result
+    assert "events" in result
+    assert "icon" in result
+    assert result["name"] == "MyWidget"
     assert result["properties"]["name"]["property_type"] == "TextProperty"
     assert result["properties"]["name"]["default_value"] is None
     assert result["properties"]["id"]["property_type"] == "TextProperty"
@@ -243,6 +254,11 @@ def test_component_blueprint():
         == "ChoiceProperty"
     )
     assert result["properties"]["favourite_colour"]["default_value"] == "black"
+    assert result["events"]["bloop"]["description"] == "Bloop the blooper"
+    assert (
+        result["events"]["bloop"]["content"]["strength"]
+        == "The strength of the bloop."
+    )
     assert result["icon"] == "<button>Click me!</button>"
 
 
@@ -271,6 +287,13 @@ def test_component_as_dict():
                 "coal",
             ],
         )
+        bloop = core.Event(
+            "Bloop the blooper", strength="The strength of the bloop."
+        )
+
+        @classmethod
+        def icon(cls):
+            return "<button>Click me!</button>"
 
         def render(self):
             return div()

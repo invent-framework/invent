@@ -39,12 +39,12 @@ class DataStore(Storage):
         Publishes a message whose type is the item's key, along with the new
         value, to the "store-data" channel.
         """
-        # TODO: check if callable, extract arg names, store somewhere.
-        super().__setitem__(key, value)
         publish(
             Message(subject=key, value=value),
             to_channel="store-data",
         )
+        # TODO: check if callable, extract arg names, store somewhere.
+        super().__setitem__(key, value)
 
     def __delitem__(self, key):
         """
@@ -53,5 +53,5 @@ class DataStore(Storage):
         Publishes a message whose type is the item's the key, to the
         "delete-data" channel.
         """
-        super().__delitem__(key)
         publish(Message(subject=key), to_channel="delete-data")
+        super().__delitem__(key)

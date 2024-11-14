@@ -45,6 +45,8 @@ __all__ = [
     "is_micropython",
     "Task",
     "go",
+    "init",
+    "marked",
 ]
 
 
@@ -63,13 +65,44 @@ async def start_datastore():
         datastore = await storage(datastore_name, storage_class=DataStore)
 
 
+#: The marked JavaScript module for parsing markdown.
+marked = None
+#: The DOMPurify JavaScript module for sanitising HTML.
+purify = None
+
+
+async def load_js_modules():
+    """
+    Load the JavaScript modules required by the Invent framework.
+    """
+    from pyscript import js_import
+
+    global marked, purify
+    (
+        marked,
+        purify,
+    ) = await js_import(
+        "https://cdn.jsdelivr.net/npm/marked/lib/marked.esm.js",
+        "https://esm.run/dompurify",
+    )
+
+
 #: The root from which all media files can be found.
 media = Media([], "media")
 
 
-async def go():
+async def load():
+    """
+    Initialise the Invent framework (datastore / JS requirements).
+
+    Takes optional default start values for the datastore.
+    """
+    await start_datastore()
+    await load_js_modules()
+
+
+def go():
     """
     Start the app.
     """
-    await start_datastore()
     App.app().go()

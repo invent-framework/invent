@@ -1,0 +1,283 @@
+html {
+    --font: 'Roboto', sans-serif;
+    --color-body: #111;
+
+    --link: #085aa5;
+    --link-hover: #208ef3;
+
+    --primary: #41403e;
+    --secondary: #0b74d5;
+    --success: #86a361;
+    --warning: #ddcd45;
+    --danger: #a7342d;
+    --muted: #868e96;
+    --primary-light: #cdcccb;
+    --secondary-light: #d8ebfd;
+    --success-light: #d5dfc8;
+    --warning-light: #f5f0c6;
+    --danger-light: #f0cbc9;
+    --muted-light: #e6e7e9;
+    --primary-active: #b4b3b0;
+    --secondary-active: #a7d3fa;
+    --success-active: #bccca8;
+    --warning-active: #ede49b;
+    --danger-active: #e6a5a1;
+    --primary-dark: black;
+    --secondary-dark: black;
+    --success-dark: #374427;
+    --warning-dark: #746a15;
+    --danger-dark: black;
+
+
+    --muted-dark: #313538;
+    --primary-light-10: #5b5a57;
+    --secondary-light-10: #208ef3;
+    --success-light-10: #9fb681;
+    --warning-light-10: #e5d970;
+    --danger-light-10: #cb453c;
+    --muted-light-10: #a1a8ae;
+    --primary-dark-10: #272625;
+    --secondary-dark-10: #085aa5;
+    --success-dark-10: #4a5a35;
+    --warning-dark-10: #746a15;
+    --danger-dark-10: #7f2722;
+    --muted-dark-10: #6c757d;
+    --primary-shaded-50: #c1c0bd;
+    --primary-shaded-70: #f2f2f2;
+    --white-dark: rgba(0, 0, 0, 0.03);
+    --white-dark-light-80: rgba(204, 204, 204, 0.03);
+    --light-dark: rgba(0, 0, 0, 0.7);
+    --white: white;
+    --black: black;
+    --primary-text: #272625;
+    --secondary-text: #085aa5;
+    --success-text: #4a5a35;
+    --warning-text: #746a15;
+    --danger-text: #7f2722;
+    --muted-text: #6c757d;
+    --shadow-color-regular: rgba(0, 0, 0, 0.2);
+    --shadow-color-hover: rgba(0, 0, 0, 0.3);
+    --primary-inverse: #fff;
+}
+
+html {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    margin: 0;
+    padding: 0;
+    font-family: var(--font);
+    font-size: 100%;
+    color: var(--color-body)
+}
+
+.invent-page {
+    margin-top: 1rem;
+    margin-bottom: 1rem;
+    margin-left: auto;
+    margin-right: auto;
+    padding: 2rem;
+    width: 80%;
+}
+
+.invent-column {
+    max-width: 100%;
+}
+
+.invent-row {
+    max-width: 100%;
+}
+
+p {
+    font-size: 1rem;
+}
+
+a {
+    color: var(--link);
+    text-decoration: none;
+}
+
+a:hover, a:active {
+    color: var(--link-hover);
+    text-decoration: underline;
+}
+
+a:focus {
+    color: var(--link);
+    text-decoration: underline;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-weight: bold;
+    line-height: 1.2;
+}
+
+h1 {
+    font-size: 3.5rem;
+}
+
+h2 {
+    font-size: 3rem;
+}
+
+h3 {
+    font-size: 2.5rem;
+}
+
+h4 {
+    font-size: 2.0rem;
+}
+
+h5 {
+    font-size: 1.5rem;
+}
+
+h6 {
+    font-size: 1.25rem;
+}
+
+img, video {
+    max-width: 100%;
+    height: auto;
+    object-fit: contain;
+}
+
+b,
+strong {
+  font-weight: bolder;
+}
+
+code,
+kbd,
+samp {
+  font-family: monospace, monospace;
+  font-size: 1rem;
+}
+
+button {
+    border-bottom-left-radius: 8px;
+    border-bottom-right-radius: 8px;
+    border-top-left-radius: 8px;
+    border-top-right-radius: 8px;
+    transition: all 235ms ease-in-out 0s;
+    color: var(--primary);
+    border-color: var(--primary);
+    background-color: var(--main-background);
+    align-self: center;
+    background-image: none;
+    border-style: solid;
+    border-width: 2px;
+    cursor: pointer;
+    display: inline-block;
+    font-size: 1rem;
+    outline: none;
+    padding: 0.75rem;
+    color: var(--primary-text);
+    background-color: var(--primary-light);
+    border-color: var(--primary);
+}
+
+button:hover {
+    background-color: var(--primary-active);
+    border-color: var(--primary-dark);
+}
+
+button:active {
+    background-color: var(--primary);
+    border-color: var(--primary-dark);
+    color: var(--primary-light)
+}
+
+button.large {
+    font-size: 2rem;
+    padding: 1rem;
+}
+
+button.small {
+    font-size: 0.75rem;
+    padding: 0.5rem;
+}
+
+button.primary {
+    color: var(--primary-text);
+    background-color: var(--primary-light);
+    border-color: var(--primary);
+}
+
+button.primary:hover {
+    background-color: var(--primary-active);
+    border-color: var(--primary-dark);
+}
+
+button.primary:active {
+    background-color: var(--primary);
+    border-color: var(--primary-dark);
+    color: var(--primary-light)
+}
+
+button.secondary {
+    color: var(--secondary-text);
+    background-color: var(--secondary-light);
+    border-color: var(--secondary);
+}
+
+button.secondary:hover {
+    background-color: var(--secondary-active);
+}
+
+button.secondary:active {
+    background-color: var(--secondary);
+    color: var(--secondary-light)
+}
+
+button.success {
+    color: var(--success-text);
+    background-color: var(--success-light);
+    border-color: var(--success);
+}
+
+button.success:hover {
+    background-color: var(--success-active);
+}
+
+button.success:active {
+    background-color: var(--success);
+    color: var(--success-light)
+}
+
+button.warning {
+    color: var(--warning-text);
+    background-color: var(--warning-light);
+    border-color: var(--warning);
+}
+
+button.warning:hover {
+    background-color: var(--warning-active);
+}
+
+button.warning:active {
+    background-color: var(--warning);
+}
+
+button.danger {
+    color: var(--danger-text);
+    background-color: var(--danger-light);
+    border-color: var(--danger);
+}
+
+button.danger:hover {
+    background-color: var(--danger-active);
+}
+
+button.danger:active {
+    background-color: var(--danger);
+    color: var(--danger-light)
+}
+
+[type=checkbox],
+[type=radio] {
+  box-sizing: border-box;
+  padding: 0;
+}

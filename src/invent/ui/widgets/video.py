@@ -1,5 +1,5 @@
 """
-An audio player widget for the Invent framework.
+A video player widget for the Invent framework.
 
 Based on original pre-COVID work by [Nicholas H.Tollervey.](https://ntoll.org/)
 
@@ -23,41 +23,41 @@ from invent.ui.core import (
     TextProperty,
     Event,
 )
-from pyscript.web import audio
+from pyscript.web import video
 from pyscript.ffi import create_proxy
 
 
-class Audio(Widget):
+class Video(Widget):
     """
-    An audio player with a play button, progress indicator and volume control.
+    A video player with a play button, progress indicator and volume control.
     """
 
-    source = TextProperty("The audio source file to play.")
+    source = TextProperty("The video source file to play.")
 
     playing = Event(
-        "Sent when the audio starts to play.",
-        audio="The audio source playing.",
+        "Sent when the video starts to play.",
+        video="The video source playing.",
     )
 
     paused = Event(
-        "Sent when the audio is paused.",
-        audio="The audio source paused.",
+        "Sent when the video is paused.",
+        video="The video source paused.",
         position="The pause position in seconds.",
     )
 
     position_changed = Event(
-        "Sent when the position in the audio is changed.",
-        audio="The audio source that has been affected.",
+        "Sent when the position in the video is changed.",
+        video="The video source that has been affected.",
         position="The new position in seconds.",
     )
 
     @classmethod
     def icon(cls):
-        return '<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 256 256"><path fill="currentColor" d="M155.51 24.81a8 8 0 0 0-8.42.88L77.25 80H32a16 16 0 0 0-16 16v64a16 16 0 0 0 16 16h45.25l69.84 54.31A8 8 0 0 0 160 224V32a8 8 0 0 0-4.49-7.19M32 96h40v64H32Zm112 111.64l-56-43.55V91.91l56-43.55Zm54-106.08a40 40 0 0 1 0 52.88a8 8 0 0 1-12-10.58a24 24 0 0 0 0-31.72a8 8 0 0 1 12-10.58M248 128a79.9 79.9 0 0 1-20.37 53.34a8 8 0 0 1-11.92-10.67a64 64 0 0 0 0-85.33a8 8 0 1 1 11.92-10.67A79.83 79.83 0 0 1 248 128"/></svg>'  # noqa
+        return '<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 256 256"><path fill="currentColor" d="m164.44 105.34l-48-32A8 8 0 0 0 104 80v64a8 8 0 0 0 12.44 6.66l48-32a8 8 0 0 0 0-13.32M120 129.05V95l25.58 17ZM216 40H40a16 16 0 0 0-16 16v112a16 16 0 0 0 16 16h176a16 16 0 0 0 16-16V56a16 16 0 0 0-16-16m0 128H40V56h176zm16 40a8 8 0 0 1-8 8H32a8 8 0 0 1 0-16h192a8 8 0 0 1 8 8"/></svg>'  # noqa
 
     def play(self):
         """
-        Play the audio source file, from the current position.
+        Play the video source file, from the current position.
         """
         self.element.play()
 
@@ -69,38 +69,38 @@ class Audio(Widget):
 
     def reset(self):
         """
-        Reset the current position to the start of the audio source file.
+        Reset the current position to the start of the video source file.
         """
         self.set_position(0)
 
     def stop(self):
         """
-        Pause and reset the audio.
+        Pause and reset the video.
         """
         self.pause()
         self.reset()
 
     def set_position(self, position):
         """
-        Set the current place in the audio source file to the specified
+        Set the current place in the video source file to the specified
         position, as a value in seconds.
         """
         self.element.currentTime = position
-        self.publish("position_changed", audio=self.source, position=position)
+        self.publish("position_changed", video=self.source, position=position)
 
     def on_play(self, event):
-        self.publish("playing", audio=self.source)
+        self.publish("playing", video=self.source)
 
     def on_pause(self, event):
         self.publish(
-            "paused", audio=self.source, position=event.target.currentTime
+            "paused", video=self.source, position=event.target.currentTime
         )
 
     def on_source_changed(self):
         self.element.setAttribute("src", self.source)
 
     def render(self):
-        element = audio(id=self.id)
+        element = video(id=self.id)
         element.setAttribute("controls", "controls")
         element.addEventListener("play", create_proxy(self.on_play))
         element.addEventListener("pause", create_proxy(self.on_pause))

@@ -1,5 +1,5 @@
 """
-A button widget for the Invent framework.
+Allows arbitrary HTML to be inserted into the UI layer of the Invent framework.
 
 Based on original pre-COVID work by [Nicholas H.Tollervey.](https://ntoll.org/)
 
@@ -19,7 +19,7 @@ limitations under the License.
 """
 
 from invent.ui.core import Widget, TextProperty
-from pyscript import document
+from pyscript.web import div
 
 
 class Html(Widget):
@@ -39,7 +39,5 @@ class Html(Widget):
         self.element.innerHTML = self.html
 
     def render(self):
-        element = document.createElement("div")
-        element.id = self.id
-        element.innerHTML = self.html
+        element = div(self.html, id=self.id)
         return element

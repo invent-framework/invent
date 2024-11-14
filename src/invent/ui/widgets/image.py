@@ -19,7 +19,7 @@ limitations under the License.
 """
 
 from invent.ui.core import Widget, TextProperty, Event
-from pyscript import document
+from pyscript.web import img
 
 
 class Image(Widget):
@@ -47,8 +47,6 @@ class Image(Widget):
         self.publish("touch")
 
     def render(self):
-        element = document.createElement("img")
-        element.id = self.id
-        element.src = self.image
+        element = img(src=self.image, id=self.id)
         element.addEventListener("click", self.touch_handler)
         return element

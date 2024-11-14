@@ -26,9 +26,10 @@ import invent
 
 class Task:
     """
-    Represents an asynchronous task.
+    Synchronously represent an asynchronous task whose result will end up in
+    the datastore.
 
-    A Taskask is easy to teach (no need to know about Python await etc...). The
+    A Task is easy to teach (no need to know about Python await etc...). The
     lifecycle of a Task is very simple to understand. The result of a Task is
     stored in the datastore if a key is provided, thus plugging into Invent's
     reactive data management.
@@ -47,7 +48,8 @@ class Task:
 
     def go(self):
         """
-        Wrap the function in a coroutine and schedule it to run.
+        Wrap the function in a coroutine and schedule it to run. If a key is
+        provided the result of the function will be stored in the datastore.
         """
 
         async def wrapper():

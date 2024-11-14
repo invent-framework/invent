@@ -33,8 +33,9 @@ from .widgets.html import Html
 from .widgets.image import Image
 from .widgets.slider import Slider
 from .widgets.switch import Switch
-from .widgets.textbox import TextBox
+from .widgets.label import Label
 from .widgets.textinput import TextInput
+from .widgets.video import Video
 
 
 __all__ = [
@@ -57,8 +58,9 @@ __all__ = [
     "Image",
     "Slider",
     "Switch",
-    "TextBox",
+    "Label",
     "TextInput",
+    "Video",
 ]
 
 
@@ -77,6 +79,7 @@ AVAILABLE_COMPONENTS = {
     _("Image"): Image,
     _("Slider"): Slider,
     _("Switch"): Switch,
-    _("TextBox"): TextBox,
+    _("Label"): Label,
     _("TextInput"): TextInput,
+    _("Video"): Video,
 }

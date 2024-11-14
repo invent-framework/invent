@@ -433,7 +433,8 @@ class ChoiceProperty(Property):
 
     def validate(self, value):
         """
-        Ensure the property's value is in the set of valid choices.
+        Ensure the property's value is in the set of valid choices. This check
+        is case sensitive.
         """
         if value in self.choices or value is None:
             return super().validate(value)
