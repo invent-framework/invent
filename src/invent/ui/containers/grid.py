@@ -20,10 +20,10 @@ class GridLayout(Layout):
     row_span = IntegerProperty("Number of rows to fill.", 1)
 
     def on_column_span_changed(self):
-        self.element.style.gridColumn = f"span {self.column_span}"
+        self.element.style["grid-column"] = f"span {self.column_span}"
 
     def on_row_span_changed(self):
-        self.element.style.gridRow = f"span {self.row_span}"
+        self.element.style["grid-row"] = f"span {self.row_span}"
 
 
 class Grid(Container):
@@ -57,12 +57,12 @@ class Grid(Container):
         self._set_gap(self.row_gap, "row-gap")
 
     def on_columns_changed(self):
-        self.element.style.gridTemplateColumns = "auto " * self.columns
+        self.element.style["grid-template-columns"] = "auto " * self.columns
 
     def render(self):
         """
         Render the component.
         """
         element = super().render()
-        element.style.display = "grid"
+        element.style["display"] = "grid"
         return element

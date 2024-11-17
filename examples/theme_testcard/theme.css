@@ -1,3 +1,4 @@
+/* Default values for the theme - change these! */
 html {
     --font: 'Roboto', sans-serif;
     --color-body: #111;
@@ -27,26 +28,7 @@ html {
     --success-dark: #374427;
     --warning-dark: #746a15;
     --danger-dark: black;
-
-
     --muted-dark: #313538;
-    --primary-light-10: #5b5a57;
-    --secondary-light-10: #208ef3;
-    --success-light-10: #9fb681;
-    --warning-light-10: #e5d970;
-    --danger-light-10: #cb453c;
-    --muted-light-10: #a1a8ae;
-    --primary-dark-10: #272625;
-    --secondary-dark-10: #085aa5;
-    --success-dark-10: #4a5a35;
-    --warning-dark-10: #746a15;
-    --danger-dark-10: #7f2722;
-    --muted-dark-10: #6c757d;
-    --primary-shaded-50: #c1c0bd;
-    --primary-shaded-70: #f2f2f2;
-    --white-dark: rgba(0, 0, 0, 0.03);
-    --white-dark-light-80: rgba(204, 204, 204, 0.03);
-    --light-dark: rgba(0, 0, 0, 0.7);
     --white: white;
     --black: black;
     --primary-text: #272625;
@@ -55,10 +37,9 @@ html {
     --warning-text: #746a15;
     --danger-text: #7f2722;
     --muted-text: #6c757d;
-    --shadow-color-regular: rgba(0, 0, 0, 0.2);
-    --shadow-color-hover: rgba(0, 0, 0, 0.3);
-    --primary-inverse: #fff;
 }
+
+/* Page layout */
 
 html {
     margin: 0;
@@ -82,13 +63,7 @@ body {
     width: 80%;
 }
 
-.invent-column {
-    max-width: 100%;
-}
-
-.invent-row {
-    max-width: 100%;
-}
+/* Typography */
 
 p {
     font-size: 1rem;
@@ -138,12 +113,6 @@ h6 {
     font-size: 1.25rem;
 }
 
-img, video {
-    max-width: 100%;
-    height: auto;
-    object-fit: contain;
-}
-
 b,
 strong {
   font-weight: bolder;
@@ -155,6 +124,18 @@ samp {
   font-family: monospace, monospace;
   font-size: 1rem;
 }
+
+/* Multimedia elements */
+
+img, video {
+    max-width: 100%;
+    height: auto;
+    object-fit: contain;
+}
+
+/* Form elements */
+
+/* Buttons */
 
 button {
     border-bottom-left-radius: 8px;
@@ -276,8 +257,45 @@ button.danger:active {
     color: var(--danger-light)
 }
 
-[type=checkbox],
-[type=radio] {
-  box-sizing: border-box;
-  padding: 0;
+/* Slider */
+
+input[type="range"]::-webkit-slider-runnable-track, input[type="range"]::-moz-range-track {
+    cursor: pointer;
+    height: 8px;
+    width: 100%;
+    background: var(--secondary);
+    border-color: var(--primary);
+    border-radius: 18px;
 }
+
+input[type=range]::-webkit-slider-thumb, input[type=range]::-moz-range-thumb {
+    background: var(--white);
+    border-color: var(--primary);
+    border-bottom-left-radius: 0.7rem 1rem;
+    border-bottom-right-radius: 1rem 0.9rem;
+    border-style: solid;
+    border-top-left-radius: 1rem 1rem;
+    border-top-right-radius: 1rem 0.6rem;
+    border-width: 1px;
+    cursor: pointer;
+    height: 36px;
+    width: 16px;
+}
+
+/* Check boxes */
+
+/* Radio buttons */
+
+/* Dropdown options */
+
+/* Text inputs */
+
+/* Colour picker */
+
+/* File selector */
+
+/* Date / time picker */
+
+/* Meters / progress bars */
+
+/* Tables */

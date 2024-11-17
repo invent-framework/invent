@@ -32,6 +32,16 @@ class Image(Widget):
         default_value="https://loremflickr.com/400/400",
     )
 
+    width = TextProperty(
+        "The width of the image.",
+        default_value=None,
+    )
+
+    height = TextProperty(
+        "The height of the image.",
+        default_value=None,
+    )
+
     touch = Event(
         "Sent when the image is touched.",
     )
@@ -42,6 +52,18 @@ class Image(Widget):
 
     def on_image_changed(self):
         self.element.src = self.image
+    
+    def on_width_changed(self):
+        if self.width is not None:
+            self.element.style["width"] = self.width
+        else:
+            self.element.style.remove("width")
+    
+    def on_height_changed(self):
+        if self.height is not None:
+            self.element.style["height"] = self.height
+        else:
+            self.element.style.remove("height")
 
     def touch_handler(self, event):
         self.publish("touch")

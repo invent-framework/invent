@@ -253,7 +253,7 @@ class Component(Model):
         """
         Show / hide the element depending on the value of the property.
         """
-        self.element.style.visibility = "visible" if self.visible else "hidden"
+        self.element.style["visibility"] = "visible" if self.visible else "hidden"
 
     @classmethod
     def _generate_unique_id(cls):
@@ -498,17 +498,15 @@ class Container(Component):
 
     def on_background_color_changed(self):
         if self.background_color:
-            self.element.style.setProperty(
-                "background-color", self.background_color
-            )
+            self.element.style["background-color"] = self.background_color
         else:
-            self.element.style.removeProperty("background-color")
+            self.element.style.remove("background-color")
 
     def on_border_color_changed(self):
         if self.border_color:
-            self.element.style.setProperty("border-color", self.border_color)
+            self.element.style["border-color"] = self.border_color
         else:
-            self.element.style.removeProperty("border-color")
+            self.element.style.remove("border-color")
 
     def on_border_width_changed(self):
         """
@@ -523,15 +521,15 @@ class Container(Component):
         }
         if self.border_width is not None:
             size = sizes[self.border_width.upper()]
-            self.element.style.setProperty("border-width", size)
+            self.element.style["border-width"] = size
         else:
-            self.element.style.removeProperty("border-width")
+            self.element.style.remove("border-width")
 
     def on_border_style_changed(self):
         if self.border_style:
-            self.element.style.setProperty("border-style", self.border_style)
+            self.element.style["border-style"] = self.border_style
         else:
-            self.element.style.removeProperty("border-style")
+            self.element.style.remove("border-style")
 
     def _set_gap(self, gap, attr):
         sizes = {
@@ -541,10 +539,7 @@ class Container(Component):
             "L": "16px",
             "XL": "32px",
         }
-        size = "0px"
-
-        if gap is not None:
-            size = sizes[gap.upper()]
+        size = sizes.get(gap.upper(), "0px")
         self.element.style[attr] = size
 
     def append(self, item):

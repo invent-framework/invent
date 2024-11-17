@@ -25,8 +25,8 @@ app = invent.App(
                     content=[
                         Row(
                             content=[
-                                Label(text="# Test Card"),
-                                Image(image=invent.media.images.invent_logo.png),
+                                Label(text="# Invent Test Card"),
+                                Image(image=invent.media.images.invent_logo.png, width="64px"),
                             ]
                         ),  
                         Label(
@@ -203,6 +203,7 @@ Here's some code:"""
                         Audio(source=invent.media.sounds.left_bank_two.ogg),
                         Label(text="A test video player:"),
                         Video(source=invent.media.video.testcard_invent.webm),
+                        Label(text="## Layouts"),
                     ]
                 )
             ],

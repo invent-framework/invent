@@ -37,8 +37,8 @@ class Box(Container):
 
     def render(self):
         element = super().render()
-        element.style.display = "flex"
-        element.style.flexDirection = self.flex_direction
+        element.style["display"] = "flex"
+        element.style["flex-direction"] = self.flex_direction
         return element
 
     def on_gap_changed(self):
