@@ -1,3 +1,4 @@
+import datetime
 import invent
 from invent.i18n import _
 
@@ -451,3 +452,147 @@ class ChoiceProperty(Property):
         result = super().as_dict()
         result["choices"] = self.choices
         return result
+
+
+class DateProperty(Property):
+    """
+    A property for a Widget that represents a date. The date is assigned as
+    a datetime.Date instance, a string in the format "YYYY-MM-DD" or None.
+
+    The date is stored as a datetime.Date instance. If a minimum or maximum
+    date is set, the value must be within the range.
+    """
+
+    def __init__(
+        self,
+        description,
+        default_value=None,
+        minimum=None,
+        maximum=None,
+        **kwargs,
+    ):
+        """
+        In addition to the Property related attributes, the min and max
+        define the bounds of a valid value. If set to None, these won't be
+        checked during validation.
+        """
+        self.minimum = self.coerce(minimum)
+        self.maximum = self.coerce(maximum)
+        super().__init__(description, default_value, **kwargs)
+
+    def coerce(self, value):
+        if isinstance(value, datetime.date):
+            return value
+        elif isinstance(value, str):
+            # MicroPython doesn't support strptime, so we have to do this.
+            try:
+                return datetime.date(*map(int, value.split("-")))
+            except Exception as ex:
+                raise ValidationError(_("Not a valid date: ") + value)
+        elif value is None:
+            return None
+        raise ValidationError(_("Not a valid date: ") + value)
+
+    def validate(self, value):
+        value = super().validate(self.coerce(value))
+        if value is not None:
+            if self.minimum and value < self.minimum:
+                raise ValidationError(
+                    _("The date is less than the minimum allowed: ")
+                    + str(self.minimum)
+                )
+            if self.maximum and value > self.maximum:
+                raise ValidationError(
+                    _("The date is greater than the maximum allowed.")
+                    + str(self.maximum)
+                )
+        return value
+
+    def as_dict(self):
+        """
+        Return a Python dictionary as a data structure representing all the
+        essential information about the property.
+        """
+        result = super().as_dict()
+        result["default_value"] = str(self.default_value)
+        result["minimum"] = str(self.minimum)
+        result["maximum"] = str(self.maximum)
+        return result
+
+    def __str__(self):
+        """
+        Return a string representation of the date object
+        """
+        return str(self.value)
+
+
+class TimeProperty(Property):
+    """
+    A property for a Widget that represents a time. The time is assigned as
+    a datetime.Time instance, a string in the format "HH:MM:SS" or None.
+
+    The time is stored as a datetime.Time instance. If a minimum or maximum
+    time is set, the value must be within the range.
+    """
+
+    def __init__(
+        self,
+        description,
+        default_value=None,
+        minimum=None,
+        maximum=None,
+        **kwargs,
+    ):
+        """
+        In addition to the Property related attributes, the min and max
+        define the bounds of a valid value. If set to None, these won't be
+        checked during validation.
+        """
+        self.minimum = self.coerce(minimum)
+        self.maximum = self.coerce(maximum)
+        super().__init__(description, default_value, **kwargs)
+
+    def coerce(self, value):
+        if isinstance(value, datetime.time):
+            return value
+        elif isinstance(value, str):
+            # MicroPython doesn't support strptime, so we have to do this.
+            try:
+                return datetime.time(*map(int, value.split(":")))
+            except Exception as ex:
+                raise ValidationError(_("Not a valid time: ") + value)
+        elif value is None:
+            return None
+        raise ValidationError(_("Not a valid time: ") + value)
+
+    def validate(self, value):
+        value = super().validate(self.coerce(value))
+        if value is not None:
+            if self.minimum and value < self.minimum:
+                raise ValidationError(
+                    _("The time is less than the minimum allowed: ")
+                    + str(self.minimum)
+                )
+            if self.maximum and value > self.maximum:
+                raise ValidationError(
+                    _("The time is greater than the maximum allowed.")
+                    + str(self.maximum)
+                )
+        return value
+
+    def as_dict(self):
+        """
+        Return a Python dictionary as a data structure representing all the
+        essential information about the property.
+        """
+        result = super().as_dict()
+        result["default_value"] = str(self.default_value)
+        result["minimum"] = str(self.minimum)
+        result["maximum"] = str(self.maximum)
+        return result
+
+    def __str__(self):
+        """
+        Return a string representation of the time object
+        """
+        return str(self.value)

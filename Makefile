@@ -22,6 +22,11 @@ clean:
 	rm -rf test_suite.zip
 	rm -rf src/tools/builder/src/python/invent.zip
 	rm -rf static/*.zip
+	rm -rf invent.tar.gz
+	rm -rf test_suite.tar.gz
+	rm -rf src/tools/builder/src/python/invent.tar.gz
+	rm -rf static/*.zip
+	rm -rf static/*.tar.gz
 	rm -rf test_suite
 	find . | grep -E "(__pycache__)" | xargs rm -rf
 
@@ -59,17 +64,18 @@ publish-live: dist
 	python3 -m twine upload --sign dist/*
 
 zip:
-	# cd src && tar -czf ../invent.tar.gz invent/*
-	cd src && zip -qr ../invent.zip invent/*
+	cd src && tar -czvf ../invent.tar.gz invent/*
+	#cd src && zip -qr ../invent.zip invent/*
 	mkdir test_suite
 	cp -r src/invent test_suite
 	cp -r tests test_suite
-	cd test_suite && zip -qr ../test_suite.zip tests/* invent/*
+	# cd test_suite && zip -qr ../test_suite.zip tests/* invent/*
+	cd test_suite && tar -czvf ../test_suite.tar.gz tests/* invent/*
 	rm -rf test_suite
-	cp invent.zip static/
-	cp invent.zip src/tools/builder/public/python/
-	cp test_suite.zip static/
-	rm invent.zip
-	rm test_suite.zip
+	cp invent.tar.gz static/
+	cp invent.tar.gz src/tools/builder/public/python/
+	cp test_suite.tar.gz static/
+	rm invent.tar.gz
+	rm test_suite.tar.gz
 
 zip-all: lint-all clean tidy zip

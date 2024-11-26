@@ -28,13 +28,18 @@ from .widgets.audio import Audio
 from .widgets.button import Button
 from .widgets.checkbox import CheckBox
 from .widgets.code import Code
+from .widgets.color import ColorPicker
+from .widgets.date import DatePicker
+from .widgets.datetime import DateTimePicker
 from .widgets.fileupload import FileUpload
 from .widgets.html import Html
 from .widgets.image import Image
+from .widgets.radio import Radio
 from .widgets.slider import Slider
 from .widgets.switch import Switch
 from .widgets.label import Label
 from .widgets.textinput import TextInput
+from .widgets.time import TimePicker
 from .widgets.video import Video
 
 
@@ -53,13 +58,18 @@ __all__ = [
     "Button",
     "CheckBox",
     "Code",
+    "ColorPicker",
+    "DatePicker",
+    "DateTimePicker",
     "FileUpload",
     "Html",
     "Image",
+    "Radio",
     "Slider",
     "Switch",
     "Label",
     "TextInput",
+    "TimePicker",
     "Video",
 ]
 
@@ -74,12 +84,17 @@ AVAILABLE_COMPONENTS = {
     _("Button"): Button,
     _("CheckBox"): CheckBox,
     _("Code"): Code,
+    _("ColorPicker"): Code,
+    _("DatePicker"): DatePicker,
+    _("DateTimePicker"): DateTimePicker,
     _("FileUpload"): FileUpload,
     _("Html"): Html,
     _("Image"): Image,
+    _("Radio"): Radio,
     _("Slider"): Slider,
     _("Switch"): Switch,
     _("Label"): Label,
     _("TextInput"): TextInput,
+    _("TimePicker"): TimePicker,
     _("Video"): Video,
 }

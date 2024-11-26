@@ -253,7 +253,9 @@ class Component(Model):
         """
         Show / hide the element depending on the value of the property.
         """
-        self.element.style["visibility"] = "visible" if self.visible else "hidden"
+        self.element.style["visibility"] = (
+            "visible" if self.visible else "hidden"
+        )
 
     @classmethod
     def _generate_unique_id(cls):

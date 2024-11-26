@@ -9,5 +9,5 @@ async def test_go():
     mockApp = umock.Mock()
     mockApp.app = umock.Mock()
     with umock.patch("invent:App") as mockApp:
-        await invent.go()
+        invent.go()
         mockApp.app().go.assert_called_once()

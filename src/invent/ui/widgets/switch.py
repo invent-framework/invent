@@ -1,5 +1,5 @@
 """
-A slider widget for the Invent framework.
+A switch widget for the Invent framework.
 
 Based on original pre-COVID work by [Nicholas H.Tollervey.](https://ntoll.org/)
 
@@ -18,7 +18,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-from pyscript.web import input_, label, span
+from pyscript.web import input_, label, span, div
 from pyscript.ffi import create_proxy
 
 from invent.ui.core import Widget, BooleanProperty, TextProperty
@@ -45,20 +45,35 @@ class Switch(Widget):
         """
         self.value = not self.value
 
+    def on_id_changed(self):
+        self._checkbox_element.id = self.id
+        self._label_text_element.setAttribute("for", self.id)
+
+    def on_name_changed(self):
+        self._checkbox_element.name = self.name
+
     def on_label_changed(self):
-        self._label_element.innerText = self.label
+        self._label_text_element.innerText = self.label
 
     def on_value_changed(self):
         if self.value:
-            self._switch_element.setAttribute("checked", True)
+            self._checkbox_element.setAttribute("checked", True)
         else:
-            self._switch_element.removeAttribute("checked")
+            self._checkbox_element.removeAttribute("checked")
 
     def render(self):
-        self._switch_element = input_(type="checkbox", id=self.id, name=self.id)
-        self._label_element = label(self.label)
-        setattr(self._label_element, "for", self.id)
-        element = span(self._switch_element, self._label_element)
-        element.classList.add("switch")
-        self._switch_element.addEventListener("change", create_proxy(self.on_changed))
+        self._checkbox_element = input_(
+            type="checkbox", id=self.id, name=self.name
+        )
+        self._span_element = span(" ")
+        self._span_element.classes.add("slider")
+        self._label_text_element = label(text=self.label)
+        self._label_text_element.classes.add("switch-label")
+        setattr(self._label_text_element, "for", self.id)
+        container_label = label(self._checkbox_element, self._span_element)
+        container_label.classes.add("switch")
+        element = div(container_label, self._label_text_element)
+        self._checkbox_element.addEventListener(
+            "change", create_proxy(self.on_changed)
+        )
         return element

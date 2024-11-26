@@ -26,12 +26,13 @@ app = invent.App(
                         Row(
                             content=[
                                 Label(text="# Invent Test Card"),
-                                Image(image=invent.media.images.invent_logo.png, width="64px"),
+                                Image(
+                                    image=invent.media.images.invent_logo.png,
+                                    width="64px",
+                                ),
                             ]
-                        ),  
-                        Label(
-                            text="## Textual styling"
                         ),
+                        Label(text="## Textual styling"),
                         Label(
                             text="""This is a paragraph of text. I can have **strong** and *emphasised* text, as well as [links](https://inventframework.org/) to elsewhere. 
                             
@@ -41,161 +42,201 @@ That should be long enough to wrap around to the next line.
 
 Here's some code:"""
                         ),
-                        Code(code="""def hello(name="world"):
+                        Code(
+                            code="""def hello(name="world"):
     return f"Hello, {name}"
-                             """),
+                             """
+                        ),
                         Label(
                             text="# Heading 1\n\n## Heading2\n\n### Heading 3\n\n#### Heading 4\n\n##### Heading 5\n\n###### Heading 6"
                         ),
-                        Label(text="## Form controls\n\n### Buttons\n\nHere's a row of Default buttons:"),
+                        Label(text="## Form controls\n\n### Buttons"),
                         Row(
                             content=[
-                                Button(
-                                    text="Default Large",
-                                    name="default_large",
-                                    size="LARGE",
-                                    purpose="DEFAULT",
+                                Column(
+                                    content=[
+                                        Label(text="Default:"),
+                                        Button(
+                                            text="Large",
+                                            name="default_large",
+                                            size="LARGE",
+                                            purpose="DEFAULT",
+                                        ),
+                                        Button(
+                                            text="Medium",
+                                            name="default_medium",
+                                            size="MEDIUM",
+                                            purpose="DEFAULT",
+                                        ),
+                                        Button(
+                                            text="Small",
+                                            name="default_small",
+                                            size="SMALL",
+                                            purpose="DEFAULT",
+                                        ),
+                                    ]
                                 ),
-                                Button(
-                                    text="Default Medium",
-                                    name="default_medium",
-                                    size="MEDIUM",
-                                    purpose="DEFAULT",
+                                Column(
+                                    content=[
+                                        Label(text="Primary:"),
+                                        Button(
+                                            text="Large",
+                                            name="primary_large",
+                                            size="LARGE",
+                                            purpose="PRIMARY",
+                                        ),
+                                        Button(
+                                            text="Medium",
+                                            name="primary_medium",
+                                            size="MEDIUM",
+                                            purpose="PRIMARY",
+                                        ),
+                                        Button(
+                                            text="Small",
+                                            name="primary_small",
+                                            size="SMALL",
+                                            purpose="PRIMARY",
+                                        ),
+                                    ]
                                 ),
-                                Button(
-                                    text="Default Small",
-                                    name="default_small",
-                                    size="SMALL",
-                                    purpose="DEFAULT",
+                                Column(
+                                    content=[
+                                        Label(text="Secondary:"),
+                                        Button(
+                                            text="Large",
+                                            name="secondary_large",
+                                            size="LARGE",
+                                            purpose="SECONDARY",
+                                        ),
+                                        Button(
+                                            text="Medium",
+                                            name="secondary_medium",
+                                            size="MEDIUM",
+                                            purpose="SECONDARY",
+                                        ),
+                                        Button(
+                                            text="Small",
+                                            name="secondary_small",
+                                            size="SMALL",
+                                            purpose="SECONDARY",
+                                        ),
+                                    ]
                                 ),
-                            ],
-                        ),
-                        Label(text="Here's a row of Primary buttons:"),
-                        Row(
-                            content=[
-                                Button(
-                                    text="Primary Large",
-                                    name="primary_large",
-                                    size="LARGE",
-                                    purpose="PRIMARY",
+                                Column(
+                                    content=[
+                                        Label(text="Success:"),
+                                        Button(
+                                            text="Large",
+                                            name="success_large",
+                                            size="LARGE",
+                                            purpose="SUCCESS",
+                                        ),
+                                        Button(
+                                            text="Medium",
+                                            name="success_medium",
+                                            size="MEDIUM",
+                                            purpose="SUCCESS",
+                                        ),
+                                        Button(
+                                            text="Small",
+                                            name="success_small",
+                                            size="SMALL",
+                                            purpose="SUCCESS",
+                                        ),
+                                    ]
                                 ),
-                                Button(
-                                    text="Primary Medium",
-                                    name="primary_medium",
-                                    size="MEDIUM",
-                                    purpose="PRIMARY",
+                                Column(
+                                    content=[
+                                        Label(text="Warning:"),
+                                        Button(
+                                            text="Large",
+                                            name="warning_large",
+                                            size="LARGE",
+                                            purpose="WARNING",
+                                        ),
+                                        Button(
+                                            text="Medium",
+                                            name="warning_medium",
+                                            size="MEDIUM",
+                                            purpose="WARNING",
+                                        ),
+                                        Button(
+                                            text="Small",
+                                            name="warning_small",
+                                            size="SMALL",
+                                            purpose="WARNING",
+                                        ),
+                                    ]
                                 ),
-                                Button(
-                                    text="Primary Small",
-                                    name="primary_small",
-                                    size="SMALL",
-                                    purpose="PRIMARY",
-                                ),
-                            ],
-                        ),
-                        Label(text="Here's a row of Secondary buttons:"),
-                        Row(
-                            content=[
-                                Button(
-                                    text="Secondary Large",
-                                    name="secondary_large",
-                                    size="LARGE",
-                                    purpose="SECONDARY",
-                                ),
-                                Button(
-                                    text="Secondary Medium",
-                                    name="secondary_medium",
-                                    size="MEDIUM",
-                                    purpose="SECONDARY",
-                                ),
-                                Button(
-                                    text="Secondary Small",
-                                    name="secondary_small",
-                                    size="SMALL",
-                                    purpose="SECONDARY",
-                                ),
-                            ],
-                        ),
-                        Label(text="Here's a row of Success buttons:"),
-                        Row(
-                            content=[
-                                Button(
-                                    text="Success Large",
-                                    name="success_large",
-                                    size="LARGE",
-                                    purpose="SUCCESS",
-                                ),
-                                Button(
-                                    text="Success Medium",
-                                    name="success_medium",
-                                    size="MEDIUM",
-                                    purpose="SUCCESS",
-                                ),
-                                Button(
-                                    text="Success Small",
-                                    name="success_small",
-                                    size="SMALL",
-                                    purpose="SUCCESS",
-                                ),
-                            ]
-                        ),
-                        Label(text="Here's a row of Warning buttons:"),
-                        Row(
-                            content=[
-                                Button(
-                                    text="Warning Large",
-                                    name="warning_large",
-                                    size="LARGE",
-                                    purpose="WARNING",
-                                ),
-                                Button(
-                                    text="Warning Medium",
-                                    name="warning_medium",
-                                    size="MEDIUM",
-                                    purpose="WARNING",
-                                ),
-                                Button(
-                                    text="Warning Small",
-                                    name="warning_small",
-                                    size="SMALL",
-                                    purpose="WARNING",
-                                ),
-                            ],
-                        ),
-                        Label(text="Here's a row of Danger buttons:"),
-                        Row(
-                            content=[
-                                Button(
-                                    text="Danger Large",
-                                    name="danger_large",
-                                    size="LARGE",
-                                    purpose="DANGER",
-                                ),
-                                Button(
-                                    text="Danger Medium",
-                                    name="danger_medium",
-                                    size="MEDIUM",
-                                    purpose="DANGER",
-                                ),
-                                Button(
-                                    text="Danger Small",
-                                    name="danger_small",
-                                    size="SMALL",
-                                    purpose="DANGER",
+                                Column(
+                                    content=[
+                                        Label(text="Danger:"),
+                                        Button(
+                                            text="Large",
+                                            name="danger_large",
+                                            size="LARGE",
+                                            purpose="DANGER",
+                                        ),
+                                        Button(
+                                            text="Medium",
+                                            name="danger_medium",
+                                            size="MEDIUM",
+                                            purpose="DANGER",
+                                        ),
+                                        Button(
+                                            text="Small",
+                                            name="danger_small",
+                                            size="SMALL",
+                                            purpose="DANGER",
+                                        ),
+                                    ]
                                 ),
                             ],
                         ),
                         Label(text="### Inputs"),
                         CheckBox(label="A checkbox!"),
+                        Switch(label="A switch!"),
+                        Row(
+                            content=[
+                                Label(text="Favourite colour radio buttons: "),
+                                Radio(
+                                    label="Red", group="colour", value="red"
+                                ),
+                                Radio(
+                                    label="Green",
+                                    group="colour",
+                                    value="green",
+                                ),
+                                Radio(
+                                    label="Blue", group="colour", value="blue"
+                                ),
+                            ],
+                        ),
                         Slider(),
                         FileUpload(),
                         Html(html="<hr>Some arbitrary HTML<hr>"),
-                        Switch(label="A switch!"),
-                        TextInput(input_type="text", placeholder="A text input"),
-                        TextInput(input_type="email", placeholder="An email input"),
-                        TextInput(input_type="password", placeholder="A password input"),
-                        TextInput(input_type="tel", placeholder="A telephone input"),
+                        ColorPicker(),
+                        TextInput(
+                            input_type="text",
+                            placeholder="A standard text input",
+                        ),
+                        TextInput(
+                            input_type="email", placeholder="An email input"
+                        ),
+                        TextInput(
+                            input_type="password",
+                            placeholder="A password input",
+                        ),
+                        TextInput(
+                            input_type="tel", placeholder="A telephone input"
+                        ),
                         TextInput(input_type="url", placeholder="A URL input"),
+                        TextInput(
+                            input_type="number", placeholder="A numeric input"
+                        ),
+                        DateTimePicker(),
+                        DatePicker(),
+                        TimePicker(),
                         Label(text="## Multimedia"),
                         Label(text="A test image:"),
                         Image(image=invent.media.images.testcard_invent.png),
@@ -204,6 +245,24 @@ Here's some code:"""
                         Label(text="A test video player:"),
                         Video(source=invent.media.video.testcard_invent.webm),
                         Label(text="## Layouts"),
+                        Html(html="<p><span style='color: blue;'>Columns in blue</span>, <span style='color: red;'>rows in red</span>.</p>"),
+                        Column(
+                            border_color="blue",
+                            border_width="S",
+                            border_style="Dashed",
+                            content=[
+                                Row(
+                                    border_color="red",
+                                    border_width="S",
+                                    border_style="Dotted",
+                                    content=[
+                                        Label(text="25%", layout={"flex": "1"}),
+                                        Label(text="50%", layout={"flex": "2"}),
+                                        Label(text="25%", layout={"flex": "1"}),
+                                    ],
+                                ),
+                            ],
+                        )
                     ]
                 )
             ],

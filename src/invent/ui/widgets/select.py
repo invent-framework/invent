@@ -1,5 +1,5 @@
 """
-A text input widget for the Invent framework. For textual user input.
+A selector widget containing choices, for the Invent framework.
 
 Based on original pre-COVID work by [Nicholas H.Tollervey.](https://ntoll.org/)
 
@@ -31,51 +31,12 @@ from invent.ui.core import (
 )
 
 
-class TextInput(Widget):
+class Selector(Widget):
     """
-    A single line box for short amounts of textual input.
+    A drop-down selector widget containing choices.
     """
 
     value = TextProperty("The text in the text box.", map_to_attribute="value")
-    required = BooleanProperty(
-        "A flag to indicate entry into the text box is required.",
-        default_value=False,
-        map_to_attribute="required",
-    )
-    readonly = BooleanProperty(
-        "A flag to indicate the text box is read only.",
-        default_value=False,
-        map_to_attribute="disabled",
-    )
-    placeholder = TextProperty(
-        "The placeholder text to put into the empty text box.",
-        map_to_attribute="placeholder",
-    )
-    minlength = IntegerProperty(
-        "The minimum character length for the input.",
-        map_to_attribute="minlength",
-    )
-    maxlength = IntegerProperty(
-        "The maximum character length for the input.",
-        map_to_attribute="maxlength",
-    )
-    input_type = ChoiceProperty(
-        "The type of text input.",
-        default_value="text",
-        choices=[
-            "text",
-            "email",
-            "number",
-            "password",
-            "tel",
-            "url",
-        ],
-        map_to_attribute="type",
-    )
-    keypress = Event(
-        "Triggered when a key is pressed to enter text.",
-        key="The key that was pressed.",
-    )
 
     @classmethod
     def icon(cls):

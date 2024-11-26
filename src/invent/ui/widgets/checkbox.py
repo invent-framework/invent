@@ -1,5 +1,5 @@
 """
-A slider widget for the Invent framework.
+A checkbox widget for the Invent framework.
 
 Based on original pre-COVID work by [Nicholas H.Tollervey.](https://ntoll.org/)
 
@@ -21,7 +21,7 @@ limitations under the License.
 from pyscript.web import input_, label, span
 from pyscript.ffi import create_proxy
 
-from invent.ui.core import Widget, BooleanProperty, TextProperty
+from invent.ui.core import Event, Widget, BooleanProperty, TextProperty
 
 
 class CheckBox(Widget):
@@ -35,6 +35,10 @@ class CheckBox(Widget):
         "An optional label shown next to the checkbox", default_value=""
     )
 
+    checked = Event("Sent when the checkbox is checked.")
+
+    unchecked = Event("Sent when the checkbox is un-checked.")
+
     @classmethod
     def icon(cls):
         return '<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 256 256"><path fill="currentColor" d="M173.66 98.34a8 8 0 0 1 0 11.32l-56 56a8 8 0 0 1-11.32 0l-24-24a8 8 0 0 1 11.32-11.32L112 148.69l50.34-50.35a8 8 0 0 1 11.32 0M224 48v160a16 16 0 0 1-16 16H48a16 16 0 0 1-16-16V48a16 16 0 0 1 16-16h160a16 16 0 0 1 16 16m-16 160V48H48v160z"/></svg>'  # noqa
@@ -45,19 +49,33 @@ class CheckBox(Widget):
         """
         self.value = not self.value
 
+    def on_id_changed(self):
+        self._checkbox_element.id = self.id
+        self.element.setAttribute("for", self.id)
+
+    def on_name_changed(self):
+        self._checkbox_element.name = self.name
+
     def on_label_changed(self):
-        self._label_element.innerText = self.label
+        self._text_span.innerText = self.label
 
     def on_value_changed(self):
         if self.value:
             self._checkbox_element.setAttribute("checked", True)
+            self.publish("checked")
         else:
             self._checkbox_element.removeAttribute("checked")
+            self.publish("unchecked")
 
     def render(self):
-        self._checkbox_element = input_(type="checkbox", id=self.id, name=self.id)
-        self._label_element = label(self.label)
-        setattr(self._label_element, "for", self.id)
-        element = span(self._checkbox_element, self._label_element)
-        self._checkbox_element.addEventListener("change", create_proxy(self.on_changed))
+        self._checkbox_element = input_(
+            type="checkbox", id=self.id, name=self.name
+        )
+        self._text_span = span(self.label)
+        self._text_span.classes.add("checkbox")
+        element = label(self._checkbox_element, self._text_span)
+        setattr(element, "for", self.id)
+        self._checkbox_element.addEventListener(
+            "change", create_proxy(self.on_changed)
+        )
         return element

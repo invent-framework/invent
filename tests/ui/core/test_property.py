@@ -1,16 +1,19 @@
 from pyscript.web import div
 import upytest
 import umock
+import datetime
 import json
 from invent.ui.core import (
     BooleanProperty,
     ChoiceProperty,
+    DateProperty,
     FloatProperty,
     IntegerProperty,
     ListProperty,
     NumericProperty,
     Property,
     TextProperty,
+    TimeProperty,
     ValidationError,
     from_datastore,
     Component,
@@ -605,3 +608,269 @@ def test_list_property_validation():
     tc.content = None
     with upytest.raises(TypeError):
         tc.content = False
+
+
+def test_date_property_defaults_no_min_max():
+    """
+    By default the bounds for minimum and maximum value are None.
+    """
+    dp = DateProperty("A test property")
+    assert dp.minimum is None
+    assert dp.maximum is None
+
+
+def test_date_property_value_is_date():
+    """
+    The value must be a date or None if not a required property.
+    """
+
+    class FakeWidget(Component):
+        date = DateProperty("A test property")
+
+        def render(self):
+            return div()
+
+    widget = FakeWidget()
+    a_date = datetime.date(2021, 1, 1)
+    # Dates are OK.
+    widget.date = a_date
+    assert widget.date == a_date
+    # Dates as "YYYY-MM-DD" strings are OK.
+    widget.date = str(a_date)
+    assert widget.date == a_date
+    # As is None.
+    widget.date = None
+    assert widget.date is None
+    # Anything else causes a ValidationError
+    with upytest.raises(ValidationError):
+        widget.date = "test"
+
+
+def test_date_property_with_bounds():
+    """
+    A date property with bounds cannot have a value outside those bounds.
+    """
+
+    class FakeWidget(Component):
+        date = DateProperty(
+            "A test property",
+            default_value=datetime.date(2021, 1, 1),
+            minimum=datetime.date(2021, 1, 1),
+            maximum=datetime.date(2021, 1, 31),
+        )
+
+        def render(self):
+            return div()
+
+    widget = FakeWidget()
+    a_date = datetime.date(2021, 1, 1)
+    # The value can be None if the property is not required.
+    widget.date = None
+    # The value cannot be less than the minimum.
+    widget.date = a_date
+    with upytest.raises(ValidationError):
+        widget.date = datetime.date(2020, 12, 31)
+    # The value cannot be more than the maximum.
+    widget.date = datetime.date(2021, 1, 31)
+    with upytest.raises(ValidationError):
+        widget.date = datetime.date(2021, 2, 1)
+
+    # Now with only a minimum.
+
+    class FakeWidgetMin(Component):
+        date = DateProperty(
+            "A test property",
+            default_value=datetime.date(2021, 1, 1),
+            minimum=datetime.date(2021, 1, 1),
+        )
+
+        def render(self):
+            return div()
+
+    widget = FakeWidgetMin()
+    a_date = datetime.date(2021, 1, 1)
+    # The value can be None if the property is not required.
+    widget.date = None
+    # The value cannot be less than the minimum.
+    widget.date = a_date
+    with upytest.raises(ValidationError):
+        widget.date = datetime.date(2020, 12, 31)
+    # There is no maximum boundary.
+    widget.date = datetime.date(2021, 1, 31)
+
+    # Now with only a maximum.
+
+    class FakeWidgetMax(Component):
+        date = DateProperty(
+            "A test property",
+            default_value=datetime.date(2021, 1, 1),
+            maximum=datetime.date(2021, 1, 31),
+        )
+
+        def render(self):
+            return div()
+
+    widget = FakeWidgetMax()
+    a_date = datetime.date(2021, 1, 1)
+    # The value can be None if the property is not required.
+    widget.date = None
+    # No minimum boundary
+    widget.date = datetime.date(2020, 12, 31)
+    # The value cannot be more than the maximum.
+    widget.date = datetime.date(2021, 1, 31)
+    with upytest.raises(ValidationError):
+        widget.date = datetime.date(2021, 2, 1)
+
+
+def test_date_property_as_dict():
+    """
+    The expected JSON serializable Python dictionary defining the property's
+    structure and attributes is returned.
+    """
+    dp = DateProperty(
+        "A test property",
+        default_value=datetime.date(2021, 1, 1),
+        minimum=datetime.date(2021, 1, 1),
+        maximum=datetime.date(2021, 1, 31),
+    )
+    assert dp.as_dict() == {
+        "property_type": "DateProperty",
+        "description": "A test property",
+        "required": False,
+        "default_value": str(datetime.date(2021, 1, 1)),
+        "minimum": str(datetime.date(2021, 1, 1)),
+        "maximum": str(datetime.date(2021, 1, 31)),
+    }
+
+
+def test_time_property_defaults_no_min_max():
+    """
+    By default the bounds for minimum and maximum value are None.
+    """
+    tp = TimeProperty("A test property")
+    assert tp.minimum is None
+    assert tp.maximum is None
+
+
+def test_time_property_value_is_time():
+    """
+    The value must be a time or None if not a required property.
+    """
+
+    class FakeWidget(Component):
+        time = TimeProperty("A test property")
+
+        def render(self):
+            return div()
+
+    widget = FakeWidget()
+    a_time = datetime.time(12, 0, 0)
+    # Times are OK.
+    widget.time = a_time
+    assert widget.time == a_time
+    # Times as "HH:MM:SS" strings are OK.
+    widget.time = str(a_time)
+    assert widget.time == a_time
+    # As is None.
+    widget.time = None
+    assert widget.time is None
+    # Anything else causes a ValidationError
+    with upytest.raises(ValidationError):
+        widget.time = "test"
+
+
+def test_time_property_with_bounds():
+    """
+    A time property with bounds cannot have a value outside those bounds.
+    """
+
+    class FakeWidget(Component):
+        time = TimeProperty(
+            "A test property",
+            default_value=datetime.time(12, 0, 0),
+            minimum=datetime.time(12, 0, 0),
+            maximum=datetime.time(12, 0, 1),
+        )
+
+        def render(self):
+            return div()
+
+    widget = FakeWidget()
+    a_time = datetime.time(12, 0, 0)
+    # The value can be None if the property is not required.
+    widget.time = None
+    # The value cannot be less than the minimum.
+    widget.time = a_time
+    with upytest.raises(ValidationError):
+        widget.time = datetime.time(11, 59, 59)
+    # The value cannot be more than the maximum.
+    widget.time = datetime.time(12, 0, 1)
+    with upytest.raises(ValidationError):
+        widget.time = datetime.time(12, 0, 2)
+
+    # Now with only a minimum.
+
+    class FakeWidgetMin(Component):
+        time = TimeProperty(
+            "A test property",
+            default_value=datetime.time(12, 0, 0),
+            minimum=datetime.time(12, 0, 0),
+        )
+
+        def render(self):
+            return div()
+
+    widget = FakeWidgetMin()
+    a_time = datetime.time(12, 0, 0)
+    # The value can be None if the property is not required.
+    widget.time = None
+    # The value cannot be less than the minimum.
+    widget.time = a_time
+    with upytest.raises(ValidationError):
+        widget.time = datetime.time(11, 59, 59)
+    # There is no maximum boundary.
+    widget.time = datetime.time(12, 0, 1)
+
+    # Now with only a maximum.
+
+    class FakeWidgetMax(Component):
+        time = TimeProperty(
+            "A test property",
+            default_value=datetime.time(12, 0, 0),
+            maximum=datetime.time(12, 0, 1),
+        )
+
+        def render(self):
+            return div()
+
+    widget = FakeWidgetMax()
+    a_time = datetime.time(12, 0, 0)
+    # The value can be None if the property is not required.
+    widget.time = None
+    # No minimum boundary
+    widget.time = datetime.time(11, 59, 59)
+    # The value cannot be more than the maximum.
+    widget.time = datetime.time(12, 0, 1)
+    with upytest.raises(ValidationError):
+        widget.time = datetime.time(12, 0, 2)
+
+
+def test_time_property_as_dict():
+    """
+    The expected JSON serializable Python dictionary defining the property's
+    structure and attributes is returned.
+    """
+    tp = TimeProperty(
+        "A test property",
+        default_value=datetime.time(12, 0, 0),
+        minimum=datetime.time(12, 0, 0),
+        maximum=datetime.time(12, 0, 1),
+    )
+    assert tp.as_dict() == {
+        "property_type": "TimeProperty",
+        "description": "A test property",
+        "required": False,
+        "default_value": str(datetime.time(12, 0, 0)),
+        "minimum": str(datetime.time(12, 0, 0)),
+        "maximum": str(datetime.time(12, 0, 1)),
+    }

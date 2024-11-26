@@ -9,12 +9,14 @@ from .component import (
 from .property import (
     BooleanProperty,
     ChoiceProperty,
+    DateProperty,
     FloatProperty,
     IntegerProperty,
     ListProperty,
     NumericProperty,
     Property,
     TextProperty,
+    TimeProperty,
     ValidationError,
     from_datastore,
 )
@@ -28,6 +30,7 @@ __all__ = [
     "Widget",
     "BooleanProperty",
     "ChoiceProperty",
+    "DateProperty",
     "FloatProperty",
     "IntegerProperty",
     "ListProperty",
@@ -36,6 +39,7 @@ __all__ = [
     "NumericProperty",
     "Property",
     "TextProperty",
+    "TimeProperty",
     "ValidationError",
     "from_datastore",
 ]
