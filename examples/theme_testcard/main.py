@@ -245,24 +245,236 @@ Here's some code:"""
                         Label(text="A test video player:"),
                         Video(source=invent.media.video.testcard_invent.webm),
                         Label(text="## Layouts"),
-                        Html(html="<p><span style='color: blue;'>Columns in blue</span>, <span style='color: red;'>rows in red</span>.</p>"),
+                        Html(
+                            html="<p><span style='color: red;'>Rows are in red</span>, <span style='color: blue;'>columns in blue</span>,<br><span style='color: green;'>grids are in green</span>... (and this isn't a poem). 😉</p>"
+                        ),
+                        Label(text="Column with horizontally aligned rows."),
                         Column(
                             border_color="blue",
                             border_width="S",
-                            border_style="Dashed",
+                            border_style="Dotted",
                             content=[
                                 Row(
                                     border_color="red",
                                     border_width="S",
                                     border_style="Dotted",
                                     content=[
-                                        Label(text="25%", layout={"flex": "1"}),
-                                        Label(text="50%", layout={"flex": "2"}),
-                                        Label(text="25%", layout={"flex": "1"}),
+                                        Label(text="25% default", size="1"),
+                                        Label(text="50% default", size="2"),
+                                        Label(text="25% default", size="1"),
+                                    ],
+                                ),
+                                Row(
+                                    border_color="red",
+                                    border_width="S",
+                                    border_style="Dotted",
+                                    horizontal_align="start",
+                                    content=[
+                                        Label(text="25% start", size="1"),
+                                        Label(
+                                            text="50% start",
+                                            size="2",
+                                        ),
+                                        Label(
+                                            text="25% start",
+                                            size="1",
+                                        ),
+                                    ],
+                                ),
+                                Row(
+                                    border_color="red",
+                                    border_width="S",
+                                    border_style="Dotted",
+                                    horizontal_align="center",
+                                    content=[
+                                        Label(
+                                            text="25% center",
+                                            size="1",
+                                        ),
+                                        Label(
+                                            text="50% center",
+                                            size="2",
+                                        ),
+                                        Label(
+                                            text="25% center",
+                                            size="1",
+                                        ),
+                                    ],
+                                ),
+                                Row(
+                                    border_color="red",
+                                    border_width="S",
+                                    border_style="Dotted",
+                                    horizontal_align="end",
+                                    content=[
+                                        Label(text="25% end", size="1"),
+                                        Label(text="50% end", size="2"),
+                                        Label(text="25% end", size="1"),
                                     ],
                                 ),
                             ],
-                        )
+                        ),
+                        Label(text="Row with vertically aligned columns."),
+                        Row(
+                            border_color="red",
+                            border_width="S",
+                            border_style="Dotted",
+                            content=[
+                                Column(
+                                    border_color="blue",
+                                    border_width="S",
+                                    border_style="Dotted",
+                                    content=[
+                                        Label(text="Long cat is loooong..."),
+                                        Image(
+                                            image=invent.media.images.longcat.jpg
+                                        ),
+                                    ],
+                                ),
+                                Column(
+                                    border_color="blue",
+                                    border_width="S",
+                                    border_style="Dotted",
+                                    content=[
+                                        Label(text="25% default", size="1"),
+                                        Label(text="50% default", size="2"),
+                                        Label(text="25% default", size="1"),
+                                    ],
+                                ),
+                                Column(
+                                    border_color="blue",
+                                    border_width="S",
+                                    border_style="Dotted",
+                                    vertical_align="start",
+                                    content=[
+                                        Label(text="25% start", size="1"),
+                                        Label(
+                                            text="50% start",
+                                            size="2",
+                                        ),
+                                        Label(
+                                            text="25% start",
+                                            size="1",
+                                        ),
+                                    ],
+                                ),
+                                Column(
+                                    border_color="blue",
+                                    border_width="S",
+                                    border_style="Dotted",
+                                    vertical_align="center",
+                                    content=[
+                                        Label(
+                                            text="25% center",
+                                            size="1",
+                                        ),
+                                        Label(
+                                            text="50% center",
+                                            size="2",
+                                        ),
+                                        Label(
+                                            text="25% center",
+                                            size="1",
+                                        ),
+                                    ],
+                                ),
+                                Column(
+                                    border_color="blue",
+                                    border_width="S",
+                                    border_style="Dotted",
+                                    vertical_align="end",
+                                    content=[
+                                        Label(text="25% end", size="1"),
+                                        Label(text="50% end", size="2"),
+                                        Label(text="25% end", size="1"),
+                                    ],
+                                ),
+                                Column(
+                                    border_color="blue",
+                                    border_width="S",
+                                    border_style="Dotted",
+                                    size=2,
+                                    content=[Label(text="Flexed to fill.")],
+                                ),
+                            ],
+                        ),
+                        Label(text="Grid with row and column spans."),
+                        Grid(
+                            border_color="green",
+                            border_width="S",
+                            border_style="Dotted",
+                            columns=3,
+                            content=[
+                                Label(
+                                    text="Item 1 (colspan 2)",
+                                    column_span=2,
+                                    background_color="lightgrey",
+                                ),
+                                Label(
+                                    text="Item 2", background_color="lightgrey"
+                                ),
+                                Label(
+                                    text="Item 3", background_color="lightgrey"
+                                ),
+                                Label(
+                                    text="Item 4 (rowspan 2)",
+                                    row_span=2,
+                                    background_color="lightgrey",
+                                ),
+                                Label(
+                                    text="Item 5", background_color="lightgrey"
+                                ),
+                                Label(
+                                    text="Item 6", background_color="lightgrey"
+                                ),
+                                Label(
+                                    text="Item 7", background_color="lightgrey"
+                                ),
+                                Label(
+                                    text="Item 8", background_color="lightgrey"
+                                ),
+                                Label(
+                                    text="Item 9", background_color="lightgrey"
+                                ),
+                            ],
+                        ),
+                        Label(text="A column with horizontally aligned widgets."),
+                        Column(
+                            border_color="blue",
+                            border_width="S",
+                            border_style="Dotted",
+                            content=[
+                                Button(text="Default"),
+                                Button(text="Start", horizontal_align="start"),
+                                Button(text="Center", horizontal_align="center"),
+                                Button(text="End", horizontal_align="end"),
+                                Button(text="Stretch", horizontal_align="stretch"),
+                            ],
+                        ),
+                        Label(text="Row with vertically aligned widgets."),
+                        Row(
+                            border_color="red",
+                            border_width="S",
+                            border_style="Dotted",
+                            content=[
+                                Column(
+                                    border_color="blue",
+                                    border_width="S",
+                                    border_style="Dotted",
+                                    content=[
+                                        Label(text="Long cat is loooong..."),
+                                        Image(
+                                            image=invent.media.images.longcat.jpg
+                                        ),
+                                    ],
+                                ),
+                                Button(text="Default"),
+                                Button(text="Start", vertical_align="start"),
+                                Button(text="Center", vertical_align="center"),
+                                Button(text="End", vertical_align="end"),
+                                Button(text="Stretch", vertical_align="stretch"),
+                            ]
+                        ),
                     ]
                 )
             ],

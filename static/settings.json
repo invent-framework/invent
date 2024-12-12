@@ -1,6 +1,6 @@
 {
     "files":{
-        "test_suite.zip": "./*",
+        "test_suite.tar.gz": "./*",
         "https://raw.githubusercontent.com/ntoll/upytest/main/upytest.py": "",
         "https://raw.githubusercontent.com/ntoll/umock/main/umock.py": ""
     }

@@ -18,6 +18,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
+from invent.i18n import _
 from pyscript.web import input_, label, span, div
 from pyscript.ffi import create_proxy
 
@@ -29,10 +30,10 @@ class Switch(Widget):
     A switch for indicating a boolean value.
     """
 
-    value = BooleanProperty("The value of the switch.", default_value=False)
+    value = BooleanProperty(_("The value of the switch."), default_value=False)
 
     label = TextProperty(
-        "An optional label shown next to the switch", default_value=""
+        _("An optional label shown next to the switch"), default_value=""
     )
 
     @classmethod

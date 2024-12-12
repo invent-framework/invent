@@ -18,6 +18,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
+from invent.i18n import _
 from invent.ui.core import (
     Widget,
     TextProperty,
@@ -32,23 +33,23 @@ class Video(Widget):
     A video player with a play button, progress indicator and volume control.
     """
 
-    source = TextProperty("The video source file to play.")
+    source = TextProperty(_("The video source file to play."))
 
     playing = Event(
-        "Sent when the video starts to play.",
-        video="The video source playing.",
+        _("Sent when the video starts to play."),
+        video=_("The video source playing."),
     )
 
     paused = Event(
-        "Sent when the video is paused.",
-        video="The video source paused.",
-        position="The pause position in seconds.",
+        _("Sent when the video is paused."),
+        video=_("The video source paused."),
+        position=_("The pause position in seconds."),
     )
 
     position_changed = Event(
-        "Sent when the position in the video is changed.",
-        video="The video source that has been affected.",
-        position="The new position in seconds.",
+        _("Sent when the position in the video is changed."),
+        video=_("The video source that has been affected."),
+        position=_("The new position in seconds."),
     )
 
     @classmethod

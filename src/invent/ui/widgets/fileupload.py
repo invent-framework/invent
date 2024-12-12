@@ -18,6 +18,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
+from invent.i18n import _
 from pyscript.web import input_
 from pyscript.ffi import create_proxy
 
@@ -48,9 +49,9 @@ class FileUpload(Widget):
         """
         return cls._files_.keys()
 
-    files = ListProperty("The files to upload")
+    files = ListProperty(_("The files to upload"))
     required = BooleanProperty(
-        "A flag to indicate entry into the text box is required.",
+        _("A flag to indicate entry into the text box is required."),
         default_value=False,
         map_to_attribute="required",
     )

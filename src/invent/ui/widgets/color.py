@@ -18,10 +18,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
+from invent.i18n import _
 from pyscript.web import input_, label, div
 from pyscript.ffi import create_proxy
 
-from invent.ui.core import Widget, BooleanProperty, TextProperty
+from invent.ui.core import Widget, Event, TextProperty
 
 
 class ColorPicker(Widget):
@@ -30,15 +31,22 @@ class ColorPicker(Widget):
     """
 
     value = TextProperty(
-        "The value of the color picker. Must be in seven-character hexadecimal notation.",
+        _(
+            "The value of the color picker. Must be in seven-character hexadecimal notation."
+        ),
         default_value="#000000",
         min_length=7,
         max_length=7,
     )
 
     label = TextProperty(
-        "An optional label shown next to the picker",
+        _("An optional label shown next to the picker"),
         default_value="Select a color.",
+    )
+
+    picked = Event(
+        _("Sent when a color is picked."),
+        colour=_("The picked colour in hexadecimal notation."),
     )
 
     @classmethod
@@ -63,6 +71,7 @@ class ColorPicker(Widget):
 
     def on_value_changed(self):
         self._input_element.value = self.value
+        self.publish("picked", colour=self.value)
 
     def render(self):
         self._input_element = input_(type="color", id=self.id, name=self.name)

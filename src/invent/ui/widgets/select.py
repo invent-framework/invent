@@ -18,16 +18,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
+from invent.i18n import _
 from pyscript.web import input_
 from pyscript.ffi import create_proxy
 
 from invent.ui.core import (
     Widget,
     TextProperty,
-    IntegerProperty,
-    BooleanProperty,
-    ChoiceProperty,
-    Event,
 )
 
 
@@ -36,7 +33,9 @@ class Selector(Widget):
     A drop-down selector widget containing choices.
     """
 
-    value = TextProperty("The text in the text box.", map_to_attribute="value")
+    value = TextProperty(
+        _("The text in the text box."), map_to_attribute="value"
+    )
 
     @classmethod
     def icon(cls):

@@ -18,6 +18,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
+from invent.i18n import _
 from pyscript.web import input_
 from pyscript.ffi import create_proxy
 
@@ -36,31 +37,33 @@ class TextInput(Widget):
     A single line box for short amounts of textual input.
     """
 
-    value = TextProperty("The text in the text box.", map_to_attribute="value")
+    value = TextProperty(
+        _("The text in the text box."), map_to_attribute="value"
+    )
     required = BooleanProperty(
-        "A flag to indicate entry into the text box is required.",
+        _("A flag to indicate entry into the text box is required."),
         default_value=False,
         map_to_attribute="required",
     )
     readonly = BooleanProperty(
-        "A flag to indicate the text box is read only.",
+        _("A flag to indicate the text box is read only."),
         default_value=False,
         map_to_attribute="disabled",
     )
     placeholder = TextProperty(
-        "The placeholder text to put into the empty text box.",
+        _("The placeholder text to put into the empty text box."),
         map_to_attribute="placeholder",
     )
     minlength = IntegerProperty(
-        "The minimum character length for the input.",
+        _("The minimum character length for the input."),
         map_to_attribute="minlength",
     )
     maxlength = IntegerProperty(
-        "The maximum character length for the input.",
+        _("The maximum character length for the input."),
         map_to_attribute="maxlength",
     )
     input_type = ChoiceProperty(
-        "The type of text input.",
+        _("The type of text input."),
         default_value="text",
         choices=[
             "text",
@@ -73,8 +76,8 @@ class TextInput(Widget):
         map_to_attribute="type",
     )
     keypress = Event(
-        "Triggered when a key is pressed to enter text.",
-        key="The key that was pressed.",
+        _("Triggered when a key is pressed to enter text."),
+        key=_("The key that was pressed."),
     )
 
     @classmethod

@@ -18,6 +18,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
+from invent.i18n import _
 from invent.ui.core import Widget, TextProperty
 from pyscript.web import pre
 
@@ -33,7 +34,7 @@ class Code(Widget):
     Display properly formatted code in the UI.
     """
 
-    code = TextProperty("The code to display.", default_value=_default)
+    code = TextProperty(_("The code to display."), default_value=_default)
 
     @classmethod
     def icon(cls):

@@ -18,6 +18,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
+from invent.i18n import _
 from invent.ui.core import Widget, TextProperty
 from pyscript.web import div
 
@@ -28,7 +29,7 @@ class Html(Widget):
     """
 
     html = TextProperty(
-        "The raw HTML.", default_value="<div>With great power...</div>"
+        _("The raw HTML."), default_value="<div>With great power...</div>"
     )
 
     @classmethod

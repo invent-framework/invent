@@ -18,6 +18,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
+from invent.i18n import _
 from pyscript.web import input_, label, span
 from pyscript.ffi import create_proxy
 
@@ -29,15 +30,17 @@ class CheckBox(Widget):
     A checkbox for indicating a boolean value.
     """
 
-    value = BooleanProperty("The value of the checkbox.", default_value=False)
-
-    label = TextProperty(
-        "An optional label shown next to the checkbox", default_value=""
+    value = BooleanProperty(
+        _("The value of the checkbox."), default_value=False
     )
 
-    checked = Event("Sent when the checkbox is checked.")
+    label = TextProperty(
+        _("An optional label shown next to the checkbox"), default_value=""
+    )
 
-    unchecked = Event("Sent when the checkbox is un-checked.")
+    checked = Event(_("Sent when the checkbox is checked."))
+
+    unchecked = Event(_("Sent when the checkbox is un-checked."))
 
     @classmethod
     def icon(cls):

@@ -18,6 +18,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
+from invent.i18n import _
 from invent.ui.core import (
     Widget,
     TextProperty,
@@ -38,14 +39,14 @@ class Button(Widget):
     warning or danger button.
     """
 
-    text = TextProperty("The text on the button.", default_value="Click Me")
+    text = TextProperty(_("The text on the button."), default_value="Click Me")
     size = ChoiceProperty(
-        "The size of the button.",
+        _("The size of the button."),
         default_value="MEDIUM",
         choices=["LARGE", "MEDIUM", "SMALL"],
     )
     purpose = ChoiceProperty(
-        "The button's purpose.",
+        _("The button's purpose."),
         default_value="DEFAULT",
         choices=[
             "DEFAULT",
@@ -57,14 +58,14 @@ class Button(Widget):
         ],
     )
     disabled = BooleanProperty(
-        "Indicates if the button is disabled.",
+        _("Indicates if the button is disabled."),
         default_value=False,
         map_to_attribute="disabled",
     )
 
     press = Event(
-        "Sent when the button is pressed.",
-        button="The button that was clicked.",
+        _("Sent when the button is pressed."),
+        button=_("The button that was clicked."),
     )
 
     @classmethod

@@ -35,7 +35,6 @@ class Page(Column):
         """
         element = super().render()
         element.classList.add("container")
-
         element.style["display"] = "None"
         return element
 

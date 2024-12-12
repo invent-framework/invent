@@ -18,6 +18,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
+from invent.i18n import _
 from invent.ui.core import Widget, TextProperty, Event
 from pyscript.web import img
 
@@ -28,22 +29,22 @@ class Image(Widget):
     """
 
     image = TextProperty(
-        "The path to the image media.",
+        _("The path to the image media."),
         default_value="https://loremflickr.com/400/400",
     )
 
     width = TextProperty(
-        "The width of the image.",
+        _("The width of the image."),
         default_value=None,
     )
 
     height = TextProperty(
-        "The height of the image.",
+        _("The height of the image."),
         default_value=None,
     )
 
     touch = Event(
-        "Sent when the image is touched.",
+        _("Sent when the image is touched."),
     )
 
     @classmethod

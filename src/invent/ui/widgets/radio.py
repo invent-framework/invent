@@ -18,6 +18,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
+from invent.i18n import _
 from pyscript.web import input_, label, span
 from pyscript.ffi import create_proxy
 
@@ -30,20 +31,21 @@ class Radio(Widget):
     """
 
     selected = BooleanProperty(
-        "A flag to indicate if the radio button is selected",
+        _("A flag to indicate if the radio button is selected"),
         default_value=False,
     )
 
     value = TextProperty(
-        "The meaningful value associated with the checkbox.", default_value=""
+        _("The meaningful value associated with the checkbox."),
+        default_value="",
     )
 
     label = TextProperty(
-        "An optional label shown next to the radio button", default_value=""
+        _("An optional label shown next to the radio button"), default_value=""
     )
 
     group = TextProperty(
-        "The group to which the radio button belongs", default_value=""
+        _("The group to which the radio button belongs"), default_value=""
     )
 
     @classmethod

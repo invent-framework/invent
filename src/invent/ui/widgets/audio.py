@@ -18,6 +18,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
+from invent.i18n import _
 from invent.ui.core import (
     Widget,
     TextProperty,
@@ -32,23 +33,23 @@ class Audio(Widget):
     An audio player with a play button, progress indicator and volume control.
     """
 
-    source = TextProperty("The audio source file to play.")
+    source = TextProperty(_("The audio source file to play."))
 
     playing = Event(
-        "Sent when the audio starts to play.",
+        _("Sent when the audio starts to play."),
         audio="The audio source playing.",
     )
 
     paused = Event(
-        "Sent when the audio is paused.",
-        audio="The audio source paused.",
-        position="The pause position in seconds.",
+        _("Sent when the audio is paused."),
+        audio=_("The audio source paused."),
+        position=_("The pause position in seconds."),
     )
 
     position_changed = Event(
-        "Sent when the position in the audio is changed.",
-        audio="The audio source that has been affected.",
-        position="The new position in seconds.",
+        _("Sent when the position in the audio is changed."),
+        audio=_("The audio source that has been affected."),
+        position=_("The new position in seconds."),
     )
 
     @classmethod

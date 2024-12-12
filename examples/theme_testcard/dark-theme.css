@@ -437,6 +437,10 @@ input[type="radio"]:checked + span::before {
     background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1em' height='1em' viewBox='0 0 256 256'%3E%3Cpath fill='%23EEE' d='M232 128A104 104 0 1 1 128 24a104.13 104.13 0 0 1 104 104'/%3E%3C/svg%3E");
 }
 
+input[type="radio"] + span {
+    padding: 0 15px;
+}
+
 input[type="radio"] + span::before {
     border-color: var(--primary);
     border-style: solid;

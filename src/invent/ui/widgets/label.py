@@ -19,6 +19,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
+from invent.i18n import _
 from invent.utils import from_markdown
 from invent.ui.core import Widget, TextProperty
 from pyscript.web import div
@@ -29,7 +30,7 @@ class Label(Widget):
     Display textual content that may be Markdown.
     """
 
-    text = TextProperty("The content to display.", default_value="Text")
+    text = TextProperty(_("The content to display."), default_value="Text")
 
     @classmethod
     def icon(cls):

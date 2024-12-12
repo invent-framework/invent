@@ -408,7 +408,6 @@ input[type="checkbox"] + span, input[type="radio"] + span {
     display: inline-block;
     font-size: 1rem;
     margin: 15px 0px;
-    padding: 0;
     position: relative;
 }
 
@@ -431,6 +430,10 @@ input[type="checkbox"] + .checkbox::before {
 
 input[type="checkbox"] + .checkbox::before {
     border-radius: 0.25rem;
+}
+
+input[type="radio"] + span {
+    padding: 0 15px;
 }
 
 input[type="radio"]:checked + span::before {

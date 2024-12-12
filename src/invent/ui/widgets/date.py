@@ -18,6 +18,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
+from invent.i18n import _
 from pyscript.web import input_, label, div
 from pyscript.ffi import create_proxy
 
@@ -30,11 +31,11 @@ class DatePicker(Widget):
     """
 
     date = DateProperty(
-        "The date to display in the picker.", default_value=None
+        _("The date to display in the picker."), default_value=None
     )
 
     label = TextProperty(
-        "An optional label shown next to the picker",
+        _("An optional label shown next to the picker"),
         default_value="Select a date.",
     )
 
