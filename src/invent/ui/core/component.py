@@ -61,7 +61,7 @@ class Component:
         _("The component is visible is set to True."), default_value=True
     )
 
-    size = TextProperty(
+    sizing = TextProperty(
         _(
             "The amount of space to consume. "
             "May be blank to take no extra space, "

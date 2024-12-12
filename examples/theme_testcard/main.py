@@ -259,9 +259,9 @@ Here's some code:"""
                                     border_width="S",
                                     border_style="Dotted",
                                     content=[
-                                        Label(text="25% default", size="1"),
-                                        Label(text="50% default", size="2"),
-                                        Label(text="25% default", size="1"),
+                                        Label(text="25% default", sizing="1"),
+                                        Label(text="50% default", sizing="2"),
+                                        Label(text="25% default", sizing="1"),
                                     ],
                                 ),
                                 Row(
@@ -270,14 +270,14 @@ Here's some code:"""
                                     border_style="Dotted",
                                     horizontal_align="start",
                                     content=[
-                                        Label(text="25% start", size="1"),
+                                        Label(text="25% start", sizing="1"),
                                         Label(
                                             text="50% start",
-                                            size="2",
+                                            sizing="2",
                                         ),
                                         Label(
                                             text="25% start",
-                                            size="1",
+                                            sizing="1",
                                         ),
                                     ],
                                 ),
@@ -289,15 +289,15 @@ Here's some code:"""
                                     content=[
                                         Label(
                                             text="25% center",
-                                            size="1",
+                                            sizing="1",
                                         ),
                                         Label(
                                             text="50% center",
-                                            size="2",
+                                            sizing="2",
                                         ),
                                         Label(
                                             text="25% center",
-                                            size="1",
+                                            sizing="1",
                                         ),
                                     ],
                                 ),
@@ -307,9 +307,9 @@ Here's some code:"""
                                     border_style="Dotted",
                                     horizontal_align="end",
                                     content=[
-                                        Label(text="25% end", size="1"),
-                                        Label(text="50% end", size="2"),
-                                        Label(text="25% end", size="1"),
+                                        Label(text="25% end", sizing="1"),
+                                        Label(text="50% end", sizing="2"),
+                                        Label(text="25% end", sizing="1"),
                                     ],
                                 ),
                             ],
@@ -336,9 +336,9 @@ Here's some code:"""
                                     border_width="S",
                                     border_style="Dotted",
                                     content=[
-                                        Label(text="25% default", size="1"),
-                                        Label(text="50% default", size="2"),
-                                        Label(text="25% default", size="1"),
+                                        Label(text="25% default", sizing="1"),
+                                        Label(text="50% default", sizing="2"),
+                                        Label(text="25% default", sizing="1"),
                                     ],
                                 ),
                                 Column(
@@ -347,14 +347,14 @@ Here's some code:"""
                                     border_style="Dotted",
                                     vertical_align="start",
                                     content=[
-                                        Label(text="25% start", size="1"),
+                                        Label(text="25% start", sizing="1"),
                                         Label(
                                             text="50% start",
-                                            size="2",
+                                            sizing="2",
                                         ),
                                         Label(
                                             text="25% start",
-                                            size="1",
+                                            sizing="1",
                                         ),
                                     ],
                                 ),
@@ -366,15 +366,15 @@ Here's some code:"""
                                     content=[
                                         Label(
                                             text="25% center",
-                                            size="1",
+                                            sizing="1",
                                         ),
                                         Label(
                                             text="50% center",
-                                            size="2",
+                                            sizing="2",
                                         ),
                                         Label(
                                             text="25% center",
-                                            size="1",
+                                            sizing="1",
                                         ),
                                     ],
                                 ),
@@ -384,16 +384,16 @@ Here's some code:"""
                                     border_style="Dotted",
                                     vertical_align="end",
                                     content=[
-                                        Label(text="25% end", size="1"),
-                                        Label(text="50% end", size="2"),
-                                        Label(text="25% end", size="1"),
+                                        Label(text="25% end", sizing="1"),
+                                        Label(text="50% end", sizing="2"),
+                                        Label(text="25% end", sizing="1"),
                                     ],
                                 ),
                                 Column(
                                     border_color="blue",
                                     border_width="S",
                                     border_style="Dotted",
-                                    size=2,
+                                    sizing=2,
                                     content=[Label(text="Flexed to fill.")],
                                 ),
                             ],
@@ -472,7 +472,7 @@ Here's some code:"""
                                 Button(text="Start", vertical_align="start"),
                                 Button(text="Center", vertical_align="center"),
                                 Button(text="End", vertical_align="end"),
-                                Button(text="Stretch", vertical_align="stretch"),
+                                Button(text="Stretch with fill", size="LARGE", vertical_align="stretch", sizing=2),
                             ]
                         ),
                     ]
@@ -483,6 +483,5 @@ Here's some code:"""
 )
 
 # GO! ##################################################################################
-
 
 invent.go()
