@@ -64,7 +64,7 @@ class App:
         description=None,
         author=None,
         license=None,
-        content=None,
+        pages=None,
     ):
         """
         Create a new instance of App.
@@ -98,8 +98,8 @@ class App:
         self._current_page = None  # The name of the currently visible page.
         if args:
             self.append(*args)
-        if content:
-            self.append(*content)
+        if pages:
+            self.append(*pages)
         invent.set_media_root(media_root)
 
     @property

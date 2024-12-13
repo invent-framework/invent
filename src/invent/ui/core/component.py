@@ -172,22 +172,6 @@ class Component:
             else:
                 raise AttributeError(self, k)
 
-    def as_dict(self):
-        """
-        Return a dictionary representation of the state of this instance.
-        """
-        properties = {}
-        for property_name, property_obj in sorted(self.properties().items()):
-            from_datastore = self.get_from_datastore(property_name)
-            if from_datastore:
-                property_value = repr(from_datastore)
-            else:
-                property_value = getattr(self, property_name)
-
-            properties[property_name] = property_value
-
-        return properties
-
     def get_from_datastore(self, property_name):
         """
         Return the "from_datastore" instance for a property, or None if it is
@@ -382,10 +366,18 @@ class Component:
         """
         Return a dict representation of the state of this instance.
         """
-        properties = super().as_dict()
+        properties = {}
+        for property_name, property_obj in sorted(self.properties().items()):
+            from_datastore = self.get_from_datastore(property_name)
+            if from_datastore:
+                property_value = repr(from_datastore)
+            else:
+                property_value = getattr(self, property_name)
+
+            properties[property_name] = property_value
 
         # If the component is a Container, we format its content recursively.
-        if isinstance(self, Container):
+        if hasattr(self, "children"):
             if not self.get_from_datastore("children"):
                 properties["children"] = [
                     item.as_dict() for item in self.children

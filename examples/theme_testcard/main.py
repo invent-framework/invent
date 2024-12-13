@@ -17,14 +17,14 @@ await invent.load()  # Load default values for the datastore.
 
 app = invent.App(
     name="Theme Testcard",
-    content=[
+    pages=[
         Page(
             name="Testcard",
-            content=[
+            children=[
                 Column(
-                    content=[
+                    children=[
                         Row(
-                            content=[
+                            children=[
                                 Label(text="# Invent Test Card"),
                                 Image(
                                     image=invent.media.images.invent_logo.png,
@@ -52,9 +52,9 @@ Here's some code:"""
                         ),
                         Label(text="## Form controls\n\n### Buttons"),
                         Row(
-                            content=[
+                            children=[
                                 Column(
-                                    content=[
+                                    children=[
                                         Label(text="Default:"),
                                         Button(
                                             text="Large",
@@ -77,7 +77,7 @@ Here's some code:"""
                                     ]
                                 ),
                                 Column(
-                                    content=[
+                                    children=[
                                         Label(text="Primary:"),
                                         Button(
                                             text="Large",
@@ -100,7 +100,7 @@ Here's some code:"""
                                     ]
                                 ),
                                 Column(
-                                    content=[
+                                    children=[
                                         Label(text="Secondary:"),
                                         Button(
                                             text="Large",
@@ -123,7 +123,7 @@ Here's some code:"""
                                     ]
                                 ),
                                 Column(
-                                    content=[
+                                    children=[
                                         Label(text="Success:"),
                                         Button(
                                             text="Large",
@@ -146,7 +146,7 @@ Here's some code:"""
                                     ]
                                 ),
                                 Column(
-                                    content=[
+                                    children=[
                                         Label(text="Warning:"),
                                         Button(
                                             text="Large",
@@ -169,7 +169,7 @@ Here's some code:"""
                                     ]
                                 ),
                                 Column(
-                                    content=[
+                                    children=[
                                         Label(text="Danger:"),
                                         Button(
                                             text="Large",
@@ -197,7 +197,7 @@ Here's some code:"""
                         CheckBox(label="A checkbox!"),
                         Switch(label="A switch!"),
                         Row(
-                            content=[
+                            children=[
                                 Label(text="Favourite colour radio buttons: "),
                                 Radio(
                                     label="Red", group="colour", value="red"
@@ -253,12 +253,12 @@ Here's some code:"""
                             border_color="blue",
                             border_width="S",
                             border_style="Dotted",
-                            content=[
+                            children=[
                                 Row(
                                     border_color="red",
                                     border_width="S",
                                     border_style="Dotted",
-                                    content=[
+                                    children=[
                                         Label(text="25% default", space="1"),
                                         Label(text="50% default", space="2"),
                                         Label(text="25% default", space="1"),
@@ -269,7 +269,7 @@ Here's some code:"""
                                     border_width="S",
                                     border_style="Dotted",
                                     horizontal_align="start",
-                                    content=[
+                                    children=[
                                         Label(text="25% start", space="1"),
                                         Label(
                                             text="50% start",
@@ -286,7 +286,7 @@ Here's some code:"""
                                     border_width="S",
                                     border_style="Dotted",
                                     horizontal_align="center",
-                                    content=[
+                                    children=[
                                         Label(
                                             text="25% center",
                                             space="1",
@@ -306,7 +306,7 @@ Here's some code:"""
                                     border_width="S",
                                     border_style="Dotted",
                                     horizontal_align="end",
-                                    content=[
+                                    children=[
                                         Label(text="25% end", space="1"),
                                         Label(text="50% end", space="2"),
                                         Label(text="25% end", space="1"),
@@ -319,12 +319,12 @@ Here's some code:"""
                             border_color="red",
                             border_width="S",
                             border_style="Dotted",
-                            content=[
+                            children=[
                                 Column(
                                     border_color="blue",
                                     border_width="S",
                                     border_style="Dotted",
-                                    content=[
+                                    children=[
                                         Label(text="Long cat is loooong..."),
                                         Image(
                                             image=invent.media.images.longcat.jpg
@@ -335,7 +335,7 @@ Here's some code:"""
                                     border_color="blue",
                                     border_width="S",
                                     border_style="Dotted",
-                                    content=[
+                                    children=[
                                         Label(text="25% default", space="1"),
                                         Label(text="50% default", space="2"),
                                         Label(text="25% default", space="1"),
@@ -346,7 +346,7 @@ Here's some code:"""
                                     border_width="S",
                                     border_style="Dotted",
                                     vertical_align="start",
-                                    content=[
+                                    children=[
                                         Label(text="25% start", space="1"),
                                         Label(
                                             text="50% start",
@@ -363,7 +363,7 @@ Here's some code:"""
                                     border_width="S",
                                     border_style="Dotted",
                                     vertical_align="center",
-                                    content=[
+                                    children=[
                                         Label(
                                             text="25% center",
                                             space="1",
@@ -383,7 +383,7 @@ Here's some code:"""
                                     border_width="S",
                                     border_style="Dotted",
                                     vertical_align="end",
-                                    content=[
+                                    children=[
                                         Label(text="25% end", space="1"),
                                         Label(text="50% end", space="2"),
                                         Label(text="25% end", space="1"),
@@ -394,7 +394,7 @@ Here's some code:"""
                                     border_width="S",
                                     border_style="Dotted",
                                     space=2,
-                                    content=[Label(text="Flexed to fill.")],
+                                    children=[Label(text="Flexed to fill.")],
                                 ),
                             ],
                         ),
@@ -404,7 +404,7 @@ Here's some code:"""
                             border_width="S",
                             border_style="Dotted",
                             columns=3,
-                            content=[
+                            children=[
                                 Label(
                                     text="Item 1 (colspan 2)",
                                     column_span=2,
@@ -447,7 +447,7 @@ Here's some code:"""
                             border_color="blue",
                             border_width="S",
                             border_style="Dotted",
-                            content=[
+                            children=[
                                 Button(text="Default"),
                                 Button(text="Start", horizontal_align="start"),
                                 Button(
@@ -464,12 +464,12 @@ Here's some code:"""
                             border_color="red",
                             border_width="S",
                             border_style="Dotted",
-                            content=[
+                            children=[
                                 Column(
                                     border_color="blue",
                                     border_width="S",
                                     border_style="Dotted",
-                                    content=[
+                                    children=[
                                         Label(text="Long cat is loooong..."),
                                         Image(
                                             image=invent.media.images.longcat.jpg

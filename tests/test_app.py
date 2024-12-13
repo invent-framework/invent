@@ -33,7 +33,7 @@ def test_initialise_app_with_pages():
     """
     page1 = invent.ui.Page(name="Page 1")
     page2 = invent.ui.Page(name="Page 2")
-    app = invent.app.App(name="Test App", content=[page1, page2])
+    app = invent.app.App(name="Test App", pages=[page1, page2])
     assert len(app.pages) == 2
     assert app.pages[0] == page1
     assert app.pages[1] == page2
