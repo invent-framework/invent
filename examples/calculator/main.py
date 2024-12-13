@@ -98,12 +98,12 @@ invent.subscribe(
 
 invent.ui.App(
     name="Calculator",
-    content=[
+    pages=[
         invent.ui.Page(
-            content=[
+            children=[
                 invent.ui.Grid(
                     columns=4,
-                    content=[
+                    children=[
                         invent.ui.TextInput(
                             layout=dict(column_span=4),
                             value=invent.ui.from_datastore("numbers"),

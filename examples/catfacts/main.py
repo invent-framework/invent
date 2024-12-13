@@ -52,12 +52,12 @@ invent.subscribe(
 
 app = App(
     name="CatFacts!",
-    content=[
+    pages=[
         Page(
             name="Facts",
-            content=[
+            children=[
                 Column(
-                    content=[
+                    children=[
                         Image(
                             image=invent.media.images.puff.svg,
                             visible=from_datastore("working"),

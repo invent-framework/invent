@@ -600,7 +600,7 @@ def test_list_property_validation():
             return div()
 
     tc = TestComponent()
-    tc.content = [
+    tc.children = [
         "foo",
         "bar",
         "baz",

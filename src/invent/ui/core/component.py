@@ -386,9 +386,9 @@ class Component:
 
         # If the component is a Container, we format its content recursively.
         if isinstance(self, Container):
-            if not self.get_from_datastore("content"):
-                properties["content"] = [
-                    item.as_dict() for item in self.content
+            if not self.get_from_datastore("children"):
+                properties["children"] = [
+                    item.as_dict() for item in self.children
                 ]
 
         return {

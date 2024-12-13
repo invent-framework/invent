@@ -352,7 +352,7 @@ def test_container_as_dict():
             "border_color": None,
             "border_width": None,
             "border_style": None,
-            "content": [
+            "children": [
                 {
                     "type": "MyWidget",
                     "properties": {

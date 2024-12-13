@@ -56,12 +56,12 @@ invent.subscribe(make_oink, to_channel="oink", when_subject=["press", "touch"])
 
 app = invent.App(
     name="Farmyard!",
-    content=[
+    pages=[
         Page(
             name="Lucy",
-            content=[
+            children=[
                 Column(
-                    content=[
+                    children=[
                         Image(
                             image=invent.media.images.goose.png,
                             channel="honk",
@@ -69,7 +69,7 @@ app = invent.App(
                         ),
                         Row(
                             layout=dict(align_self="center"),
-                            content=[
+                            children=[
                                 Button(
                                     name="button honk",
                                     label="HONK!",
@@ -100,7 +100,7 @@ app = invent.App(
                         Row(
                             id="geese",
                             justify_content="center",
-                            content=from_datastore(
+                            children=from_datastore(
                                 "number_of_honks", with_function=make_geese
                             ),
                         ),
@@ -115,9 +115,9 @@ app = invent.App(
         ),
         Page(
             name="Percy",
-            content=[
+            children=[
                 Column(
-                    content=[
+                    children=[
                         Image(
                             image=invent.media.images.pig.png,
                             channel="oink",
@@ -125,7 +125,7 @@ app = invent.App(
                         ),
                         Row(
                             layout=dict(align_self="center"),
-                            content=[
+                            children=[
                                 Button(
                                     name="button oink",
                                     label="OINK!!",
@@ -146,7 +146,7 @@ app = invent.App(
                         Row(
                             id="pigs",
                             justify_content="center",
-                            content=from_datastore(
+                            children=from_datastore(
                                 "number_of_oinks", with_function=make_pigs
                             ),
                         ),
