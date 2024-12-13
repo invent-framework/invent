@@ -1,7 +1,15 @@
 import invent
 import json
-from unittest import mock
+import umock
 from pyscript import window
+
+
+current_lang = window.navigator.language
+
+
+def setup():
+    invent.i18n.__language = current_lang
+    invent.i18n.__translations = {}
 
 
 def test_state_after_import():
@@ -10,7 +18,9 @@ def test_state_after_import():
 
     There's nothing in __translations.
     """
-    assert invent.i18n.__language == window.navigator.language
+    assert (
+        invent.i18n.__language == window.navigator.language
+    ), invent.i18n.__language
     assert invent.i18n.__translations == {}
 
 
@@ -42,7 +52,7 @@ def test_set_language():
     set_language message to the i18n channel.
     """
     current_lang = invent.i18n.__language
-    with mock.patch("invent.i18n.publish") as mock_publish:
+    with umock.patch("invent.channels:publish") as mock_publish:
         invent.i18n.set_language("foo")
         assert invent.i18n.__language == "foo"
         assert invent.i18n.get_language() == "foo"
@@ -60,6 +70,7 @@ def test_get_language():
     assert invent.i18n.get_language() == window.navigator.language
     invent.i18n.set_language("foo")
     assert invent.i18n.get_language() == "foo"
+    invent.i18n.set_language(window.navigator.language)
 
 
 def test_():

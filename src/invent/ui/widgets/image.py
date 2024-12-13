@@ -18,8 +18,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-from invent.ui.core import Widget, TextProperty, MessageBlueprint
-from pyscript import document
+from invent.i18n import _
+from invent.ui.core import Widget, TextProperty, Event
+from pyscript.web import img
 
 
 class Image(Widget):
@@ -28,12 +29,22 @@ class Image(Widget):
     """
 
     image = TextProperty(
-        "The path to the image media.",
+        _("The path to the image media."),
         default_value="https://loremflickr.com/400/400",
     )
 
-    touch = MessageBlueprint(
-        "Sent when the image is touched.",
+    width = TextProperty(
+        _("The width of the image."),
+        default_value=None,
+    )
+
+    height = TextProperty(
+        _("The height of the image."),
+        default_value=None,
+    )
+
+    touch = Event(
+        _("Sent when the image is touched."),
     )
 
     @classmethod
@@ -43,12 +54,22 @@ class Image(Widget):
     def on_image_changed(self):
         self.element.src = self.image
 
+    def on_width_changed(self):
+        if self.width is not None:
+            self.element.style["width"] = self.width
+        else:
+            self.element.style.remove("width")
+
+    def on_height_changed(self):
+        if self.height is not None:
+            self.element.style["height"] = self.height
+        else:
+            self.element.style.remove("height")
+
     def touch_handler(self, event):
         self.publish("touch")
 
     def render(self):
-        element = document.createElement("img")
-        element.id = self.id
-        element.src = self.image
+        element = img(src=self.image, id=self.id)
         element.addEventListener("click", self.touch_handler)
         return element

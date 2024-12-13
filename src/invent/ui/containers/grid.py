@@ -1,29 +1,27 @@
-from ..core import Container, ChoiceProperty, IntegerProperty
-from ..core.component import (
-    _TSHIRT_SIZES,
-    ALIGNMENTS_STRETCH,
-    Layout,
-    align_self_property,
-)
+"""
+Contains a definition of a grid layout container.
 
+Based on original pre-COVID work by [Nicholas H.Tollervey.](https://ntoll.org/)
 
-class GridLayout(Layout):
-    align_self = align_self_property("vertical")
-    justify_self = ChoiceProperty(
-        "Horizontal alignment.",
-        choices=ALIGNMENTS_STRETCH,
-        default_value="stretch",
-        map_to_style="justify-self",
-    )
+Copyright (c) 2024 Invent contributors.
 
-    column_span = IntegerProperty("Number of columns to fill.", 1)
-    row_span = IntegerProperty("Number of rows to fill.", 1)
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
 
-    def on_column_span_changed(self):
-        self.element.style.gridColumn = f"span {self.column_span}"
+http://www.apache.org/licenses/LICENSE-2.0
 
-    def on_row_span_changed(self):
-        self.element.style.gridRow = f"span {self.row_span}"
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+"""
+
+from invent.i18n import _
+from ..core.container import Container
+from ..core.property import ChoiceProperty, IntegerProperty
+from ..core.measures import TSHIRT_SIZES, MEDIUM
 
 
 class Grid(Container):
@@ -31,20 +29,18 @@ class Grid(Container):
     A grid.
     """
 
-    layout_class = GridLayout
-
     column_gap = ChoiceProperty(
-        "The gap between columns in the grid.",
-        choices=_TSHIRT_SIZES,
-        default_value="M",
+        _("The gap between columns in the grid."),
+        choices=TSHIRT_SIZES,
+        default_value=MEDIUM,
     )
     row_gap = ChoiceProperty(
-        "The gap between rows in the grid.",
-        choices=_TSHIRT_SIZES,
-        default_value="M",
+        _("The gap between rows in the grid."),
+        choices=TSHIRT_SIZES,
+        default_value=MEDIUM,
     )
 
-    columns = IntegerProperty("Number of columns.", 4)
+    columns = IntegerProperty(_("Number of columns."), 4)
 
     @classmethod
     def icon(cls):
@@ -57,12 +53,16 @@ class Grid(Container):
         self._set_gap(self.row_gap, "row-gap")
 
     def on_columns_changed(self):
-        self.element.style.gridTemplateColumns = "auto " * self.columns
+        self.element.style["grid-template-columns"] = "auto " * self.columns
+
+    def __init__(self, **kwargs):
+        super().__init__(**kwargs)
+        self.content_align = "stretch"
 
     def render(self):
         """
         Render the component.
         """
         element = super().render()
-        element.style.display = "grid"
+        element.style["display"] = "grid"
         return element

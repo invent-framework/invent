@@ -1,27 +1,28 @@
-from ...compatability import capitalize
-from ..core import Container, ChoiceProperty, TextProperty
-from ..core.component import _TSHIRT_SIZES, ALIGNMENTS
+"""
+Contains a definition of a box layout container. This is a common base class
+for Row and Column. It is a flex container box.
 
+Based on original pre-COVID work by [Nicholas H.Tollervey.](https://ntoll.org/)
 
-def justify_content_property(direction):
-    return ChoiceProperty(
-        f"{capitalize(direction)} alignment of children.",
-        choices=ALIGNMENTS,
-        default_value="start",
-        map_to_style="justify-content",
-    )
+Copyright (c) 2024 Invent contributors.
 
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
 
-def flex_property(direction):
-    # TODO: validate input
-    return TextProperty(
-        f"How much {direction} space to consume. "
-        + "May be blank to take no extra space, "
-        "'auto' to take an equal portion of any free space, "
-        "or an integer to take the given proportion of the total space.",
-        default_value="",
-        map_to_style="flex",
-    )
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+"""
+
+from invent.i18n import _
+from ..core.container import Container
+from ..core.property import ChoiceProperty
+from ..core.measures import TSHIRT_SIZES, MEDIUM, COMPONENT_DISTRIBUTION
 
 
 class Box(Container):
@@ -31,14 +32,20 @@ class Box(Container):
 
     gap = ChoiceProperty(
         "The gap between items in the container",
-        choices=_TSHIRT_SIZES,
-        default_value="M",
+        choices=TSHIRT_SIZES,
+        default_value=MEDIUM,
+    )
+
+    content_align = ChoiceProperty(
+        _("Alignment of child components in this container."),
+        choices=COMPONENT_DISTRIBUTION,
+        # default_value="start",
+        map_to_style="justify-content",
     )
 
     def render(self):
         element = super().render()
-        element.style.display = "flex"
-        element.style.flexDirection = self.flex_direction
+        element.style["display"] = "flex"
         return element
 
     def on_gap_changed(self):

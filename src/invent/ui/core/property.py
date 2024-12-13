@@ -1,3 +1,25 @@
+"""
+The core Property class and its children, used for defining the properties of
+UI components in the Invent framework.
+
+Based on original pre-COVID work by [Nicholas H.Tollervey.](https://ntoll.org/)
+
+Copyright (c) 2024 Invent contributors.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+"""
+
+import datetime
 import invent
 from invent.i18n import _
 
@@ -13,7 +35,11 @@ class ValidationError(ValueError):
 class from_datastore:  # NOQA
     """
     Instances of this class signal that a property is bound to a datastore
-    value.
+    value identified by the key.
+
+    If a with_function is provided, it is called when the value in the datastore
+    changes. The function is passed the new value from the datastore and should
+    return the value to be set on the property.
 
     Implementation detail: snake case is used for this class, rather than the
     orthodox capitalised camel case, for aesthetic reasons. ;-)
@@ -21,7 +47,8 @@ class from_datastore:  # NOQA
 
     def __init__(self, key, with_function=None):
         """
-        The key identifies the value in the datastore.
+        The key identifies the value in the datastore. The with_function, if
+        supplied, is called when the value in the datastore changes.
         """
         self.key = key
         self.with_function = with_function
@@ -29,7 +56,7 @@ class from_datastore:  # NOQA
     def __repr__(self):
         """
         Create the expression for a property that gets its value from the
-        datastore.
+        datastore. Used for serialiszation purposes.
         """
         expression = f"from_datastore({self.key!r}"
         if self.with_function:
@@ -41,7 +68,8 @@ class from_datastore:  # NOQA
 
 class Property:
     """
-    An instance of a child of this class represents a property of a Widget.
+    An instance of a child of this class represents a property of a Widget. Do
+    not use this class directly. Instead, use one of its children.
 
     This class implements the Python descriptor protocol. See:
 
@@ -49,10 +77,6 @@ class Property:
 
     Using a Property class allows easier introspection and dynamic handling of
     properties in a way that works with MicroPython.
-
-    Every property must have a human meaningful description of what it
-    represents for the widget, an optional default value and optional flag to
-    indicate if it is a required property.
     """
 
     _property_counter = 0
@@ -64,18 +88,23 @@ class Property:
         required=False,
         map_to_attribute=None,
         map_to_style=None,
+        group=None,
     ):
         """
         All properties must have a description. They may have a default value,
         a flag indicating if it is a required property and an indication of the
         HTML or CSS attribute of the parent object's element to which to map
-        its value.
+        its value. The optional group attribute should be a string and is used
+        to group properties together into meaningful categories (for example,
+        "layout" or "style") used by external tooling to create Invent
+        applications.
         """
         self.description = description
         self.required = required
         self.default_value = self.validate(default_value)
         self.map_to_attribute = map_to_attribute
         self.map_to_style = map_to_style
+        self.group = group
 
     def __set_name__(self, owner, name):
         """
@@ -181,8 +210,8 @@ class Property:
 
         # Map the value to a CSS property.
         if self.map_to_style and obj.element:
-            obj.element.style.setProperty(
-                self.map_to_style, getattr(obj, self.private_name)
+            obj.element.style[self.map_to_style] = getattr(
+                obj, self.private_name
             )
 
         # Handle the existence of an on_FOO_changed function.
@@ -433,13 +462,15 @@ class ChoiceProperty(Property):
 
     def validate(self, value):
         """
-        Ensure the property's value is in the set of valid choices.
+        Ensure the property's value is in the set of valid choices. This check
+        is case sensitive.
         """
         if value in self.choices or value is None:
             return super().validate(value)
         raise ValidationError(
-            f"The value {value!r} is not one of the valid choices "
-            + f"{self.choices}"
+            _("The value is not one of the valid choices."),
+            value,
+            self.choices,
         )
 
     def as_dict(self):
@@ -450,3 +481,151 @@ class ChoiceProperty(Property):
         result = super().as_dict()
         result["choices"] = self.choices
         return result
+
+
+class DateProperty(Property):
+    """
+    A property for a Widget that represents a date. The date is assigned as
+    a datetime.Date instance, a string in the format "YYYY-MM-DD" or None.
+
+    The date is stored as a datetime.Date instance. If a minimum or maximum
+    date is set, the value must be within the range.
+    """
+
+    def __init__(
+        self,
+        description,
+        default_value=None,
+        minimum=None,
+        maximum=None,
+        **kwargs,
+    ):
+        """
+        In addition to the Property related attributes, the min and max
+        define the bounds of a valid value. If set to None, these won't be
+        checked during validation.
+        """
+        self.minimum = self.coerce(minimum)
+        self.maximum = self.coerce(maximum)
+        super().__init__(description, default_value, **kwargs)
+
+    def coerce(self, value):
+        if isinstance(value, datetime.date):
+            return value
+        elif isinstance(value, str):
+            # MicroPython doesn't support strptime, so we have to do this.
+            try:
+                return datetime.date(*map(int, value.split("-")))
+            except Exception as ex:
+                raise ValidationError(_("Not a valid date."), value)
+        elif value is None:
+            return None
+        raise ValidationError(_("Not a valid date."), value)
+
+    def validate(self, value):
+        value = super().validate(self.coerce(value))
+        if value is not None:
+            if self.minimum and value < self.minimum:
+                raise ValidationError(
+                    _("The date is less than the minimum allowed."),
+                    value,
+                    self.minimum,
+                )
+            if self.maximum and value > self.maximum:
+                raise ValidationError(
+                    _("The date is greater than the maximum allowed."),
+                    value,
+                    self.maximum,
+                )
+        return value
+
+    def as_dict(self):
+        """
+        Return a Python dictionary as a data structure representing all the
+        essential information about the property.
+        """
+        result = super().as_dict()
+        result["default_value"] = str(self.default_value)
+        result["minimum"] = str(self.minimum)
+        result["maximum"] = str(self.maximum)
+        return result
+
+    def __str__(self):
+        """
+        Return a string representation of the date object
+        """
+        return str(self.value)
+
+
+class TimeProperty(Property):
+    """
+    A property for a Widget that represents a time. The time is assigned as
+    a datetime.Time instance, a string in the format "HH:MM:SS" or None.
+
+    The time is stored as a datetime.Time instance. If a minimum or maximum
+    time is set, the value must be within the range.
+    """
+
+    def __init__(
+        self,
+        description,
+        default_value=None,
+        minimum=None,
+        maximum=None,
+        **kwargs,
+    ):
+        """
+        In addition to the Property related attributes, the min and max
+        define the bounds of a valid value. If set to None, these won't be
+        checked during validation.
+        """
+        self.minimum = self.coerce(minimum)
+        self.maximum = self.coerce(maximum)
+        super().__init__(description, default_value, **kwargs)
+
+    def coerce(self, value):
+        if isinstance(value, datetime.time):
+            return value
+        elif isinstance(value, str):
+            # MicroPython doesn't support strptime, so we have to do this.
+            try:
+                return datetime.time(*map(int, value.split(":")))
+            except Exception as ex:
+                raise ValidationError(_("Not a valid time."), value)
+        elif value is None:
+            return None
+        raise ValidationError(_("Not a valid time."), value)
+
+    def validate(self, value):
+        value = super().validate(self.coerce(value))
+        if value is not None:
+            if self.minimum and value < self.minimum:
+                raise ValidationError(
+                    _("The time is less than the minimum allowed."),
+                    value,
+                    self.minimum,
+                )
+            if self.maximum and value > self.maximum:
+                raise ValidationError(
+                    _("The time is greater than the maximum allowed."),
+                    value,
+                    self.maximum,
+                )
+        return value
+
+    def as_dict(self):
+        """
+        Return a Python dictionary as a data structure representing all the
+        essential information about the property.
+        """
+        result = super().as_dict()
+        result["default_value"] = str(self.default_value)
+        result["minimum"] = str(self.minimum)
+        result["maximum"] = str(self.maximum)
+        return result
+
+    def __str__(self):
+        """
+        Return a string representation of the time object
+        """
+        return str(self.value)

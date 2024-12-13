@@ -8,13 +8,8 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width,initial-scale=1.0">
 
-    <!-- PyScript CSS -->
-    <link rel="stylesheet"
-      href="https://pyscript.net/releases/2024.6.2/core.css">
-
-    <!-- This script tag bootstraps PyScript -->
-    <script type="module"
-      src="https://pyscript.net/releases/2024.6.2/core.js"></script>
+    <link rel="stylesheet" href="https://pyscript.net/releases/2024.10.1/core.css" />
+    <script type="module" src="https://pyscript.net/releases/2024.10.1/core.js"></script>
     <style>
     body {
       font-family: Verdana, Geneva, Tahoma, sans-serif;
@@ -38,9 +33,9 @@
       <a href="./static/widgets.html" target="_blank">Widgets</a> ·
       <a href="https://discord.gg/TKyjvSynTP" target="_blank">Community</a>
     </p>
-    <p>Starting test suite...</p>
-    <script type="py" src="./static/main.py" config="./static/settings.json"
-      terminal worker></script>
+    <p>Starting test suite... (<a href="index2.html">Pyodide version</a>)</p>
+    <script type="mpy" src="./static/main.py" config="./static/settings.json"
+      terminal></script>
   </div>
 </body>
 </html>

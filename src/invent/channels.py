@@ -24,7 +24,7 @@ limitations under the License.
 import asyncio
 
 from .task import Task
-from .compatability import iscoroutinefunction
+from .utils import iscoroutinefunction
 
 
 __all__ = [

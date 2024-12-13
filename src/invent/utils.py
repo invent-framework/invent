@@ -1,52 +1,77 @@
 """
-Utility functions.
+Utility and compatibility functions.
 """
 
-from pyscript import window
-from invent.ui import App
+import inspect
+import sys
+from pyscript.web import div
+from .app import App
 
 
-def play_sound(url):
-    sound = window.Audio.new(str(url))
-    sound.play()
+#: A flag to show if MicroPython is the current Python interpreter.
+is_micropython = "micropython" in sys.version.lower()
 
 
 def show_page(page_name):
+    """
+    Show the page with the specified name. Hide the current page if there is
+    one.
+    """
     App.app().show_page(page_name)
 
 
-async def read_file(file):
+def getmembers_static(cls):
     """
-    Read the contents of the specified JS File object as a string.
+    Cross-interpreter implementation of inspect.getmembers_static.
     """
-    array_buffer = await file.arrayBuffer()
+    if is_micropython:  # pragma: no cover
+        return [
+            (name, getattr(cls, name)) for name, _ in inspect.getmembers(cls)
+        ]
+    return inspect.getmembers_static(cls)
 
-    return array_buffer.to_bytes().decode("utf-8")
 
-
-async def read_files(filenames):
+def iscoroutinefunction(obj):
     """
-    Read the contents of the files with the specified filenames.
-
-    Returns a list of strings.
+    Cross-interpreter implementation of inspect.iscoroutinefunction.
     """
-    return [
-        await read_file(get_file_by_name(filename))
-        for filename in filenames or []
-    ]
+    if is_micropython:  # pragma: no cover
+        # MicroPython seems to treat coroutines as generators :)
+        # But the object may be a closure containing a generator.
+        if "<closure <generator>" in repr(obj):
+            # As far as I can tell, there's no way to check if a closure
+            # contains a generator in MicroPython except by checking the
+            # string representation.
+            return True
+        # And if not, just check it's a generator function.
+        return inspect.isgeneratorfunction(obj)
+
+    return inspect.iscoroutinefunction(obj)
 
 
-def get_filenames():
-    """Return the filenames of all uploaded files."""
+def capitalize(s):
+    """
+    Cross-interpreter implementation of str.capitalize.
+    """
+    return s[0].upper() + s[1:].lower()
 
-    from invent.ui.widgets.fileupload import FileUpload
 
-    return FileUpload.get_filenames()
+def sanitize(raw):
+    """
+    Returns an HTML safe version of the raw input string.
+    """
+    temp = div()
+    temp.innerText = raw
+    return temp.innerHTML
 
 
-def get_file_by_name(filename):
-    """Get the File object with the specified name."""
+def from_markdown(raw_markdown):
+    """
+    Convert markdown to sanitized HTML.
+    """
+    result = raw_markdown
+    from . import marked, purify  # To avoid circular imports.
 
-    from invent.ui.widgets.fileupload import FileUpload
-
-    return FileUpload.get_file_by_name(filename)
+    if marked:
+        result = purify.default().sanitize(marked.parse(raw_markdown))
+    return result

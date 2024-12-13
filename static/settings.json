@@ -1,10 +1,7 @@
 {
     "files":{
-        "test_suite.zip": "./*"
-    },
-    "packages": [
-        "pytest==8.3.3",
-        "pytest-cov==5.0.0",
-        "pytest-asyncio==0.24.0"
-    ]
+        "test_suite.tar.gz": "./*",
+        "https://raw.githubusercontent.com/ntoll/upytest/main/upytest.py": "",
+        "https://raw.githubusercontent.com/ntoll/umock/main/umock.py": ""
+    }
 }

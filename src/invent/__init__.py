@@ -18,14 +18,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
+from pyscript import storage
 from .channels import Message, subscribe, publish, unsubscribe, when
-from .compatability import is_micropython
 from .datastore import DataStore
 from .i18n import _, load_translations
 from .media import Media, set_media_root, get_media_root
-from .ui.app import App
-from .utils import get_filenames, play_sound, read_files, show_page
-from .speech import listen, say, set_voice
+from .app import App
+from .utils import show_page, is_micropython
 from .task import Task
 
 
@@ -35,35 +34,75 @@ __all__ = [
     "publish",
     "unsubscribe",
     "when",
-    "is_micropython",
-    "DataStore",
     "datastore",
     "_",
     "load_translations",
     "Media",
-    "media",
     "set_media_root",
     "get_media_root",
-    "play_sound",
-    "get_filenames",
-    "read_files",
+    "App",
     "show_page",
-    "go",
-    "listen",
-    "say",
-    "set_voice",
+    "is_micropython",
     "Task",
+    "go",
+    "init",
+    "marked",
 ]
 
 
 #: Default instance of the application's datastore.
-datastore = DataStore()
+datastore = None
+#: The default name for the datastore
+datastore_name = "invent"
+
+
+async def start_datastore():
+    """
+    Ensure the datastore is started and referenced properly.
+    """
+    global datastore
+    if not datastore:
+        datastore = await storage(datastore_name, storage_class=DataStore)
+
+
+#: The marked JavaScript module for parsing markdown.
+marked = None
+#: The DOMPurify JavaScript module for sanitising HTML.
+purify = None
+
+
+async def load_js_modules():
+    """
+    Load the JavaScript modules required by the Invent framework.
+    """
+    from pyscript import js_import
+
+    global marked, purify
+    (
+        marked,
+        purify,
+    ) = await js_import(
+        "https://cdn.jsdelivr.net/npm/marked/lib/marked.esm.js",
+        "https://esm.run/dompurify",
+    )
 
 
 #: The root from which all media files can be found.
 media = Media([], "media")
 
 
-#: Start the app.
+async def load():
+    """
+    Initialise the Invent framework (datastore / JS requirements).
+
+    Takes optional default start values for the datastore.
+    """
+    await start_datastore()
+    await load_js_modules()
+
+
 def go():
+    """
+    Start the app.
+    """
     App.app().go()

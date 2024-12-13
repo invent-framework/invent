@@ -117,3 +117,5 @@ venv.bak/
 # Zipped up assets
 invent.zip
 test_suite.zip
+invent.tar.gz
+test_suite.tar.gz

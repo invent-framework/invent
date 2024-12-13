@@ -18,12 +18,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
+from invent.i18n import _
 from invent.ui.core import (
     Widget,
     TextProperty,
-    MessageBlueprint,
+    Event,
 )
-from pyscript import document
+from pyscript.web import audio
+from pyscript.ffi import create_proxy
 
 
 class Audio(Widget):
@@ -31,11 +33,23 @@ class Audio(Widget):
     An audio player with a play button, progress indicator and volume control.
     """
 
-    source = TextProperty("The audio source file to play.")
+    source = TextProperty(_("The audio source file to play."))
 
-    press = MessageBlueprint(
-        "Sent when the button is pressed.",
-        button="The button that was clicked.",
+    playing = Event(
+        _("Sent when the audio starts to play."),
+        audio="The audio source playing.",
+    )
+
+    paused = Event(
+        _("Sent when the audio is paused."),
+        audio=_("The audio source paused."),
+        position=_("The pause position in seconds."),
+    )
+
+    position_changed = Event(
+        _("Sent when the position in the audio is changed."),
+        audio=_("The audio source that has been affected."),
+        position=_("The new position in seconds."),
     )
 
     @classmethod
@@ -46,42 +60,49 @@ class Audio(Widget):
         """
         Play the audio source file, from the current position.
         """
-        ...
+        self.element.play()
 
     def pause(self):
         """
         Pause the playing of the source file.
         """
-        ...
+        self.element.pause()
 
     def reset(self):
         """
         Reset the current position to the start of the audio source file.
         """
-        ...
+        self.set_position(0)
 
     def stop(self):
         """
         Pause and reset the audio.
         """
-        ...
+        self.pause()
+        self.reset()
 
     def set_position(self, position):
         """
         Set the current place in the audio source file to the specified
         position, as a value in seconds.
         """
-        ...
+        self.element.currentTime = position
+        self.publish("position_changed", audio=self.source, position=position)
 
-    def play_pressed(self, event):
-        self.publish("playing", source=self.source)
+    def on_play(self, event):
+        self.publish("playing", audio=self.source)
+
+    def on_pause(self, event):
+        self.publish(
+            "paused", audio=self.source, position=event.target.currentTime
+        )
 
     def on_source_changed(self):
         self.element.setAttribute("src", self.source)
 
     def render(self):
-        element = document.createElement("audio")
-        element.id = self.id
+        element = audio(id=self.id)
         element.setAttribute("controls", "controls")
-        # element.addEventListener("click", self.click)
+        element.addEventListener("play", create_proxy(self.on_play))
+        element.addEventListener("pause", create_proxy(self.on_pause))
         return element

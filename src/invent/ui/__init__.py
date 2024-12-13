@@ -19,30 +19,30 @@ limitations under the License.
 """
 
 from ..i18n import _
-from .app import App
 from .core import Widget, Container, from_datastore
-from .utils import random_id, sanitize
-from .containers.column import Column
-from .containers.grid import Grid
-from .containers.page import Page
-from .containers.row import Row
+from .containers import Column, Grid, Page, Row
 from .widgets.audio import Audio
 from .widgets.button import Button
 from .widgets.checkbox import CheckBox
 from .widgets.code import Code
+from .widgets.color import ColorPicker
+from .widgets.date import DatePicker
+from .widgets.datetime import DateTimePicker
 from .widgets.fileupload import FileUpload
 from .widgets.html import Html
 from .widgets.image import Image
+from .widgets.radio import Radio
 from .widgets.slider import Slider
 from .widgets.switch import Switch
-from .widgets.textbox import TextBox
+from .widgets.label import Label
 from .widgets.textinput import TextInput
+from .widgets.time import TimePicker
+from .widgets.video import Video
 
 
 __all__ = [
     "random_id",
     "sanitize",
-    "App",
     "Code",
     "Page",
     "Widget",
@@ -55,13 +55,19 @@ __all__ = [
     "Button",
     "CheckBox",
     "Code",
+    "ColorPicker",
+    "DatePicker",
+    "DateTimePicker",
     "FileUpload",
     "Html",
     "Image",
+    "Radio",
     "Slider",
     "Switch",
-    "TextBox",
+    "Label",
     "TextInput",
+    "TimePicker",
+    "Video",
 ]
 
 
@@ -75,23 +81,17 @@ AVAILABLE_COMPONENTS = {
     _("Button"): Button,
     _("CheckBox"): CheckBox,
     _("Code"): Code,
+    _("ColorPicker"): Code,
+    _("DatePicker"): DatePicker,
+    _("DateTimePicker"): DateTimePicker,
     _("FileUpload"): FileUpload,
     _("Html"): Html,
     _("Image"): Image,
+    _("Radio"): Radio,
     _("Slider"): Slider,
     _("Switch"): Switch,
-    _("TextBox"): TextBox,
+    _("Label"): Label,
     _("TextInput"): TextInput,
+    _("TimePicker"): TimePicker,
+    _("Video"): Video,
 }
-
-
-def create_component(component_cls_name, **kwargs):
-    """
-    Create an instance of the subclass of Component with the specified name.
-    """
-
-    component_klass = AVAILABLE_COMPONENTS.get(component_cls_name)
-    if component_klass is None:
-        raise ValueError(f"No such component type: {component_cls_name}")
-
-    return component_klass(**kwargs)

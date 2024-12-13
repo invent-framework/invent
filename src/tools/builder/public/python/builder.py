@@ -146,7 +146,7 @@ class Builder:
             else:
                 collection = "widgets"
 
-            blueprints[collection][component_klass_name] = component_klass.blueprint()
+            blueprints[collection][component_klass_name] = component_klass.definition()
 
         return json.dumps(blueprints)
 
@@ -298,7 +298,7 @@ class Builder:
         for component in Component._components_by_id.values():
             if isinstance(component, Widget):
                 widget_cls = type(component)
-                message_blueprints = widget_cls.message_blueprints()
+                message_blueprints = widget_cls.events()
                 subjects.update(message_blueprints.keys())
         return json.dumps(list(subjects))
 

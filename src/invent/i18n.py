@@ -23,7 +23,6 @@ limitations under the License.
 
 import json
 from pyscript import window
-from .channels import Message, publish
 
 
 __all__ = [
@@ -87,6 +86,9 @@ def set_language(to_language):
     (e.g. "en-GB", "de" or "fr-FR"). Publishes a set_language message with
     details of the new language setting to the i18n channel.
     """
+    # Avoid a circular import.
+    from .channels import Message, publish
+
     global __language
     __language = to_language
     publish(
