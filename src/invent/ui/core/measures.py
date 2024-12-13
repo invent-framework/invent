@@ -63,7 +63,7 @@ GAP_SIZES = {
     EXTRA_LARGE: XL_SIZE,
 }
 
-#: Choices for the distribution of child components within a container.
+#: Choices for the distribution of components within a container.
 COMPONENT_DISTRIBUTION = [
     "start",
     "center",

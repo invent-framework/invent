@@ -22,9 +22,7 @@ limitations under the License.
 import invent
 from invent.i18n import _
 from .component import Component
-from ..containers import Column, Row
-from .property import ChoiceProperty, TextProperty
-from .measures import COMPONENT_DISTRIBUTION
+from .property import TextProperty
 
 
 class Widget(Component):
@@ -51,42 +49,6 @@ class Widget(Component):
         ),
         default_value=None,
     )
-
-    horizontal_align = ChoiceProperty(
-        _("The horizontal alignment of the widget."),
-        choices=COMPONENT_DISTRIBUTION,
-    )
-
-    vertical_align = ChoiceProperty(
-        _("The vertical alignment of the widget."),
-        choices=COMPONENT_DISTRIBUTION,
-    )
-
-    def _on_new_parent(self):
-        """
-        When a widget is added to a new parent, set the alignment properties
-        of the widget (which depend on the type of containing parent).
-        """
-        self.on_horizontal_align_changed()
-        self.on_vertical_align_changed()
-
-    def on_horizontal_align_changed(self):
-        """
-        Set the horizontal alignment of the widget.
-        """
-        if isinstance(self.parent, Column):
-            self.element.style["align-self"] = self.horizontal_align
-        elif isinstance(self.parent, Row):
-            self.element.style["justify-self"] = self.horizontal_align
-
-    def on_vertical_align_changed(self):
-        """
-        Set the vertical alignment of the widget.
-        """
-        if isinstance(self.parent, Row):
-            self.element.style["align-self"] = self.vertical_align
-        elif isinstance(self.parent, Column):
-            self.element.style["justify-self"] = self.vertical_align
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)

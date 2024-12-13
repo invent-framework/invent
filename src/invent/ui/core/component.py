@@ -29,7 +29,7 @@ from .property import (
     IntegerProperty,
 )
 from .event import Event
-from .measures import TSHIRT_SIZES, GAP_SIZES
+from .measures import TSHIRT_SIZES, GAP_SIZES, COMPONENT_DISTRIBUTION
 
 
 #: The default icon for a component. https://github.com/phosphor-icons/core
@@ -61,7 +61,7 @@ class Component:
         _("The component is visible is set to True."), default_value=True
     )
 
-    sizing = TextProperty(
+    space = TextProperty(
         _(
             "The amount of space to consume. "
             "May be blank to take no extra space, "
@@ -105,6 +105,16 @@ class Component:
         ],
     )
 
+    horizontal_align = ChoiceProperty(
+        _("The horizontal alignment of the widget."),
+        choices=COMPONENT_DISTRIBUTION,
+    )
+
+    vertical_align = ChoiceProperty(
+        _("The vertical alignment of the widget."),
+        choices=COMPONENT_DISTRIBUTION,
+    )
+
     def __init__(self, **kwargs):
         if invent.is_micropython:  # pragma: no cover
             # When in MicroPython, ensure all the properties have a reference
@@ -112,7 +122,8 @@ class Component:
             for property_name, property_obj in type(self).properties().items():
                 property_obj.__set_name__(self, property_name)
         self.element = self.render()
-        self._parent = None
+        self._parent = None  # A reference to the parent container.
+        self._parent_type = None  # Indicates the type of parent container.
         self.update(**kwargs)
 
         # Set default values.
@@ -146,15 +157,9 @@ class Component:
         component.
         """
         self._parent = parent
-        self._on_new_parent()
-
-    def _on_new_parent(self):
-        """
-        Automatically called when the parent of the component is changed. 
-        Specific components can override this method to perform additional
-        actions when the parent is changed.
-        """
-        pass
+        self._parent_type = type(parent).__name__
+        self.on_horizontal_align_changed()
+        self.on_vertical_align_changed()
 
     def update(self, **kwargs):
         """
@@ -274,6 +279,24 @@ class Component:
             self.element.style["border-style"] = self.border_style
         else:
             self.element.style.remove("border-style")
+
+    def on_horizontal_align_changed(self):
+        """
+        Set the horizontal alignment of the widget.
+        """
+        if self._parent_type == "Row":
+            self.element.style["justify-self"] = self.horizontal_align
+        else:  # Column, Grid
+            self.element.style["align-self"] = self.horizontal_align
+
+    def on_vertical_align_changed(self):
+        """
+        Set the vertical alignment of the widget.
+        """
+        if self._parent_type == "Row":
+            self.element.style["align-self"] = self.vertical_align
+        else:  # Column, Grid
+            self.element.style["justify-self"] = self.vertical_align
 
     @classmethod
     def properties(cls):
