@@ -190,14 +190,28 @@ def test_property_as_dict():
     The expected JSON serializable Python dictionary defining the property's
     structure and attributes is returned.
     """
-    p = Property("A test property", default_value="test", required=True)
+    # With all the attributes of a property given.
+    p = Property(
+        "A test property", default_value="test", required=True, group="test"
+    )
     assert p.as_dict() == {
         "property_type": "Property",
         "description": "A test property",
         "required": True,
         "default_value": "test",
+        "group": "test",
     }
     assert json.dumps(p.as_dict())
+
+    # Assuming the default attributes of a property.
+    p = Property("A test property")
+    assert p.as_dict() == {
+        "property_type": "Property",
+        "description": "A test property",
+        "required": False,
+        "default_value": None,
+        "group": None,
+    }
 
 
 def test_numeric_property_defaults_no_min_or_max():
@@ -320,6 +334,7 @@ def test_numeric_property_as_dict():
         "default_value": 150,
         "minimum": 100,
         "maximum": None,
+        "group": None,
     }
 
 
@@ -485,7 +500,7 @@ def test_text_property_as_dict():
     The expected JSON serializable Python dictionary defining the property's
     structure and attributes is returned.
     """
-    tp = TextProperty("A test property", max_length=10)
+    tp = TextProperty("A test property", max_length=10, group="test")
     assert tp.as_dict() == {
         "property_type": "TextProperty",
         "description": "A test property",
@@ -493,6 +508,7 @@ def test_text_property_as_dict():
         "default_value": None,
         "min_length": None,
         "max_length": 10,
+        "group": "test",
     }
 
 
@@ -547,9 +563,9 @@ def test_choice_property_validation():
         select = ChoiceProperty(
             "A test property",
             choices=[
-                1,
-                2,
-                3,
+                "Foo",
+                "Bar",
+                "Baz",
             ],
         )
 
@@ -559,8 +575,8 @@ def test_choice_property_validation():
     widget = FakeWidget()
     # If the property is not required, None is also valid.
     widget.select = None
-    # A valid choice is a valid value.
-    widget.select = 1
+    # A valid choice is a case insensitive valid value.
+    widget.select = "foo"
     # Outside the valid choices is invalid.
     with upytest.raises(ValidationError):
         widget.select = 0
@@ -578,12 +594,14 @@ def test_choice_property_as_dict():
             2,
             3,
         ],
+        group="test",
     )
     assert cp.as_dict() == {
         "property_type": "ChoiceProperty",
         "description": "A test property",
         "required": False,
         "default_value": None,
+        "group": "test",
         "choices": [1, 2, 3],
     }
 
@@ -740,6 +758,7 @@ def test_date_property_as_dict():
         "default_value": str(datetime.date(2021, 1, 1)),
         "minimum": str(datetime.date(2021, 1, 1)),
         "maximum": str(datetime.date(2021, 1, 31)),
+        "group": None,
     }
 
 
@@ -873,4 +892,5 @@ def test_time_property_as_dict():
         "default_value": str(datetime.time(12, 0, 0)),
         "minimum": str(datetime.time(12, 0, 0)),
         "maximum": str(datetime.time(12, 0, 1)),
+        "group": None,
     }

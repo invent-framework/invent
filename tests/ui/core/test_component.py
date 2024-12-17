@@ -35,15 +35,18 @@ def test_event_create_message():
     """
     ev = core.Event("This is a test", foo="A foo to handle")
     # Cannot include fields that have not been specified.
-    with upytest.raises(ValueError):
-        ev.create_message("subject", baz="This will fail")
+    with upytest.raises(ValueError) as exc:
+        ev.create_message(None, "subject", baz="This will fail")
+        assert exc.exception.args[0] == "Unknown field in event subject: baz"
     # Can include all the fields.
-    msg = ev.create_message("subject", foo="Foo to you")
+    msg = ev.create_message("fake_widget", "subject", foo="Foo to you")
+    assert msg.widget == "fake_widget"  # Will be reference to the widget.
     assert msg._subject == "subject"
     assert msg.foo == "Foo to you"
     # Cannot miss an expected field.
-    with upytest.raises(ValueError):
-        ev.create_message("subject")
+    with upytest.raises(ValueError) as exc:
+        ev.create_message("fake_widget", "subject")
+        assert exc.exception.args[0] == "Field missing from event subject: foo"
 
 
 def test_event_as_dict():
@@ -303,7 +306,7 @@ def test_component_as_dict():
             "favourite_colour": "black",
             "row_span": None,
             "horizontal_align": None,
-            "space": None,
+            "stretch": None,
             "visible": True,
             "vertical_align": None,
             "name": "MyWidget 1",

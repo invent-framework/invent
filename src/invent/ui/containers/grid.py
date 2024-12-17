@@ -33,14 +33,16 @@ class Grid(Container):
         _("The gap between columns in the grid."),
         choices=TSHIRT_SIZES,
         default_value=MEDIUM,
+        group="style",
     )
     row_gap = ChoiceProperty(
         _("The gap between rows in the grid."),
         choices=TSHIRT_SIZES,
         default_value=MEDIUM,
+        group="style",
     )
 
-    columns = IntegerProperty(_("Number of columns."), 4)
+    columns = IntegerProperty(_("Number of columns."), 4, group="layout")
 
     @classmethod
     def icon(cls):

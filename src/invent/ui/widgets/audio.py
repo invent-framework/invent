@@ -37,18 +37,18 @@ class Audio(Widget):
 
     playing = Event(
         _("Sent when the audio starts to play."),
-        audio="The audio source playing.",
+        source="The audio source playing.",
     )
 
     paused = Event(
         _("Sent when the audio is paused."),
-        audio=_("The audio source paused."),
+        source=_("The audio source paused."),
         position=_("The pause position in seconds."),
     )
 
     position_changed = Event(
         _("Sent when the position in the audio is changed."),
-        audio=_("The audio source that has been affected."),
+        source=_("The audio source that has been affected."),
         position=_("The new position in seconds."),
     )
 
@@ -87,14 +87,14 @@ class Audio(Widget):
         position, as a value in seconds.
         """
         self.element.currentTime = position
-        self.publish("position_changed", audio=self.source, position=position)
+        self.publish("position_changed", source=self.source, position=position)
 
     def on_play(self, event):
-        self.publish("playing", audio=self.source)
+        self.publish("playing", source=self.source)
 
     def on_pause(self, event):
         self.publish(
-            "paused", audio=self.source, position=event.target.currentTime
+            "paused", source=self.source, position=event.target.currentTime
         )
 
     def on_source_changed(self):

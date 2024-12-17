@@ -91,11 +91,12 @@ async def load_js_modules():
 media = Media([], "media")
 
 
-async def load():
+async def setup():
     """
-    Initialise the Invent framework (datastore / JS requirements).
+    Setup all the things required by the Invent framework (e.g. datastore / JS
+    requirements).
 
-    Takes optional default start values for the datastore.
+    TODO: Takes optional default start values for the datastore.
     """
     await start_datastore()
     await load_js_modules()

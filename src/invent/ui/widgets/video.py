@@ -37,18 +37,18 @@ class Video(Widget):
 
     playing = Event(
         _("Sent when the video starts to play."),
-        video=_("The video source playing."),
+        source=_("The video source playing."),
     )
 
     paused = Event(
         _("Sent when the video is paused."),
-        video=_("The video source paused."),
+        source=_("The video source paused."),
         position=_("The pause position in seconds."),
     )
 
     position_changed = Event(
         _("Sent when the position in the video is changed."),
-        video=_("The video source that has been affected."),
+        source=_("The video source that has been affected."),
         position=_("The new position in seconds."),
     )
 
@@ -87,14 +87,14 @@ class Video(Widget):
         position, as a value in seconds.
         """
         self.element.currentTime = position
-        self.publish("position_changed", video=self.source, position=position)
+        self.publish("position_changed", source=self.source, position=position)
 
     def on_play(self, event):
-        self.publish("playing", video=self.source)
+        self.publish("playing", source=self.source)
 
     def on_pause(self, event):
         self.publish(
-            "paused", video=self.source, position=event.target.currentTime
+            "paused", source=self.source, position=event.target.currentTime
         )
 
     def on_source_changed(self):

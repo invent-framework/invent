@@ -32,6 +32,7 @@ from .widgets.fileupload import FileUpload
 from .widgets.html import Html
 from .widgets.image import Image
 from .widgets.radio import Radio
+from .widgets.selector import Selector
 from .widgets.slider import Slider
 from .widgets.switch import Switch
 from .widgets.label import Label
@@ -62,6 +63,7 @@ __all__ = [
     "Html",
     "Image",
     "Radio",
+    "Selector",
     "Slider",
     "Switch",
     "Label",

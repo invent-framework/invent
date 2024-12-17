@@ -32,20 +32,22 @@ class Slider(Widget):
     """
 
     value = NumericProperty(
-        "The value of the slider.", default_value=50, map_to_attribute="value"
+        _("The value of the slider."),
+        default_value=50,
+        map_to_attribute="value",
     )
     minvalue = NumericProperty(
-        "The minimum value of the slider.",
+        _("The minimum value of the slider."),
         default_value=0,
         map_to_attribute="min",
     )
     maxvalue = NumericProperty(
-        "The maximum value of the slider.",
+        _("The maximum value of the slider."),
         default_value=100,
         map_to_attribute="max",
     )
     step = NumericProperty(
-        "The granularity of the value of the slider.",
+        _("The granularity of the value of the slider."),
         default_value=1,
         map_to_attribute="step",
     )

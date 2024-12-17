@@ -50,11 +50,6 @@ class FileUpload(Widget):
         return cls._files_.keys()
 
     files = ListProperty(_("The files to upload"))
-    required = BooleanProperty(
-        _("A flag to indicate entry into the text box is required."),
-        default_value=False,
-        map_to_attribute="required",
-    )
 
     @classmethod
     def icon(cls):

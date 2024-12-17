@@ -56,14 +56,16 @@ class Event:
         self.description = description
         self.content = kwargs
 
-    def create_message(self, name, **kwargs):
+    def create_message(self, widget, name, **kwargs):
         """
-        Returns a message representing the event with the given content
-        (kwargs). The message's subject is the name of the event. The message
-        can then be published to a channel to indicate the event has occurred.
+        Returns a message representing an event triggered by a widget with the
+        given content (kwargs). The message's subject is the name of the event.
+        The message can then be published to a channel to indicate the event
+        has occurred.
 
         Validates kwargs match the fields described in the event's content
-        specification.
+        specification. The source widget is added to the message as the
+        "widget" field.
         """
         for k in kwargs:
             if k not in self.content:
@@ -77,6 +79,7 @@ class Event:
                     _("Field missing from event {event}:").format(event=name)
                     + k
                 )
+        kwargs["widget"] = widget
         return invent.Message(name, **kwargs)
 
     def as_dict(self):

@@ -13,26 +13,25 @@ invent.datastore["number_of_oinks"] = 0
 
 
 def navigate(message):
+    print(message)
     if message.button.name == "to_lucy":
         invent.show_page("Lucy")
     elif message.button.name == "to_percy":
         invent.show_page("Percy")
-    elif message.button.name == "to_code":
-        invent.show_page("Code")
 
 
 def make_honk(message):
     invent.datastore["number_of_honks"] = (
         invent.datastore["number_of_honks"] + 1
     )
-    invent.play_sound(invent.media.sounds.honk.mp3)
+    # invent.play_sound(invent.media.sounds.honk.mp3)
 
 
 def make_oink(message):
     invent.datastore["number_of_oinks"] = (
         invent.datastore["number_of_oinks"] + 1
     )
-    invent.play_sound(invent.media.sounds.oink.mp3)
+    # invent.play_sound(invent.media.sounds.oink.mp3)
 
 
 def make_geese(number_of_honks):
@@ -65,49 +64,44 @@ app = invent.App(
                         Image(
                             image=invent.media.images.goose.png,
                             channel="honk",
-                            layout=dict(align_self="center"),
+                            horizontal_align="center",
                         ),
                         Row(
-                            layout=dict(align_self="center"),
+                            horizontal_align="center",
                             children=[
                                 Button(
                                     name="button honk",
-                                    label="HONK!",
+                                    text="HONK!",
                                     channel="honk",
                                 ),
                                 Button(
                                     name="to_percy",
-                                    label="Visit Percy",
+                                    text="Visit Percy",
                                     channel="navigate",
                                 ),
                             ],
                         ),
                         Row(
-                            content=[
+                            children=[
                                 Label(
                                     name="number_of_honks",
                                     text=from_datastore("number_of_honks"),
-                                    layout=dict(align_self="center"),
+                                    horizontal_align="center",
                                 ),
                                 Slider(
                                     value=from_datastore("number_of_honks"),
                                     name="Honk Slider",
                                     step=1,
-                                    layout=dict(flex=1),
+                                    space=2,
                                 ),
                             ]
                         ),
                         Row(
                             id="geese",
-                            justify_content="center",
+                            horizontal_align="center",
                             children=from_datastore(
                                 "number_of_honks", with_function=make_geese
                             ),
-                        ),
-                        Button(
-                            name="to_code",
-                            label="Show Code",
-                            channel="navigate",
                         ),
                     ]
                 ),
@@ -121,39 +115,34 @@ app = invent.App(
                         Image(
                             image=invent.media.images.pig.png,
                             channel="oink",
-                            layout=dict(align_self="center"),
+                            horizontal_align="center",
                         ),
                         Row(
-                            layout=dict(align_self="center"),
+                            horizontal_align="center",
                             children=[
                                 Button(
                                     name="button oink",
-                                    label="OINK!!",
+                                    text="OINK!!",
                                     channel="oink",
                                 ),
                                 Button(
                                     name="to_lucy",
-                                    label="Visit Lucy",
+                                    text="Visit Lucy",
                                     channel="navigate",
                                 ),
                                 Label(
                                     name="number_of_oinks",
                                     text=from_datastore("number_of_oinks"),
-                                    layout=dict(align_self="center"),
+                                    horizontal_align="center",
                                 ),
                             ],
                         ),
                         Row(
                             id="pigs",
-                            justify_content="center",
+                            horizontal_align="center",
                             children=from_datastore(
                                 "number_of_oinks", with_function=make_pigs
                             ),
-                        ),
-                        Button(
-                            name="to_code",
-                            label="Show Code",
-                            channel="navigate",
                         ),
                     ],
                 ),
@@ -165,5 +154,4 @@ app = invent.App(
 
 # GO! ##################################################################################
 
-
-await invent.go()
+invent.go()

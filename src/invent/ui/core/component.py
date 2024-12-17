@@ -50,44 +50,68 @@ class Component:
     _component_counter = 0
 
     id = TextProperty(_("The id of the widget instance in the DOM."))
+
     name = TextProperty(
         _("The meaningful name of the widget instance."),
         map_to_attribute="name",
     )
+
     enabled = BooleanProperty(
         _("Indicates if the component is enabled."), default_value=True
     )
+
     visible = BooleanProperty(
         _("The component is visible is set to True."), default_value=True
     )
 
-    space = TextProperty(
+    stretch = TextProperty(
         _(
-            "The amount of space to consume. "
-            "May be blank to take no extra space, "
-            "'auto' to take an equal portion of any free space, "
-            "or an integer to take the given proportion of the total space.",
+            "Indicates how to stretch into the available space. "
+            "If blank won't stretch into available space, "
+            "if 'auto' will stretch an equal portion of any available space, "
+            "or an integer to stretch into the given proportion of the available space.",
         ),
         default_value=None,
         map_to_style="flex",
+        group="layout",
     )
 
     column_span = IntegerProperty(
-        _("Number of columns to fill in a grid container."), default_value=None
+        _("Number of columns to fill in a grid container."),
+        default_value=None,
+        group="layout",
     )
 
     row_span = IntegerProperty(
-        _("Number of rows to fill in a grid container."), default_value=None
+        _("Number of rows to fill in a grid container."),
+        default_value=None,
+        group="layout",
+    )
+
+    horizontal_align = ChoiceProperty(
+        _("The horizontal alignment of the widget."),
+        choices=COMPONENT_DISTRIBUTION,
+        group="layout",
+    )
+
+    vertical_align = ChoiceProperty(
+        _("The vertical alignment of the widget."),
+        choices=COMPONENT_DISTRIBUTION,
+        group="layout",
     )
 
     background_color = TextProperty(
-        _("The color of the component's background.")
+        _("The color of the component's background."), group="style"
     )
 
-    border_color = TextProperty(_("The color of the component's border."))
+    border_color = TextProperty(
+        _("The color of the component's border."), group="style"
+    )
 
     border_width = ChoiceProperty(
-        _("The size of the component's border."), choices=TSHIRT_SIZES
+        _("The size of the component's border."),
+        choices=TSHIRT_SIZES,
+        group="style",
     )
 
     border_style = ChoiceProperty(
@@ -103,16 +127,7 @@ class Component:
             "Inset",
             "Outset",
         ],
-    )
-
-    horizontal_align = ChoiceProperty(
-        _("The horizontal alignment of the widget."),
-        choices=COMPONENT_DISTRIBUTION,
-    )
-
-    vertical_align = ChoiceProperty(
-        _("The vertical alignment of the widget."),
-        choices=COMPONENT_DISTRIBUTION,
+        group="style",
     )
 
     def __init__(self, **kwargs):

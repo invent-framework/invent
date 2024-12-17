@@ -45,11 +45,6 @@ class TextInput(Widget):
         default_value=False,
         map_to_attribute="required",
     )
-    readonly = BooleanProperty(
-        _("A flag to indicate the text box is read only."),
-        default_value=False,
-        map_to_attribute="disabled",
-    )
     placeholder = TextProperty(
         _("The placeholder text to put into the empty text box."),
         map_to_attribute="placeholder",
@@ -90,7 +85,14 @@ class TextInput(Widget):
         """
         self.value = event.target.value
 
+    def on_keypress(self, event):
+        """
+        Bound to the js "keypress" event on the widget's element.
+        """
+        self.publish("keypress", key=event.key)
+
     def render(self):
         element = input_(type=self.input_type, id=self.id)
         element.addEventListener("input", create_proxy(self.on_input))
+        element.addEventListener("keypress", create_proxy(self.on_keypress))
         return element

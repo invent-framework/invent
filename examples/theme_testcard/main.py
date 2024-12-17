@@ -9,7 +9,7 @@ from invent.ui import *
 
 # Datastore ############################################################################
 
-await invent.load()  # Load default values for the datastore.
+await invent.setup()  # Load default values for the datastore.
 
 # Code #################################################################################
 
@@ -237,7 +237,10 @@ Here's some code:"""
                         DateTimePicker(),
                         DatePicker(),
                         TimePicker(),
+                        Selector(choices=["One", "Two", "Three"]),
                         Label(text="## Multimedia"),
+                        Label(text="A default image:"),
+                        Image(),
                         Label(text="A test image:"),
                         Image(image=invent.media.images.testcard_invent.png),
                         Label(text="A test audio player:"),
@@ -259,9 +262,9 @@ Here's some code:"""
                                     border_width="S",
                                     border_style="Dotted",
                                     children=[
-                                        Label(text="25% default", space="1"),
-                                        Label(text="50% default", space="2"),
-                                        Label(text="25% default", space="1"),
+                                        Label(text="25% default", stretch="1"),
+                                        Label(text="50% default", stretch="2"),
+                                        Label(text="25% default", stretch="1"),
                                     ],
                                 ),
                                 Row(
@@ -270,14 +273,14 @@ Here's some code:"""
                                     border_style="Dotted",
                                     horizontal_align="start",
                                     children=[
-                                        Label(text="25% start", space="1"),
+                                        Label(text="25% start", stretch="1"),
                                         Label(
                                             text="50% start",
-                                            space="2",
+                                            stretch="2",
                                         ),
                                         Label(
                                             text="25% start",
-                                            space="1",
+                                            stretch="1",
                                         ),
                                     ],
                                 ),
@@ -289,15 +292,15 @@ Here's some code:"""
                                     children=[
                                         Label(
                                             text="25% center",
-                                            space="1",
+                                            stretch="1",
                                         ),
                                         Label(
                                             text="50% center",
-                                            space="2",
+                                            stretch="2",
                                         ),
                                         Label(
                                             text="25% center",
-                                            space="1",
+                                            stretch="1",
                                         ),
                                     ],
                                 ),
@@ -307,9 +310,9 @@ Here's some code:"""
                                     border_style="Dotted",
                                     horizontal_align="end",
                                     children=[
-                                        Label(text="25% end", space="1"),
-                                        Label(text="50% end", space="2"),
-                                        Label(text="25% end", space="1"),
+                                        Label(text="25% end", stretch="1"),
+                                        Label(text="50% end", stretch="2"),
+                                        Label(text="25% end", stretch="1"),
                                     ],
                                 ),
                             ],
@@ -336,9 +339,9 @@ Here's some code:"""
                                     border_width="S",
                                     border_style="Dotted",
                                     children=[
-                                        Label(text="25% default", space="1"),
-                                        Label(text="50% default", space="2"),
-                                        Label(text="25% default", space="1"),
+                                        Label(text="25% default", stretch="1"),
+                                        Label(text="50% default", stretch="2"),
+                                        Label(text="25% default", stretch="1"),
                                     ],
                                 ),
                                 Column(
@@ -347,14 +350,14 @@ Here's some code:"""
                                     border_style="Dotted",
                                     vertical_align="start",
                                     children=[
-                                        Label(text="25% start", space="1"),
+                                        Label(text="25% start", stretch="1"),
                                         Label(
                                             text="50% start",
-                                            space="2",
+                                            stretch="2",
                                         ),
                                         Label(
                                             text="25% start",
-                                            space="1",
+                                            stretch="1",
                                         ),
                                     ],
                                 ),
@@ -366,15 +369,15 @@ Here's some code:"""
                                     children=[
                                         Label(
                                             text="25% center",
-                                            space="1",
+                                            stretch="1",
                                         ),
                                         Label(
                                             text="50% center",
-                                            space="2",
+                                            stretch="2",
                                         ),
                                         Label(
                                             text="25% center",
-                                            space="1",
+                                            stretch="1",
                                         ),
                                     ],
                                 ),
@@ -384,16 +387,16 @@ Here's some code:"""
                                     border_style="Dotted",
                                     vertical_align="end",
                                     children=[
-                                        Label(text="25% end", space="1"),
-                                        Label(text="50% end", space="2"),
-                                        Label(text="25% end", space="1"),
+                                        Label(text="25% end", stretch="1"),
+                                        Label(text="50% end", stretch="2"),
+                                        Label(text="25% end", stretch="1"),
                                     ],
                                 ),
                                 Column(
                                     border_color="blue",
                                     border_width="S",
                                     border_style="Dotted",
-                                    space=2,
+                                    stretch=2,
                                     children=[Label(text="Flexed to fill.")],
                                 ),
                             ],
@@ -484,7 +487,7 @@ Here's some code:"""
                                     text="Stretch with fill",
                                     size="LARGE",
                                     vertical_align="stretch",
-                                    space="2",
+                                    stretch="2",
                                 ),
                             ],
                         ),

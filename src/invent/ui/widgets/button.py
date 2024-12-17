@@ -44,6 +44,7 @@ class Button(Widget):
         _("The size of the button."),
         default_value="MEDIUM",
         choices=["LARGE", "MEDIUM", "SMALL"],
+        group="style",
     )
     purpose = ChoiceProperty(
         _("The button's purpose."),
@@ -56,11 +57,7 @@ class Button(Widget):
             "WARNING",
             "DANGER",
         ],
-    )
-    disabled = BooleanProperty(
-        _("Indicates if the button is disabled."),
-        default_value=False,
-        map_to_attribute="disabled",
+        group="style",
     )
 
     press = Event(

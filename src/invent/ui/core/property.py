@@ -245,6 +245,7 @@ class Property:
             "description": self.description,
             "required": self.required,
             "default_value": self.default_value,
+            "group": self.group,
         }
 
 
@@ -423,7 +424,7 @@ class BooleanProperty(Property):
 
 class ListProperty(Property):
     """
-    A list like container of stuff.
+    A list like container property for a Widget.
     """
 
     def __init__(
@@ -463,9 +464,15 @@ class ChoiceProperty(Property):
     def validate(self, value):
         """
         Ensure the property's value is in the set of valid choices. This check
-        is case sensitive.
+        is case insensitive if the passed in value is a string.
         """
-        if value in self.choices or value is None:
+        if isinstance(value, str):
+            lower_choices = [
+                c.lower() for c in self.choices if isinstance(c, str)
+            ]
+            if value.lower() in lower_choices:
+                return super().validate(value)
+        elif value in self.choices or value is None:
             return super().validate(value)
         raise ValidationError(
             _("The value is not one of the valid choices."),

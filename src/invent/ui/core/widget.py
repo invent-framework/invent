@@ -69,7 +69,7 @@ class Widget(Component):
                 if channel.strip()
             ]
             message = getattr(self, event_name).create_message(
-                event_name, **kwargs
+                widget=self, name=event_name, **kwargs
             )
             invent.publish(message, to_channel=channels)
 
