@@ -19,7 +19,7 @@ limitations under the License.
 """
 
 from invent.i18n import _
-from pyscript.web import select, option
+from pyscript.web import select
 from pyscript.ffi import create_proxy
 
 from invent.ui.core import (

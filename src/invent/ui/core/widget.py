@@ -45,7 +45,8 @@ class Widget(Component):
 
     channel = TextProperty(
         _(
-            "A comma separated list of channels to which the widget broadcasts."
+            "A comma separated list of channels to which the widget"
+            "broadcasts."
         ),
         default_value=None,
     )
@@ -58,7 +59,8 @@ class Widget(Component):
     def publish(self, event_name, **kwargs):
         """
         Given the name of one of the class's defined events, publish a message
-        to all the widget's channels with the message content defined in kwargs.
+        to all the widget's channels with the message content defined in
+        kwargs.
         """
         # Ensure self.channel is treated as a comma-separated list of channel
         # names.

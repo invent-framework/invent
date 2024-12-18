@@ -100,7 +100,9 @@ def test_property_from_datastore():
     test_fn = umock.Mock()
     fw = FakeWidget()
     # fmt: off
-    with umock.patch("invent:subscribe") as mock_sub, umock.patch("invent:unsubscribe") as mock_unsub:
+    with umock.patch(
+            "invent:subscribe"
+    ) as mock_sub, umock.patch("invent:unsubscribe") as mock_unsub:
         fw.my_property = from_datastore("test", with_function=test_fn)
         mock_unsub.assert_not_called()
         mock_sub.assert_called_once()

@@ -19,10 +19,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-from invent.i18n import _
 from .box import Box
-from ..core.property import ChoiceProperty
-from ..core.measures import COMPONENT_DISTRIBUTION
 
 
 class Row(Box):

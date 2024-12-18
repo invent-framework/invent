@@ -69,7 +69,8 @@ class Component:
             "Indicates how to stretch into the available space. "
             "If blank won't stretch into available space, "
             "if 'auto' will stretch an equal portion of any available space, "
-            "or an integer to stretch into the given proportion of the available space.",
+            "or an integer to stretch into the given proportion of the"
+            "available space.",
         ),
         default_value=None,
         map_to_style="flex",

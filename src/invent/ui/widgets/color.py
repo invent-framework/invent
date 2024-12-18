@@ -32,7 +32,8 @@ class ColorPicker(Widget):
 
     value = TextProperty(
         _(
-            "The value of the color picker. Must be in seven-character hexadecimal notation."
+            "The value of the color picker. Must be in seven-character"
+            "hexadecimal notation."
         ),
         default_value="#000000",
         min_length=7,

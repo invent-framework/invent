@@ -22,7 +22,7 @@ from invent.i18n import _
 from pyscript.web import input_, label, div
 from pyscript.ffi import create_proxy
 
-from invent.ui.core import Widget, DateProperty, TextProperty, TimeProperty
+from invent.ui.core import Widget, TextProperty, TimeProperty
 
 
 class TimePicker(Widget):

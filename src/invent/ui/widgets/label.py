@@ -1,5 +1,5 @@
 """
-A label widget to contain textual content that understands Markdown, for the 
+A label widget to contain textual content that understands Markdown, for the
 Invent framework.
 
 Based on original pre-COVID work by [Nicholas H.Tollervey.](https://ntoll.org/)

@@ -22,7 +22,6 @@ from invent.i18n import _
 from invent.ui.core import (
     Widget,
     TextProperty,
-    BooleanProperty,
     ChoiceProperty,
     Event,
 )

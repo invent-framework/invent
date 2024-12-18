@@ -22,7 +22,7 @@ from invent.i18n import _
 from pyscript.web import input_
 from pyscript.ffi import create_proxy
 
-from invent.ui.core import Widget, BooleanProperty, ListProperty
+from invent.ui.core import Widget, ListProperty
 
 
 class FileUpload(Widget):
