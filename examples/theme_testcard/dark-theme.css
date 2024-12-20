@@ -127,6 +127,16 @@ samp {
   font-size: 1rem;
 }
 
+pre {
+    display: block;
+    max-width: 100%;
+    overflow: auto;
+    padding: 1rem;
+    border: 1px solid var(--primary-light);
+    background-color: var(--primary-dark);
+}
+
+
 /* Multimedia elements */
 
 img, video {

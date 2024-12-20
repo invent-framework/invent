@@ -36,14 +36,13 @@ from .widgets.selector import Selector
 from .widgets.slider import Slider
 from .widgets.switch import Switch
 from .widgets.label import Label
+from .widgets.table import Table
 from .widgets.textinput import TextInput
 from .widgets.time import TimePicker
 from .widgets.video import Video
 
 
 __all__ = [
-    "random_id",
-    "sanitize",
     "Code",
     "Page",
     "Widget",
@@ -67,6 +66,7 @@ __all__ = [
     "Slider",
     "Switch",
     "Label",
+    "Table",
     "TextInput",
     "TimePicker",
     "Video",
@@ -93,6 +93,7 @@ AVAILABLE_COMPONENTS = {
     _("Slider"): Slider,
     _("Switch"): Switch,
     _("Label"): Label,
+    _("Table"): Table,
     _("TextInput"): TextInput,
     _("TimePicker"): TimePicker,
     _("Video"): Video,

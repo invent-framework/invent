@@ -44,12 +44,36 @@ Here's some code:"""
                         ),
                         Code(
                             code="""def hello(name="world"):
-    return f"Hello, {name}"
-                             """
+    return f"Hello, {name}" """
+                        ),
+                        Label(text="Some more extensive code:"),
+                        Code(
+                            code="""class Hello:  # Enterprise programmer 👔
+
+  def __init__(self, name="world!"):
+    self.name = name
+
+  @property
+  def greet(self):
+    return f"{self.__class__.__name__} {name}"
+
+print(Hello().greet)"""
                         ),
                         Label(
                             text="# Heading 1\n\n## Heading2\n\n### Heading 3\n\n#### Heading 4\n\n##### Heading 5\n\n###### Heading 6"
                         ),
+                        Label(text="## A table"),
+                        Table(data=[
+                                ["", "Hamble", "Jemima", "Humpty", "Little Ted", "Big Ted"],
+                                ["Toy-type", "Doll", "Rag doll", "Felt Egg", "Teddy", "Teddy"],
+                                ["Dress", "Blue pinafore dress", "Woolly trousers and jumper", "Tartan trousers", "None (just fur)", "None (just fur)"],
+                                ["Eyes", "Blue", "Blue", "Black", "Beady", "Beady"],
+                                ["Nose", "Pink", "None", "White", "Black", "Black"],
+                                ["Super power", "Sitting up", "Flopping over", "Rolling around", "Getting lost", "Falling over"],
+                                ["Weapon", "Knitting needles", "Laser eyes", "Flamethrower", "Gnashing teeth", "Bear stare"],
+                            ],
+                            label="The Play School toys",
+                            row_headers=True),
                         Label(text="## Form controls\n\n### Buttons"),
                         Row(
                             children=[

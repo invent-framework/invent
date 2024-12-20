@@ -127,6 +127,33 @@ samp {
   font-size: 1rem;
 }
 
+pre {
+    display: block;
+    max-width: 100%;
+    overflow: auto;
+    padding: 1rem;
+    border: 1px solid var(--primary-light);
+    background-color: var(--muted-light);
+}
+
+/* Table */
+
+tr:nth-child(even) {
+  background-color: var(--muted-light);
+}
+
+thead {
+  background-color: var(--primary-light);
+}
+
+th {
+  text-align: start;
+}
+
+td, th {
+  padding: 0.5rem;
+}
+
 /* Multimedia elements */
 
 img, video {
