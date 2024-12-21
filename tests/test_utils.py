@@ -75,7 +75,8 @@ def test_iscoroutinefunction():
 
 def test_iscoroutinefunction_with_closure():
     """
-    Test that iscoroutinefunction returns True for a coroutine function as a closure.
+    Test that iscoroutinefunction returns True for a coroutine function
+    as a closure.
     """
     x = 1
 

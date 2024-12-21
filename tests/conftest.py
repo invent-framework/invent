@@ -1,5 +1,4 @@
 from pyscript.web import page
-from pyscript import storage
 
 import invent
 import invent.app

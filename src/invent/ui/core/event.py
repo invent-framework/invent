@@ -1,6 +1,6 @@
 """
-The core Event class for defining events in the life-cycle of a component in the
-Invent framework.
+The core Event class for defining events in the life-cycle of a component in
+the Invent framework.
 
 Based on original pre-COVID work by [Nicholas H.Tollervey.](https://ntoll.org/)
 

@@ -1,6 +1,6 @@
 """
-Contains a definition of a column layout container. This is a vertical container
-box.
+Contains a definition of a column layout container. This is a vertical
+container box.
 
 Based on original pre-COVID work by [Nicholas H.Tollervey.](https://ntoll.org/)
 
@@ -19,10 +19,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-from invent.i18n import _
 from .box import Box
-from ..core.property import ChoiceProperty
-from ..core.measures import COMPONENT_DISTRIBUTION
 
 
 class Column(Box):

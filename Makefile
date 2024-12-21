@@ -34,10 +34,10 @@ tidy:
 	black -l 79 examples src/invent tests utils
 
 lint:
-	flake8 src/invent
+	flake8 --extend-ignore=E203,E701 src/invent
 
 lint-all:
-	flake8 src/invent tests/*
+	flake8 --extend-ignore=E203,E701 src/invent tests/*
 
 serve: clean tidy zip
 	python utils/serve.py

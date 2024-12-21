@@ -37,9 +37,9 @@ class from_datastore:  # NOQA
     Instances of this class signal that a property is bound to a datastore
     value identified by the key.
 
-    If a with_function is provided, it is called when the value in the datastore
-    changes. The function is passed the new value from the datastore and should
-    return the value to be set on the property.
+    If a with_function is provided, it is called when the value in the
+    datastore changes. The function is passed the new value from the datastore
+    and should return the value to be set on the property.
 
     Implementation detail: snake case is used for this class, rather than the
     orthodox capitalised camel case, for aesthetic reasons. ;-)
@@ -523,7 +523,7 @@ class DateProperty(Property):
             # MicroPython doesn't support strptime, so we have to do this.
             try:
                 return datetime.date(*map(int, value.split("-")))
-            except Exception as ex:
+            except Exception:
                 raise ValidationError(_("Not a valid date."), value)
         elif value is None:
             return None
@@ -597,7 +597,7 @@ class TimeProperty(Property):
             # MicroPython doesn't support strptime, so we have to do this.
             try:
                 return datetime.time(*map(int, value.split(":")))
-            except Exception as ex:
+            except Exception:
                 raise ValidationError(_("Not a valid time."), value)
         elif value is None:
             return None

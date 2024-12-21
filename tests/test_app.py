@@ -43,7 +43,7 @@ def test_initialise_app_with_media_root():
     """
     Test that the App class can be initialised with a media root.
     """
-    app = invent.app.App(name="Test App", media_root="media")
+    _ = invent.app.App(name="Test App", media_root="media")
     root = invent.get_media_root()
     assert root == "media", f"{root} is not 'media'"
 

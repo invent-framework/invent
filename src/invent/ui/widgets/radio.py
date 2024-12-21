@@ -80,12 +80,6 @@ class Radio(Widget):
     def on_value_changed(self):
         self._radio_element.value = self.value
 
-    def on_name_changed(self):
-        """
-        Ensure the name is always the group.
-        """
-        self._radio_element.name = self.group
-
     def render(self):
         self._radio_element = input_(type="radio", id=self.id, name=self.group)
         self._text_span = span(self.label)
