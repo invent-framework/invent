@@ -62,18 +62,63 @@ print(Hello().greet)"""
                         Label(
                             text="# Heading 1\n\n## Heading2\n\n### Heading 3\n\n#### Heading 4\n\n##### Heading 5\n\n###### Heading 6"
                         ),
-                        Label(text="## A table"),
-                        Table(data=[
-                                ["", "Hamble", "Jemima", "Humpty", "Little Ted", "Big Ted"],
-                                ["Toy-type", "Doll", "Rag doll", "Felt Egg", "Teddy", "Teddy"],
-                                ["Dress", "Blue pinafore dress", "Woolly trousers and jumper", "Tartan trousers", "None (just fur)", "None (just fur)"],
-                                ["Eyes", "Blue", "Blue", "Black", "Beady", "Beady"],
-                                ["Nose", "Pink", "None", "White", "Black", "Black"],
-                                ["Super power", "Sitting up", "Flopping over", "Rolling around", "Getting lost", "Falling over"],
-                                ["Weapon", "Knitting needles", "Laser eyes", "Flamethrower", "Gnashing teeth", "Bear stare"],
+                        Label(
+                            text="## A table\n\nTakes a list of lists as data, with configurable options for headers and the caption. The style of the table depends upon the selected theme."
+                        ),
+                        Table(
+                            data=[
+                                [
+                                    "",
+                                    "Hamble",
+                                    "Jemima",
+                                    "Humpty",
+                                    "Little Ted",
+                                    "Big Ted",
+                                ],
+                                [
+                                    "Toy-type",
+                                    "Doll",
+                                    "Rag doll",
+                                    "Felt Egg",
+                                    "Teddy",
+                                    "Teddy",
+                                ],
+                                [
+                                    "Dress",
+                                    "Blue pinafore dress",
+                                    "Woolly trousers and jumper",
+                                    "Tartan trousers",
+                                    "None (just fur)",
+                                    "None (just fur)",
+                                ],
+                                [
+                                    "Eyes",
+                                    "Blue",
+                                    "Blue",
+                                    "Black",
+                                    "Beady",
+                                    "Beady",
+                                ],
+                                [
+                                    "Nose",
+                                    "Pink",
+                                    "None",
+                                    "White",
+                                    "Black",
+                                    "Black",
+                                ],
+                                [
+                                    "Super power",
+                                    "Sitting up",
+                                    "Flopping over",
+                                    "Rolling around",
+                                    "Getting lost",
+                                    "Falling off things",
+                                ],
                             ],
                             label="The Play School toys",
-                            row_headers=True),
+                            row_headers=True,
+                        ),
                         Label(text="## Form controls\n\n### Buttons"),
                         Row(
                             children=[

@@ -86,18 +86,17 @@ class Table(Widget):
                     [tr(*[td(cell) for cell in row]) for row in temp_data]
                 )
 
-
     def on_data_changed(self):
         self._tabulate()
-    
+
     def on_column_headers_changed(self):
         self._tabulate()
-    
+
     def on_row_headers_changed(self):
         self._tabulate()
 
     def on_label_changed(self):
-        self._caption.text = self.label
+        self._caption.innerText = self.label
 
     def render(self):
         self._caption = caption(self.label)
