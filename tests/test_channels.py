@@ -106,7 +106,8 @@ async def test_subscribe_and_publish_task_and_awaitable():
         return
 
     # A task instance to subscribe to something.
-    t = invent.Task(an_awaitable_for_a_task)
+    t = invent.Task()
+    t.function = an_awaitable_for_a_task
 
     async def an_awaitable(message):
         """

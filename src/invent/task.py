@@ -27,34 +27,51 @@ import invent
 class Task:
     """
     Synchronously represent an asynchronous task whose result will end up in
-    the datastore.
+    the datastore. This is a base class for all tasks in Invent, and the child
+    classes should implement/reference the function to be awaited, along with
+    any other context-appropriate capabilities.
 
-    A Task is easy to teach (no need to know about Python await etc...). The
-    lifecycle of a Task is very simple to understand. The result of a Task is
-    stored in the datastore if a key is provided, thus plugging into Invent's
-    reactive data management.
+    A Task is easy to teach (no need to know about Python await etc...) and the
+    lifecycle of a Task is very simple to understand:
+
+    1. Instantiate the task with an optional result_key (the key in the
+       datastore where the result will be stored).
+    2. Call task's the go() method with any arguments required by the
+       underlying asynchronous function.
+    3. The result of a Task is stored in the datastore if the result_key is
+       provided, thus plugging into Invent's reactive data management.
+
+    That's it. Simple, easy to understand, and powerful. Check the child
+    classes for examples of how to implement a Task.
     """
 
-    def __init__(self, function, key=None, *args, **kwargs):
-        """
-        Create a Task. The function is an async function to await. The key
-        is used to store the result of the function in the datastore. The
-        args and kwargs are passed to the function when go() is called.
-        """
-        self.function = function
-        self.key = key
-        self.args = args
-        self.kwargs = kwargs
+    #: A reference to the asynchronous function to be awaited. This should be
+    #: implemented / referenced by the child class.
+    function = None
 
-    def go(self):
+    def __init__(self, result_key=None):
         """
-        Wrap the function in a coroutine and schedule it to run. If a key is
-        provided the result of the function will be stored in the datastore.
+        Create a Task.
+
+        The optional result_key is used to store the result of the function in
+        the datastore.
+        """
+        self.result_key = result_key
+
+    def go(self, *args, **kwargs):
+        """
+        Wrap the task's asynchronous function in a coroutine and schedule it to
+        run.
+
+        The args and kwargs are passed to the asynchronous function. If a
+        result_key is provided, the result of the asynchronous function is
+        stored in the datastore, thus plugging into Invent's reactive data
+        management.
         """
 
         async def wrapper():
-            result = await self.function(*self.args, **self.kwargs)
-            if self.key:
-                invent.datastore[self.key] = result
+            result = await self.function(*args, **kwargs)
+            if self.result_key:
+                invent.datastore[self.result_key] = result
 
         asyncio.create_task(wrapper())

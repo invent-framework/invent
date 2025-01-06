@@ -1,0 +1,51 @@
+"""
+Defines a task that fetches a URL and stores the result in the datastore.
+
+Based on original pre-COVID work by [Nicholas H.Tollervey.](https://ntoll.org/)
+
+Copyright (c) 2024 Invent contributors.
+
+Licensed under the Apache License, Version 2.0 (the "License");
+you may not use this file except in compliance with the License.
+You may obtain a copy of the License at
+
+http://www.apache.org/licenses/LICENSE-2.0
+
+Unless required by applicable law or agreed to in writing, software
+distributed under the License is distributed on an "AS IS" BASIS,
+WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+See the License for the specific language governing permissions and
+limitations under the License.
+"""
+
+import pyscript
+from ..task import Task
+
+
+async def _fetch(_self, url, json=False, *args, **kwargs):
+    """
+    Fetch a URL and return the JSON result. If the json flag is set to False,
+    returns a plain response string. If the response is not OK, raises a
+    ConnectionError.
+    """
+    response = await pyscript.fetch(url, *args, **kwargs)
+    if response.ok:
+        if json:
+            result = await response.json()
+        else:
+            result = await response.text()
+        return result
+    else:
+        raise ConnectionError(f"Failed to fetch {url}: {response.status}")
+
+
+class WebRequest(Task):
+    """
+    Make a request to a URL and store the result in the datastore if a key is
+    provided. Other arguments are passed to the fetch function provided by
+    PyScript and documented at:
+
+    https://docs.pyscript.net/2024.11.1/api/#pyscriptfetch
+    """
+
+    function = _fetch

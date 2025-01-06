@@ -2,12 +2,11 @@
 Example application that uses a Task to get cat facts.
 """
 
-import pyscript
 import invent
-import asyncio
 from invent.ui import *
 from invent import tasks
 from invent import utils
+from invent import App, Page
 
 URL = "https://catfact.ninja/fact"
 
@@ -36,12 +35,7 @@ def ready(value):
 
 
 invent.subscribe(
-    invent.Task(
-        tasks.fetch,
-        key="cat_fact",
-        indicator="working",
-        url=URL,
-    ),
+    tasks.send_web_request(url=URL, key="cat_fact"),
     to_channel="get_cat_facts",
     when_subject=["press"],
 )
