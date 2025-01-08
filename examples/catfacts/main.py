@@ -4,7 +4,7 @@ Example application that uses a Task to get cat facts.
 
 import invent
 from invent.ui import *
-from invent import tasks
+from invent import net
 from invent import utils
 from invent import App, Page
 
@@ -35,7 +35,7 @@ def ready(value):
 
 
 invent.subscribe(
-    tasks.send_web_request(url=URL, key="cat_fact"),
+    net.send_web_request(url=URL, key="cat_fact"),
     to_channel="get_cat_facts",
     when_subject=["press"],
 )

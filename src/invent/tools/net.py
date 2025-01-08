@@ -1,6 +1,5 @@
 """
-Defines a task that connects to a web socket and stores messages received in the
-datastore.
+Defines a task that fetches a URL and stores the result in the datastore.
 
 Based on original pre-COVID work by [Nicholas H.Tollervey.](https://ntoll.org/)
 
@@ -26,13 +25,66 @@ import json
 from ..task import Task
 
 
-class WebSocket(Task):
+def request(url, json=False, result_key=None, *args, **kwargs):
+    """
+    Make a request to a URL and store the result in the datastore. If the json
+    flag is set to False, returns a plain response string. If the response is
+    not OK, raises a ConnectionError.
+    """
+    _WebRequest(result_key).go(url, json, *args, **kwargs)
+
+
+def websocket(url, result_key=None):
+    """
+    Connect to a web socket and return an object representing the connection.
+    Store any messages received in the datastore if a key is provided. Use the
+    connection's send() method to send messages via the websocket.
+    Close the connection with its close() method.
+
+    The socket connection status is stored in the datastore at the given key,
+    and any messages received are stored in the datastore at the same key. The
+    status flags defined as: WebSocket.CONNECTING, WebSocket.OPEN,
+    WebSocket.ERROR, and WebSocket.CLOSE.
+    """
+    return _WebSocket(result_key).go(url)
+
+
+async def _fetch(_self, url, json=False, *args, **kwargs):
+    """
+    Fetch a URL and return the JSON result. If the json flag is set to False,
+    returns a plain response string. If the response is not OK, raises a
+    ConnectionError.
+    """
+    response = await pyscript.fetch(url, *args, **kwargs)
+    if response.ok:
+        if json:
+            result = await response.json()
+        else:
+            result = await response.text()
+        return result
+    else:
+        raise ConnectionError(f"Failed to fetch {url}: {response.status}")
+
+
+class _WebRequest(Task):
+    """
+    Make a request to a URL and store the result in the datastore if a key is
+    provided. Other arguments are passed to the fetch function provided by
+    PyScript and documented at:
+
+    https://docs.pyscript.net/2024.11.1/api/#pyscriptfetch
+    """
+
+    function = _fetch
+
+
+class _WebSocket(Task):
     """
     Connect to a web socket and store the messages received in the datastore if
     a key is provided. Use the send() method to send messages via the websocket.
     Close the connection with the close() method.
 
-    The soclet connection status is stored in the datastore at the given key,
+    The socket connection status is stored in the datastore at the given key,
     and any messages received are stored in the datastore at the same key. The
     status flags defined as: WebSocket.CONNECTING, WebSocket.OPEN,
     WebSocket.ERROR, and WebSocket.CLOSE.
@@ -51,8 +103,8 @@ class WebSocket(Task):
         super().__init__(*args, **kwargs)
         # The eventual websocket connection.
         self._connection = None
-        # Awaitable to indicate the websocket is open.
-        self.ready = asyncio.Event()
+        # Flag to indicate the websocket is open.
+        self._is_open = asyncio.Event()
 
     def go(self, url):
         """
@@ -81,12 +133,12 @@ class WebSocket(Task):
         If the websocket is not yet open, the message will be sent when the
         websocket is ready.
         """
-        if self.ready.is_set():
+        if self._is_open.is_set():
             self._send(message)
         else:
 
             async def wait_for_ready():
-                await self.ready.wait()
+                await self._is_open.wait()
                 self._send(message)
 
             asyncio.create_task(wait_for_ready())
@@ -129,5 +181,5 @@ class WebSocket(Task):
         """
         Store the open flag in the datastore and resove the ready event.
         """
-        self.ready.set()
+        self._is_open.set()
         self._set_value_at_result_key(self.OPEN)

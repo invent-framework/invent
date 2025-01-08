@@ -26,7 +26,7 @@ import invent
 
 class Task:
     """
-    Synchronously represent an asynchronous task whose result will end up in
+    Synchronously schedule a asynchronous task whose result will end up in
     the datastore. This is a base class for all tasks in Invent, and the child
     classes should implement/reference the function to be awaited, along with
     any other context-appropriate capabilities.
