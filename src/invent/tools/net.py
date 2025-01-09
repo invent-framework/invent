@@ -22,101 +22,72 @@ import asyncio
 import pyscript
 import invent
 import json
-from ..task import Task
+
+
+#: Flag for the datastore to indicate an error status.
+WEB_ERROR = "_WEB_ERROR"
+#: The flag to indicate the websocket is connecting.
+WEBSOCKET_CONNECTING = "_WEBSOCKET_CONNECTING"
+#: The flag to indicate the websocket is open (connected).
+WEBSOCKET_OPEN = "_WEBSOCKET_OPEN"
+#: The flag to indicate the websocket has an error.
+WEBSOCKET_ERROR = "_WEBSOCKET_ERROR"
+#: The flag to indicate the websocket has closed.
+WEBSOCKET_CLOSE = "_WEBSOCKET_CLOSE"
 
 
 def request(url, json=False, result_key=None, *args, **kwargs):
     """
     Make a request to a URL and store the result in the datastore. If the json
     flag is set to False, returns a plain response string. If the response is
-    not OK, raises a ConnectionError.
+    not OK, a WEB_ERROR flag is stored in the datastore, along with contextual
+    information.
     """
-    _WebRequest(result_key).go(url, json, *args, **kwargs)
 
-
-def websocket(url, result_key=None):
-    """
-    Connect to a web socket and return an object representing the connection.
-    Store any messages received in the datastore if a key is provided. Use the
-    connection's send() method to send messages via the websocket.
-    Close the connection with its close() method.
-
-    The socket connection status is stored in the datastore at the given key,
-    and any messages received are stored in the datastore at the same key. The
-    status flags defined as: WebSocket.CONNECTING, WebSocket.OPEN,
-    WebSocket.ERROR, and WebSocket.CLOSE.
-    """
-    return _WebSocket(result_key).go(url)
-
-
-async def _fetch(_self, url, json=False, *args, **kwargs):
-    """
-    Fetch a URL and return the JSON result. If the json flag is set to False,
-    returns a plain response string. If the response is not OK, raises a
-    ConnectionError.
-    """
-    response = await pyscript.fetch(url, *args, **kwargs)
-    if response.ok:
-        if json:
-            result = await response.json()
+    async def wrapper():
+        response = await pyscript.fetch(url, *args, **kwargs)
+        if response.ok:
+            if json:
+                result = await response.json()
+            else:
+                result = await response.text()
+            if result_key:
+                invent.datastore[result_key] = result
         else:
-            result = await response.text()
-        return result
-    else:
-        raise ConnectionError(f"Failed to fetch {url}: {response.status}")
+            invent.datastore[result_key] = (
+                WEB_ERROR + f": {response.status} {response.message}"
+            )
+
+    asyncio.create_task(wrapper())
 
 
-class _WebRequest(Task):
+class _WebSocket:
     """
-    Make a request to a URL and store the result in the datastore if a key is
-    provided. Other arguments are passed to the fetch function provided by
-    PyScript and documented at:
+    Connect to a web socket at the specified URL and store the messages
+    received in the datastore via the result_key. Use the send() method on the
+    instance to send messages with the websocket. Close the connection with the
+    close() method.
 
-    https://docs.pyscript.net/2024.11.1/api/#pyscriptfetch
-    """
-
-    function = _fetch
-
-
-class _WebSocket(Task):
-    """
-    Connect to a web socket and store the messages received in the datastore if
-    a key is provided. Use the send() method to send messages via the websocket.
-    Close the connection with the close() method.
-
-    The socket connection status is stored in the datastore at the given key,
-    and any messages received are stored in the datastore at the same key. The
-    status flags defined as: WebSocket.CONNECTING, WebSocket.OPEN,
-    WebSocket.ERROR, and WebSocket.CLOSE.
+    The socket connection status is stored in the datastore at the given
+    result_key, and any messages received are stored in the datastore at the
+    same key. The status flags defined as: WEBSOCKET_CONNECTING, WEBSOCKET_OPEN,
+    WEBSOCKET_ERROR, and WEBSOCKET_CLOSE.
     """
 
-    #: The flag to indicate the websocket is connecting.
-    CONNECTING = "_WEBSOCKET_CONNECTING"
-    #: The flag to indicate the websocket is open (connected).
-    OPEN = "_WEBSOCKET_OPEN"
-    #: The flag to indicate the websocket has an error.
-    ERROR = "_WEBSOCKET_ERROR"
-    #: The flag to indicate the websocket has closed.
-    CLOSE = "_WEBSOCKET_CLOSE"
-
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
+    def __init__(self, url, result_key):
+        # Where to store status and incoming messages in the datastore.
+        self.result_key = result_key
         # The eventual websocket connection.
         self._connection = None
         # Flag to indicate the websocket is open.
         self._is_open = asyncio.Event()
-
-    def go(self, url):
-        """
-        Connect to the websocket.
-        """
+        # Now go connect via the given URL.
         self._connection = pyscript.WebSocket(url=url)
         self._connection.onopen = self._on_open
         self._connection.onmessage = self._on_message
         self._connection.onerror = self._on_error
         self._connection.onclose = self._on_close
-        self._set_value_at_result_key(self.CONNECTING)
-        return self
+        self._set_value_at_result_key(WEBSOCKET_CONNECTING)
 
     def _set_value_at_result_key(self, value):
         """
@@ -169,17 +140,20 @@ class _WebSocket(Task):
         """
         Store the error in the datastore.
         """
-        self._set_value_at_result_key(self.ERROR + ": " + str(error))
+        self._set_value_at_result_key(WEBSOCKET_ERROR + f": {error.type}")
 
     def _on_close(self, event):
         """
         Store the close flag in the datastore.
         """
-        self._set_value_at_result_key(self.CLOSE)
+        self._set_value_at_result_key(WEBSOCKET_CLOSE)
 
     def _on_open(self, event):
         """
         Store the open flag in the datastore and resove the ready event.
         """
         self._is_open.set()
-        self._set_value_at_result_key(self.OPEN)
+        self._set_value_at_result_key(WEBSOCKET_OPEN)
+
+
+websocket = _WebSocket

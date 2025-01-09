@@ -23,7 +23,6 @@ limitations under the License.
 
 import asyncio
 
-from .task import Task
 from .utils import iscoroutinefunction
 
 
@@ -109,9 +108,7 @@ def publish(message, to_channel):
         channel_info = _channels.get(channel, {})
         if message._subject in channel_info:
             for handler in channel_info[message._subject]:
-                if isinstance(handler, Task):
-                    handler.go()
-                elif iscoroutinefunction(handler):
+                if iscoroutinefunction(handler):
                     asyncio.create_task(handler(message))
                 else:
                     handler(message)

@@ -25,7 +25,6 @@ from .i18n import _, load_translations
 from .media import Media, set_media_root, get_media_root
 from .app import App
 from .utils import show_page, is_micropython
-from .task import Task
 
 
 __all__ = [
@@ -43,7 +42,6 @@ __all__ = [
     "App",
     "show_page",
     "is_micropython",
-    "Task",
     "go",
     "init",
     "marked",
