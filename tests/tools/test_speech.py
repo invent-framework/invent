@@ -10,7 +10,19 @@ async def test_voices():
     """
     An array of voices should be returned.
     """
-    result = speech.voices()
+    result_key = "speech_voices"
+    got_voices = asyncio.Event()
+
+    def handler(message):
+        if isinstance(message.value, list):
+            got_voices.set()
+
+    invent.subscribe(handler, to_channel="store-data", when_subject=result_key)
+
+    speech.voices(result_key)
+
+    await got_voices.wait()
+    result = invent.datastore[result_key]
     assert isinstance(result, list), "Voices not returned as a list."
     assert len(result) > 0, "No voices returned."
 
@@ -19,24 +31,50 @@ async def test_get_voice():
     """
     A voice should be returned, by name.
     """
-    voices = speech.voices()
+    result_key = "speech_voices"
+    got_voices = asyncio.Event()
+
+    def handler(message):
+        if isinstance(message.value, list):
+            got_voices.set()
+
+    invent.subscribe(handler, to_channel="store-data", when_subject=result_key)
+
+    speech.voices(result_key)
+
+    await got_voices.wait()
+
+    voices = invent.datastore[result_key]
     voice = voices[0]
-    result = speech.get_voice(voice.name)
+    result = speech.get_voice(voice)
     assert (
-        result.name == voice.name
-    ), f"Voice not returned. Got: {result} Expected: {voice}"
+        result.name == voice
+    ), f"Voice not returned. Got: {result.name} Expected: {voice}"
 
 
 async def test_set_voice():
     """
     The preferred voice should be set.
     """
-    voices = speech.voices()
+    result_key = "speech_voices"
+    got_voices = asyncio.Event()
+
+    def handler(message):
+        if isinstance(message.value, list):
+            got_voices.set()
+
+    invent.subscribe(handler, to_channel="store-data", when_subject=result_key)
+
+    speech.voices(result_key)
+
+    await got_voices.wait()
+
+    voices = invent.datastore[result_key]
     voice = voices[0]
-    speech.set_voice(voice.name)
+    speech.set_voice(voice)
     assert (
-        speech.PREFERRED_VOICE.name == voice.name
-    ), "Preferred voice not set. Got: {result} Expected: {voice}"
+        speech.PREFERRED_VOICE.name == voice
+    ), "Preferred voice not set. Got: {speech.PREFERRED_VOICE.name} Expected: {voice}"
 
 
 async def test_say():

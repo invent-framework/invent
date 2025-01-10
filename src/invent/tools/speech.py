@@ -41,6 +41,8 @@ except AttributeError:
     except AttributeError:
         SPEECH_RECOGNITION_AVAILABLE = False
 
+#: Datastore flag to indicate detection of available voices is taking place.
+DETECTING_VOICES = "_SPEECH_DETECTING_VOICES"
 #: Flag for the datastore to indicate speech synthesis is taking place.
 SPEAKING = "_SPEECH_SPEAKING"
 #: Flag for the datastore to indicate speech synthesis has ended.
@@ -58,20 +60,52 @@ NO_MATCH = "_SPEECH_NO_MATCH"
 PREFERRED_VOICE = None
 
 
-def voices():
+def voices(result_key):
     """
-    Return a list of available voices for speech synthesis.
+    Get a list of available voices for speech synthesis, and put the list of
+    the names of available voices in the datastore via the result_key.
+
+    See: https://developer.mozilla.org/en-US/docs/Web/API/SpeechSynthesis/voiceschanged_event
     """
-    if SPEECH_SYNTHESIS_AVAILABLE:
-        return list(synth.getVoices())
-    return []
+    if not SPEECH_SYNTHESIS_AVAILABLE:
+        raise RuntimeError(
+            _("Sorry, your browser doesn't support speech synthesis!")
+        )
+
+    # The voices may already be available.
+    voices = list(synth.getVoices())
+    if voices:
+        invent.datastore[result_key] = [voice.name for voice in voices]
+    else:
+        # If not, listen for the voiceschanged event to indicate the voices are
+        # available.
+
+        def _on_voices_changed(event):
+            """
+            Handle the voices changing.
+            """
+            invent.datastore[result_key] = [
+                voice.name for voice in synth.getVoices()
+            ]
+
+        invent.datastore[result_key] = DETECTING_VOICES
+        synth.addEventListener(
+            "voiceschanged", create_proxy(_on_voices_changed)
+        )
 
 
 def get_voice(name):
     """
     Return the voice with the given name.
+
+    In order to discern the names of available voices, use the
+    voices(result_key) function to populate the datastore with the names of
+    available voices.
+
+    WARNING: This function may not work until the datastore has been populated
+    with the names of available voices.
     """
-    for voice in voices():
+    for voice in list(synth.getVoices()):
         if voice.name == name:
             return voice
     return None
@@ -80,6 +114,13 @@ def get_voice(name):
 def set_voice(name):
     """
     Set the preferred voice for speech synthesis.
+
+    In order to discern the names of available voices, use the
+    voices(result_key) function to populate the datastore with the names of
+    available voices.
+
+    WARNING: This function may not work until the datastore has been populated
+    with the names of available voices.
     """
     global PREFERRED_VOICE
     PREFERRED_VOICE = get_voice(name)

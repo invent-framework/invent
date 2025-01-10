@@ -23,8 +23,26 @@
     </style>
 </head>
 <body>
-  <div style="margin: auto; width: 85%">
-    <img src="./static/logo_black.svg" style="height: 128px;"/>
+  <mpy-config>
+    {
+      "files":{
+          "./static/test_suite.tar.gz": "./*",
+          "https://raw.githubusercontent.com/ntoll/upytest/main/upytest.py": "",
+          "https://raw.githubusercontent.com/ntoll/umock/main/umock.py": ""
+      }
+  }
+  </mpy-config>
+  <py-config>
+    {
+      "files":{
+          "./static/test_suite.tar.gz": "./*",
+          "https://raw.githubusercontent.com/ntoll/upytest/main/upytest.py": "",
+          "https://raw.githubusercontent.com/ntoll/umock/main/umock.py": ""
+      }
+  }
+  </py-config>
+  <div style="margin: auto; width: 85%" id="main">
+    <a href="./"><img src="./static/logo_black.svg" style="height: 128px;"/></a>
     <h2>Express yourself with code.</h2>
     <p>
       <a href="https://github.com/invent-framework/invent" target="_blank">Source code</a> ·
@@ -33,9 +51,30 @@
       <a href="./examples/theme_testcard/index.html" target="_blank">Widgets</a> ·
       <a href="https://discord.gg/TKyjvSynTP" target="_blank">Community</a>
     </p>
-    <p>Starting test suite... (<a href="index2.html">Pyodide version</a>)</p>
-    <script type="mpy" src="./static/main.py" config="./static/settings.json"
-      terminal></script>
+    <p id="test_instructions">
+      <label for="runtime">Run test suite in: </label>
+      <select id="runtime">
+        <option value="mpy">MicroPython</option>
+        <option value="py">Pyodide</option>
+      </select>
+      <button id="go">Go</button>
+    </p>
+    <script>
+      go = document.getElementById("go");
+      go.onclick = function() {  
+        const source="./static/main.py";
+        const settings="./static/settings.json";
+        const runtime = document.getElementById("runtime").value;
+        const script = document.createElement('script');
+        script.type = runtime;
+        script.src = source;
+        script.setAttribute('terminal', '');
+        const instructions = document.getElementById("test_instructions");
+        instructions.innerHTML = "Running tests... (<a href='./'>Reset</a>)";
+        const main = document.getElementById("main");
+        main.appendChild(script);
+      };
+    </script>
   </div>
 </body>
 </html>
