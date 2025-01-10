@@ -32,18 +32,22 @@ class DataStore(Storage):
     aspects of the application can observe such changes of state.
     """
 
+    #: Channel name to indicate a value has been set in the datastore.
+    DATASTORE_SET_CHANNEL = "datastore:set"
+    #: Channel name to indicate a value has been deleted from the datastore.
+    DATASTORE_DELETE_CHANNEL = "datastore:delete"
+
     def __setitem__(self, key, value):
         """
         Set the value against the given key using PyScript's Storage class.
 
         Publishes a message whose type is the item's key, along with the new
-        value, to the "store-data" channel.
+        value, to the invent.datastore.DATASTORE_SET_CHANNEL channel.
         """
         publish(
             Message(subject=key, value=value),
-            to_channel="store-data",  # TODO: datastore:set
+            to_channel=self.DATASTORE_SET_CHANNEL
         )
-        # TODO: check if callable, extract arg names, store somewhere.
         super().__setitem__(key, value)
 
     def __delitem__(self, key):
@@ -51,9 +55,7 @@ class DataStore(Storage):
         Delete the item stored against the given key.
 
         Publishes a message whose type is the item's the key, to the
-        "delete-data" channel.
+        invent.datastore.DATASTORE_DELETE_CHANNEL channel.
         """
-        publish(
-            Message(subject=key), to_channel="delete-data"
-        )  # datastore:delete
+        publish(Message(subject=key), to_channel=self.DATASTORE_DELETE_CHANNEL)
         super().__delitem__(key)

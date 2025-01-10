@@ -28,7 +28,7 @@ async def test_datastore_get_set_del_item():
         assert msg._subject == "a"
         assert msg.value == 1
         # The message was also published to the expected "datastore" channel.
-        assert call_args[1]["to_channel"] == "store-data"
+        assert call_args[1]["to_channel"] == invent.datastore.DATASTORE_SET_CHANNEL
         # Reset mock.
         mock_publish.reset_mock()
         # Check the stored value is actually in the datastore.
@@ -44,7 +44,7 @@ async def test_datastore_get_set_del_item():
         # stored.
         assert msg._subject == "a"
         # The message was also published to the expected "datastore" channel.
-        assert call_args[1]["to_channel"] == "delete-data"
+        assert call_args[1]["to_channel"] == invent.datastore.DATASTORE_DELETE_CHANNEL
     with upytest.raises(KeyError):
         # Deleting via a non-existent key raises a KeyError.
         del ds["a"]

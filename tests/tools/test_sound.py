@@ -18,7 +18,7 @@ async def test_play_sound():
         elif message.value == sound.ENDED:
             got_end_from_sound.set()
 
-    invent.subscribe(handler, to_channel="store-data", when_subject=result_key)
+    invent.subscribe(handler, to_channel=invent.datastore.DATASTORE_SET_CHANNEL, when_subject=result_key)
 
     sound.play(sound_file, result_key=result_key)
     print("HONK!", end="")

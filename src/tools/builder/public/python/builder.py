@@ -289,8 +289,8 @@ class Builder:
         for component in Component._components_by_id.values():
             if isinstance(component, Widget) and component.channel:
                 channels.add(component.channel)
-        channels.add("store-data")
-        channels.add("delete-data")
+        channels.add(invent.datastore.DATASTORE_SET_CHANNEL)
+        channels.add(invent.datastore.DATASTORE_DELETE_CHANNEL)
         return json.dumps(list(channels))
 
     def get_subjects(self):

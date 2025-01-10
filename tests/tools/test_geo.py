@@ -19,7 +19,7 @@ async def test_position_single_detect():
         elif isinstance(message.value, dict):
             got_position.set()
 
-    invent.subscribe(handler, to_channel="store-data", when_subject=result_key)
+    invent.subscribe(handler, to_channel=invent.datastore.DATASTORE_SET_CHANNEL, when_subject=result_key)
 
     geo.position(
         result_key=result_key,
@@ -69,7 +69,7 @@ async def test_position_watch():
         elif isinstance(message.value, dict):
             got_position.set()
 
-    invent.subscribe(handler, to_channel="store-data", when_subject=result_key)
+    invent.subscribe(handler, to_channel=invent.datastore.DATASTORE_SET_CHANNEL, when_subject=result_key)
 
     with umock.patch("invent.tools.geo:window") as mock_window:
         stop = geo.position(
