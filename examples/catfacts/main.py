@@ -12,11 +12,11 @@ from invent.ui import Page, Column, Button, Label, Image
 URL = "https://catfact.ninja/fact"
 
 MEOWS = [
-   invent.media.sounds.meow1.mp3,
-   invent.media.sounds.meow2.mp3,
-   invent.media.sounds.meow3.mp3,
-   invent.media.sounds.meow4.mp3,
-   invent.media.sounds.meow5.mp3, 
+    invent.media.sounds.meow1.mp3,
+    invent.media.sounds.meow2.mp3,
+    invent.media.sounds.meow3.mp3,
+    invent.media.sounds.meow4.mp3,
+    invent.media.sounds.meow5.mp3,
 ]
 
 
