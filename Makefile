@@ -61,13 +61,13 @@ publish-live: dist
 	python3 -m twine upload --sign dist/*
 
 zip:
-	cd src && tar -czvf ../invent.tar.gz invent/*
+	cd src && tar --no-xattrs -czvf ../invent.tar.gz invent/*
 	#cd src && zip -qr ../invent.zip invent/*
 	mkdir test_suite
 	cp -r src/invent test_suite
 	cp -r tests test_suite
 	# cd test_suite && zip -qr ../test_suite.zip tests/* invent/*
-	cd test_suite && tar -czvf ../test_suite.tar.gz tests/* invent/*
+	cd test_suite && tar --no-xattrs -czvf ../test_suite.tar.gz tests/* invent/*
 	rm -rf test_suite
 	cp invent.tar.gz static/
 	cp invent.tar.gz src/tools/builder/public/python/
