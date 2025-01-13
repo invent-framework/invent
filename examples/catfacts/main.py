@@ -2,27 +2,42 @@
 Example application that uses a Task to get cat facts.
 """
 
+import random
 import invent
 from invent.ui import *
-from invent import net
-from invent import utils
-from invent import App, Page
+from invent.tools import net, sound
+from invent import App
+from invent.ui import Page, Column, Button, Label, Image
 
 URL = "https://catfact.ninja/fact"
+
+MEOWS = [
+   invent.media.sounds.meow1.mp3,
+   invent.media.sounds.meow2.mp3,
+   invent.media.sounds.meow3.mp3,
+   invent.media.sounds.meow4.mp3,
+   invent.media.sounds.meow5.mp3, 
+]
 
 
 # Datastore ###################################################################
 
-invent.datastore["cat_fact"] = ""
-invent.datastore["working"] = False
-
+await invent.setup(
+    cat_fact="", working=False
+)  # Load default values for the datastore.
 
 # Code ########################################################################
 
 
+def get_cat_fact(message):
+    invent.datastore["working"] = True
+    net.request(url=URL, json=True, result_key="cat_fact")
+
+
 def handle_cat_fact(value):
     if value:
-        utils.play_sound(invent.media.sounds.meow.mp3)
+        sound.play(random.choice(MEOWS))
+        invent.datastore["working"] = False
         return value["fact"]
     return value
 
@@ -35,7 +50,7 @@ def ready(value):
 
 
 invent.subscribe(
-    net.send_web_request(url=URL, key="cat_fact"),
+    get_cat_fact,
     to_channel="get_cat_facts",
     when_subject=["press"],
 )
@@ -45,7 +60,7 @@ invent.subscribe(
 
 
 app = App(
-    name="CatFacts!",
+    name="🐱 Cat Facts!",
     pages=[
         Page(
             name="Facts",
@@ -55,11 +70,11 @@ app = App(
                         Image(
                             image=invent.media.images.puff.svg,
                             visible=from_datastore("working"),
-                            layout=dict(align_self="center"),
+                            horizontal_align="center",
                         ),
                         Button(
                             name="cat_fact_button",
-                            label="Get Facts",
+                            text="Get 🐱 Facts",
                             channel="get_cat_facts",
                             purpose="SUCCESS",
                             enabled=from_datastore(
@@ -71,7 +86,7 @@ app = App(
                             text=from_datastore(
                                 "cat_fact", with_function=handle_cat_fact
                             ),
-                            layout=dict(align_self="center"),
+                            horizontal_align="center",
                         ),
                     ]
                 ),

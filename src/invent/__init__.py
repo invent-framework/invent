@@ -18,7 +18,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-from pyscript import storage, Storage
+from pyscript import storage
 from .channels import Message, subscribe, publish, unsubscribe, when
 from .datastore import DataStore, IndexDBBackend
 from .i18n import _, load_translations
