@@ -1,4 +1,5 @@
 from pyscript.web import page
+from pyscript import window
 
 import invent
 import invent.app
@@ -13,6 +14,7 @@ async def setup():
     the App class and reset the media root. Reset counters for required
     Component based classes.
     """
+    window.localStorage.clear()
     if invent.datastore is None:
         await invent.start_datastore()
     invent.datastore.clear()

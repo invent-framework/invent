@@ -18,7 +18,11 @@ async def test_request_get_as_json():
     def handler(message):
         got_result_from_website.set()
 
-    invent.subscribe(handler, to_channel=invent.datastore.DATASTORE_SET_CHANNEL, when_subject=result_key)
+    invent.subscribe(
+        handler,
+        to_channel=invent.datastore.DATASTORE_SET_CHANNEL,
+        when_subject=result_key,
+    )
 
     net.request(url, json=True, result_key=result_key)
 
@@ -44,7 +48,11 @@ async def test_request_post_as_text():
     def handler(message):
         got_result_from_website.set()
 
-    invent.subscribe(handler, to_channel=invent.datastore.DATASTORE_SET_CHANNEL, when_subject=result_key)
+    invent.subscribe(
+        handler,
+        to_channel=invent.datastore.DATASTORE_SET_CHANNEL,
+        when_subject=result_key,
+    )
 
     net.request(url, method="POST", body=body, result_key=result_key)
 
@@ -75,7 +83,11 @@ async def test_websocket():
         if message.value == test_message_to_echo:
             got_message_from_websocket.set()
 
-    invent.subscribe(handler, to_channel=invent.datastore.DATASTORE_SET_CHANNEL, when_subject=result_key)
+    invent.subscribe(
+        handler,
+        to_channel=invent.datastore.DATASTORE_SET_CHANNEL,
+        when_subject=result_key,
+    )
 
     socket = net.websocket(url, result_key=result_key)
     socket.send(test_message_to_echo)
@@ -101,7 +113,11 @@ async def test_connect_to_websocket():
         if message.value == test_message_to_echo:
             got_message_from_websocket.set()
 
-    invent.subscribe(handler, to_channel=invent.datastore.DATASTORE_SET_CHANNEL, when_subject=result_key)
+    invent.subscribe(
+        handler,
+        to_channel=invent.datastore.DATASTORE_SET_CHANNEL,
+        when_subject=result_key,
+    )
 
     socket = net._WebSocket(url, result_key)
     socket.send(test_message_to_echo)
@@ -140,7 +156,11 @@ async def test_connect_to_websocket_with_explicit_event_checks():
         elif message.value == test_message_to_echo:
             got_message_from_websocket.set()
 
-    invent.subscribe(handler, to_channel=invent.datastore.DATASTORE_SET_CHANNEL, when_subject=result_key)
+    invent.subscribe(
+        handler,
+        to_channel=invent.datastore.DATASTORE_SET_CHANNEL,
+        when_subject=result_key,
+    )
 
     socket = net._WebSocket(url, result_key)
 

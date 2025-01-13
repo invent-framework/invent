@@ -18,9 +18,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-from pyscript import storage
+from pyscript import storage, Storage
 from .channels import Message, subscribe, publish, unsubscribe, when
-from .datastore import DataStore
+from .datastore import DataStore, IndexDBBackend
 from .i18n import _, load_translations
 from .media import Media, set_media_root, get_media_root
 from .app import App
@@ -54,13 +54,24 @@ datastore = None
 datastore_name = "invent"
 
 
-async def start_datastore():
+async def start_datastore(_backend=None, **kwargs):
     """
     Ensure the datastore is started and referenced properly.
     """
     global datastore
     if not datastore:
-        datastore = await storage(datastore_name, storage_class=DataStore)
+        if _backend is None:
+            # Default null storage backend.
+            backend_instance = None
+        elif _backend == IndexDBBackend:
+            # PyScript IndexDB storage backend. Needs awaiting on instantiation.
+            backend_instance = await storage(
+                datastore_name, storage_class=_backend
+            )
+        else:
+            # Another given storage backend.
+            backend_instance = _backend()
+        datastore = DataStore(_backend=backend_instance, **kwargs)
 
 
 #: The marked JavaScript module for parsing markdown.
@@ -89,14 +100,18 @@ async def load_js_modules():
 media = Media([], "media")
 
 
-async def setup():
+async def setup(_databackend=None, **kwargs):
     """
     Setup all the things required by the Invent framework (e.g. datastore / JS
     requirements).
 
-    TODO: Takes optional default start values for the datastore.
+    Takes optional start values for the datastore. The _databackend argument
+    can be used to specify the storage backend for the datastore. If not
+    provided, the default storage backend is used. Any other keyword arguments
+    are passed to the datastore's start method as initial values to seed the
+    datastore.
     """
-    await start_datastore()
+    await start_datastore(_databackend, **kwargs)
     await load_js_modules()
 
 

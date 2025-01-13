@@ -17,7 +17,11 @@ async def test_voices():
         if isinstance(message.value, list):
             got_voices.set()
 
-    invent.subscribe(handler, to_channel=invent.datastore.DATASTORE_SET_CHANNEL, when_subject=result_key)
+    invent.subscribe(
+        handler,
+        to_channel=invent.datastore.DATASTORE_SET_CHANNEL,
+        when_subject=result_key,
+    )
 
     speech.voices(result_key)
 
@@ -38,7 +42,11 @@ async def test_get_voice():
         if isinstance(message.value, list):
             got_voices.set()
 
-    invent.subscribe(handler, to_channel=invent.datastore.DATASTORE_SET_CHANNEL, when_subject=result_key)
+    invent.subscribe(
+        handler,
+        to_channel=invent.datastore.DATASTORE_SET_CHANNEL,
+        when_subject=result_key,
+    )
 
     speech.voices(result_key)
 
@@ -63,7 +71,11 @@ async def test_set_voice():
         if isinstance(message.value, list):
             got_voices.set()
 
-    invent.subscribe(handler, to_channel=invent.datastore.DATASTORE_SET_CHANNEL, when_subject=result_key)
+    invent.subscribe(
+        handler,
+        to_channel=invent.datastore.DATASTORE_SET_CHANNEL,
+        when_subject=result_key,
+    )
 
     speech.voices(result_key)
 
@@ -95,7 +107,11 @@ async def test_say():
         elif message.value == speech.ENDED:
             got_ended_from_speech.set()
 
-    invent.subscribe(handler, to_channel=invent.datastore.DATASTORE_SET_CHANNEL, when_subject=result_key)
+    invent.subscribe(
+        handler,
+        to_channel=invent.datastore.DATASTORE_SET_CHANNEL,
+        when_subject=result_key,
+    )
 
     speech.say(text, result_key=result_key)
 
@@ -127,7 +143,11 @@ async def test_say_with_options():
         elif message.value == speech.ENDED:
             got_ended_from_speech.set()
 
-    invent.subscribe(handler, to_channel=invent.datastore.DATASTORE_SET_CHANNEL, when_subject=result_key)
+    invent.subscribe(
+        handler,
+        to_channel=invent.datastore.DATASTORE_SET_CHANNEL,
+        when_subject=result_key,
+    )
 
     speech.say(
         text,
@@ -174,7 +194,11 @@ async def test_listen():
         elif message.value == speech.ABORTED:
             got_aborted_from_speech.set()
 
-    invent.subscribe(handler, to_channel=invent.datastore.DATASTORE_SET_CHANNEL, when_subject=result_key)
+    invent.subscribe(
+        handler,
+        to_channel=invent.datastore.DATASTORE_SET_CHANNEL,
+        when_subject=result_key,
+    )
 
     with umock.patch("invent.tools.speech:window"):
         abort = speech.listen(result_key=result_key)
