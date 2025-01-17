@@ -31,17 +31,10 @@ class Box(Container):
     """
 
     gap = ChoiceProperty(
-        "The gap between items in the container",
+        _("The gap between items in the container"),
         choices=TSHIRT_SIZES,
         default_value=MEDIUM,
         group="style",
-    )
-
-    content_align = ChoiceProperty(
-        _("Alignment of child components in this container."),
-        choices=COMPONENT_DISTRIBUTION,
-        map_to_style="justify-content",
-        group="layout",
     )
 
     def render(self):

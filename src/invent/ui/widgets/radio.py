@@ -62,9 +62,6 @@ class Radio(Widget):
         self._radio_element.id = self.id
         self.element.setAttribute("for", self.id)
 
-    def on_name_changed(self):
-        self._radio_element.name = self.name
-
     def on_label_changed(self):
         self._text_span.innerText = self.label
 

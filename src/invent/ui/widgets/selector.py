@@ -21,12 +21,7 @@ limitations under the License.
 from invent.i18n import _
 from pyscript.web import select
 from pyscript.ffi import create_proxy
-
-from invent.ui.core import (
-    Widget,
-    TextProperty,
-    ListProperty,
-)
+from invent.ui.core import Widget, TextProperty, ListProperty, Event
 
 
 class Selector(Widget):
@@ -37,6 +32,11 @@ class Selector(Widget):
     value = TextProperty(_("The selected option."), default_value="")
 
     choices = ListProperty(_("The options from which to select."))
+
+    changed = Event(
+        _("The selected option has changed."),
+        selected=_("The new selected option."),
+    )
 
     @classmethod
     def icon(cls):
@@ -55,6 +55,7 @@ class Selector(Widget):
         Bound to the js "change" event on the widget's element.
         """
         self.value = self.element.options.selected.value
+        self.publish("changed", selected=self.value)
 
     def render(self):
         element = select(id=self.id)

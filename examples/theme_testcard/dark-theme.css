@@ -400,6 +400,48 @@ input[type=range]::-ms-thumb {
     width: 16px;
   }
 
+  /* Meter */
+
+meter {
+	display: block;
+	width: 100%;
+	height: 36px;
+}
+
+meter::-webkit-meter-optimum-value, 
+meter::-moz-meter-optimum, 
+meter::-ms-fill-lower {
+	background-color: var(--success);
+}
+
+meter::-webkit-meter-suboptimum-value, 
+meter::-moz-meter-suboptimum, 
+meter::-ms-fill-middle {
+	background-color: var(--warning);
+}
+
+meter::-webkit-meter-even-less-good-value, 
+meter::-moz-meter-sub-suboptimum, 
+meter::-ms-fill-upper {
+	background-color: var(--danger);
+}
+
+/* Progress bar */
+
+progress:not([value]) {
+	accent-color: var(--warning);
+	display: block;
+	width: 100%;
+	height: 18px;
+}
+
+progress {
+	accent-color: var(--secondary);
+	display: block;
+	width: 100%;
+	height: 18px;
+}
+
 /* Check boxes, switches and radio buttons */
 
 input[type="checkbox"], input[type="radio"] {

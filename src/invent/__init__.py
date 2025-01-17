@@ -18,7 +18,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
+from pyscript import js_import
 from pyscript import storage
+from pyscript.web import link, page
 from .channels import Message, subscribe, publish, unsubscribe, when
 from .datastore import DataStore, IndexDBBackend
 from .i18n import _, load_translations
@@ -78,21 +80,23 @@ async def start_datastore(_backend=None, **kwargs):
 marked = None
 #: The DOMPurify JavaScript module for sanitising HTML.
 purify = None
+#: The leaflet JavaScript module for mapping.
+leaflet = None
 
 
 async def load_js_modules():
     """
     Load the JavaScript modules required by the Invent framework.
     """
-    from pyscript import js_import
-
-    global marked, purify
+    global marked, purify, leaflet
     (
         marked,
         purify,
+        leaflet,
     ) = await js_import(
         "https://cdn.jsdelivr.net/npm/marked/lib/marked.esm.js",
         "https://esm.run/dompurify",
+        "https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet-src.esm.js",
     )
 
 
