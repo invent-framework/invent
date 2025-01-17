@@ -64,12 +64,12 @@ class Component:
         _("The component is visible is set to True."), default_value=True
     )
 
-    stretch = TextProperty(
+    flex = TextProperty(
         _(
-            "Indicates how to stretch into the available space. "
-            "If blank won't stretch into available space, "
+            "Sets how a component will grow or shrink (i.e. flex) to fit the "
+            "space available. If blank won't stretch into available space, "
             "if 'auto' will stretch an equal portion of any available space, "
-            "or an integer to stretch into the given proportion of the"
+            "or an integer to stretch into the given proportion of the "
             "available space.",
         ),
         default_value=None,

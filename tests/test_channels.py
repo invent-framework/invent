@@ -98,16 +98,6 @@ async def test_subscribe_and_publish_task_and_awaitable():
     """
     mock_await = umock.Mock()
 
-    async def an_awaitable_for_a_task():
-        """
-        An asynchronous function to be wrapped in a Task.
-        """
-        mock_await()
-        return
-
-    # A task instance to subscribe to something.
-    t = invent.Task(an_awaitable_for_a_task)
-
     async def an_awaitable(message):
         """
         An asynchronous function to handle a message.
@@ -115,16 +105,13 @@ async def test_subscribe_and_publish_task_and_awaitable():
         mock_await()
         return
 
-    invent.subscribe(t, to_channel="testing", when_subject="test_task")
     invent.subscribe(
         an_awaitable, to_channel="testing", when_subject="test_await"
     )
-    m1 = invent.Message(subject="test_task", data="Test")
-    m2 = invent.Message(subject="test_await", data="Test")
-    invent.publish(m1, to_channel="testing")
-    invent.publish(m2, to_channel="testing")
+    m = invent.Message(subject="test_await", data="Test")
+    invent.publish(m, to_channel="testing")
     await asyncio.sleep(0.1)
-    assert mock_await.call_count == 2, mock_await.call_count
+    assert mock_await.call_count == 1, mock_await.call_count
 
 
 def test_subscribe_is_idempotent():

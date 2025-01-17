@@ -31,6 +31,9 @@ from .widgets.datetime import DateTimePicker
 from .widgets.fileupload import FileUpload
 from .widgets.html import Html
 from .widgets.image import Image
+from .widgets.map import Map
+from .widgets.meter import Meter
+from .widgets.progress import Progress
 from .widgets.radio import Radio
 from .widgets.selector import Selector
 from .widgets.slider import Slider
@@ -61,6 +64,9 @@ __all__ = [
     "FileUpload",
     "Html",
     "Image",
+    "Map",
+    "Meter",
+    "Progress",
     "Radio",
     "Selector",
     "Slider",

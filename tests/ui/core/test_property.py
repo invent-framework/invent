@@ -3,6 +3,7 @@ import upytest
 import umock
 import datetime
 import json
+import invent
 from invent.ui.core import (
     BooleanProperty,
     ChoiceProperty,
@@ -108,15 +109,15 @@ def test_property_from_datastore():
         mock_sub.assert_called_once()
         reactor = mock_sub.call_args[0][0]
         assert callable(reactor)
-        assert mock_sub.call_args[0][1] == "store-data"
+        assert mock_sub.call_args[0][1] == invent.datastore.DATASTORE_SET_CHANNEL
         assert mock_sub.call_args[0][2] == "test"
         test_fn.assert_called_once_with(None)
         mock_sub.reset_mock()
         fw.my_property = from_datastore("test2")
-        mock_unsub.assert_called_once_with(reactor, "store-data", "test")
+        mock_unsub.assert_called_once_with(reactor, invent.datastore.DATASTORE_SET_CHANNEL, "test")
         reactor = mock_sub.call_args[0][0]
         assert callable(reactor)
-        assert mock_sub.call_args[0][1] == "store-data"
+        assert mock_sub.call_args[0][1] == invent.datastore.DATASTORE_SET_CHANNEL
         assert mock_sub.call_args[0][2] == "test2"
     # fmt: on
 
@@ -134,10 +135,9 @@ def test_from_datastore_react_on_change():
             return div()
 
     fw = FakeWidget()
-    with umock.patch("invent:datastore", {}) as datastore:
-        fw.my_property = from_datastore("test")
-        fw.my_property = "value1"
-        assert datastore["test"] == "value1"
+    fw.my_property = from_datastore("test")
+    fw.my_property = "value1"
+    assert invent.datastore["test"] == "value1"
 
 
 def test_property_react_on_change():

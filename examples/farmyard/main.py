@@ -1,12 +1,14 @@
 import invent
 from invent.ui import *
+from invent.tools import sound
 
 
 # Datastore ############################################################################
 
-await invent.start_datastore()
-invent.datastore["number_of_honks"] = 0
-invent.datastore["number_of_oinks"] = 0
+
+await invent.setup(
+    number_of_honks=0, number_of_oinks=0
+)  # Load default values for the datastore.
 
 
 # Code #################################################################################
@@ -24,18 +26,18 @@ def make_honk(message):
     invent.datastore["number_of_honks"] = (
         invent.datastore["number_of_honks"] + 1
     )
-    # invent.play_sound(invent.media.sounds.honk.mp3)
+    sound.play(invent.media.sounds.honk.mp3)
 
 
 def make_oink(message):
     invent.datastore["number_of_oinks"] = (
         invent.datastore["number_of_oinks"] + 1
     )
-    # invent.play_sound(invent.media.sounds.oink.mp3)
+    sound.play(invent.media.sounds.oink.mp3)
 
 
 def make_geese(number_of_honks):
-    return [Label(text="🪿") for _ in range(number_of_honks)]
+    return [Label(text="🦆") for _ in range(number_of_honks)]
 
 
 def make_pigs(number_of_oinks):
@@ -58,6 +60,7 @@ app = invent.App(
     pages=[
         Page(
             name="Lucy",
+            id="Lucy",
             children=[
                 Column(
                     children=[
@@ -92,7 +95,7 @@ app = invent.App(
                                     value=from_datastore("number_of_honks"),
                                     name="Honk Slider",
                                     step=1,
-                                    space=2,
+                                    stretch=2,
                                 ),
                             ]
                         ),
@@ -109,6 +112,7 @@ app = invent.App(
         ),
         Page(
             name="Percy",
+            id="Percy",
             children=[
                 Column(
                     children=[

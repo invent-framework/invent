@@ -1,0 +1,6 @@
+"""
+Vibrate
+Microphone
+Flashlight
+Camera?
+"""

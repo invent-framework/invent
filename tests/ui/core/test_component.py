@@ -306,7 +306,7 @@ def test_component_as_dict():
             "favourite_colour": "black",
             "row_span": None,
             "horizontal_align": None,
-            "stretch": None,
+            "flex": None,
             "visible": True,
             "vertical_align": None,
             "name": "MyWidget 1",

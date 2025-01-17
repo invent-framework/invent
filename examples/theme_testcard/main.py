@@ -282,6 +282,9 @@ print(Hello().greet)"""
                             ],
                         ),
                         Slider(),
+                        Meter(),
+                        Progress(value=50),
+                        Progress(),
                         FileUpload(),
                         Html(html="<hr>Some arbitrary HTML<hr>"),
                         ColorPicker(),
@@ -308,6 +311,12 @@ print(Hello().greet)"""
                         TimePicker(),
                         Selector(choices=["One", "Two", "Three"]),
                         Label(text="## Multimedia"),
+                        Label(text="A map:"),
+                        Map(
+                            markers=[
+                                Map.Marker(popup_text="Hello, world!"),
+                            ]
+                        ),
                         Label(text="A default image:"),
                         Image(),
                         Label(text="A test image:"),
@@ -331,9 +340,9 @@ print(Hello().greet)"""
                                     border_width="S",
                                     border_style="Dotted",
                                     children=[
-                                        Label(text="25% default", stretch="1"),
-                                        Label(text="50% default", stretch="2"),
-                                        Label(text="25% default", stretch="1"),
+                                        Label(text="25% default", flex="1"),
+                                        Label(text="50% default", flex="2"),
+                                        Label(text="25% default", flex="1"),
                                     ],
                                 ),
                                 Row(
@@ -342,14 +351,14 @@ print(Hello().greet)"""
                                     border_style="Dotted",
                                     horizontal_align="start",
                                     children=[
-                                        Label(text="25% start", stretch="1"),
+                                        Label(text="25% start", flex="1"),
                                         Label(
                                             text="50% start",
-                                            stretch="2",
+                                            flex="2",
                                         ),
                                         Label(
                                             text="25% start",
-                                            stretch="1",
+                                            flex="1",
                                         ),
                                     ],
                                 ),
@@ -361,15 +370,15 @@ print(Hello().greet)"""
                                     children=[
                                         Label(
                                             text="25% center",
-                                            stretch="1",
+                                            flex="1",
                                         ),
                                         Label(
                                             text="50% center",
-                                            stretch="2",
+                                            flex="2",
                                         ),
                                         Label(
                                             text="25% center",
-                                            stretch="1",
+                                            flex="1",
                                         ),
                                     ],
                                 ),
@@ -379,9 +388,9 @@ print(Hello().greet)"""
                                     border_style="Dotted",
                                     horizontal_align="end",
                                     children=[
-                                        Label(text="25% end", stretch="1"),
-                                        Label(text="50% end", stretch="2"),
-                                        Label(text="25% end", stretch="1"),
+                                        Label(text="25% end", flex="1"),
+                                        Label(text="50% end", flex="2"),
+                                        Label(text="25% end", flex="1"),
                                     ],
                                 ),
                             ],
@@ -408,9 +417,9 @@ print(Hello().greet)"""
                                     border_width="S",
                                     border_style="Dotted",
                                     children=[
-                                        Label(text="25% default", stretch="1"),
-                                        Label(text="50% default", stretch="2"),
-                                        Label(text="25% default", stretch="1"),
+                                        Label(text="25% default", flex="1"),
+                                        Label(text="50% default", flex="2"),
+                                        Label(text="25% default", flex="1"),
                                     ],
                                 ),
                                 Column(
@@ -419,14 +428,14 @@ print(Hello().greet)"""
                                     border_style="Dotted",
                                     vertical_align="start",
                                     children=[
-                                        Label(text="25% start", stretch="1"),
+                                        Label(text="25% start", flex="1"),
                                         Label(
                                             text="50% start",
-                                            stretch="2",
+                                            flex="2",
                                         ),
                                         Label(
                                             text="25% start",
-                                            stretch="1",
+                                            flex="1",
                                         ),
                                     ],
                                 ),
@@ -438,15 +447,15 @@ print(Hello().greet)"""
                                     children=[
                                         Label(
                                             text="25% center",
-                                            stretch="1",
+                                            flex="1",
                                         ),
                                         Label(
                                             text="50% center",
-                                            stretch="2",
+                                            flex="2",
                                         ),
                                         Label(
                                             text="25% center",
-                                            stretch="1",
+                                            flex="1",
                                         ),
                                     ],
                                 ),
@@ -456,16 +465,16 @@ print(Hello().greet)"""
                                     border_style="Dotted",
                                     vertical_align="end",
                                     children=[
-                                        Label(text="25% end", stretch="1"),
-                                        Label(text="50% end", stretch="2"),
-                                        Label(text="25% end", stretch="1"),
+                                        Label(text="25% end", flex="1"),
+                                        Label(text="50% end", flex="2"),
+                                        Label(text="25% end", flex="1"),
                                     ],
                                 ),
                                 Column(
                                     border_color="blue",
                                     border_width="S",
                                     border_style="Dotted",
-                                    stretch=2,
+                                    flex=2,
                                     children=[Label(text="Flexed to fill.")],
                                 ),
                             ],
@@ -556,7 +565,7 @@ print(Hello().greet)"""
                                     text="Stretch with fill",
                                     size="LARGE",
                                     vertical_align="stretch",
-                                    stretch="2",
+                                    flex="2",
                                 ),
                             ],
                         ),

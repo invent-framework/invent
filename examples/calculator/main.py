@@ -1,19 +1,13 @@
 import invent
-from invent.ui import export
+from invent.ui import *
 
 
 # Datastore ############################################################################
 
 
-invent.datastore.update(
-    {
-        "numbers": "0",
-        "value": "",
-        "left": 0,  # Decimal(0),
-        "right": 0,  # Decimal(0),
-        "operator": "+",
-    }
-)
+await invent.setup(
+    numbers="0", value="", left=0, right=0, operator="+"
+)  # Load default values for the datastore.
 
 
 # Code #################################################################################
@@ -23,41 +17,41 @@ def when_any_button_is_clicked(message):
     data = invent.datastore
     button = message.button
 
-    if button.label in ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"]:
+    if button.text in ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"]:
         data["numbers"] = data["value"] = (
-            data["value"].lstrip("0") + button.label
+            data["value"].lstrip("0") + button.text
         )
 
-    elif button.label == "+/-":
+    elif button.text == "+/-":
         data["numbers"] = data["value"] = str(float(data["value"] or "0") * -1)
 
-    elif button.label == "%":
+    elif button.text == "%":
         data["numbers"] = data["value"] = str(
             float(data["value"] or "0") / float(100)
         )
 
-    elif button.label == ".":
+    elif button.text == ".":
         if "." not in data["value"]:
             data["numbers"] = data["value"] = (data["value"] or "0") + "."
 
-    elif button.label == "AC":
+    elif button.text == "AC":
         data["value"] = ""
         data["left"] = data["right"] = 0  # Decimal(0)
         data["operator"] = "+"
         data["numbers"] = "0"
 
-    elif button.label == "C":
+    elif button.text == "C":
         data["value"] = ""
         data["numbers"] = "0"
 
-    elif button.label in ("+", "-", "÷", "x"):
+    elif button.text in ("+", "-", "÷", "x"):
         data["right"] = float(
             data["value"] or "0"
         )  # Decimal(data["value"] or "0")
         calculate(data)
-        data["operator"] = button.label
+        data["operator"] = button.text
 
-    elif button.label == "=":
+    elif button.text == "=":
         if data["value"]:
             data["right"] = float(data["value"])
         calculate(data)
@@ -96,85 +90,86 @@ invent.subscribe(
 
 # User Interface #######################################################################
 
-invent.ui.App(
+
+invent.App(
     name="Calculator",
     pages=[
-        invent.ui.Page(
+        Page(
             children=[
-                invent.ui.Grid(
+                Grid(
                     columns=4,
                     children=[
-                        invent.ui.TextInput(
-                            layout=dict(column_span=4),
-                            value=invent.ui.from_datastore("numbers"),
+                        TextInput(
+                            column_span=4,
+                            value=from_datastore("numbers"),
                         ),
-                        invent.ui.Button(
-                            label="AC",
+                        Button(
+                            text="AC",
                             purpose="SECONDARY",
                             channel="calculator",
                         ),
-                        invent.ui.Button(
-                            label="C",
+                        Button(
+                            text="C",
                             purpose="SECONDARY",
                             channel="calculator",
                         ),
-                        invent.ui.Button(
-                            label="+/-",
+                        Button(
+                            text="+/-",
                             purpose="SECONDARY",
                             channel="calculator",
                         ),
-                        invent.ui.Button(
-                            label="÷", purpose="SUCCESS", channel="calculator"
+                        Button(
+                            text="÷", purpose="SUCCESS", channel="calculator"
                         ),
-                        invent.ui.Button(
-                            label="7", purpose="DEFAULT", channel="calculator"
+                        Button(
+                            text="7", purpose="DEFAULT", channel="calculator"
                         ),
-                        invent.ui.Button(
-                            label="8", purpose="DEFAULT", channel="calculator"
+                        Button(
+                            text="8", purpose="DEFAULT", channel="calculator"
                         ),
-                        invent.ui.Button(
-                            label="9", purpose="DEFAULT", channel="calculator"
+                        Button(
+                            text="9", purpose="DEFAULT", channel="calculator"
                         ),
-                        invent.ui.Button(
-                            label="x", purpose="SUCCESS", channel="calculator"
+                        Button(
+                            text="x", purpose="SUCCESS", channel="calculator"
                         ),
-                        invent.ui.Button(
-                            label="4", purpose="DEFAULT", channel="calculator"
+                        Button(
+                            text="4", purpose="DEFAULT", channel="calculator"
                         ),
-                        invent.ui.Button(
-                            label="5", purpose="DEFAULT", channel="calculator"
+                        Button(
+                            text="5", purpose="DEFAULT", channel="calculator"
                         ),
-                        invent.ui.Button(
-                            label="6", purpose="DEFAULT", channel="calculator"
+                        Button(
+                            text="6", purpose="DEFAULT", channel="calculator"
                         ),
-                        invent.ui.Button(
-                            label="-", purpose="SUCCESS", channel="calculator"
+                        Button(
+                            text="-", purpose="SUCCESS", channel="calculator"
                         ),
-                        invent.ui.Button(
-                            label="1", purpose="DEFAULT", channel="calculator"
+                        Button(
+                            text="1", purpose="DEFAULT", channel="calculator"
                         ),
-                        invent.ui.Button(
-                            label="2", purpose="DEFAULT", channel="calculator"
+                        Button(
+                            text="2", purpose="DEFAULT", channel="calculator"
                         ),
-                        invent.ui.Button(
-                            label="3", purpose="DEFAULT", channel="calculator"
+                        Button(
+                            text="3", purpose="DEFAULT", channel="calculator"
                         ),
-                        invent.ui.Button(
-                            label="+", purpose="SUCCESS", channel="calculator"
+                        Button(
+                            text="+", purpose="SUCCESS", channel="calculator"
                         ),
-                        invent.ui.Button(
-                            layout=dict(column_span=2),
-                            label="0",
+                        Button(
+                            column_span=2,
+                            text="0",
                             purpose="DEFAULT",
                             channel="calculator",
                         ),
-                        invent.ui.Button(
-                            label=".",
+                        Button(
+                            text=".",
                             purpose="SECONDARY",
                             channel="calculator",
                         ),
-                        invent.ui.Button(
-                            label="=",
+                        Button(
+                            text="=",
                             purpose="SECONDARY",
                             channel="calculator",
                         ),
@@ -184,6 +179,7 @@ invent.ui.App(
         )
     ],
 )
+
 
 # GO! ##################################################################################
 

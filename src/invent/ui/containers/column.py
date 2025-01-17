@@ -19,13 +19,23 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
+from invent.i18n import _
 from .box import Box
+from ..core.property import ChoiceProperty
+from ..core.measures import COMPONENT_DISTRIBUTION
 
 
 class Column(Box):
     """
     A vertical container box.
     """
+
+    content_vertical_align = ChoiceProperty(
+        _("Alignment of child components in this column."),
+        choices=COMPONENT_DISTRIBUTION,
+        map_to_style="justify-content",
+        group="layout",
+    )
 
     @classmethod
     def icon(cls):

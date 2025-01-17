@@ -37,7 +37,7 @@ class Audio(Widget):
 
     playing = Event(
         _("Sent when the audio starts to play."),
-        source="The audio source playing.",
+        source=_("The audio source playing."),
     )
 
     paused = Event(
