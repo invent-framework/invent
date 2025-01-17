@@ -250,7 +250,7 @@ class Map(Widget):
 
         def __init__(
             self,
-            latitude=51.50,
+            latitude=51.4995,
             longitude=-0.177,
             popup_text=None,
             icon=MARKER_ICON_DEFAULT,
@@ -267,11 +267,10 @@ class Map(Widget):
             # Replace the color in the icon URL.
             icon = icon.format(icon_color=icon_color)
             # Create the icon for the marker.
-            self.icon = L.icon(iconUrl=icon, iconSize=L.point(48, 48))
+            self.icon = L.icon(iconUrl=icon, iconSize=L.point(50, 50), iconAnchor=L.point(25, 50))
             # Create the marker.
             self.marker = L.marker(L.latLng(self.latitude, self.longitude))
             self.marker.setIcon(self.icon)
             # Add the popup text if it exists.
             if self.popup_text:
                 self.marker.bindPopup(self.popup_text)
-            
