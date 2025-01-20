@@ -314,8 +314,17 @@ print(Hello().greet)"""
                         Label(text="A map:"),
                         Map(
                             markers=[
-                                Map.Marker(popup_text="Hello, world!"),
-                            ]
+                                Map.Marker(
+                                    popup_content="Hello, world! [A link](https://inventframework.org/)"
+                                ),
+                                Map.Marker(
+                                    latitude=51.505,
+                                    longitude=-0.09,
+                                    popup_content=Label(text="# London"),
+                                    icon=Map.MARKER_ICON_FLAG,
+                                    icon_color="blue",
+                                ),
+                            ],
                         ),
                         Label(text="A default image:"),
                         Image(),
