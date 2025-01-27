@@ -57,10 +57,6 @@ class Grid(Container):
     def on_columns_changed(self):
         self.element.style["grid-template-columns"] = "auto " * self.columns
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        self.content_align = "stretch"
-
     def render(self):
         """
         Render the component.
