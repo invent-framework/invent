@@ -484,7 +484,12 @@ print(Hello().greet)"""
                                     border_width="S",
                                     border_style="Dotted",
                                     flex=2,
-                                    children=[Label(text="Flexed to fill.")],
+                                    vertical_align_content="center",
+                                    children=[
+                                        Label(
+                                            text="Flexed to fill, v align content center"
+                                        )
+                                    ],
                                 ),
                             ],
                         ),
@@ -525,8 +530,21 @@ print(Hello().greet)"""
                                 Label(
                                     text="Item 8", background_color="lightgrey"
                                 ),
-                                Label(
-                                    text="Item 9", background_color="lightgrey"
+                                Row(
+                                    border_color="red",
+                                    border_width="S",
+                                    border_style="Dotted",
+                                    horizontal_align_content="center",
+                                    children=[
+                                        Label(
+                                            text="Item 9a, h align content center",
+                                            background_color="lightgrey",
+                                        ),
+                                        Label(
+                                            text="Item 9b",
+                                            background_color="lightgrey",
+                                        ),
+                                    ],
                                 ),
                             ],
                         ),

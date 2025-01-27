@@ -30,7 +30,7 @@ class Row(Box):
     A horizontal container box.
     """
 
-    content_horizontal_align = ChoiceProperty(
+    horizontal_align_content = ChoiceProperty(
         _("Alignment of child components in this row."),
         choices=COMPONENT_DISTRIBUTION,
         map_to_style="justify-content",

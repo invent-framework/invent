@@ -30,7 +30,7 @@ class Column(Box):
     A vertical container box.
     """
 
-    content_vertical_align = ChoiceProperty(
+    vertical_align_content = ChoiceProperty(
         _("Alignment of child components in this column."),
         choices=COMPONENT_DISTRIBUTION,
         map_to_style="justify-content",

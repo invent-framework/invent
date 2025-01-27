@@ -22,7 +22,7 @@ limitations under the License.
 from invent.i18n import _
 from ..core.container import Container
 from ..core.property import ChoiceProperty
-from ..core.measures import TSHIRT_SIZES, MEDIUM, COMPONENT_DISTRIBUTION
+from ..core.measures import TSHIRT_SIZES, MEDIUM
 
 
 class Box(Container):
