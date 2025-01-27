@@ -23,6 +23,7 @@ from .core import Widget, Container, from_datastore
 from .containers import Column, Grid, Page, Row
 from .widgets.audio import Audio
 from .widgets.button import Button
+from .widgets.chart import Chart
 from .widgets.checkbox import CheckBox
 from .widgets.code import Code
 from .widgets.color import ColorPicker
@@ -56,6 +57,7 @@ __all__ = [
     "from_datastore",
     "Audio",
     "Button",
+    "Chart",
     "CheckBox",
     "Code",
     "ColorPicker",

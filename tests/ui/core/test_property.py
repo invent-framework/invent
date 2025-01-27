@@ -10,6 +10,7 @@ from invent.ui.core import (
     DateProperty,
     FloatProperty,
     IntegerProperty,
+    JSONProperty,
     ListProperty,
     NumericProperty,
     Property,
@@ -628,6 +629,44 @@ def test_list_property_validation():
     tc.content = None
     with upytest.raises(TypeError):
         tc.content = False
+
+
+def test_json_property_validation():
+    """
+    A JSON property must be a JSON serializable object.
+    """
+
+    class FakeWidget(Component):
+        data = JSONProperty("A test property", default_value={"foo": "bar"})
+
+        def render(self):
+            return div()
+
+    widget = FakeWidget()
+    # JSON serializable objects are OK.
+    widget.data = {"foo": "bar"}
+    # As is None.
+    widget.data = None
+    # Anything else causes a TypeError
+    with upytest.raises(ValidationError):
+        widget.data = FakeWidget()
+
+
+def test_json_property_as_dict():
+    """
+    The expected JSON serializable Python object defining the property's
+    structure and attributes is returned.
+    """
+    jp = JSONProperty(
+        "A test property", default_value={"foo": "bar"}, group="test"
+    )
+    assert jp.as_dict() == {
+        "property_type": "JSONProperty",
+        "description": "A test property",
+        "required": False,
+        "default_value": {"foo": "bar"},
+        "group": "test",
+    }, jp.as_dict()
 
 
 def test_date_property_defaults_no_min_max():

@@ -20,6 +20,7 @@ limitations under the License.
 """
 
 import datetime
+import json
 import invent
 from invent.i18n import _
 
@@ -444,6 +445,28 @@ class ListProperty(Property):
             return []
 
         return list(value)
+
+
+class JSONProperty(Property):
+    """
+    A container property for a widget whose value is a JSON serializable data
+    structure.
+    """
+
+    def coerce(self, value):
+        if isinstance(value, str):
+            # If the value is a string, we assume it's a JSON string, so just
+            # convert it to a Python object.
+            value = json.loads(value)
+        return value
+
+    def validate(self, value):
+        value = super().validate(self.coerce(value))
+        # Attemp to convert the value to a JSON string to ensure it's
+        # serializable. If it isn't it'll raise a ValueError.
+        if type(value) not in (str, int, float, bool, list, dict, type(None)):
+            raise ValidationError(_("The value is not JSON serializable."))
+        return value
 
 
 class ChoiceProperty(Property):

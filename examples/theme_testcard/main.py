@@ -326,6 +326,37 @@ print(Hello().greet)"""
                                 ),
                             ],
                         ),
+                        Label(text="A bar chart:"),
+                        Chart(
+                            chart_type="bar",
+                            data={
+                                "labels": [
+                                    "Italy",
+                                    "France",
+                                    "Spain",
+                                    "USA",
+                                    "Argentina",
+                                ],
+                                "datasets": [
+                                    {
+                                        "backgroundColor": [
+                                            "red",
+                                            "green",
+                                            "blue",
+                                            "orange",
+                                            "brown",
+                                        ],
+                                        "data": [55, 49, 44, 24, 15],
+                                    }
+                                ],
+                            },
+                            options={
+                                "title": {
+                                    "display": True,
+                                    "text": "World Wide Wine Production",
+                                }
+                            },
+                        ),
                         Label(text="A default image:"),
                         Image(),
                         Label(text="A test image:"),

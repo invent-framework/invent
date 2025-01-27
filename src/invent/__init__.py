@@ -82,21 +82,21 @@ marked = None
 purify = None
 #: The leaflet JavaScript module for mapping.
 leaflet = None
+#: The chart.js JavaScript module for charting.
+chart_js = None
 
 
 async def load_js_modules():
     """
     Load the JavaScript modules required by the Invent framework.
     """
-    global marked, purify, leaflet
-    (
-        marked,
-        purify,
-        leaflet,
-    ) = await js_import(
+    global marked, purify, leaflet, chart_js
+    (marked, purify, leaflet, chart_js) = await js_import(
+        # TODO: esm.run all the things here... ;-)
         "https://cdn.jsdelivr.net/npm/marked/lib/marked.esm.js",
         "https://esm.run/dompurify",
         "https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet-src.esm.js",
+        "https://esm.run/chart.js/auto",
     )
 
 

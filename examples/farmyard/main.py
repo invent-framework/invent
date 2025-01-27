@@ -95,7 +95,7 @@ app = invent.App(
                                     value=from_datastore("number_of_honks"),
                                     name="Honk Slider",
                                     step=1,
-                                    stretch=2,
+                                    flex=2,
                                 ),
                             ]
                         ),
