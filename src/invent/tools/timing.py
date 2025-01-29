@@ -50,7 +50,7 @@ def schedule(func, delay, *args, **kwargs):
     func_id = id(func)
     if func_id in SCHEDULED_FUNCTIONS:
         raise ValueError(_("Function already scheduled."))
-    
+
     def wrapper():
         """
         Call the function, then remove it from the scheduled functions because
@@ -64,7 +64,7 @@ def schedule(func, delay, *args, **kwargs):
     return handle
 
 
-def repeatedly_schedule(func, delay, *args, **kwargs):
+def repeat(func, delay, *args, **kwargs):
     """
     Schedule the given function to be called repeatedly with the given delay
     (in milliseconds).
@@ -85,12 +85,19 @@ def repeatedly_schedule(func, delay, *args, **kwargs):
     func_id = id(func)
     if func_id in SCHEDULED_FUNCTIONS:
         raise ValueError(_("Function already scheduled."))
-    handle = window.setInterval(create_proxy(func), delay, *args, **kwargs)
+
+    def wrapper():
+        """
+        Call the function!
+        """
+        func(*args, **kwargs)
+
+    handle = window.setInterval(create_proxy(wrapper), delay)
     SCHEDULED_FUNCTIONS[func_id] = handle
     return handle
 
 
-def cancel_scheduled_function(func):
+def cancel(func):
     """
     Cancel the scheduled function.
 

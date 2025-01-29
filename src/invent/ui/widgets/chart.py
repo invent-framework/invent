@@ -96,27 +96,46 @@ class Chart(Widget):
     def icon(cls):
         return '<svg xmlns="http://www.w3.org/2000/svg" width="48px" height="48px" viewBox="0 0 256 256"><path fill="#000" d="M232 208a8 8 0 0 1-8 8H32a8 8 0 0 1-8-8V48a8 8 0 0 1 16 0v94.37L90.73 98a8 8 0 0 1 10.07-.38l58.81 44.11L218.73 90a8 8 0 1 1 10.54 12l-64 56a8 8 0 0 1-10.07.38l-58.81-44.09L40 163.63V200h184a8 8 0 0 1 8 8"/></svg>'  # noqa
 
+    def __init__(self, *args, **kwargs):
+        # The canvas element that will contain the chart.
+        self.chart_canvas = None
+        # The Chart.js instance.
+        self.chart_instance = None
+        super().__init__(*args, **kwargs)
+
+    def on_data_changed(self):
+        """
+        Update the chart when the data is updated.
+        """
+        self._update_chart()
+
+    def on_options_changed(self):
+        """
+        Update the chart when the options are updated.
+        """
+        self._update_chart()
+
     def _update_chart(self):
         """
-        Create the chart element in the DOM and kick off Chart.js with the
-        given data.
+        If required, kick off Chart.js with the required canvas and given
+        settings. Otherwise, update the chart with the current state of the
+        options and data.
         """
         if self.parent:
-            # Empty the containing self.element.
-            self.element.replaceChildren()
-            # Create the canvas element.
-            self.chart_id = f"{self.id}-canvas"
-            self.chart_canvas = canvas(id=self.chart_id)
-            self.element.append(self.chart_canvas)
-            # Create the chart if there's data to display.
-            if self.data:
-                from invent import chart_js
+            from invent import chart_js
 
-                args = {"type": self.chart_type, "data": self.data}
-                if self.options:
-                    args["options"] = self.options
+            chart_args = {"data": self.data}
+            if self.chart_type:
+                chart_args["type"] = self.chart_type
+            if self.options:
+                chart_args["options"] = self.options
+            if self.chart_instance:
+                self.chart_instance.data = to_js(self.data)
+                self.chart_instance.options = to_js(self.options)
+                self.chart_instance.update()
+            else:
                 self.chart_instance = chart_js.Chart.new(
-                    self.chart_id, to_js(args)
+                    self.chart_canvas._dom_element, to_js(chart_args)
                 )
             # Publish the chart updated event.
             self.publish(
@@ -127,19 +146,11 @@ class Chart(Widget):
             )
 
     def render(self):
-        chart_canvas = canvas(id=self.id)
-        from invent import chart_js
-
-        def render_chart():
-            chart_args = {"type": self.chart_type, "data": self.data}
-            if self.options:
-                chart_args["options"] = self.options
-            self.chart_instance = chart_js.Chart.new(
-                chart_canvas._dom_element, to_js(chart_args)
-            )
-
-        # Ensures the map is properly rendered once added to the DOM.
+        element = div(id=self.id)
+        self.chart_canvas = canvas()
+        element.append(self.chart_canvas)
+        # Ensures the chart is properly rendered once added to the DOM.
         window.requestAnimationFrame(
-            create_proxy(lambda *args: render_chart())
+            create_proxy(lambda x: self._update_chart())
         )
-        return chart_canvas
+        return element

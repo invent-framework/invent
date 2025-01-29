@@ -339,6 +339,7 @@ print(Hello().greet)"""
                                 ],
                                 "datasets": [
                                     {
+                                        "label": "Volume of wine produced (in hectolitres)",
                                         "backgroundColor": [
                                             "red",
                                             "green",
@@ -351,10 +352,12 @@ print(Hello().greet)"""
                                 ],
                             },
                             options={
-                                "title": {
-                                    "display": True,
-                                    "text": "World Wide Wine Production",
-                                }
+                                "plugins": {
+                                    "title": {
+                                        "display": True,
+                                        "text": "World Wide Wine Production",
+                                    },
+                                },
                             },
                         ),
                         Label(text="A default image:"),
