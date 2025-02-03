@@ -39,7 +39,7 @@ def test_load_translations_from_given_location():
     """
     The load_translations method will use the referenced file for translations.
     """
-    path = "./tests/translations.json"
+    path = "./tests/invent/translations.json"
     with open(path, "r") as tr:
         expected = json.load(tr)
     invent.load_translations(path)
@@ -85,7 +85,7 @@ def test_():
     # No translations, so just return the string.
     assert "hello" == invent._("hello")
     # Load translations.
-    invent.load_translations("./tests/translations.json")
+    invent.load_translations("./tests/invent/translations.json")
     # No translation for the default language (en).
     invent.i18n.set_language("en")
     # So just return the string.

@@ -7,7 +7,7 @@ async def test_play_sound():
     """
     Use of the simple `play` function with a sound file.
     """
-    sound_file = "./tests/test_data/honk.mp3"
+    sound_file = "./tests/invent/test_data/honk.mp3"
     result_key = "sound_played"
     got_play_from_sound = asyncio.Event()  # Used to wait for the play event.
     got_end_from_sound = asyncio.Event()  # Used to wait for the end event.
