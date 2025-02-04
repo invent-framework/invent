@@ -18,7 +18,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
+import os
+
 from pyscript.web import page as dom  # Avoid name collision with page.
+import toga
 
 import invent
 from .i18n import load_translations, _
@@ -95,7 +98,16 @@ class App:
         self.license = license
         self._pages = []  # Ordered list of pages.
         self._page_lookup_table = {}  # A dict to easily look up pages by name.
-        self._current_page = None  # The name of the currently visible page.
+
+        # We don't use any features of the App class, but the Window requires
+        # it to exist.
+        os.environ["TOGA_BACKEND"] = "toga_invent"
+        self.toga_app = toga.App(self.name, "io.github.invent-framework")
+
+        # toga_invent uses the window ID as a CSS selector determining which
+        # element to display the content in.
+        self.toga_window = toga.Window("body")
+
         if args:
             self.append(*args)
         if pages:
@@ -176,11 +188,7 @@ class App:
         Show the page with the specified id. Hide the current page if there
         is one.
         """
-        new_page = self.get_page(page_id)
-        new_page.show()
-        if self._current_page and self._current_page != new_page:
-            self._current_page.hide()
-        self._current_page = new_page
+        self.toga_window.content = self.get_page(page_id)
 
     def go(self):
         """
@@ -190,10 +198,8 @@ class App:
         dom.title = self.name
         # Load the i18n assets.
         load_translations()
-        # Render all the pages to the DOM.
+
         if self.pages:
-            for page in self.pages:
-                dom.append(page.element._dom_element)
             # Show the first page.
             self.show_page(self.pages[0].id)
         else:

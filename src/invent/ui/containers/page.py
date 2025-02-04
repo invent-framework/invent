@@ -20,32 +20,17 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-from .column import Column
+from .. import Column
 
 
-class Page(Column):
+# TODO: consider eliminating the Page level entirely, and applying the classes
+# in the backend to whatever widget is set as window.content.
+def Page(*args, **kwargs):
     """
     Only one page at a time is displayed on the screen. Pages contain related
     widgets to achieve some aim.
     """
-
-    def render(self):
-        """
-        Returns an HTML element to insert into the DOM.
-        """
-        element = super().render()
-        element.classList.add("container")
-        element.style["display"] = "None"
-        return element
-
-    def show(self):
-        """
-        Make the page visible to the user.
-        """
-        self.element.style["display"] = "flex"
-
-    def hide(self):
-        """
-        Hide the page from the user.
-        """
-        self.element.style["display"] = "None"  # Hidden by default.
+    page = Column(*args, **kwargs)
+    element = page._impl.element
+    element.classList.add("paper")
+    element.classList.add("container")

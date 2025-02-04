@@ -18,11 +18,14 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
+from toga import Button, Column, Label, Row, TextInput
+from toga.sources import ValueSource
+
+from .. import Message, datastore, publish, subscribe
 from ..i18n import _
-from .core import Widget, Container, from_datastore
-from .containers import Column, Grid, Page, Row
+from .core import Widget, Container
+from .containers import Grid, Page
 from .widgets.audio import Audio
-from .widgets.button import Button
 from .widgets.chart import Chart
 from .widgets.checkbox import CheckBox
 from .widgets.code import Code
@@ -39,9 +42,7 @@ from .widgets.radio import Radio
 from .widgets.selector import Selector
 from .widgets.slider import Slider
 from .widgets.switch import Switch
-from .widgets.label import Label
 from .widgets.table import Table
-from .widgets.textinput import TextInput
 from .widgets.time import TimePicker
 from .widgets.video import Video
 
@@ -55,6 +56,7 @@ __all__ = [
     "Grid",
     "Row",
     "from_datastore",
+    "to_channel",
     "Audio",
     "Button",
     "Chart",
@@ -79,6 +81,37 @@ __all__ = [
     "TimePicker",
     "Video",
 ]
+
+
+def to_channel(channel):
+    def handler(widget, **kwargs):
+        # TODO: generalize `press` and `button`.
+        publish(Message("press", button=widget), channel)
+
+    return handler
+
+
+class from_datastore(ValueSource):
+    def __init__(self, key, with_function=None):
+        super().__init__()
+        self.key = key
+        self.with_function = with_function
+        self.accessor = "value"
+        subscribe(self.reactor, "store-data", when_subject=key)
+
+    def reactor(self, message):
+        self.notify("change", item=self.value)
+
+    @property
+    def value(self):
+        result = datastore.get(self.key)
+        if self.with_function:
+            result = self.with_function(result)
+        return result
+
+    @value.setter
+    def value(self, new_value):
+        pass  # TODO
 
 
 AVAILABLE_COMPONENTS = {
