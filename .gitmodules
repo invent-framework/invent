@@ -1,0 +1,4 @@
+[submodule "src/toga"]
+	path = src/toga
+	url = git@github.com:mhsmith/toga
+	branch = invent-2025
