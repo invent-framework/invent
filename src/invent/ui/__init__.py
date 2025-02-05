@@ -18,12 +18,11 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-from toga import Button, Column, Label, Row, TextInput
+from toga import Button, Column, Label, Row, TextInput, Widget
 from toga.sources import ValueSource
 
 from .. import Message, datastore, publish, subscribe
 from ..i18n import _
-from .core import Widget, Container
 from .containers import Grid, Page
 from .widgets.audio import Audio
 from .widgets.chart import Chart
@@ -51,7 +50,6 @@ __all__ = [
     "Code",
     "Page",
     "Widget",
-    "Container",
     "Column",
     "Grid",
     "Row",
