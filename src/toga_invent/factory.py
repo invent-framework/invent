@@ -1,20 +1,13 @@
-from .app import App
-from .widgets.box import Box
-from .widgets.button import Button
-from .widgets.label import Label
-from .widgets.textinput import TextInput
-from .window import Window
+from importlib import import_module
 
 
-# Stub out some unused classes.
-class Icon:
-    EXTENSIONS = [".png"]
-    SIZES = None
+def __getattr__(name):
+    for package in ["toga_invent", "toga_invent.widgets"]:
+        try:
+            module = import_module(f"{package}.{name.lower()}")
+        except ImportError:
+            pass
+        else:
+            return getattr(module, name)
 
-    def __init__(self, *args, **kwargs):
-        pass
-
-
-class Paths:
-    def __init__(self, *args, **kwargs):
-        pass
+    raise AttributeError(f"module '{__name__}' has no attribute '{name}'")
