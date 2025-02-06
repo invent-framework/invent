@@ -95,7 +95,13 @@ if __name__ == "__main__":
     event_handler = SourceChangeHander(args.port)
     invent_observer = Observer()
     test_observer = Observer()
-    invent_observer.schedule(event_handler, "src/invent", recursive=True)
+    for path in [
+        "src/invent",
+        "src/toga/core/src/toga",
+        "src/toga/travertino/src/travertino",
+        "src/toga_invent",
+    ]:
+        invent_observer.schedule(event_handler, path, recursive=True)
     test_observer.schedule(event_handler, "tests", recursive=True)
     invent_observer.start()
     test_observer.start()

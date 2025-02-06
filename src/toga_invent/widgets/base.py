@@ -22,6 +22,8 @@ class Widget(ABC):
     def set_enabled(self, value):
         self.element.disabled = not value
 
+    # If a subclass requires any additional styles, it should override this
+    # method.
     def refresh(self):
         self.element.style = self.interface.style.__css__()
 
@@ -40,6 +42,6 @@ stub_methods(
         "app", "window",
 
         # These setters are unused because we handle style using CSS.
-        "bounds", "alignment", "hidden", "font", "color", "background_color",
+        "bounds", "text_align", "hidden", "font", "color", "background_color",
     ]]
 )

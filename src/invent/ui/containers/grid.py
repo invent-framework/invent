@@ -20,7 +20,7 @@ limitations under the License.
 
 from collections.abc import Iterable
 
-from toga.base import StyleT, Widget
+from toga.widgets.base import StyleT, Widget
 
 
 class Grid(Widget):
@@ -31,24 +31,16 @@ class Grid(Widget):
     def __init__(
         self,
         *,
-        columns: int,
         id: str | None = None,
         style: StyleT | None = None,
         children: Iterable[Widget] | None = None,
         **kwargs,
     ):
         super().__init__(id, style, **kwargs)
-        self.columns = columns
 
         self._children = []
         if children is not None:
             self.add(*children)
 
-    @property
-    def columns(self) -> int:
-        """Number of columns."""
-        return self._impl.get_columns()
-
-    @columns.setter
-    def columns(self, value) -> int:
-        self._impl.set_columns(value)
+    def _create(self):
+        return self.factory.Grid(interface=self)

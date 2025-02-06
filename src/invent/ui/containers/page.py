@@ -34,3 +34,4 @@ def Page(*args, **kwargs):
     element = page._impl.element
     element.classList.add("paper")
     element.classList.add("container")
+    return page

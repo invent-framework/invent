@@ -98,80 +98,107 @@ invent.App(
             children=[
                 Grid(
                     columns=4,
+                    gap=4,
                     children=[
                         TextInput(
                             column_span=4,
-                            value=from_datastore("numbers"),
+                            value="FIXME",  # from_datastore("numbers"),
                         ),
                         Button(
                             text="AC",
                             purpose="SECONDARY",
-                            channel="calculator",
+                            on_press=to_channel("calculator"),
                         ),
                         Button(
                             text="C",
                             purpose="SECONDARY",
-                            channel="calculator",
+                            on_press=to_channel("calculator"),
                         ),
                         Button(
                             text="+/-",
                             purpose="SECONDARY",
-                            channel="calculator",
+                            on_press=to_channel("calculator"),
                         ),
                         Button(
-                            text="÷", purpose="SUCCESS", channel="calculator"
+                            text="÷",
+                            purpose="SUCCESS",
+                            on_press=to_channel("calculator"),
                         ),
                         Button(
-                            text="7", purpose="DEFAULT", channel="calculator"
+                            text="7",
+                            purpose="DEFAULT",
+                            on_press=to_channel("calculator"),
                         ),
                         Button(
-                            text="8", purpose="DEFAULT", channel="calculator"
+                            text="8",
+                            purpose="DEFAULT",
+                            on_press=to_channel("calculator"),
                         ),
                         Button(
-                            text="9", purpose="DEFAULT", channel="calculator"
+                            text="9",
+                            purpose="DEFAULT",
+                            on_press=to_channel("calculator"),
                         ),
                         Button(
-                            text="x", purpose="SUCCESS", channel="calculator"
+                            text="x",
+                            purpose="SUCCESS",
+                            on_press=to_channel("calculator"),
                         ),
                         Button(
-                            text="4", purpose="DEFAULT", channel="calculator"
+                            text="4",
+                            purpose="DEFAULT",
+                            on_press=to_channel("calculator"),
                         ),
                         Button(
-                            text="5", purpose="DEFAULT", channel="calculator"
+                            text="5",
+                            purpose="DEFAULT",
+                            on_press=to_channel("calculator"),
                         ),
                         Button(
-                            text="6", purpose="DEFAULT", channel="calculator"
+                            text="6",
+                            purpose="DEFAULT",
+                            on_press=to_channel("calculator"),
                         ),
                         Button(
-                            text="-", purpose="SUCCESS", channel="calculator"
+                            text="-",
+                            purpose="SUCCESS",
+                            on_press=to_channel("calculator"),
                         ),
                         Button(
-                            text="1", purpose="DEFAULT", channel="calculator"
+                            text="1",
+                            purpose="DEFAULT",
+                            on_press=to_channel("calculator"),
                         ),
                         Button(
-                            text="2", purpose="DEFAULT", channel="calculator"
+                            text="2",
+                            purpose="DEFAULT",
+                            on_press=to_channel("calculator"),
                         ),
                         Button(
-                            text="3", purpose="DEFAULT", channel="calculator"
+                            text="3",
+                            purpose="DEFAULT",
+                            on_press=to_channel("calculator"),
                         ),
                         Button(
-                            text="+", purpose="SUCCESS", channel="calculator"
+                            text="+",
+                            purpose="SUCCESS",
+                            on_press=to_channel("calculator"),
                         ),
                         Button(
                             column_span=2,
                             text="0",
                             purpose="DEFAULT",
-                            channel="calculator",
+                            on_press=to_channel("calculator"),
                         ),
                         Button(
                             text=".",
                             purpose="SECONDARY",
-                            channel="calculator",
+                            on_press=to_channel("calculator"),
                         ),
                         Button(
                             text="=",
                             purpose="SECONDARY",
-                            channel="calculator",
+                            on_press=to_channel("calculator"),
                         ),
                     ],
                 ),

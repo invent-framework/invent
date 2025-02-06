@@ -9,7 +9,6 @@ class Button(Widget):
     def render(self):
         element = document.createElement("button")
         element.addEventListener("click", create_proxy(self.click))
-        element.className = f"btn-{self.interface.purpose.lower()}"
         return element
 
     def click(self, event):
@@ -21,5 +20,15 @@ class Button(Widget):
     def set_text(self, text):
         self.element.innerText = text
 
+    def get_icon(self):
+        return None
+
     def set_icon(self, icon):
         pass
+
+    def get_purpose(self):
+        return self._purpose
+
+    def set_purpose(self, purpose):
+        self._purpose = purpose
+        self.element.className = f"btn-{purpose.lower()}"

@@ -31,6 +31,9 @@ __all__ = [
     "App",
 ]
 
+# This environment variable must be set before instantiating any Toga classes.
+os.environ["TOGA_BACKEND"] = "toga_invent"
+
 
 # Singleton instance of the App class. There can be only one app running at a
 # time.
@@ -99,13 +102,9 @@ class App:
         self._pages = []  # Ordered list of pages.
         self._page_lookup_table = {}  # A dict to easily look up pages by name.
 
-        # We don't use any features of the App class, but the Window requires
-        # it to exist.
-        os.environ["TOGA_BACKEND"] = "toga_invent"
-        self.toga_app = toga.App(self.name, "io.github.invent-framework")
-
         # toga_invent uses the window ID as a CSS selector determining which
         # element to display the content in.
+        self.toga_app = toga.App(self.name, "io.github.invent-framework")
         self.toga_window = toga.Window("body")
 
         if args:

@@ -1,5 +1,4 @@
 from .component import _DEFAULT_ICON, Component
-from .container import Container
 from .widget import Widget
 from .event import Event
 from .property import (
@@ -21,7 +20,6 @@ from .property import (
 __all__ = [
     "_DEFAULT_ICON",
     "Component",
-    "Container",
     "Event",
     "Widget",
     "BooleanProperty",
