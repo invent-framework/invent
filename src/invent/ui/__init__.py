@@ -19,10 +19,9 @@ limitations under the License.
 """
 
 from toga import Button, Column, Label, Row, TextInput, Widget
-from toga.sources import ValueSource
 
-from .. import Message, datastore, publish, subscribe
 from ..i18n import _
+from .core import from_datastore, to_channel
 from .containers import Grid, Page
 from .widgets.audio import Audio
 from .widgets.chart import Chart
@@ -79,37 +78,6 @@ __all__ = [
     "TimePicker",
     "Video",
 ]
-
-
-def to_channel(channel):
-    def handler(widget, **kwargs):
-        # TODO: generalize `press` and `button`.
-        publish(Message("press", button=widget), channel)
-
-    return handler
-
-
-class from_datastore(ValueSource):
-    def __init__(self, key, with_function=None):
-        super().__init__()
-        self.key = key
-        self.with_function = with_function
-        self.accessor = "value"
-        subscribe(self.reactor, "store-data", when_subject=key)
-
-    def reactor(self, message):
-        self.notify("change", item=self.value)
-
-    @property
-    def value(self):
-        result = datastore.get(self.key)
-        if self.with_function:
-            result = self.with_function(result)
-        return result
-
-    @value.setter
-    def value(self, new_value):
-        pass  # TODO
 
 
 AVAILABLE_COMPONENTS = {

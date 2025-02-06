@@ -20,7 +20,16 @@ limitations under the License.
 """
 
 import invent
+from invent import Message, publish
 from invent.i18n import _
+
+
+# Bridge between a Toga event handler and an Invent channel.
+def to_channel(channel):
+    def handler(widget, *, event, **kwargs):
+        publish(Message(event, widget=widget, **kwargs), channel)
+
+    return handler
 
 
 class Event:

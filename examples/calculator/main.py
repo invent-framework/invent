@@ -15,7 +15,7 @@ await invent.setup(
 
 def when_any_button_is_clicked(message):
     data = invent.datastore
-    button = message.button
+    button = message.widget
 
     if button.text in ["1", "2", "3", "4", "5", "6", "7", "8", "9", "0"]:
         data["numbers"] = data["value"] = (

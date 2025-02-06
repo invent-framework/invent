@@ -1,6 +1,6 @@
 from .component import _DEFAULT_ICON, Component
 from .widget import Widget
-from .event import Event
+from .event import Event, to_channel
 from .property import (
     BooleanProperty,
     ChoiceProperty,
@@ -35,4 +35,5 @@ __all__ = [
     "TimeProperty",
     "ValidationError",
     "from_datastore",
+    "to_channel",
 ]

@@ -21,8 +21,12 @@ limitations under the License.
 
 import datetime
 import json
+
+from toga.sources import ValueSource
+
 import invent
 from invent.i18n import _
+from invent import datastore, subscribe
 
 
 class ValidationError(ValueError):
@@ -33,38 +37,27 @@ class ValidationError(ValueError):
     ...
 
 
-class from_datastore:  # NOQA
-    """
-    Instances of this class signal that a property is bound to a datastore
-    value identified by the key.
-
-    If a with_function is provided, it is called when the value in the
-    datastore changes. The function is passed the new value from the datastore
-    and should return the value to be set on the property.
-
-    Implementation detail: snake case is used for this class, rather than the
-    orthodox capitalised camel case, for aesthetic reasons. ;-)
-    """
-
+class from_datastore(ValueSource):
     def __init__(self, key, with_function=None):
-        """
-        The key identifies the value in the datastore. The with_function, if
-        supplied, is called when the value in the datastore changes.
-        """
+        super().__init__()
         self.key = key
         self.with_function = with_function
+        self.accessor = "value"
+        subscribe(self.reactor, "store-data", when_subject=key)
 
-    def __repr__(self):
-        """
-        Create the expression for a property that gets its value from the
-        datastore. Used for serialiszation purposes.
-        """
-        expression = f"from_datastore({self.key!r}"
+    def reactor(self, message):
+        self.notify("change", item=self.value)
+
+    @property
+    def value(self):
+        result = datastore.get(self.key)
         if self.with_function:
-            expression += f", with_function={self.with_function.__name__}"
-        expression += ")"
+            result = self.with_function(result)
+        return result
 
-        return expression
+    @value.setter
+    def value(self, new_value):
+        pass  # TODO
 
 
 class Property:
