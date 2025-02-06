@@ -4,7 +4,6 @@ from .. import stub_methods
 
 
 class Widget(ABC):
-
     def __init__(self, interface):
         self.interface = interface
         self.element = self.render()

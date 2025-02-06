@@ -5,7 +5,6 @@ from .base import Widget
 
 
 class TextInput(Widget):
-
     def render(self):
         element = document.createElement("input")
         element.addEventListener("input", create_proxy(self.input))
@@ -31,4 +30,7 @@ class TextInput(Widget):
         return self.element.placeholder
 
     def set_placeholder(self, value):
-        self.element.placeholder = value
+        if value:
+            self.element.placeholder = value
+        else:
+            self.element.removeAttribute("placeholder")

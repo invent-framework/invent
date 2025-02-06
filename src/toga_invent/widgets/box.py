@@ -4,7 +4,6 @@ from .base import Widget
 
 
 class Box(Widget):
-
     def render(self):
         return document.createElement("div")
 

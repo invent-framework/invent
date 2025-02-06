@@ -5,7 +5,6 @@ from .app import App
 
 
 class Window:
-
     def __init__(self, interface, title, position, size):
         self.interface = interface
         self.element = document.querySelector(interface.id)

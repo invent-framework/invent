@@ -5,7 +5,6 @@ from .base import Widget
 
 
 class Button(Widget):
-
     def render(self):
         element = document.createElement("button")
         element.addEventListener("click", create_proxy(self.click))
