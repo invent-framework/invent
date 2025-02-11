@@ -26,7 +26,7 @@ from toga.sources import ValueSource
 
 import invent
 from invent.i18n import _
-from invent import datastore, subscribe
+from invent import subscribe
 
 
 class ValidationError(ValueError):
@@ -43,14 +43,14 @@ class from_datastore(ValueSource):
         self.key = key
         self.with_function = with_function
         self.accessor = "value"
-        subscribe(self.reactor, "store-data", when_subject=key)
+        subscribe(self.reactor, "datastore:set", when_subject=key)
 
     def reactor(self, message):
         self.notify("change", item=self.value)
 
     @property
     def value(self):
-        result = datastore.get(self.key)
+        result = invent.datastore.get(self.key)
         if self.with_function:
             result = self.with_function(result)
         return result

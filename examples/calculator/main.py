@@ -102,7 +102,7 @@ invent.App(
                     children=[
                         TextInput(
                             column_span=4,
-                            value="FIXME",  # from_datastore("numbers"),
+                            value=from_datastore("numbers"),
                         ),
                         Button(
                             text="AC",
