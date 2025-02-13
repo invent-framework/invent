@@ -83,13 +83,6 @@ def test_widget_when_with_do():
             handler=my_handler, to_channel="12345", when_subject="push"
         )
 
-    # Specialised case with explicit channel name[s].
-    with umock.patch("invent.ui.core.component:invent.subscribe") as mock_sub:
-        tw.when("push", to_channel="test_channel", do=my_handler)
-        mock_sub.assert_called_once_with(
-            handler=my_handler, to_channel="test_channel", when_subject="push"
-        )
-
 
 def test_widget_when_as_decorator():
     """
@@ -109,14 +102,6 @@ def test_widget_when_as_decorator():
 
         @tw.when("push")
         def my_first_handler(message):
-            return
-
-        assert mock_sub.call_count == 1
-
-        mock_sub.reset_mock()
-
-        @tw.when("push", to_channel="test_channel")
-        def my_second_handler(message):
             return
 
         assert mock_sub.call_count == 1

@@ -75,30 +75,26 @@ class Widget(Component):
             )
             invent.publish(message, to_channel=channels)
 
-    def when(self, subject, to_channel=None, do=None):
+    def when(self, subject, do=None):
         """
         Convenience method for wrapping subscriptions.
 
         If no "do" handler is given, we assume this function is decorating the
         handler to "do" the stuff.
 
-        The subject and to_channel can be either individual strings or a
-        list of strings to indicate the channel[s] and message subject[s] to
-        match.
+        The subject can be either individual strings or a list of strings to
+        indicate the message subject[s] to match.
         """
-        if not to_channel:
-            to_channel = self.id
-
         if do:
             invent.subscribe(
-                handler=do, to_channel=to_channel, when_subject=subject
+                handler=do, to_channel=self.channel, when_subject=subject
             )
         else:
 
             def inner_function(handler):
                 invent.subscribe(
                     handler=handler,
-                    to_channel=to_channel,
+                    to_channel=self.channel,
                     when_subject=subject,
                 )
 
