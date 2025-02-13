@@ -37,11 +37,13 @@ def make_oink(message):
 
 
 def make_geese(number_of_honks):
-    return [Label(text="🦆") for _ in range(number_of_honks)]
+    text = "🦆" * number_of_honks
+    return [Label(text=text), ]
 
 
 def make_pigs(number_of_oinks):
-    return [Label(text="🐖") for _ in range(number_of_oinks)]
+    text = "🐖" * number_of_oinks
+    return [Label(text=text),]
 
 
 # Channels #############################################################################
