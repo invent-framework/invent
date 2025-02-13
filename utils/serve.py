@@ -65,12 +65,12 @@ class SourceChangeHander(FileSystemEventHandler):
 
     def restart_server(self):
         """
-        Stop the server subprocess, `make zip`, and restart the server
+        Stop the server subprocess, `make package`, and restart the server
         subprocess.
         """
         print("♻️  Restarting server...")
         self.stop_server()
-        subprocess.run(["make", "zip"])
+        subprocess.run(["make", "package"])
         self.start_server()
 
     def start_server(self):

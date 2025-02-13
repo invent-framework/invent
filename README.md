@@ -55,22 +55,8 @@ Make a virtualenv, then install the requirements:
 pip install -r requirements.txt
 ```
 
-Most useful developer related tasks are automated by a `Makefile`:
-
-```
-$ make
-There's no default Makefile target right now. Try:
-
-make clean - reset the project and remove auto-generated assets.
-make tidy - tidy up the code with the 'black' formatter.
-make lint - check the code for obvious errors with flake8.
-make lint-all - check all code for obvious errors with flake8.
-make serve - serve the project at: http://0.0.0.0:8000/
-make test - while serving the app, run the test suite in browser.
-make dist - build the module as a package.
-make publish-test - upload the package to the PyPI test instance.
-make publish-live - upload the package to the PyPI LIVE instance.
-```
+Most useful developer related tasks are automated by a `Makefile`. Type `make`
+for a list of the available commands.
 
 To run the test suite:
 
