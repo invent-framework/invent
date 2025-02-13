@@ -325,6 +325,7 @@ print(Hello().greet)"""
                                     icon_color="blue",
                                 ),
                             ],
+                            tile_set=Map.TILES_SATELLITE,
                         ),
                         Label(text="A bar chart:"),
                         Chart(
