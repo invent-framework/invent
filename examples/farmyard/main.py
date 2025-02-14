@@ -37,13 +37,11 @@ def make_oink(message):
 
 
 def make_geese(number_of_honks):
-    text = "🦆" * number_of_honks
-    return [Label(text=text), ]
+    return "🦆" * number_of_honks
 
 
 def make_pigs(number_of_oinks):
-    text = "🐖" * number_of_oinks
-    return [Label(text=text),]
+    return "🐖" * number_of_oinks
 
 
 # Channels #############################################################################
@@ -101,10 +99,10 @@ app = invent.App(
                                 ),
                             ]
                         ),
-                        Row(
+                        Label(
                             id="geese",
                             horizontal_align="center",
-                            children=from_datastore(
+                            text=from_datastore(
                                 "number_of_honks", with_function=make_geese
                             ),
                         ),
@@ -143,10 +141,10 @@ app = invent.App(
                                 ),
                             ],
                         ),
-                        Row(
+                        Label(
                             id="pigs",
                             horizontal_align="center",
-                            children=from_datastore(
+                            text=from_datastore(
                                 "number_of_oinks", with_function=make_pigs
                             ),
                         ),
