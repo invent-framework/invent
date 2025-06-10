@@ -49,10 +49,10 @@ class Component:
     # Used for generating unique component names.
     _component_counter = 0
 
-    id = TextProperty(_("The id of the widget instance in the DOM."))
+    id = TextProperty(_("The id of the component instance in the DOM."))
 
     name = TextProperty(
-        _("The meaningful name of the widget instance."),
+        _("The meaningful name of the component instance."),
         map_to_attribute="name",
     )
 
@@ -348,6 +348,18 @@ class Component:
         UI builder.
         """
         return _DEFAULT_ICON
+    
+    @classmethod
+    def category(cls):
+        """
+        Return the category name of the component. Defaults to "General", but
+        is expected to be overridden by subclasses to something like:
+        "Actions", "Media", "Data", "Navigation", "Inputs", "Layout", etc.
+
+        Different categories will be displayed in different sections of the
+        UI builder.
+        """
+        return "General"
 
     @classmethod
     def events(cls):
