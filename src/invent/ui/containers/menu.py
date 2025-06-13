@@ -1,5 +1,5 @@
 """
-A menu is a collapsable container used to display a list of items vertically or 
+A menu is a collapsable container used to display a list of items vertically or
 horizontally.
 
 Based on original pre-COVID work by [Nicholas H.Tollervey.](https://ntoll.org/)
@@ -18,6 +18,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
+
 from invent.i18n import _
 from .box import Box
 from ..core.property import ChoiceProperty

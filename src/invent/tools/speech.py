@@ -1,5 +1,5 @@
 """
-Speech related functions: say (text-to-speech), list available voices for 
+Speech related functions: say (text-to-speech), list available voices for
 speech synthesis, set the preferred voice, and listen (speech-to-text).
 
 Based on original pre-COVID work by [Nicholas H.Tollervey.](https://ntoll.org/)

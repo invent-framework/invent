@@ -1,5 +1,5 @@
 """
-A drawer is a column that can show/hide a sidebar on the left or right side of 
+A drawer is a column that can show/hide a sidebar on the left or right side of
 the page.
 
 Based on original pre-COVID work by [Nicholas H.Tollervey.](https://ntoll.org/)
@@ -18,6 +18,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
+
 from invent.i18n import _
 from .column import Column
 from ..core.property import ChoiceProperty
@@ -30,7 +31,7 @@ class Drawer(Column):
     of the page. The Drawer is initially hidden, but once triggered it will
     slide into view, allowing for a more interactive user experience. Clicking
     outside the Drawer will cause it to slide back into a hidden state.
-    
+
     The Drawer is useful for displaying additional information or controls
     without cluttering the main interface. The Drawer is a subclass of the
     Column container and inherits all of its properties and methods.

@@ -69,8 +69,8 @@ class from_datastore:  # NOQA
 
 class Property:
     """
-    An instance of a child of this class represents a property of a Widget. Do
-    not use this class directly. Instead, use one of its children.
+    An instance of a child of this class represents a property of a component.
+    Do not use this class directly. Instead, use one of its children.
 
     This class implements the Python descriptor protocol. See:
 
@@ -443,8 +443,32 @@ class ListProperty(Property):
     def coerce(self, value):
         if value is None:
             return []
+        try:
+            return list(value)
+        except:  # pragma: no cover
+            raise ValidationError(_("Not a valid list."), value)
 
-        return list(value)
+
+class DictProperty(Property):
+    """
+    A dictionary like container property for a Widget.
+    """
+
+    def __init__(
+        self,
+        description,
+        default_value=None,
+        **kwargs,
+    ):
+        super().__init__(description, default_value or dict(), **kwargs)
+
+    def coerce(self, value):
+        if value is None:
+            return {}
+        try:
+            return dict(value)
+        except:  # pragma: no cover
+            raise ValidationError(_("Not a valid dictionary."), value)
 
 
 class JSONProperty(Property):

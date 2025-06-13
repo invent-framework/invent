@@ -17,6 +17,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
+
 from invent.i18n import _
 from .row import Row
 from ..core.property import ChoiceProperty
@@ -32,4 +33,5 @@ class Tabs(Row):
     container is a subclass of the Row container and inherits all of its
     properties and methods.
     """
+
     ...

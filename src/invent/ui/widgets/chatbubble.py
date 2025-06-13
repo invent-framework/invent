@@ -1,5 +1,5 @@
 """
-A chat bubble is used to show one line of conversation and all its data, 
+A chat bubble is used to show one line of conversation and all its data,
 including the author image, author name, time, etc.
 
 Based on original pre-COVID work by [Nicholas H.Tollervey.](https://ntoll.org/)

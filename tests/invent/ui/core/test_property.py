@@ -9,6 +9,7 @@ from invent.ui.core import (
     ChoiceProperty,
     DateProperty,
     DatetimeProperty,
+    DictProperty,
     FloatProperty,
     IntegerProperty,
     JSONProperty,
@@ -622,14 +623,35 @@ def test_list_property_validation():
             return div()
 
     tc = TestComponent()
-    tc.children = [
+    tc.content = [
         "foo",
         "bar",
         "baz",
     ]
     tc.content = None
-    with upytest.raises(TypeError):
+    with upytest.raises(ValidationError):
         tc.content = False
+
+
+def test_dict_property_validation():
+    """
+    A DictProperty must be a dictionary or None.
+    """
+
+    class TestComponent(Component):
+        content = DictProperty("A test property", default_value={"foo": "bar"})
+
+        def render(self):
+            return div()
+
+    tc = TestComponent()
+    # Dictionary objects are OK.
+    tc.content = {"foo": "bar"}
+    # As is None.
+    tc.content = None
+    # Anything else causes a ValidationError
+    with upytest.raises(ValidationError):
+        tc.content = "not a dict"
 
 
 def test_json_property_validation():

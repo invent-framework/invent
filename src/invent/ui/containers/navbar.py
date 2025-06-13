@@ -1,5 +1,5 @@
 """
-A navbar is a horizontal container used to show a navigation bar on the top of 
+A navbar is a horizontal container used to show a navigation bar on the top of
 the page. The navbar can be sticky, meaning it will stay at the top of the page
 even when the user scrolls down. Typically the navbar contains a logo, a title,
 and a menu.
@@ -20,6 +20,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
+
 from invent.i18n import _
 from .row import Row
 from ..core.property import ChoiceProperty
@@ -28,14 +29,14 @@ from ..core.measures import COMPONENT_DISTRIBUTION
 
 class Navbar(Row):
     """
-    Navbar is a horizontal container used to show a navigation bar on the top 
-    of the page. The navbar can be sticky, meaning it will stay at the top of 
-    the page even when the user scrolls down. Typically the navbar contains a 
+    Navbar is a horizontal container used to show a navigation bar on the top
+    of the page. The navbar can be sticky, meaning it will stay at the top of
+    the page even when the user scrolls down. Typically the navbar contains a
     logo, a title, and a menu.
 
     The Navbar is useful for displaying a consistent navigation experience
-    across different pages. The Navbar is a subclass of the Row container and 
+    across different pages. The Navbar is a subclass of the Row container and
     inherits all of its properties and methods.
     """
-    
+
     ...

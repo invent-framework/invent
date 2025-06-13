@@ -1,5 +1,5 @@
 """
-A stat is used to show numbers in a meaningful manner. A stat will have a 
+A stat is used to show numbers in a meaningful manner. A stat will have a
 numeric value and may have a title, description, icon, unit and/or action
 button.
 

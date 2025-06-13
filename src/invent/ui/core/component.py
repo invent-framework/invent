@@ -348,7 +348,7 @@ class Component:
         UI builder.
         """
         return _DEFAULT_ICON
-    
+
     @classmethod
     def category(cls):
         """

@@ -1,6 +1,6 @@
 """
 An avatar is a visual representation of a user or entity. Avatars are commonly
-used in social media, forums, and other online communities to help users 
+used in social media, forums, and other online communities to help users
 identify each other and personalize their online experience. They can also be
 used in applications to represent users in chat interfaces, comments sections,
 and other interactive elements. Avatars can be circular or square.

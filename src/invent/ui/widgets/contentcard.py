@@ -1,5 +1,5 @@
 """
-A widget for displaying arbitrary content that requires a related title, 
+A widget for displaying arbitrary content that requires a related title,
 timestamp and/or image/icon for the Invent framework.
 
 Works well with the `Timeline` container - which is a column for displaying

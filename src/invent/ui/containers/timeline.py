@@ -4,7 +4,7 @@ social media feed or an ordered list of events such as in a chat app.
 
 Child components are laid out in a vertical column, with the latest at either
 the top (as in a social media feed) or the bottom (as in a chat app). Arbitrary
-child components can be added to the timeline container. However, it is 
+child components can be added to the timeline container. However, it is
 recommended to use the `TimelineEntry` component for consistency.
 
 Based on original pre-COVID work by [Nicholas H.Tollervey.](https://ntoll.org/)
