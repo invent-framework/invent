@@ -449,28 +449,6 @@ class ListProperty(Property):
             raise ValidationError(_("Not a valid list."), value)
 
 
-class DictProperty(Property):
-    """
-    A dictionary like container property for a Widget.
-    """
-
-    def __init__(
-        self,
-        description,
-        default_value=None,
-        **kwargs,
-    ):
-        super().__init__(description, default_value or dict(), **kwargs)
-
-    def coerce(self, value):
-        if value is None:
-            return {}
-        try:
-            return dict(value)
-        except:  # pragma: no cover
-            raise ValidationError(_("Not a valid dictionary."), value)
-
-
 class JSONProperty(Property):
     """
     A container property for a widget whose value is a JSON serializable data

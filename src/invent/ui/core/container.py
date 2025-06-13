@@ -23,7 +23,7 @@ from pyscript.web import div
 
 from .component import Component
 from invent.i18n import _
-from .property import ListProperty, DictProperty
+from .property import ListProperty
 from .measures import GAP_SIZES
 
 
@@ -145,24 +145,3 @@ class Container(Component):
         element = div()
         element.classes.add(f"invent-{type(self).__name__.lower()}")
         return element
-
-
-class Collapsable(Component):
-    """
-    A special type of container that can be collapsed or expanded.
-    This is useful for creating sections of the UI that can be hidden or shown
-    based on user interaction, such as vertical accordions or horizontal tabs.
-
-    Children of a collapsible are stored in a dictionary with their unique and
-    human-friendly names as keys. The associated values are the widgets and
-    containers that are part of the collapsible section.
-
-    Only one child can be visible at a time, and the collapsible
-    automatically handles the visibility of its children based on the selected
-    child.
-    """
-
-    children = DictProperty(
-        _("The child components of the collapsible container."),
-        default_value=dict(),
-    )
