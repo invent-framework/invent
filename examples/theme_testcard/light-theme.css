@@ -650,6 +650,100 @@ input[type="date"], input[type="time"], input[type="datetime-local"] {
 
 /* Meters / progress bars */
 
+/* Accordion */
+.accordion-item {
+  position: relative;
+  display: grid;
+  overflow: hidden;
+  border: 2px solid var(--primary);
+  width: 100%;
+  grid-template-rows: max-content 0fr;
+  transition: grid-template-rows 0.2s;
+  isolation: isolate;
+  padding: 8px;
+
+  > input:is([type="checkbox"], [type="radio"]) {
+    grid-column-start: 1;
+    grid-row-start: 1;
+    appearance: none;
+    opacity: 0;
+  }
+
+  &:is([open], :focus:not(.collapse-close)),
+  &:not(.collapse-close):has(> input:is([type="checkbox"], [type="radio"]):checked) {
+    grid-template-rows: max-content 1fr;
+  }
+
+  &:is([open], :focus:not(.collapse-close)) > .collapse-content,
+  &:not(.collapse-close)
+    > :where(input:is([type="checkbox"], [type="radio"]):checked ~ .collapse-content) {
+    visibility: visible;
+    min-height: fit-content;
+  }
+  &:focus-visible,
+  &:has(> input:is([type="checkbox"], [type="radio"]):focus-visible) {
+    outline-color: var(--color-base-content);
+    outline-style: solid;
+    outline-width: 2px;
+    outline-offset: 2px;
+  }
+
+  &:not(.collapse-close) {
+    > input[type="checkbox"],
+    > input[type="radio"]:not(:checked),
+    > .collapse-title {
+      cursor: pointer;
+    }
+  }
+
+  &:focus:not(.collapse-close, .collapse[open]) > .collapse-title {
+    cursor: unset;
+  }
+
+  &:is([open], :focus:not(.collapse-close)) > :where(.collapse-content),
+  &:not(.collapse-close)
+    > :where(input:is([type="checkbox"], [type="radio"]):checked ~ .collapse-content) {
+    padding-bottom: 1rem;
+    transition:
+      padding 0.2s ease-out,
+      background-color 0.2s ease-out;
+  }
+
+  > input:is([type="checkbox"], [type="radio"]) {
+    z-index: 1;
+    width: 100%;
+    padding: 1rem;
+    padding-inline-end: 3rem;
+    min-height: 1lh;
+    transition: background-color 0.2s ease-out;
+  }
+}
+
+.accordion-title,
+.accordion-content {
+  grid-column-start: 1;
+  grid-row-start: 1;
+}
+
+.accordion-title {
+	font-weight: bold;
+}
+
+.accordion-content {
+  visibility: hidden;
+  grid-column-start: 1;
+  grid-row-start: 2;
+  min-height: 0;
+  padding-left: 1rem;
+  padding-right: 1rem;
+  cursor: unset;
+  transition:
+    visibility 0.2s,
+    padding 0.2s ease-out,
+    background-color 0.2s ease-out;
+}
+
+
 /* Cards */
 
 /* Maps */

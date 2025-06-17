@@ -19,6 +19,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
+from pyscript.ffi import to_js
 from pyscript.web import div
 
 from .component import Component
@@ -53,7 +54,7 @@ class Container(Component):
             item.parent = self
 
     def on_children_changed(self):
-        self.element.innerHTML = ""
+        self.element.replaceChildren()
         for child in self.children:
             self.element.append(child.element)
 

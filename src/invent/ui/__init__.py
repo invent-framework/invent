@@ -20,7 +20,7 @@ limitations under the License.
 
 from ..i18n import _
 from .core import Widget, Container, from_datastore
-from .containers import Column, Grid, Page, Row
+from .containers import Accordion, Column, Grid, Page, Row, Tabs
 from .widgets.audio import Audio
 from .widgets.button import Button
 from .widgets.chart import Chart
@@ -50,10 +50,12 @@ __all__ = [
     "Code",
     "Page",
     "Widget",
+    "Accordion",
     "Container",
     "Column",
     "Grid",
     "Row",
+    "Tabs",
     "from_datastore",
     "Audio",
     "Button",

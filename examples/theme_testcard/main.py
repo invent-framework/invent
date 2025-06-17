@@ -370,6 +370,72 @@ print(Hello().greet)"""
                         Label(text="A test video player:"),
                         Video(source=invent.media.video.testcard_invent.webm),
                         Label(text="## Layouts"),
+                        Label(text="An accordion:"),
+                        Accordion(
+                            children=[
+                                Label(
+                                    name="Item 1",
+                                    text="This is an accordian item.",
+                                ),
+                                Label(
+                                    name="Item 2",
+                                    text="It can contain other components.",
+                                ),
+                                Column(
+                                    name="Item 3",
+                                    children=[
+                                        Label(
+                                            text="This is a column inside an accordion item."
+                                        ),
+                                        Button(
+                                            text="A button in a column",
+                                            purpose="PRIMARY",
+                                        ),
+                                        TextInput(
+                                            input_type="text",
+                                            placeholder="A text input in a column",
+                                        ),
+                                    ],
+                                ),
+                                Label(
+                                    name="Item 4",
+                                    text="You can add as many items as you like, and they will be hidden until you click on the header.",
+                                ),
+                            ],
+                        ),
+                        Label(text="Tabs:"),
+                        Tabs(
+                            children=[
+                                Label(
+                                    name="Item 1",
+                                    text="This is a tab item.",
+                                ),
+                                Label(
+                                    name="Item 2",
+                                    text="It can contain other components.",
+                                ),
+                                Column(
+                                    name="Item 3",
+                                    children=[
+                                        Label(
+                                            text="This is a column inside a tab item."
+                                        ),
+                                        Button(
+                                            text="A button in a column",
+                                            purpose="PRIMARY",
+                                        ),
+                                        TextInput(
+                                            input_type="text",
+                                            placeholder="A text input in a column",
+                                        ),
+                                    ],
+                                ),
+                                Label(
+                                    name="Item 4",
+                                    text="You can add as many items as you like, and they will be hidden until you click on the tab.",
+                                ),
+                            ],
+                        ),
                         Html(
                             html="<p><span style='color: red;'>Rows are in red</span>, <span style='color: blue;'>columns in blue</span>,<br><span style='color: green;'>grids are in green</span>... (and this isn't a poem). 😉</p>"
                         ),
