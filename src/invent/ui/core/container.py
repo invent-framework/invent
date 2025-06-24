@@ -48,14 +48,10 @@ class Container(Component):
         default_value=None,
     )
 
-    def __init__(self, **kwargs):
-        super().__init__(**kwargs)
-        for item in self.children:
-            item.parent = self
-
     def on_children_changed(self):
         self.element.replaceChildren()
         for child in self.children:
+            child.parent = self
             self.element.append(child.element)
 
     def _set_gap(self, gap, attr):

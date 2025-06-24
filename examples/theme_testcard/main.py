@@ -375,7 +375,7 @@ print(Hello().greet)"""
                             children=[
                                 Label(
                                     name="Item 1",
-                                    text="This is an accordian item.",
+                                    text="This is an accordion item.",
                                 ),
                                 Label(
                                     name="Item 2",

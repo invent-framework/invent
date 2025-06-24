@@ -717,6 +717,47 @@ input[type="date"], input[type="time"], input[type="datetime-local"] {
     min-height: 1lh;
     transition: background-color 0.2s ease-out;
   }
+
+  &:is([open]) {
+      > .accordion-title:after {
+        transform: translateY(-50%) rotate(225deg);
+      }
+  }
+
+  &.collapse-open {
+      > .accordion-title:after {
+        transform: translateY(-50%) rotate(225deg);
+      }
+  }
+
+  &:focus:not(.collapse-close) {
+    > .accordion-title:after {
+      transform: translateY(-50%) rotate(225deg);
+    }
+  }
+
+  &:not(.collapse-close) {
+    > input:is([type="checkbox"], [type="radio"]):checked ~ .accordion-title:after {
+      transform: translateY(-50%) rotate(225deg);
+    }
+  }
+
+  > .accordion-title:after {
+    position: absolute;
+    display: block;
+    height: 0.5rem;
+    width: 0.5rem;
+    transform: translateY(-100%) rotate(45deg);
+    transition-property: all;
+    transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    transition-duration: 0.2s;
+    top: 1.9rem;
+    inset-inline-end: 1.4rem;
+    content: "";
+    transform-origin: 75% 75%;
+    box-shadow: 2px 2px;
+    pointer-events: none;
+  }
 }
 
 .accordion-title,
@@ -727,6 +768,7 @@ input[type="date"], input[type="time"], input[type="datetime-local"] {
 
 .accordion-title {
 	font-weight: bold;
+    padding: 1rem;
 }
 
 .accordion-content {
@@ -743,6 +785,71 @@ input[type="date"], input[type="time"], input[type="datetime-local"] {
     background-color 0.2s ease-out;
 }
 
+/* Tabs */
+
+.invent-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  margin: 0 auto 20px;
+  border-radius: 4px 4px 0 0;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+.invent-tabs-radiotab {
+  position: absolute;
+  opacity: 0;
+}
+
+.invent-tabs-label {
+  cursor: pointer;
+  font-weight: bold;
+  padding: 22px 20px;
+  width: 100%;
+  background-color: var(--primary-light);
+  border: solid 2px var(--primary);
+}
+
+.invent-tabs-panel {
+  display: none;
+  width: 100%;
+  padding: 20px 30px 30px;
+  background: var(--main-background);
+  border-left: solid 2px var(--primary);
+  border-bottom: solid 2px var(--primary);
+  border-right: solid 2px var(--primary);
+}
+
+.invent-tabs-radiotab:checked + .invent-tabs-label {
+  background: var(--main-background);  
+  border-top: solid 2px var(--primary);
+  border-right: solid 2px var(--primary);
+  border-bottom: none;
+}
+
+.invent-tabs-radiotab:checked + .invent-tabs-label + .invent-tabs-panel {
+  display: block;
+}
+
+@media (min-width: 600px) {
+
+    .invent-tabs-panel {
+        order: 99;
+    }
+
+    .invent-tabs-label {
+        width: unset;
+        flex-grow: 1;
+        min-width: calc(100%/8);
+        border-radius: 8px 8px 0 0;
+        border-bottom: solid 2px var(--primary);
+        border-left: none;
+    }
+
+    :nth-child(1 of label.invent-tabs-label) {
+        border-left: solid 2px var(--primary);
+    }
+}
 
 /* Cards */
 

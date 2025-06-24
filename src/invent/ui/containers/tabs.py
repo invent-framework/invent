@@ -18,19 +18,18 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-from pyscript.web import div, input_
+from pyscript.web import div, input_, label
 
 from invent.i18n import _
-from .row import Row
+from ..core.container import Container
 
-class Tabs(Row):
+
+class Tabs(Container):
     """
     Tabs is a horizontal container used to show a row of columns in a tabbed
     format. The Tabs container automatically handles the visibility of its
     children based on the selected child. The Tabs container is useful for
-    displaying a large number of child components in a compact manner. The Tabs
-    container is a subclass of the Row container and inherits all of its
-    properties and methods.
+    displaying a large number of child components in a compact manner.
     """
 
     @classmethod
@@ -54,18 +53,33 @@ class Tabs(Row):
         """
         self.element.replaceChildren()
         for i, child in enumerate(self.children):
-            item = div(
-                input_(type="radio", name=self.id, checked=i ==0),
-                div(child.name, classes="tab-title"),
-                div(child.element, classes="tab-content"),
-                classes="tab-item",
+            tab_id = f"{self.id}-tab-{i}"
+            l = label(child.name, classes="invent-tabs-label")
+            setattr(l._dom_element, "htmlFor", tab_id)
+            self.element.append(
+                input_(
+                    type="radio",
+                    id=tab_id,
+                    name=self.id,
+                    checked=i == 0,
+                    classes="invent-tabs-radiotab",
+                ),
+                l,
+                div(child.element, classes="invent-tabs-panel"),
             )
-            self.element.append(item)
-    
+
     def on_id_changed(self):
         """
         Automatically called to update the id of the HTML element associated
-        with the component.
+        with the component. This method also updates the name attribute of
+        the radio inputs to match the new id, ensuring that the tabs
+        functionality remains intact when the id changes.
         """
         super().on_id_changed()
-        self.on_children_changed()
+        for i, item in enumerate(self.element.find("input[type=radio]")):
+            tab_id = f"{self.id}-tab-{i}"
+            item.id = tab_id
+            item.name = self.id
+        for i, item in enumerate(self.element.find("label")):
+            tab_id = f"{self.id}-tab-{i}"
+            setattr(item._dom_element, "htmlFor", tab_id)
