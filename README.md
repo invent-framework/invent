@@ -73,3 +73,11 @@ The tests should open in your browser, and pass. ;-)
 ## Example applications
 
 Coming soon...
+
+## Supporters
+
+Invent is an independent open source project.
+
+However, its core contributors are currently employed by Anaconda to work on
+PyScript and Invent. We would like to acknowledge and celebrate Anaconda's
+continued support of this project. Thank you [Anaconda Inc](https://anaconda.com/)!
