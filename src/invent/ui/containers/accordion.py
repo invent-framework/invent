@@ -58,7 +58,7 @@ class Accordion(Column):
         self.element.replaceChildren()
         for i, child in enumerate(self.children):
             item = div(
-                input_(type="radio", name=self.id, checked=i == 0),
+                input_(type="checkbox", name=self.id, checked=i == 0),
                 div(child.name, classes="accordion-title"),
                 div(child.element, classes="accordion-content"),
                 classes="accordion-item",
