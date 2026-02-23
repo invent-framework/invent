@@ -1,12 +1,13 @@
 import invent
 from invent.ui import *
 from invent.tools import sound
+from invent.datastore import IndexDBBackend
 
 # Datastore ############################################################################
 
 
 await invent.setup(
-    number_of_honks=0, number_of_oinks=0
+    _databackend=IndexDBBackend, number_of_honks=0, number_of_oinks=0
 )  # Load default values for the datastore.
 
 

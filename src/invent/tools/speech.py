@@ -95,6 +95,7 @@ def voices(result_key):
             "voiceschanged", create_proxy(_on_voices_changed)
         )
 
+
 def get_voice(name):
     """
     Return the voice with the given name.
