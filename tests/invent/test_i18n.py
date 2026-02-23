@@ -3,7 +3,6 @@ import json
 import umock
 from pyscript import window
 
-
 current_lang = window.navigator.language
 
 

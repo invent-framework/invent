@@ -2,7 +2,6 @@ import invent
 import upytest
 import umock
 
-
 # An alternative way to discern the Python interpreter.
 interpreter = "unknown"
 try:

@@ -25,7 +25,6 @@ from pyscript.web import div, canvas
 from pyscript.ffi import to_js, create_proxy
 from pyscript import window
 
-
 #: The types of chart that can be rendered.
 _CHARTS = [
     "bar",
@@ -124,7 +123,11 @@ class Chart(Widget):
         if self.parent:
             from invent import chart_js
 
-            chart_args = {"data": self.data}
+            chart_args = {
+                "data": self.data,
+                "responsive": True,
+                "maintainAspectRatio": False,
+            }
             if self.chart_type:
                 chart_args["type"] = self.chart_type
             if self.options:
@@ -146,7 +149,16 @@ class Chart(Widget):
             )
 
     def render(self):
-        element = div(id=self.id)
+        element = div(
+            id=self.id,
+            style={
+                "max-width": "100%",
+                "overflow": "hidden",
+                "display": "block",
+                "min-width": "0",
+                "position": "relative",
+            },
+        )
         self.chart_canvas = canvas()
         element.append(self.chart_canvas)
         # Ensures the chart is properly rendered once added to the DOM.

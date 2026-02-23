@@ -19,7 +19,7 @@ limitations under the License.
 """
 
 from invent.i18n import _
-from pyscript.web import table, caption, thead, tbody, tr, th, td
+from pyscript.web import div, table, caption, thead, tbody, tr, th, td
 from invent.ui.core import Widget, ListProperty, TextProperty, BooleanProperty
 
 
@@ -103,9 +103,12 @@ class Table(Widget):
         self._table_head = thead()
         self._table_body = tbody()
 
-        return table(
-            self._caption,
-            self._table_head,
-            self._table_body,
-            id=self.id,
+        return div(
+            table(
+                self._caption,
+                self._table_head,
+                self._table_body,
+                id=self.id,
+            ),
+            style={"overflow-x": "auto", "max-width": "100%"},
         )

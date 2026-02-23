@@ -1,0 +1,973 @@
+/* Invent CSS — default stylesheet.
+ *
+ * Override any variable by re-declaring it inside a :root {} block
+ * in your own stylesheet, loaded after this one.
+ *
+ * Note: --breakpoint-sm (600px) is used in @media rules below.
+ * CSS custom properties cannot be referenced inside @media queries,
+ * so this value is hardcoded.  Update the comment and the media
+ * query together if you change the breakpoint.
+ */
+
+/* === Variables: light theme (default) === */
+
+:root {
+    color-scheme: light;
+
+    /* Typography. */
+    --font: 'Roboto', sans-serif;
+    --font-mono: monospace, monospace;
+    --line-height: 1.5;
+    --h1-size: 3.5rem;
+    --h2-size: 3rem;
+    --h3-size: 2.5rem;
+    --h4-size: 2rem;
+    --h5-size: 1.5rem;
+    --h6-size: 1.25rem;
+
+    /* Layout. */
+    --page-width: 80%;
+    --page-max-width: 960px;
+
+    /* Borders and shape. */
+    --border-width: 2px;
+    --border-radius: 4px;
+    --border-radius-lg: 8px;
+
+    /* Transitions (suppressed by prefers-reduced-motion below). */
+    --transition-speed: 0.2s;
+    --transition-speed-button: 235ms ease-in-out 0s;
+    --transition-speed-slow: 0.4s;
+
+    /* Colours: base. */
+    --color-body: #111;
+    --main-background: white;
+
+    /* Colours: links. */
+    --link: #085aa5;
+    --link-hover: #208ef3;
+    --link-visited: #5a2a8a;
+
+    /* Colours: semantic. */
+    --primary: #41403e;
+    --secondary: #0b74d5;
+    --success: #4a9e6a;
+    --warning: #e0a030;
+    --danger: #a7342d;
+    --muted: #868e96;
+
+    /* Colours: light variants. */
+    --primary-light: #cdcccb;
+    --secondary-light: #d8ebfd;
+    --success-light: #d0e8d6;
+    --warning-light: #f5e6c0;
+    --danger-light: #f0cbc9;
+    --muted-light: #e6e7e9;
+
+    /* Colours: active variants. */
+    --primary-active: #b4b3b0;
+    --secondary-active: #a7d3fa;
+    --success-active: #a8d4b5;
+    --warning-active: #e8cc88;
+    --danger-active: #e6a5a1;
+
+    /* Colours: dark variants. */
+    --primary-dark: #1a1918;
+    --secondary-dark: #053a6a;
+    --success-dark: #1e5a32;
+    --warning-dark: #8a5c10;
+    --danger-dark: #5a1410;
+    --muted-dark: #313538;
+
+    /* Colours: neutral. */
+    --white: white;
+    --black: black;
+
+    /* Colours: text. */
+    --primary-text: #272625;
+    --secondary-text: #085aa5;
+    --success-text: #2a5e38;
+    --warning-text: #7a5510;
+    --danger-text: #7f2722;
+    --muted-text: #6c757d;
+}
+
+/* === Variables: dark theme overrides === */
+
+@media (prefers-color-scheme: dark) {
+    :root {
+        color-scheme: dark;
+
+        /* Colours: base. */
+        --color-body: #e0e0e0;
+        --main-background: #1a1a1e;
+
+        /* Colours: links. */
+        --link: #4da8f0;
+        --link-hover: #7cc4ff;
+        --link-visited: #c084fc;
+
+        /* Colours: semantic. */
+        --primary: #9a9895;
+        --secondary: #3d9cf0;
+        --success: #5fb87e;
+        --warning: #e8b040;
+        --danger: #cf5048;
+        --muted: #6c757d;
+
+        /* Colours: light variants. */
+        --primary-light: #3a3937;
+        --secondary-light: #1a2d42;
+        --success-light: #1e3025;
+        --warning-light: #3a2e15;
+        --danger-light: #3d1f1d;
+        --muted-light: #2a2d30;
+
+        /* Colours: active variants. */
+        --primary-active: #4a4947;
+        --secondary-active: #253d55;
+        --success-active: #2a4030;
+        --warning-active: #4d3d20;
+        --danger-active: #522a27;
+
+        /* Colours: dark variants. */
+        --primary-dark: #c0bfbd;
+        --secondary-dark: #6db8f7;
+        --success-dark: #90d8a5;
+        --warning-dark: #f0cc70;
+        --danger-dark: #e8807a;
+        --muted-dark: #b0b5ba;
+
+        /* Colours: neutral. */
+        --white: #1a1a1e;
+        --black: #e0e0e0;
+
+        /* Colours: text. */
+        --primary-text: #e0dfdd;
+        --secondary-text: #6db8f7;
+        --success-text: #85cc9a;
+        --warning-text: #e0b848;
+        --danger-text: #e0756f;
+        --muted-text: #9ca3ab;
+    }
+
+    /* Checkbox tick: re-drawn using the dark secondary colour.
+     * The light-mode SVG fill is hardcoded and will not respond
+     * to CSS variables, so a separate rule is required here. */
+    input[type="checkbox"]:checked + .checkbox::before {
+        background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1em' height='1em' viewBox='0 0 256 256'%3E%3Cpath fill='%233d9cf0' d='m243.31 90.91l-128.4 128.4a16 16 0 0 1-22.62 0l-71.62-72a16 16 0 0 1 0-22.61l20-20a16 16 0 0 1 22.58 0L104 144.22l96.76-95.57a16 16 0 0 1 22.59 0l19.95 19.54a16 16 0 0 1 .01 22.72'/%3E%3C/svg%3E");
+    }
+
+    /* Radio dot: re-drawn using the dark secondary colour. */
+    input[type="radio"]:checked + span::before {
+        background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1em' height='1em' viewBox='0 0 256 256'%3E%3Cpath fill='%233d9cf0' d='M232 128A104 104 0 1 1 128 24a104.13 104.13 0 0 1 104 104'/%3E%3C/svg%3E");
+    }
+}
+
+/* === Accessibility: disable transitions for users who prefer it === */
+
+@media (prefers-reduced-motion: reduce) {
+    *, *::before, *::after {
+        transition-duration: 0.01ms !important;
+        animation-duration: 0.01ms !important;
+    }
+}
+
+/* === Page layout === */
+
+html, body {
+    margin: 0;
+    padding: 0;
+}
+
+body {
+    font-family: var(--font);
+    font-size: 100%;
+    line-height: var(--line-height);
+    color: var(--color-body);
+    background-color: var(--main-background);
+}
+
+.invent-page {
+    box-sizing: border-box;
+    margin: 1rem auto;
+    padding: 2rem;
+    width: var(--page-width);
+    max-width: var(--page-max-width);
+}
+
+/* For apps that need a native app (full width) layout. */
+body.app-view .invent-page {
+    width: 100%;
+    max-width: none;
+    margin: 0;
+    padding: 1rem;
+}
+
+/* === Typography === */
+
+p {
+    font-size: 1rem;
+}
+
+a {
+    color: var(--link);
+    text-decoration: none;
+}
+
+a:visited {
+    color: var(--link-visited);
+}
+
+a:hover, a:active {
+    color: var(--link-hover);
+    text-decoration: underline;
+}
+
+a:focus {
+    color: var(--link);
+    text-decoration: underline;
+}
+
+h1, h2, h3, h4, h5, h6 {
+    font-weight: bold;
+    line-height: 1.2;
+}
+
+h1 { font-size: var(--h1-size); }
+h2 { font-size: var(--h2-size); }
+h3 { font-size: var(--h3-size); }
+h4 { font-size: var(--h4-size); }
+h5 { font-size: var(--h5-size); }
+h6 { font-size: var(--h6-size); }
+
+b, strong {
+    font-weight: bolder;
+}
+
+code, kbd, samp {
+    font-family: var(--font-mono);
+    font-size: 1rem;
+}
+
+pre {
+    display: block;
+    max-width: 100%;
+    overflow: auto;
+    padding: 1rem;
+    border: var(--border-width) solid var(--primary-light);
+    background-color: var(--muted-light);
+}
+
+/* === Tables === */
+
+table {
+    border-collapse: collapse;
+    width: 100%;
+}
+
+tr:nth-child(even) {
+    background-color: var(--muted-light);
+}
+
+thead {
+    background-color: var(--primary-light);
+}
+
+th {
+    text-align: start;
+}
+
+td, th {
+    padding: 0.5rem;
+}
+
+/* === Multimedia === */
+
+img, video {
+    max-width: 100%;
+    height: auto;
+    object-fit: contain;
+}
+
+/* === Form elements === */
+
+input,
+select,
+textarea {
+    color: var(--primary);
+    border-color: var(--primary);
+    background: transparent;
+    border-style: solid;
+    border-width: var(--border-width);
+    display: block;
+    font-size: 1rem;
+    /* Suppress the default outline; a keyboard-focus ring is
+     * provided via :focus-visible below. */
+    outline: none;
+    padding: 0.5rem;
+}
+
+input:focus,
+select:focus,
+textarea:focus {
+    border-color: var(--secondary);
+    border-style: solid;
+    border-width: var(--border-width);
+}
+
+/* Visible keyboard-focus ring for all interactive elements. */
+input:focus-visible,
+select:focus-visible,
+textarea:focus-visible,
+button:focus-visible {
+    outline: var(--border-width) solid var(--secondary);
+    outline-offset: 2px;
+}
+
+select {
+    height: 2.35rem;
+}
+
+label {
+    cursor: pointer;
+}
+
+.disabled, input.disabled, input[disabled],
+select.disabled, select[disabled],
+textarea.disabled, textarea[disabled] {
+    cursor: not-allowed;
+    opacity: 0.5;
+}
+
+/* === Buttons ===
+ *
+ * The unstyled button has the primary appearance by default.
+ * Use .secondary, .success, .warning, or .danger to vary the
+ * intent; omit the class (or leave it unstyled) for a primary
+ * action.
+ */
+
+button {
+    align-self: center;
+    background-color: var(--primary-light);
+    background-image: none;
+    border-color: var(--primary);
+    border-radius: var(--border-radius-lg);
+    border-style: solid;
+    border-width: var(--border-width);
+    color: var(--primary-text);
+    cursor: pointer;
+    display: inline-block;
+    font-size: 1rem;
+    /* Suppress the default outline; a keyboard-focus ring is
+     * provided via :focus-visible above. */
+    outline: none;
+    padding: 0.75rem;
+    transition: all var(--transition-speed-button);
+}
+
+button:hover {
+    background-color: var(--primary-active);
+    border-color: var(--primary-dark);
+}
+
+button:active {
+    background-color: var(--primary);
+    border-color: var(--primary-dark);
+    color: var(--primary-light);
+}
+
+button.large {
+    font-size: 2rem;
+    padding: 1rem;
+}
+
+button.small {
+    font-size: 0.75rem;
+    padding: 0.5rem;
+}
+
+button.secondary {
+    color: var(--secondary-text);
+    background-color: var(--secondary-light);
+    border-color: var(--secondary);
+}
+
+button.secondary:hover {
+    background-color: var(--secondary-active);
+}
+
+button.secondary:active {
+    background-color: var(--secondary);
+    color: var(--secondary-light);
+}
+
+button.success {
+    color: var(--success-text);
+    background-color: var(--success-light);
+    border-color: var(--success);
+}
+
+button.success:hover {
+    background-color: var(--success-active);
+}
+
+button.success:active {
+    background-color: var(--success);
+    color: var(--success-light);
+}
+
+button.warning {
+    color: var(--warning-text);
+    background-color: var(--warning-light);
+    border-color: var(--warning);
+}
+
+button.warning:hover {
+    background-color: var(--warning-active);
+}
+
+button.warning:active {
+    background-color: var(--warning);
+    color: var(--warning-light);
+}
+
+button.danger {
+    color: var(--danger-text);
+    background-color: var(--danger-light);
+    border-color: var(--danger);
+}
+
+button.danger:hover {
+    background-color: var(--danger-active);
+}
+
+button.danger:active {
+    background-color: var(--danger);
+    color: var(--danger-light);
+}
+
+/* === Slider === */
+
+input[type=range] {
+    -webkit-appearance: none;
+       -moz-appearance: none;
+            appearance: none;
+    border-width: 0;
+    padding: 0;
+}
+
+input[type="range"]::-webkit-slider-runnable-track {
+    background: var(--secondary);
+    border-color: var(--primary);
+    border-radius: 18px;
+    border-style: solid;
+    border-width: 1px;
+    cursor: pointer;
+    height: 8px;
+    margin: 10px 0;
+    width: 100%;
+}
+
+input[type=range]::-moz-range-track {
+    background: var(--secondary);
+    border-color: var(--primary);
+    border-radius: 18px;
+    cursor: pointer;
+    height: 8px;
+    width: 100%;
+}
+
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+            appearance: none;
+    background: var(--white);
+    border-color: var(--primary);
+    border-radius: 1rem;
+    border-style: solid;
+    border-width: var(--border-width);
+    cursor: pointer;
+    height: 36px;
+    margin-top: -14px;
+    width: 16px;
+}
+
+input[type=range]::-moz-range-thumb {
+    background: var(--white);
+    border-color: var(--primary);
+    border-radius: 1rem;
+    border-style: solid;
+    border-width: var(--border-width);
+    cursor: pointer;
+    height: 36px;
+    width: 16px;
+}
+
+input[type=range]::-ms-track {
+    background: transparent;
+    border-color: transparent;
+    border-width: 16px 0;
+    color: transparent;
+    cursor: pointer;
+    height: 8px;
+    width: 100%;
+}
+
+input[type=range]::-ms-fill-lower,
+input[type=range]::-ms-fill-upper {
+    background: var(--secondary);
+    border-color: var(--primary);
+    border-radius: 18px;
+    border-style: solid;
+    border-width: 1px;
+}
+
+input[type=range]::-ms-thumb {
+    background: var(--white);
+    border-color: var(--primary);
+    border-radius: 1rem;
+    border-style: solid;
+    border-width: var(--border-width);
+    cursor: pointer;
+    height: 36px;
+    width: 16px;
+}
+
+/* === Meter === */
+
+meter {
+    display: block;
+    width: 100%;
+    height: 36px;
+}
+
+meter::-webkit-meter-optimum-value,
+meter::-moz-meter-optimum,
+meter::-ms-fill-lower {
+    background-color: var(--success);
+}
+
+meter::-webkit-meter-suboptimum-value,
+meter::-moz-meter-suboptimum,
+meter::-ms-fill-middle {
+    background-color: var(--warning);
+}
+
+meter::-webkit-meter-even-less-good-value,
+meter::-moz-meter-sub-suboptimum,
+meter::-ms-fill-upper {
+    background-color: var(--danger);
+}
+
+/* === Progress bar === */
+
+progress:not([value]) {
+    accent-color: var(--warning);
+    display: block;
+    width: 100%;
+    height: 18px;
+}
+
+progress {
+    accent-color: var(--secondary);
+    display: block;
+    width: 100%;
+    height: 18px;
+}
+
+/* === Checkboxes, switches, and radio buttons === */
+
+input[type="checkbox"], input[type="radio"] {
+    border: 0;
+    height: 1px;
+    margin: -1px;
+    opacity: 0;
+    overflow: hidden;
+    padding: 0;
+    position: absolute;
+    width: 1px;
+}
+
+input[type="checkbox"] + span,
+input[type="radio"] + span {
+    cursor: pointer;
+    display: inline-block;
+    font-size: 1rem;
+    margin: 15px 0;
+    position: relative;
+}
+
+/* Checkbox tick SVG: fill matches the light secondary colour.
+ * The dark-theme override is in the dark @media block above. */
+input[type="checkbox"]:checked + .checkbox::before {
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1em' height='1em' viewBox='0 0 256 256'%3E%3Cpath fill='%230b74d5' d='m243.31 90.91l-128.4 128.4a16 16 0 0 1-22.62 0l-71.62-72a16 16 0 0 1 0-22.61l20-20a16 16 0 0 1 22.58 0L104 144.22l96.76-95.57a16 16 0 0 1 22.59 0l19.95 19.54a16 16 0 0 1 .01 22.72'/%3E%3C/svg%3E");
+}
+
+input[type="checkbox"] + .checkbox::before {
+    border-color: var(--primary);
+    border-style: solid;
+    border-width: var(--border-width);
+    border-radius: var(--border-radius);
+    content: "";
+    display: inline-block;
+    height: 1rem;
+    margin-right: 0.75em;
+    position: relative;
+    vertical-align: -0.25em;
+    width: 1rem;
+}
+
+input[type="radio"] + span {
+    padding: 0 15px;
+}
+
+/* Radio dot SVG: fill matches the light secondary colour.
+ * The dark-theme override is in the dark @media block above. */
+input[type="radio"]:checked + span::before {
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1em' height='1em' viewBox='0 0 256 256'%3E%3Cpath fill='%230b74d5' d='M232 128A104 104 0 1 1 128 24a104.13 104.13 0 0 1 104 104'/%3E%3C/svg%3E");
+}
+
+input[type="radio"] + span::before {
+    border-color: var(--primary);
+    border-style: solid;
+    border-width: var(--border-width);
+    border-radius: 50%;
+    content: "";
+    display: inline-block;
+    height: 1rem;
+    margin-right: 0.75em;
+    position: relative;
+    vertical-align: -0.25em;
+    width: 1rem;
+}
+
+/* Switch. */
+
+.switch {
+    display: inline-block;
+    height: 1.5rem;
+    margin-right: 0.75em;
+    position: relative;
+    width: 3rem;
+}
+
+.switch-label {
+    cursor: pointer;
+    padding-top: 0.25em;
+    position: absolute;
+}
+
+.slider {
+    background-color: var(--primary-light);
+    border: var(--border-width) solid var(--primary);
+    border-radius: var(--border-radius);
+    bottom: 0;
+    cursor: pointer;
+    height: 1.5rem;
+    left: 0;
+    margin: 0 1rem 0 0 !important;
+    position: absolute;
+    right: 0;
+    top: 0;
+    transition: var(--transition-speed);
+    width: 3rem;
+}
+
+.slider:before {
+    background-color: var(--white);
+    bottom: 4px;
+    content: "";
+    height: 1rem;
+    left: 4px;
+    position: absolute;
+    transition: var(--transition-speed);
+    width: 1rem;
+}
+
+input[type="checkbox"]:focus + .slider {
+    box-shadow: 0 0 1px var(--secondary);
+}
+
+input[type="checkbox"]:checked + .slider {
+    background-color: var(--secondary) !important;
+}
+
+input[type="checkbox"]:checked + .slider:before {
+    transform: translateX(1.5rem);
+}
+
+/* === Audio === */
+
+audio {
+    display: block;
+    margin: 0 auto;
+    width: 100%;
+}
+
+/* === Specialised text inputs === */
+
+input[type="email"] {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1em' height='1em' viewBox='0 0 256 256'%3E%3Cpath fill='grey' d='M224 48H32a8 8 0 0 0-8 8v136a16 16 0 0 0 16 16h176a16 16 0 0 0 16-16V56a8 8 0 0 0-8-8m-96 85.15L52.57 64h150.86ZM98.71 128L40 181.81V74.19Zm11.84 10.85l12 11.05a8 8 0 0 0 10.82 0l12-11.05l58 53.15H52.57ZM157.29 128L216 74.18v107.64Z'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right;
+    background-size: contain;
+}
+
+input[type="password"] {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1em' height='1em' viewBox='0 0 256 256'%3E%3Cpath fill='grey' d='M48 56v144a8 8 0 0 1-16 0V56a8 8 0 0 1 16 0m92 54.5l-20 6.5V96a8 8 0 0 0-16 0v21l-20-6.5a8 8 0 0 0-5 15.22l20 6.49l-12.34 17a8 8 0 1 0 12.94 9.4l12.34-17l12.34 17a8 8 0 1 0 12.94-9.4l-12.34-17l20-6.49A8 8 0 0 0 140 110.5m106 5.14a8 8 0 0 0-10-5.14l-20 6.5V96a8 8 0 0 0-16 0v21l-20-6.49a8 8 0 0 0-4.95 15.22l20 6.49l-12.34 17a8 8 0 1 0 12.94 9.4l12.34-17l12.34 17a8 8 0 1 0 12.94-9.4l-12.34-17l20-6.49a8 8 0 0 0 5.07-10.09'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right;
+    background-size: contain;
+}
+
+input[type="tel"] {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1em' height='1em' viewBox='0 0 256 256'%3E%3Cpath fill='grey' d='m222.37 158.46l-47.11-21.11l-.13-.06a16 16 0 0 0-15.17 1.4a8 8 0 0 0-.75.56L134.87 160c-15.42-7.49-31.34-23.29-38.83-38.51l20.78-24.71c.2-.25.39-.5.57-.77a16 16 0 0 0 1.32-15.06v-.12L97.54 33.64a16 16 0 0 0-16.62-9.52A56.26 56.26 0 0 0 32 80c0 79.4 64.6 144 144 144a56.26 56.26 0 0 0 55.88-48.92a16 16 0 0 0-9.51-16.62M176 208A128.14 128.14 0 0 1 48 80a40.2 40.2 0 0 1 34.87-40a.6.6 0 0 0 0 .12l21 47l-20.67 24.74a6 6 0 0 0-.57.77a16 16 0 0 0-1 15.7c9.06 18.53 27.73 37.06 46.46 46.11a16 16 0 0 0 15.75-1.14a8 8 0 0 0 .74-.56L168.89 152l47 21.05h.11A40.21 40.21 0 0 1 176 208'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right;
+    background-size: contain;
+}
+
+input[type="url"] {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1em' height='1em' viewBox='0 0 256 256'%3E%3Cpath fill='grey' d='M128 24a104 104 0 1 0 104 104A104.12 104.12 0 0 0 128 24m88 104a87.6 87.6 0 0 1-3.33 24h-38.51a157.4 157.4 0 0 0 0-48h38.51a87.6 87.6 0 0 1 3.33 24m-114 40h52a115.1 115.1 0 0 1-26 45a115.3 115.3 0 0 1-26-45m-3.9-16a140.8 140.8 0 0 1 0-48h59.88a140.8 140.8 0 0 1 0 48ZM40 128a87.6 87.6 0 0 1 3.33-24h38.51a157.4 157.4 0 0 0 0 48H43.33A87.6 87.6 0 0 1 40 128m114-40h-52a115.1 115.1 0 0 1 26-45a115.3 115.3 0 0 1 26 45m52.33 0h-35.62a135.3 135.3 0 0 0-22.3-45.6A88.29 88.29 0 0 1 206.37 88Zm-98.74-45.6A135.3 135.3 0 0 0 85.29 88H49.63a88.29 88.29 0 0 1 57.96-45.6M49.63 168h35.66a135.3 135.3 0 0 0 22.3 45.6A88.29 88.29 0 0 1 49.63 168m98.78 45.6a135.3 135.3 0 0 0 22.3-45.6h35.66a88.29 88.29 0 0 1-57.96 45.6'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right;
+    background-size: contain;
+}
+
+/* === Colour picker === */
+
+input[type="color"] {
+    border: var(--border-width) solid var(--primary);
+    border-radius: var(--border-radius);
+    cursor: pointer;
+    display: inline-block;
+    height: 2rem;
+    margin-right: 0.75em;
+    padding: 0.1rem;
+    width: 3rem;
+}
+
+/* === File selector === */
+
+input[type="file"] {
+    border: 0;
+    cursor: pointer;
+}
+
+/* === Date and time pickers === */
+
+input[type="date"],
+input[type="time"],
+input[type="datetime-local"] {
+    border: var(--border-width) solid var(--primary);
+    cursor: pointer;
+    display: inline-block;
+    margin-right: 0.75em;
+}
+
+/* === Accordion === */
+
+.accordion-item {
+    border: var(--border-width) solid var(--primary);
+    display: grid;
+    grid-template-rows: max-content 0fr;
+    isolation: isolate;
+    overflow: hidden;
+    padding-bottom: 8px;
+    position: relative;
+    transition: grid-template-rows var(--transition-speed);
+    width: 100%;
+
+    > input:is([type="checkbox"], [type="radio"]) {
+        appearance: none;
+        grid-column-start: 1;
+        grid-row-start: 1;
+        opacity: 0;
+    }
+
+    &:is([open], :focus:not(.collapse-close)),
+    &:not(.collapse-close):has(
+        > input:is([type="checkbox"], [type="radio"]):checked
+    ) {
+        grid-template-rows: max-content 1fr;
+    }
+
+    &:is([open], :focus:not(.collapse-close)) > .collapse-content,
+    &:not(.collapse-close) > :where(
+        input:is([type="checkbox"],
+        [type="radio"]):checked ~ .collapse-content
+    ) {
+        min-height: fit-content;
+        visibility: visible;
+    }
+
+    &:focus-visible,
+    &:has(
+        > input:is([type="checkbox"], [type="radio"]):focus-visible
+    ) {
+        outline-color: var(--color-body);
+        outline-offset: 2px;
+        outline-style: solid;
+        outline-width: var(--border-width);
+    }
+
+    &:not(.collapse-close) {
+        > input[type="checkbox"],
+        > input[type="radio"]:not(:checked),
+        > .collapse-title {
+            cursor: pointer;
+        }
+    }
+
+    &:focus:not(.collapse-close, .collapse[open]) > .collapse-title {
+        cursor: unset;
+    }
+
+    &:is([open], :focus:not(.collapse-close)) > :where(.collapse-content),
+    &:not(.collapse-close) > :where(
+        input:is([type="checkbox"],
+        [type="radio"]):checked ~ .collapse-content
+    ) {
+        padding-bottom: 1rem;
+        transition:
+            padding var(--transition-speed) ease-out,
+            background-color var(--transition-speed) ease-out;
+    }
+
+    > input:is([type="checkbox"], [type="radio"]) {
+        min-height: 1lh;
+        padding: 1rem;
+        padding-inline-end: 3rem;
+        transition: background-color var(--transition-speed) ease-out;
+        width: 100%;
+        z-index: 1;
+    }
+
+    /* Rotate the chevron when the accordion is open. */
+    &:is([open]) > .accordion-title:after,
+    &.collapse-open > .accordion-title:after,
+    &:focus:not(.collapse-close) > .accordion-title:after,
+    &:not(.collapse-close) > input:is(
+        [type="checkbox"], [type="radio"]
+    ):checked ~ .accordion-title:after {
+        transform: translateY(-50%) rotate(225deg);
+    }
+
+    > .accordion-title:after {
+        content: "";
+        display: inline-block;
+        height: 0.5rem;
+        width: 0.5rem;
+        border-inline-end: var(--border-width) solid currentColor;
+        border-block-end: var(--border-width) solid currentColor;
+        transform: translateY(-100%) rotate(45deg);
+        transform-origin: 75% 75%;
+        transition-property: all;
+        transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+        transition-duration: var(--transition-speed);
+        inset-inline-end: 1.4rem;
+        pointer-events: none;
+        position: absolute;
+        top: 1.9rem;
+    }
+}
+
+.accordion-title,
+.accordion-content {
+    grid-column-start: 1;
+    grid-row-start: 1;
+}
+
+.accordion-title {
+    font-weight: bold;
+    padding: 1rem;
+}
+
+.accordion-content {
+    box-sizing: border-box;
+    cursor: unset;
+    grid-row-start: 2;
+    max-width: 100%;
+    min-height: 0;
+    overflow-x: auto;
+    padding-left: 1rem;
+    padding-right: 1rem;
+    transition:
+        visibility var(--transition-speed),
+        padding var(--transition-speed) ease-out,
+        background-color var(--transition-speed) ease-out;
+    visibility: hidden;
+    word-break: break-word;
+}
+
+/* === Tabs === */
+
+.invent-tabs {
+    border-radius: var(--border-radius) var(--border-radius) 0 0;
+    box-sizing: border-box;
+    display: flex;
+    flex-wrap: wrap;
+    margin: 0 auto 20px;
+    width: 100%;
+}
+
+.invent-tabs-radiotab {
+    opacity: 0;
+    position: absolute;
+}
+
+.invent-tabs-label {
+    background-color: var(--primary-light);
+    border: solid var(--border-width) var(--primary);
+    cursor: pointer;
+    font-weight: bold;
+    padding: 22px 20px;
+    width: 100%;
+}
+
+.invent-tabs-panel {
+    background: var(--main-background);
+    border-bottom: solid var(--border-width) var(--primary);
+    border-left: solid var(--border-width) var(--primary);
+    border-right: solid var(--border-width) var(--primary);
+    box-sizing: border-box;
+    display: none;
+    max-width: 100%;
+    overflow-x: auto;
+    padding: 20px 30px 30px;
+    width: 100%;
+    word-break: break-word;
+}
+
+.invent-tabs-radiotab:checked + .invent-tabs-label {
+    background: var(--main-background);
+    border-bottom: none;
+    border-right: solid var(--border-width) var(--primary);
+    border-top: solid var(--border-width) var(--primary);
+}
+
+.invent-tabs-radiotab:checked + .invent-tabs-label + .invent-tabs-panel {
+    display: block;
+}
+
+/* Tabs: wider-screen layout (breakpoint: 600px). */
+@media (min-width: 600px) {
+    .invent-tabs-panel {
+        order: 99;
+    }
+
+    .invent-tabs-label {
+        border-bottom: solid var(--border-width) var(--primary);
+        border-left: none;
+        border-radius:
+            var(--border-radius-lg) var(--border-radius-lg) 0 0;
+        flex-grow: 1;
+        min-width: calc(100% / 8);
+        width: unset;
+    }
+
+    :nth-child(1 of label.invent-tabs-label) {
+        border-left: solid var(--border-width) var(--primary);
+    }
+}

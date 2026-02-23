@@ -22,7 +22,6 @@ from invent.i18n import _
 from invent.ui.core import Widget, TextProperty
 from pyscript.web import pre, code, link, page
 
-
 _default = """
 def hello(name="world"):
     return f"Hello, {name}"

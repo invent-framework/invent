@@ -9,6 +9,7 @@ from invent.ui.core import (
     ChoiceProperty,
     DateProperty,
     DatetimeProperty,
+    DictProperty,
     FloatProperty,
     IntegerProperty,
     JSONProperty,
@@ -622,11 +623,31 @@ def test_list_property_validation():
             return div()
 
     tc = TestComponent()
+    assert tc.content == []
     tc.content = [
         "foo",
         "bar",
         "baz",
     ]
+    tc.content = None
+    with upytest.raises(ValidationError):
+        tc.content = False
+
+
+def test_dict_property_validation():
+    """
+    DictProperty works with None and dicts.
+    """
+
+    class TestComponent(Component):
+        content = DictProperty("The child components as a tree.")
+
+        def render(self):
+            return div()
+
+    tc = TestComponent()
+    assert tc.content == {}
+    tc.content = {"foo": "bar"}
     tc.content = None
     with upytest.raises(ValidationError):
         tc.content = False

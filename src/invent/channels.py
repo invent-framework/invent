@@ -25,7 +25,6 @@ import asyncio
 
 from .utils import iscoroutinefunction
 
-
 __all__ = [
     "Message",
     "subscribe",

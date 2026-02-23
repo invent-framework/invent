@@ -1,6 +1,6 @@
 """
 Contains a definition of an accordian container. This is a vertical
-container box in which only one child component is visible at a time.
+container box in which child components can be revealed or hidden.
 
 Based on original pre-COVID work by [Nicholas H.Tollervey](https://ntoll.org/).
 

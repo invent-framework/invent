@@ -4,7 +4,6 @@ import umock
 from pyscript import window
 from invent.datastore import _FakeStorage, LocalStorageBackend, IndexDBBackend
 
-
 # Tests for default LocalStorageBackend based datastore.
 
 

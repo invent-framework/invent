@@ -24,7 +24,6 @@ from invent.i18n import _
 from pyscript.ffi import create_proxy
 from pyscript import window
 
-
 try:
     window.navigator.geolocation
     GEOLOCATION_AVAILABLE = True

@@ -7,7 +7,6 @@ Where "variety" currently means "as python code" :)
 from invent.ui.core import from_datastore
 from invent.ui import Container
 
-
 # TODO: This will be passed in from the builder :)
 IMPORTS = """
 import invent

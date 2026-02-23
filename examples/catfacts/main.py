@@ -9,7 +9,6 @@ from invent.tools import net, sound
 from invent import App
 from invent.ui import Page, Column, Button, Label, Image
 
-
 # The URL to get cat facts from.
 URL = "https://catfact.ninja/fact"
 

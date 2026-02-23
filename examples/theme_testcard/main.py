@@ -42,13 +42,10 @@ That should be long enough to wrap around to the next line.
 
 Here's some code:"""
                         ),
-                        Code(
-                            code="""def hello(name="world"):
-    return f"Hello, {name}" """
-                        ),
+                        Code(code="""def hello(name="world"):
+    return f"Hello, {name}" """),
                         Label(text="Some more extensive code:"),
-                        Code(
-                            code="""class Hello:  # Enterprise programmer 👔
+                        Code(code="""class Hello:  # Enterprise programmer 👔
 
   def __init__(self, name="world!"):
     self.name = name
@@ -57,8 +54,7 @@ Here's some code:"""
   def greet(self):
     return f"{self.__class__.__name__} {name}"
 
-print(Hello().greet)"""
-                        ),
+print(Hello().greet)"""),
                         Label(
                             text="# Heading 1\n\n## Heading2\n\n### Heading 3\n\n#### Heading 4\n\n##### Heading 5\n\n###### Heading 6"
                         ),

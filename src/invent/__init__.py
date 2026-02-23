@@ -28,7 +28,6 @@ from .media import Media, set_media_root, get_media_root
 from .app import App
 from .utils import show_page, is_micropython
 
-
 __all__ = [
     "Message",
     "subscribe",
@@ -91,13 +90,19 @@ async def load_js_modules():
     Load the JavaScript modules required by the Invent framework.
     """
     global marked, purify, leaflet, chart_js
-    (marked, purify, leaflet, chart_js) = await js_import(
+    marked, purify, leaflet, chart_js = await js_import(
         # TODO: esm.run all the things here... ;-)
         "https://cdn.jsdelivr.net/npm/marked/lib/marked.esm.js",
         "https://esm.run/dompurify",
         "https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet-src.esm.js",
         "https://esm.run/chart.js/auto",
     )
+    # CSS needed for leaflet.
+    leaflet_css = link(
+        rel="stylesheet",
+        href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css",
+    )
+    page.head.append(leaflet_css)
 
 
 #: The root from which all media files can be found.

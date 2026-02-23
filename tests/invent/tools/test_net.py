@@ -3,7 +3,6 @@ import invent
 import json
 from invent.tools import net
 
-
 # Simple utility function tests (from the user's perspective).
 
 

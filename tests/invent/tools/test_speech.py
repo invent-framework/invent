@@ -85,7 +85,7 @@ async def test_set_voice():
     voice = voices[0]
     speech.set_voice(voice)
     assert (
-        speech.PREFERRED_VOICE.name == voice
+        speech._PREFERRED_VOICE.name == voice
     ), "Preferred voice not set. Got: {speech.PREFERRED_VOICE.name} Expected: {voice}"
 
 
@@ -93,7 +93,7 @@ async def test_say():
     """
     Use of the simple `say` function.
     """
-    speech.PREFERRED_VOICE = None
+    speech._PREFERRED_VOICE = None
     text = "Hello, world!"
     result_key = "speech_said"
     got_speaking_from_speech = (
@@ -129,7 +129,7 @@ async def test_say_with_options():
     """
     Use of the `say` function with options.
     """
-    speech.PREFERRED_VOICE = None
+    speech._PREFERRED_VOICE = None
     text = "Hello, world with speech options!"
     result_key = "speech_said"
     got_speaking_from_speech = (
@@ -170,7 +170,7 @@ async def test_say_with_options():
 
 @upytest.skip(
     "This feature only works on Chromium based browsers.",
-    skip_when=not speech.SPEECH_RECOGNITION_AVAILABLE,
+    skip_when=not speech._SPEECH_RECOGNITION_AVAILABLE,
 )
 async def test_listen():
     """

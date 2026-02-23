@@ -33,7 +33,6 @@ from invent.ui.core import (
 from pyscript import window
 from pyscript.ffi import create_proxy
 
-
 MARKER_ICON_DEFAULT = "default"
 MARKER_ICON_AIRPORT = "airport"
 MARKER_ICON_AMUSEMENTS = "amusements"

@@ -24,7 +24,6 @@ limitations under the License.
 import json
 from pyscript import window
 
-
 __all__ = [
     "load_translations",
     "set_language",

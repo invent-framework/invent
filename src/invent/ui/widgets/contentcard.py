@@ -45,7 +45,6 @@ from invent.ui.core import (
     BooleanProperty,
 )
 
-
 CARD_SHAPES = [
     "rounded",  # Rounded corners.
     "square",  # Square corners.

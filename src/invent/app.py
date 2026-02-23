@@ -23,7 +23,6 @@ from pyscript.web import page as dom  # Avoid name collision with page.
 import invent
 from .i18n import load_translations, _
 
-
 __all__ = [
     "App",
 ]
@@ -65,6 +64,7 @@ class App:
         author=None,
         license=None,
         pages=None,
+        native=False,
     ):
         """
         Create a new instance of App.
@@ -79,9 +79,11 @@ class App:
         identify the app. The description should explain what the application
         does. The author is a string that identifies the author[s] of the app
         and how to contact them. The license is a string containing the license
-        under which the app is released. The content is a list of Page objects
+        under which the app is released. The pages are a list of Page objects
         that define the structure of the app (as an explicit alternative to
-        passing them in as arguments).
+        passing them in as arguments). Finally, the native flag is used to
+        indicate if Invent should display the app as a responsive web app
+        (the default, with variable width) or a full width native looking app.
         """
         global __app__
         if not __app__:

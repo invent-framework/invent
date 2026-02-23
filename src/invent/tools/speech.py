@@ -21,28 +21,30 @@ limitations under the License.
 
 import invent
 from invent.i18n import _
+from invent.tools.timing import schedule
 from pyscript.ffi import create_proxy
 from pyscript import window
 
-
 # Check if the speech synthesis and recognition APIs are available.
 try:
-    synth = window.speechSynthesis
-    SPEECH_SYNTHESIS_AVAILABLE = True
+    speech_synthesizer = window.speechSynthesis
+    _SPEECH_SYNTHESIS_AVAILABLE = True
 except AttributeError:
-    SPEECH_SYNTHESIS_AVAILABLE = False
+    _SPEECH_SYNTHESIS_AVAILABLE = False
 try:
     SpeechRecognition = window.SpeechRecognition
-    SPEECH_RECOGNITION_AVAILABLE = True
+    _SPEECH_RECOGNITION_AVAILABLE = True
 except AttributeError:
     try:
         SpeechRecognition = window.webkitSpeechRecognition
-        SPEECH_RECOGNITION_AVAILABLE = True
+        _SPEECH_RECOGNITION_AVAILABLE = True
     except AttributeError:
-        SPEECH_RECOGNITION_AVAILABLE = False
+        _SPEECH_RECOGNITION_AVAILABLE = False
 
 #: Datastore flag to indicate detection of available voices is taking place.
 DETECTING_VOICES = "_SPEECH_DETECTING_VOICES"
+#: Datastore flag to indicate detection of available voices failed.
+FAILED_TO_DETECT_VOICES = "_SPEECH_FAILED_TO_DETECT_VOICES"
 #: Flag for the datastore to indicate speech synthesis is taking place.
 SPEAKING = "_SPEECH_SPEAKING"
 #: Flag for the datastore to indicate speech synthesis has ended.
@@ -57,7 +59,7 @@ ERROR = "_SPEECH_ERROR"
 NO_MATCH = "_SPEECH_NO_MATCH"
 
 #: A reference to the preferred voice for speech synthesis.
-PREFERRED_VOICE = None
+_PREFERRED_VOICE = None
 
 
 def voices(result_key):
@@ -67,13 +69,13 @@ def voices(result_key):
 
     See: https://developer.mozilla.org/en-US/docs/Web/API/SpeechSynthesis/voiceschanged_event
     """
-    if not SPEECH_SYNTHESIS_AVAILABLE:
+    if not _SPEECH_SYNTHESIS_AVAILABLE:
         raise RuntimeError(
             _("Sorry, your browser doesn't support speech synthesis!")
         )
 
     # The voices may already be available.
-    voices = list(synth.getVoices())
+    voices = list(speech_synthesizer.getVoices())
     if voices:
         invent.datastore[result_key] = [voice.name for voice in voices]
     else:
@@ -85,14 +87,13 @@ def voices(result_key):
             Handle the voices changing.
             """
             invent.datastore[result_key] = [
-                voice.name for voice in synth.getVoices()
+                voice.name for voice in speech_synthesizer.getVoices()
             ]
 
         invent.datastore[result_key] = DETECTING_VOICES
-        synth.addEventListener(
+        speech_synthesizer.addEventListener(
             "voiceschanged", create_proxy(_on_voices_changed)
         )
-
 
 def get_voice(name):
     """
@@ -105,7 +106,7 @@ def get_voice(name):
     WARNING: This function may not work until the datastore has been populated
     with the names of available voices.
     """
-    for voice in list(synth.getVoices()):
+    for voice in list(speech_synthesizer.getVoices()):
         if voice.name == name:
             return voice
     return None
@@ -122,8 +123,8 @@ def set_voice(name):
     WARNING: This function may not work until the datastore has been populated
     with the names of available voices.
     """
-    global PREFERRED_VOICE
-    PREFERRED_VOICE = get_voice(name)
+    global _PREFERRED_VOICE
+    _PREFERRED_VOICE = get_voice(name)
 
 
 def say(text, result_key=None, lang=None, pitch=None, rate=None, volume=None):
@@ -160,7 +161,7 @@ def say(text, result_key=None, lang=None, pitch=None, rate=None, volume=None):
         and 1 (highest). If SSML is used, this value will be overridden by
         prosody tags in the markup.
     """
-    if not SPEECH_SYNTHESIS_AVAILABLE:
+    if not _SPEECH_SYNTHESIS_AVAILABLE:
         raise RuntimeError(
             _("Sorry, your browser doesn't support speech synthesis!")
         )
@@ -183,8 +184,8 @@ def say(text, result_key=None, lang=None, pitch=None, rate=None, volume=None):
 
     utterance = window.SpeechSynthesisUtterance.new()
     utterance.text = text
-    if PREFERRED_VOICE:
-        utterance.voice = PREFERRED_VOICE
+    if _PREFERRED_VOICE:
+        utterance.voice = _PREFERRED_VOICE
     if lang:
         utterance.lang = lang
     if pitch:
@@ -198,7 +199,7 @@ def say(text, result_key=None, lang=None, pitch=None, rate=None, volume=None):
 
     if result_key:
         invent.datastore[result_key] = SPEAKING
-    synth.speak(utterance)
+    speech_synthesizer.speak(utterance)
 
 
 def listen(result_key):
@@ -216,7 +217,7 @@ def listen(result_key):
     Otherwise the result key will be updated with a string containing a
     transcript of the detected speech.
     """
-    if not SPEECH_RECOGNITION_AVAILABLE:
+    if not _SPEECH_RECOGNITION_AVAILABLE:
         raise RuntimeError(
             _("Sorry, your browser doesn't support speech recognition!")
         )

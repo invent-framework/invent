@@ -7,7 +7,6 @@ import sys
 from pyscript.web import div
 from .app import App
 
-
 #: A flag to show if MicroPython is the current Python interpreter.
 is_micropython = "micropython" in sys.version.lower()
 

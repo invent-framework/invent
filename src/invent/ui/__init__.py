@@ -45,7 +45,6 @@ from .widgets.textinput import TextInput
 from .widgets.time import TimePicker
 from .widgets.video import Video
 
-
 __all__ = [
     "Code",
     "Page",

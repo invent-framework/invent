@@ -23,7 +23,6 @@ import pyscript
 import invent
 import json
 
-
 #: Flag for the datastore to indicate an error status.
 WEB_ERROR = "_WEB_ERROR"
 #: The flag to indicate the websocket is connecting.
