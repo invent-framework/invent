@@ -102,6 +102,9 @@ class App:
             self.append(*args)
         if pages:
             self.append(*pages)
+        if native:
+            # Set the app to be a full width native looking app.
+            dom.body.classes.add("app-view")
         invent.set_media_root(media_root)
 
     @property
