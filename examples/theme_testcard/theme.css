@@ -1056,3 +1056,75 @@ input[type="datetime-local"] {
 .invent-tree-leaf:hover {
     background: var(--secondary-light);
 }
+
+/* === Header and Footer containers === */
+
+/* -- Shared base: a tinted background distinguishes         -- */
+/* -- header/footer from the main page body whilst keeping  -- */
+/* -- all child widget colours intact.                      -- */
+.invent-header,
+.invent-footer {
+    display: flex;
+    flex-flow: row wrap;
+    align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    width: 100%;
+    box-sizing: border-box;
+    background: var(--primary-light);
+    color: var(--color-body);
+    font-family: var(--font);
+    /* -- Subtle shadow lifts the bars off the page content. -- */
+    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
+    transition: box-shadow var(--transition-speed) ease;
+}
+
+/* -- Accent stripe on the inward-facing edge of each bar.  -- */
+.invent-header {
+    border-block-end: 3px solid var(--secondary);
+}
+
+.invent-footer {
+    border-block-start: 3px solid var(--secondary);
+}
+
+/* -- Sticky header: pins to top; stronger shadow signals    -- */
+/* -- it is floating above scrolled content.               -- */
+.invent-header--sticky {
+    position: sticky;
+    top: 0;
+    z-index: 99999;
+    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.18);
+}
+
+/* -- Sticky footer: pins to bottom; shadow points upward.  -- */
+.invent-footer--sticky {
+    position: sticky;
+    bottom: 0;
+    z-index: 99999;
+    box-shadow: 0 -3px 10px rgba(0, 0, 0, 0.18);
+}
+
+/* -- Dark mode: a slightly lifted tone distinguishes the    -- */
+/* -- bars from the darker page body.                       -- */
+@media (prefers-color-scheme: dark) {
+    .invent-header,
+    .invent-footer {
+        background: var(--muted-dark);
+        color: var(--white);
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+    }
+
+    .invent-header--sticky,
+    .invent-footer--sticky {
+        box-shadow: 0 3px 12px rgba(0, 0, 0, 0.5);
+    }
+}
+
+/* -- Reduced motion: disable shadow transitions. -- */
+@media (prefers-reduced-motion: reduce) {
+    .invent-header,
+    .invent-footer {
+        transition: none;
+    }
+}

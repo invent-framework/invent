@@ -23,8 +23,7 @@ limitations under the License.
 
 from invent.i18n import _
 from .row import Row
-from ..core.property import ChoiceProperty
-from ..core.measures import COMPONENT_DISTRIBUTION
+from ..core.property import BooleanProperty
 
 
 class Footer(Row):
@@ -39,4 +38,22 @@ class Footer(Row):
     inherits all of its properties and methods.
     """
 
-    ...
+    sticky = BooleanProperty(
+        _(
+            "Whether the footer should be sticky (i.e. stay at the bottom of the page even when the user scrolls up)."
+        ),
+        default_value=False,
+    )
+
+    @classmethod
+    def icon(cls):
+        return '<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="currentColor" viewBox="0 0 256 256"><path transform="scale(1,-1) translate(0,-256)" d="M216,40H40A16,16,0,0,0,24,56V200a16,16,0,0,0,16,16H216a16,16,0,0,0,16-16V56A16,16,0,0,0,216,40Zm0,16V88H40V56Zm0,144H40V104H216v96Z"></path></svg>'  # noqa
+
+    def on_sticky_changed(self):
+        """
+        Update the footer's CSS class when the sticky property changes.
+        """
+        if self.sticky:
+            self.element.classes.add("invent-footer--sticky")
+        else:
+            self.element.classes.remove("invent-footer--sticky")
