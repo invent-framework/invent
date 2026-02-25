@@ -432,6 +432,32 @@ print(Hello().greet)"""),
                                 ),
                             ],
                         ),
+                        Label(text="A tree container:"),
+                        Tree(
+                            data=(
+                                ("Item 1", (
+                                    ("Subitem 1", "This is a sub-leaf node."),
+                                    ("Subitem 2", Label(
+                                        text="This is a widget leaf node."
+                                    )),
+                                    ("Subitem 3", (
+                                        ("Subsubitem 1", "This is a sub-sub-leaf node."),
+                                        ("Subsubitem 2", "This is another sub-sub-leaf node."),
+                                    )),
+                                )),
+                                ("Item 2", (
+                                    ("Subitem 1", "This is a sub-leaf node."),
+                                    ("Subitem 2", Label(
+                                        text="This is a widget leaf node."
+                                    )),
+                                    ("Subitem 3", (
+                                        ("Subsubitem 1", "This is a sub-sub-leaf node."),
+                                        ("Subsubitem 2", "This is another sub-sub-leaf node."),
+                                    )),
+                                )),
+                                ("Item 3", "This is a leaf node.")
+                            )
+                        ),
                         Html(
                             html="<p><span style='color: red;'>Rows are in red</span>, <span style='color: blue;'>columns in blue</span>,<br><span style='color: green;'>grids are in green</span>... (and this isn't a poem). 😉</p>"
                         ),

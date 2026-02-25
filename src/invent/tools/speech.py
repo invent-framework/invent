@@ -21,7 +21,7 @@ limitations under the License.
 
 import invent
 from invent.i18n import _
-from invent.tools.timing import schedule
+from invent.tools.timing import schedule, cancel
 from pyscript.ffi import create_proxy
 from pyscript import window
 
@@ -81,16 +81,31 @@ def voices(result_key):
     else:
         # If not, listen for the voiceschanged event to indicate the voices are
         # available.
+        invent.datastore[result_key] = DETECTING_VOICES
+
+        # If the voices don't become available within a reasonable time, update
+        # the datastore to indicate that detection failed.
+
+        def _on_timeout():
+            """
+            Handle the voices not becoming available within a reasonable time.
+            """
+            invent.datastore[result_key] = FAILED_TO_DETECT_VOICES
+
+        schedule(_on_timeout, delay=5000)  # 5 seconds.
+
+        # Listen for the voiceschanged event to indicate the voices are available.
 
         def _on_voices_changed(event):
             """
             Handle the voices changing.
             """
+            # Cancel the timeout because the voices are now available.
+            cancel(_on_timeout)
             invent.datastore[result_key] = [
                 voice.name for voice in speech_synthesizer.getVoices()
             ]
 
-        invent.datastore[result_key] = DETECTING_VOICES
         speech_synthesizer.addEventListener(
             "voiceschanged", create_proxy(_on_voices_changed)
         )

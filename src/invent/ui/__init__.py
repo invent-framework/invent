@@ -20,7 +20,7 @@ limitations under the License.
 
 from ..i18n import _
 from .core import Widget, Container, from_datastore
-from .containers import Accordion, Column, Grid, Page, Row, Tabs
+from .containers import Accordion, Column, Grid, Page, Row, Tabs, Tree
 from .widgets.audio import Audio
 from .widgets.button import Button
 from .widgets.chart import Chart
@@ -32,6 +32,7 @@ from .widgets.datetime import DateTimePicker
 from .widgets.fileupload import FileUpload
 from .widgets.html import Html
 from .widgets.image import Image
+from .widgets.label import Label
 from .widgets.map import Map
 from .widgets.meter import Meter
 from .widgets.progress import Progress
@@ -39,7 +40,6 @@ from .widgets.radio import Radio
 from .widgets.selector import Selector
 from .widgets.slider import Slider
 from .widgets.switch import Switch
-from .widgets.label import Label
 from .widgets.table import Table
 from .widgets.textinput import TextInput
 from .widgets.time import TimePicker
@@ -67,6 +67,7 @@ __all__ = [
     "FileUpload",
     "Html",
     "Image",
+    "Label",
     "Map",
     "Meter",
     "Progress",
@@ -74,10 +75,10 @@ __all__ = [
     "Selector",
     "Slider",
     "Switch",
-    "Label",
     "Table",
     "TextInput",
     "TimePicker",
+    "Tree",
     "Video",
 ]
 
@@ -87,12 +88,13 @@ AVAILABLE_COMPONENTS = {
     _("Column"): Column,
     _("Row"): Row,
     _("Grid"): Grid,
+    _("Tree"): Tree,
     # Widgets...
     _("Audio"): Audio,
     _("Button"): Button,
     _("CheckBox"): CheckBox,
     _("Code"): Code,
-    _("ColorPicker"): Code,
+    _("ColorPicker"): ColorPicker,
     _("DatePicker"): DatePicker,
     _("DateTimePicker"): DateTimePicker,
     _("FileUpload"): FileUpload,

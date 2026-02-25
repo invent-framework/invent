@@ -5,6 +5,7 @@ from .grid import Grid
 from .page import Page
 from .row import Row
 from .tabs import Tabs
+from .tree import Tree
 
 __all__ = [
     "Accordion",
@@ -14,4 +15,5 @@ __all__ = [
     "Page",
     "Row",
     "Tabs",
+    "Tree",
 ]

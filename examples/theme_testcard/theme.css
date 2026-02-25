@@ -971,3 +971,88 @@ input[type="datetime-local"] {
         border-left: solid var(--border-width) var(--primary);
     }
 }
+
+/* -- Tree view widget, uses native <details>/<summary> -- */
+/* -- for toggling with no JavaScript required.         -- */
+.invent-tree {
+    font-family: var(--font);
+    color: var(--color-body);
+    background: var(--main-background);
+    padding: 0.25rem 0;
+    user-select: none;
+}
+
+/* -- Nested branches and leaves indented under their parent. -- */
+.invent-tree details details,
+.invent-tree details .invent-tree-leaf {
+    margin-inline-start: 1.5rem;
+}
+
+/* -- Remove the default browser disclosure triangle. -- */
+.invent-tree summary {
+    list-style: none;
+    cursor: pointer;
+    padding: 0.3rem 0.5rem;
+    border-radius: 3px;
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-weight: 600;
+    color: var(--primary-text);
+    transition: background 0.15s ease;
+}
+
+.invent-tree summary::marker,
+.invent-tree summary::-webkit-details-marker {
+    display: none;
+}
+
+/* -- Toggle arrow sits before the label. -- */
+.invent-tree summary::before {
+    content: "▶";
+    font-size: 0.65rem;
+    color: var(--secondary);
+    transition: transform 0.15s ease;
+    display: inline-block;
+    flex-shrink: 0;
+}
+
+.invent-tree details[open] > summary::before {
+    transform: rotate(90deg);
+}
+
+/* -- Leaf wrapper: flex row to align bullet with content. -- */
+.invent-tree-leaf {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    padding: 0.15rem 0.5rem;
+    border-radius: 3px;
+    transition: background 0.15s ease;
+}
+
+/* -- Muted bullet aligns leaves with sibling branch labels. -- */
+.invent-tree-leaf::before {
+    content: "•";
+    font-size: 1.6rem;
+    color: var(--muted);
+    flex-shrink: 0;
+}
+
+/* -- Hover and focus states. -- */
+.invent-tree summary:hover {
+    background: var(--primary-light);
+}
+
+.invent-tree summary:focus-visible {
+    outline: 2px solid var(--secondary);
+    outline-offset: -2px;
+}
+
+.invent-tree summary:active {
+    background: var(--primary-active);
+}
+
+.invent-tree-leaf:hover {
+    background: var(--secondary-light);
+}

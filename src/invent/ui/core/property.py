@@ -22,6 +22,7 @@ limitations under the License.
 import datetime
 import json
 import invent
+import collections
 from invent.i18n import _
 
 
@@ -460,13 +461,19 @@ class DictProperty(Property):
         default_value=None,
         **kwargs,
     ):
-        super().__init__(description, default_value or dict(), **kwargs)
+        super().__init__(
+            description, default_value or collections.OrderedDict(), **kwargs
+        )
 
     def coerce(self, value):
         if value is None:
-            return {}
+            return collections.OrderedDict()
         try:
-            return dict(value)
+            val = collections.OrderedDict(value)
+            for k, v in val.items():
+                if isinstance(v, (dict, tuple, list)):
+                    val[k] = self.coerce(v)
+            return val
         except:  # pragma: no cover
             raise ValidationError(_("Not a valid dictionary."), value)
 
