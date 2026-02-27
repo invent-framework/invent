@@ -777,7 +777,6 @@ input[type="datetime-local"] {
     padding-bottom: 8px;
     position: relative;
     transition: grid-template-rows var(--transition-speed);
-    width: 100%;
 
     > input:is([type="checkbox"], [type="radio"]) {
         appearance: none;
@@ -1126,5 +1125,235 @@ input[type="datetime-local"] {
     .invent-header,
     .invent-footer {
         transition: none;
+    }
+}
+
+/* === Calendar widget ===
+ *
+ * Scoped under .invent-calendar to avoid conflicts with the base
+ * table styles in theme.css (especially zebra-striping and thead
+ * background, which do not suit a calendar layout).
+ *
+ * Depends on the CSS variables defined in theme.css.
+ */
+
+/* -- Outer wrapper: contains nav bar and table. -- */
+.invent-calendar {
+    border: var(--border-width) solid var(--primary-light);
+    border-radius: var(--border-radius-lg);
+    font-family: var(--font);
+    /* Clip the table so rounded corners apply cleanly. */
+    overflow: hidden;
+}
+
+/* -- Navigation bar: previous/next buttons with centred title. -- */
+.invent-calendar-nav {
+    align-items: center;
+    background: var(--primary-light);
+    border-block-end: var(--border-width) solid var(--primary-light);
+    display: flex;
+    justify-content: space-between;
+    padding: 0.4rem 0.6rem;
+}
+
+.invent-calendar-nav h2 {
+    flex: 1;
+    font-size: 1.1rem;
+    font-weight: bold;
+    margin: 0;
+    text-align: center;
+}
+
+/* -- Nav buttons: compact variant of the base button style. -- */
+.invent-calendar-nav button {
+    border-radius: var(--border-radius);
+    font-size: 1.5rem;
+    line-height: 1;
+    padding: 0.1rem 0.5rem;
+}
+
+/* -- Base table overrides for the calendar context. -- */
+
+/* Suppress the base zebra-striping inside the calendar. */
+.invent-calendar tr:nth-child(even) {
+    background-color: transparent;
+}
+
+/* Suppress the default thead background; the nav bar serves
+ * as the visual header for the widget. */
+.invent-calendar thead {
+    background-color: var(--muted-light);
+}
+
+.invent-calendar table {
+    border-collapse: collapse;
+    table-layout: fixed;
+    width: 100%;
+}
+
+/* -- Day-name column headers. -- */
+.invent-calendar th {
+    border-block-end: var(--border-width) solid var(--primary-light);
+    color: var(--muted-text);
+    font-size: 0.8rem;
+    font-weight: bold;
+    padding: 0.35rem 0;
+    text-align: center;
+}
+
+/* Weekend column headers: slightly de-emphasised. */
+.invent-calendar th:nth-child(6),
+.invent-calendar th:nth-child(7) {
+    color: var(--primary-light);
+    background-color: var(--primary-light);
+    color: var(--primary);
+}
+
+/* -- All cells: shared baseline. -- */
+.invent-calendar td {
+    border: 1px solid var(--primary-light);
+    padding: 0;
+    vertical-align: top;
+    width: calc(100% / 7);
+}
+
+/* -- Inner wrapper: fixed height with scroll for overflow content. -- */
+.invent-calendar td > div {
+    box-sizing: border-box;
+    height: 8rem;
+    overflow-y: auto;
+    padding: 0.3rem 0.35rem;
+    /* Firefox scrollbar: thin width with theme colours. */
+    scrollbar-width: thin;
+    scrollbar-color: var(--secondary) var(--primary-light);
+}
+
+/* WebKit scrollbar (Chrome, Safari, Edge): width and theme colours. */
+.invent-calendar td > div::-webkit-scrollbar {
+    width: var(--border-width);
+}
+
+.invent-calendar td > div::-webkit-scrollbar-track {
+    background: var(--primary-light);
+}
+
+.invent-calendar td > div::-webkit-scrollbar-thumb {
+    background: var(--secondary);
+}
+
+/* -- Padding cells: days outside the current month. -- */
+.invent-calendar td.calendar-empty {
+    background: var(--muted-light);
+}
+
+/* -- Active day cells. -- */
+.invent-calendar td.calendar-day {
+    background: var(--main-background);
+}
+
+/* -- Today: accent stripe on the top edge. -- */
+.invent-calendar td.calendar-today {
+    background: var(--secondary-light);
+    border-block-start: 3px solid var(--secondary);
+}
+
+/* -- Day number: displayed top-right within each cell. -- */
+.invent-calendar .calendar-day-num {
+    color: var(--muted-text);
+    display: block;
+    font-size: 0.8rem;
+    font-weight: bold;
+    line-height: 1;
+    margin-block-end: 0.25rem;
+    text-align: end;
+}
+
+/* Today's number gets the secondary accent colour. */
+.invent-calendar td.calendar-today .calendar-day-num {
+    color: var(--secondary);
+}
+
+/* -- Events list: stacked chips below the day number. -- */
+.invent-calendar .calendar-events {
+    display: flex;
+    flex-direction: column;
+    gap: 0.15rem;
+    list-style: none;
+    margin: 0;
+    padding: 0;
+}
+
+.invent-calendar .calendar-events li {
+    background: var(--secondary-light);
+    border-inline-start: 2px solid var(--secondary);
+    border-radius: 2px;
+    color: var(--primary-text);
+    font-size: 0.7rem;
+    line-height: 1.3;
+    overflow: hidden;
+    padding: 0.1rem 0.25rem;
+    word-break: break-word;
+}
+
+/* Event time: monospaced and in the secondary text colour. */
+.invent-calendar .calendar-events time {
+    color: var(--secondary-text);
+    font-family: var(--font-mono);
+    font-size: 0.65rem;
+    margin-inline-end: 0.2rem;
+}
+
+/* -- Dark mode adjustments. -- */
+@media (prefers-color-scheme: dark) {
+    .invent-calendar td.calendar-today {
+        background: var(--secondary-light);
+    }
+
+    .invent-calendar .calendar-events li {
+        background: var(--secondary-light);
+    }
+}
+
+/* -- Responsive: compact layout for narrow viewports.
+ *    Breakpoint: 600px (matches --breakpoint-sm in theme.css). -- */
+@media (max-width: 599px) {
+    .invent-calendar td > div {
+        height: 2.8rem;
+        padding: 0.2rem 0.15rem;
+    }
+
+    /* Hide event chips; a dot signals the presence of events. */
+    .invent-calendar .calendar-events {
+        display: none;
+    }
+
+    /* Small coloured dot below the day number for cells with events. */
+    .invent-calendar td.has-events::after {
+        background: var(--secondary);
+        border-radius: 50%;
+        content: "";
+        display: block;
+        height: 0.35rem;
+        margin: 0.15rem auto 0;
+        width: 0.35rem;
+    }
+
+    .invent-calendar .calendar-day-num {
+        font-size: 0.7rem;
+        text-align: center;
+    }
+
+    .invent-calendar th {
+        font-size: 0.6rem;
+        padding: 0.25rem 0;
+    }
+
+    .invent-calendar-nav h2 {
+        font-size: 0.95rem;
+    }
+
+    .invent-calendar-nav button {
+        font-size: 1.2rem;
+        padding: 0.1rem 0.35rem;
     }
 }

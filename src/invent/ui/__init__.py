@@ -29,10 +29,12 @@ from .containers import (
     Page,
     Row,
     Tabs,
+    Timeline,
     Tree,
 )
 from .widgets.audio import Audio
 from .widgets.button import Button
+from .widgets.calendar import Calendar
 from .widgets.chart import Chart
 from .widgets.checkbox import CheckBox
 from .widgets.code import Code
@@ -70,6 +72,7 @@ __all__ = [
     "from_datastore",
     "Audio",
     "Button",
+    "Calendar",
     "Chart",
     "CheckBox",
     "Code",
@@ -97,13 +100,20 @@ __all__ = [
 
 AVAILABLE_COMPONENTS = {
     # Containers...
+    _("Accordion"): Accordion,
     _("Column"): Column,
-    _("Row"): Row,
+    _("Footer"): Footer,
     _("Grid"): Grid,
+    _("Header"): Header,
+    _("Row"): Row,
+    _("Tabs"): Tabs,
+    _("Timeline"): Timeline,
     _("Tree"): Tree,
     # Widgets...
     _("Audio"): Audio,
     _("Button"): Button,
+    _("Calendar"): Calendar,
+    _("Chart"): Chart,
     _("CheckBox"): CheckBox,
     _("Code"): Code,
     _("ColorPicker"): ColorPicker,

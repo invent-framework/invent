@@ -13,6 +13,38 @@ await invent.setup()  # Load default values for the datastore.
 
 # Code #################################################################################
 
+# Create some sample appointments for the calendar widget based upon today's month and
+# year, so that the calendar will show some appointments when it is rendered. Needs to
+# include both just plain dates, and datetimes with times, to show how both are rendered.
+from datetime import date, datetime
+
+today = date.today()
+appointments = {
+    today.isoformat(): "Today's appointment",
+    datetime(
+        today.year, today.month, 10, 9, 0
+    ).isoformat(): "Morning appointment",
+    datetime(
+        today.year, today.month, 10, 12, 0
+    ).isoformat(): "Lunch appointment",
+    datetime(
+        today.year, today.month, 10, 15, 0
+    ).isoformat(): "Afternoon appointment",
+    datetime(
+        today.year, today.month, 10, 18, 0
+    ).isoformat(): "Evening appointment",
+    datetime(
+        today.year, today.month, 15, 14, 30
+    ).isoformat(): "Meeting with Bob",
+    datetime(
+        today.year, today.month, 20, 19, 0
+    ).isoformat(): "Dinner with Alice",
+    datetime(
+        today.year, today.month, 25, 9, 0
+    ).isoformat(): "Dentist appointment",
+}
+invent.datastore["calendar_appointments"] = appointments
+
 # User Interface #######################################################################
 
 app = invent.App(
@@ -492,6 +524,12 @@ print(Hello().greet)"""),
                                     ),
                                 ),
                                 ("Item 3", "This is a leaf node."),
+                            )
+                        ),
+                        Label(text="A calendar:"),
+                        Calendar(
+                            appointments=from_datastore(
+                                "calendar_appointments"
                             )
                         ),
                         Label(text="A header:"),
