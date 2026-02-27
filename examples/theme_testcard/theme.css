@@ -1253,8 +1253,8 @@ input[type="datetime-local"] {
 
 /* -- Today: accent stripe on the top edge. -- */
 .invent-calendar td.calendar-today {
-    background: var(--secondary-light);
-    border-block-start: 3px solid var(--secondary);
+    background: var(--warning-light);
+    border-block-start: 3px solid var(--warning);
 }
 
 /* -- Day number: displayed top-right within each cell. -- */
@@ -1268,9 +1268,9 @@ input[type="datetime-local"] {
     text-align: end;
 }
 
-/* Today's number gets the secondary accent colour. */
+/* Today's number gets the warning accent colour. */
 .invent-calendar td.calendar-today .calendar-day-num {
-    color: var(--secondary);
+    color: var(--warning);
 }
 
 /* -- Events list: stacked chips below the day number. -- */
@@ -1306,7 +1306,7 @@ input[type="datetime-local"] {
 /* -- Dark mode adjustments. -- */
 @media (prefers-color-scheme: dark) {
     .invent-calendar td.calendar-today {
-        background: var(--secondary-light);
+        background: var(--warning-light);
     }
 
     .invent-calendar .calendar-events li {
