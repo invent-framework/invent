@@ -489,7 +489,7 @@ Did I ever mention we can also include [links](https://inventframework.org/) in 
 
 Also, it's possible to include emojis in the messages, as you can see! 🎉🥳😊
 
-Finally, for extra fun, we can even define a customk background colour for each chat bubble, and the text and link
+Finally, for extra fun, we can even define a custom background colour for each chat bubble, and the text and link
 colours will automatically adjust to ensure they are readable against the background. How cool is that? 😎""",
                                     timestamp=datetime(2026, 1, 1, 10, 9),
                                     shade="#e0f712",
