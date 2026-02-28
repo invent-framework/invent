@@ -503,6 +503,8 @@ colours will automatically adjust to ensure they are readable against the backgr
                                     content="""Fred... you are showing off now. 😆
 But I have to admit, the custom background colour with automatic contrast text and [link colours](https://inventframework.org/) is pretty neat.
 
+Those Invent developers are really trying to think of everything to help make our lives easier, aren't they?
+
 🎨🎨🎨🎨🎨🎨
 """,
                                 ),
