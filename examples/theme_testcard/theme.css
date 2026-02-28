@@ -1357,3 +1357,156 @@ input[type="datetime-local"] {
         padding: 0.1rem 0.35rem;
     }
 }
+
+/* --- Bubble-local variables -------------------------------------------- */
+
+/* These are per-instance overrides, not theme-level tokens.
+ * --bubble-bg is set inline per participant; it falls back to
+ * the theme's secondary colour as a sensible default.
+ * --bubble-text is the text colour rendered over --bubble-bg;
+ * override inline if a dark bubble colour needs light text. */
+.invent-bubble {
+    --bubble-bg:   var(--secondary);
+    --bubble-text: var(--white);
+    --bubble-link: var(--secondary-light);
+    /* Size of the triangular tail pointing toward the avatar. */
+    --bubble-tail: 0.5rem;
+    --avatar-size: 2.5rem;
+    --bubble-gap:  0.6rem;
+    --max-width:   70%;
+}
+
+.invent-bubble.sent {
+    --bubble-bg: var(--primary);
+}
+
+/* --- Bubble container -------------------------------------------------- */
+
+/* Row holding the optional avatar and the bubble body side by side. */
+.invent-bubble {
+    display:        flex;
+    align-items:    flex-end;
+    gap:            var(--bubble-gap);
+    max-width:      var(--max-width);
+    /* Default: received message sits on the left. */
+    flex-direction: row;
+}
+
+/* Sent bubbles sit on the right edge of the container. */
+.invent-bubble.sent {
+    flex-direction: row-reverse;
+    align-self:     flex-end;
+}
+
+.invent-bubble-body a {
+    color: var(--bubble-link, var(--link));
+    text-decoration: underline;
+}
+
+.invent-bubble-body a:hover {
+    color: var(--bubble-link, var(--link-hover));
+    opacity: 0.85;
+}
+
+/* RTL locales: mirror sent/received so layout follows reading order. */
+[dir="rtl"] .invent-bubble          { flex-direction: row-reverse; }
+[dir="rtl"] .invent-bubble.sent     { flex-direction: row; }
+
+/* --- Avatar ------------------------------------------------------------ */
+
+/* The avatar image sits outside the bubble, beside the tail. */
+.invent-bubble > img {
+    width:         var(--avatar-size);
+    height:        var(--avatar-size);
+    border-radius: 50%;
+    flex-shrink:   0;
+    object-fit:    cover;
+    box-shadow:    0 1px 3px rgba(0, 0, 0, 0.15);
+}
+
+/* --- Bubble body ------------------------------------------------------- */
+
+/* The coloured bubble containing all message content. */
+.invent-bubble-body {
+    position:      relative;
+    background:    var(--bubble-bg);
+    color:         var(--bubble-text);
+    border-radius: var(--border-radius-lg);
+    padding:       0.6rem 0.85rem;
+    box-shadow:    0 2px 6px rgba(0, 0, 0, 0.1);
+}
+
+/* --- Bubble tail ------------------------------------------------------- */
+
+/* Tail for received bubbles: points left toward the avatar side. */
+.invent-bubble.received .invent-bubble-body::after {
+    content:      '';
+    position:     absolute;
+    bottom:       0.6rem;
+    left:         calc(-1 * var(--bubble-tail));
+    border-width: var(--bubble-tail) var(--bubble-tail) 0 0;
+    border-style: solid;
+    /* Only the right border is visible, inheriting the bubble colour. */
+    border-color:
+        transparent
+        var(--bubble-bg)
+        transparent
+        transparent;
+}
+
+/* Tail for sent bubbles: points right toward the avatar side. */
+.invent-bubble.sent .invent-bubble-body::after {
+    content:      '';
+    position:     absolute;
+    bottom:       0.6rem;
+    right:        calc(-1 * var(--bubble-tail));
+    border-width: var(--bubble-tail) 0 0 var(--bubble-tail);
+    border-style: solid;
+    /* Only the left border is visible, inheriting the bubble colour. */
+    border-color:
+        transparent
+        transparent
+        transparent
+        var(--bubble-bg);
+}
+
+/* --- Metadata: username ------------------------------------------------ */
+
+.invent-bubble-body header {
+    margin-bottom: 0.3rem;
+}
+
+.invent-bubble-body header strong {
+    font-size:   0.75rem;
+    font-weight: 600;
+    opacity:     0.85;
+}
+
+/* --- Message text ------------------------------------------------------ */
+
+.invent-bubble-body p {
+    line-height: var(--line-height);
+}
+
+/* --- Metadata: timestamp ----------------------------------------------- */
+
+.invent-bubble-body footer {
+    margin-top: 0.35rem;
+    text-align: end;
+}
+
+/* Semi-transparent so it reads as secondary information over any
+ * bubble colour without needing a per-colour text override. */
+.invent-bubble-body footer time {
+    font-size: 0.7rem;
+    color: var(--bubble-text);
+    opacity: 0.75;
+}
+
+/* --- Responsive: narrow screens (breakpoint: 600px) ------------------- */
+
+@media (max-width: 599px) {
+    .invent-bubble {
+        --max-width: 85%;
+    }
+}

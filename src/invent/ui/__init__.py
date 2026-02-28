@@ -36,6 +36,7 @@ from .widgets.audio import Audio
 from .widgets.button import Button
 from .widgets.calendar import Calendar
 from .widgets.chart import Chart
+from .widgets.chatbubble import ChatBubble
 from .widgets.checkbox import CheckBox
 from .widgets.code import Code
 from .widgets.color import ColorPicker
@@ -74,6 +75,7 @@ __all__ = [
     "Button",
     "Calendar",
     "Chart",
+    "ChatBubble",
     "CheckBox",
     "Code",
     "ColorPicker",
@@ -92,6 +94,7 @@ __all__ = [
     "Switch",
     "Table",
     "TextInput",
+    "Timeline",
     "TimePicker",
     "Tree",
     "Video",

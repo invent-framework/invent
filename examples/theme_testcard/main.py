@@ -398,6 +398,116 @@ print(Hello().greet)"""),
                         Label(text="A test video player:"),
                         Video(source=invent.media.video.testcard_invent.webm),
                         Label(text="## Layouts"),
+                        Label(text="Conversational UI with chat bubbles:"),
+                        Timeline(
+                            children=[
+                                ChatBubble(
+                                    author_name="Alice",
+                                    author_image="https://i.pravatar.cc/40?img=49",
+                                    timestamp=datetime(2026, 1, 1, 10, 0),
+                                    direction="sent",
+                                    content="Happy New Year! 🎉",
+                                ),
+                                ChatBubble(
+                                    author_name="Bob",
+                                    author_image="https://i.pravatar.cc/40?img=66",
+                                    timestamp=datetime(2026, 1, 1, 10, 1),
+                                    content="Happy New Year to you too, Alice! 🥳",
+                                    direction="received",
+                                ),
+                                ChatBubble(
+                                    author_name="Eve",
+                                    direction="received",
+                                    content="Happy new year folks. How are you celebrating?",
+                                    timestamp=datetime(2026, 1, 1, 10, 2),
+                                ),
+                                ChatBubble(
+                                    author_name="Alice",
+                                    author_image="https://i.pravatar.cc/40?img=49",
+                                    timestamp=datetime(2026, 1, 1, 10, 3),
+                                    direction="sent",
+                                    content="I'm having a party with some friends. We're playing board games and eating snacks. What about you, Bob?",
+                                ),
+                                ChatBubble(
+                                    author_name="Bob",
+                                    author_image="https://i.pravatar.cc/40?img=66",
+                                    timestamp=datetime(2026, 1, 1, 10, 4),
+                                    content="I'm having a quiet night in with my family. We're watching a movie and eating popcorn. 📽️🍿 What about you, Eve?",
+                                    direction="received",
+                                ),
+                                ChatBubble(
+                                    author_name="Eve",
+                                    direction="received",
+                                    content="I'm at a fancy restaurant with my partner. We're enjoying a delicious meal and some champagne. Cheers! 🥂",
+                                    timestamp=datetime(2026, 1, 1, 10, 5),
+                                ),
+                                ChatBubble(
+                                    author_name="Fred",
+                                    author_image="https://i.pravatar.cc/40?img=51",
+                                    direction="received",
+                                    content="Hey folks, I'm having a blast at the beach with some friends.\n\nWe're playing volleyball and swimming in the ocean. 🌊🏐",
+                                    timestamp=datetime(2026, 1, 1, 10, 6),
+                                ),
+                                ChatBubble(
+                                    author_name="Mary",
+                                    author_image="https://i.pravatar.cc/40?img=22",
+                                    direction="received",
+                                    content="Hi everyone, I'm having a relaxing night at home. I'm reading a book and sipping on some hot chocolate. 📚☕",
+                                    timestamp=datetime(2026, 1, 1, 10, 7),
+                                ),
+                                ChatBubble(
+                                    author_name="Alice",
+                                    author_image="https://i.pravatar.cc/40?img=49",
+                                    timestamp=datetime(2026, 1, 1, 10, 8),
+                                    direction="sent",
+                                    content="""That sounds lovely, Mary. Enjoy your book and hot chocolate! 📖☕
+                                    
+And Fred, the beach sounds like so much fun! Don't forget to put on some sunscreen! 🏖️🧴
+
+Did I mention these messages all render _Markdown_? **Markdown** is supported in chat bubbles, 
+so you can have _emphasis_, **strong text**, and [links](https://inventframework.org/) in your messages too!
+                                    """,
+                                ),
+                                ChatBubble(
+                                    author_name="Bob",
+                                    author_image="https://i.pravatar.cc/40?img=66",
+                                    timestamp=datetime(2026, 1, 1, 10, 9),
+                                    direction="received",
+                                    content="""You can have [links in messages](https://inventframework.org/)? That's amazing! I had no idea. I thought chat bubbles were just for plain text.""",
+                                ),
+                                ChatBubble(
+                                    author_name="Fred",
+                                    author_image="https://i.pravatar.cc/40?img=51",
+                                    direction="received",
+                                    content="""I know about the Markdown support, Alice! Bob, this will blow your mind... 🤯
+                                    
+I was just about to say how great it is that we can have _emphasis_ and **strong text** in our messages. 
+
+It makes chatting so much more fun and expressive! 😄
+
+Did I ever mention we can also include [links](https://inventframework.org/) in our messages? It's fantastic for sharing cool stuff with each other! 🌐
+
+Also, it's possible to include emojis in the messages, as you can see! 🎉🥳😊
+
+Finally, for extra fun, we can even define a customk background colour for each chat bubble, and the text and link
+colours will automatically adjust to ensure they are readable against the background. How cool is that? 😎""",
+                                    timestamp=datetime(2026, 1, 1, 10, 9),
+                                    shade="#e0f712",
+                                ),
+                                ChatBubble(
+                                    author_name="Alice",
+                                    author_image="https://i.pravatar.cc/40?img=49",
+                                    timestamp=datetime(2026, 1, 1, 10, 10),
+                                    direction="sent",
+                                    shade="#e0a9db",
+                                    content="""Fred... you are showing off now. 😆
+But I have to admit, the custom background colour with automatic contrast text and [link colours](https://inventframework.org/) is pretty neat.
+
+🎨🎨🎨🎨🎨🎨
+""",
+                                ),
+                            ],
+                        ),
                         Label(text="An accordion:"),
                         Accordion(
                             children=[

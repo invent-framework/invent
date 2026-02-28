@@ -19,10 +19,162 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
+from datetime import datetime
 from invent.i18n import _
+from invent.utils import from_markdown, contrast_colours
 from invent.ui.core import (
     Widget,
     TextProperty,
-    ChoiceProperty,
     Event,
+    DatetimeProperty,
+    ChoiceProperty,
 )
+from pyscript import web
+
+# Weekday and month name lookups; datetime.weekday() returns 0=Mon.
+_WEEKDAYS = (
+    _("Mon"),
+    _("Tue"),
+    _("Wed"),
+    _("Thu"),
+    _("Fri"),
+    _("Sat"),
+    _("Sun"),
+)
+_MONTHS = (
+    _("Jan"),
+    _("Feb"),
+    _("Mar"),
+    _("Apr"),
+    _("May"),
+    _("Jun"),
+    _("Jul"),
+    _("Aug"),
+    _("Sep"),
+    _("Oct"),
+    _("Nov"),
+    _("Dec"),
+)
+
+
+class ChatBubble(Widget):
+    """
+    A chat bubble is used to show a contribution to a conversation along
+    with all its data, including the author image, author name, time, etc.
+
+    The ChatBubble is useful for displaying a conversation in a chat-like
+    interface. The ChatBubble can be used to show messages from different
+    authors, with different styles and content.
+    """
+
+    author_name = TextProperty(
+        _("The name of the author of the message."), default_value=None
+    )
+    author_image = TextProperty(
+        _("The URL of the author's image."), default_value=None
+    )
+    timestamp = DatetimeProperty(
+        _("The time when the message was sent."), default_value=None
+    )
+    shade = TextProperty(
+        _("The colour of the chat bubble as a CSS colour string."),
+        default_value=None,
+    )
+    content = TextProperty(_("The content of the message."), min_length=1)
+    direction = ChoiceProperty(
+        _(
+            "The direction of broadcast. Sent or received. "
+            "Determines the alignment of the chat bubble."
+        ),
+        choices=["sent", "received"],
+        default_value="sent",
+    )
+
+    clicked = Event(
+        _("An event that is fired when the chat bubble is clicked."),
+        author_name=str,
+        author_image=str,
+        timestamp=datetime,
+        content=str,
+    )
+
+    @classmethod
+    def icon(cls):
+        return '<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="#currentColor" viewBox="0 0 256 256"><path d="M216,48H40A16,16,0,0,0,24,64V224a15.85,15.85,0,0,0,9.24,14.5A16.13,16.13,0,0,0,40,240a15.89,15.89,0,0,0,10.25-3.78l.09-.07L83,208H216a16,16,0,0,0,16-16V64A16,16,0,0,0,216,48ZM40,224h0ZM216,192H80a8,8,0,0,0-5.23,1.95L40,224V64H216ZM88,112a8,8,0,0,1,8-8h64a8,8,0,0,1,0,16H96A8,8,0,0,1,88,112Zm0,32a8,8,0,0,1,8-8h64a8,8,0,1,1,0,16H96A8,8,0,0,1,88,144Z"></path></svg>'  # noqa
+
+    def _humanise_timestamp(self, dt):
+        """
+        Format a datetime as a human-readable string. For example, "Thu 01 Jan 2026, 14:32".
+        """
+        day_name = _WEEKDAYS[dt.weekday()]
+        month_name = _MONTHS[dt.month - 1]
+        period = "AM" if dt.hour < 12 else "PM"
+        hour = dt.hour % 12 or 12
+        return (
+            f"{day_name} {dt.day:02d} {month_name}"
+            f" {dt.year}, {hour}:{dt.minute:02d} {period}"
+        )
+
+    def update_bubble(self):
+        """
+        Update the chat bubble element with the appropriate classes and content.
+        """
+        if not self.content:
+            return  # Don't render an empty bubble
+        self.element.replaceChildren()  # Clear existing content
+        self.element.classes.clear()  # Clear existing classes
+        self.element.classes.add("invent-bubble")
+        self.element.classes.add(self.direction)
+        if self.shade:
+            # Compute contrast colours for text and links based on the
+            # user-defined bubble background.
+            colours = contrast_colours(self.shade)
+            self.element.style["--bubble-bg"] = self.shade
+            self.element.style["--bubble-text"] = colours["text"]
+            self.element.style["--bubble-link"] = colours["link"]
+        if self.author_image:
+            image = web.img(
+                src=self.author_image,
+                alt=self.author_name,
+                width="40",
+                height="40",
+            )
+            self.element.append(image)
+        bubble_body = web.div(classes=["invent-bubble-body"])
+        if self.author_name:
+            header = web.header(web.strong(self.author_name))
+            bubble_body.append(header)
+        content = web.div()
+        content.innerHTML = from_markdown(self.content)
+        bubble_body.append(content)
+        if self.timestamp:
+            footer = web.footer()
+            time = web.time(self._humanise_timestamp(self.timestamp))
+            time.setAttribute("datetime", self.timestamp.isoformat())
+            footer.append(time)
+            bubble_body.append(footer)
+        self.element.append(bubble_body)
+
+    on_author_name_changed = update_bubble
+    on_author_image_changed = update_bubble
+    on_timestamp_changed = update_bubble
+    on_content_changed = update_bubble
+    on_direction_changed = update_bubble
+    on_shade_changed = update_bubble
+
+    def render(self):
+        """
+        Render the chat bubble as a div with the appropriate classes and content.
+        """
+        element = web.div(classes=["invent-bubble"])
+        element.addEventListener(
+            "click",
+            lambda event: self.publish(
+                "clicked",
+                author_name=self.author_name,
+                author_image=self.author_image,
+                timestamp=self.timestamp,
+                content=self.content,
+            ),
+        )
+        return element
