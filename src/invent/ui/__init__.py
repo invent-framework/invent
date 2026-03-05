@@ -40,6 +40,7 @@ from .widgets.chatbubble import ChatBubble
 from .widgets.checkbox import CheckBox
 from .widgets.code import Code
 from .widgets.color import ColorPicker
+from .widgets.contentcard import ContentCard
 from .widgets.date import DatePicker
 from .widgets.datetime import DateTimePicker
 from .widgets.fileupload import FileUpload
@@ -79,6 +80,7 @@ __all__ = [
     "CheckBox",
     "Code",
     "ColorPicker",
+    "ContentCard",
     "DatePicker",
     "DateTimePicker",
     "FileUpload",
@@ -120,6 +122,7 @@ AVAILABLE_COMPONENTS = {
     _("CheckBox"): CheckBox,
     _("Code"): Code,
     _("ColorPicker"): ColorPicker,
+    _("ContentCard"): ContentCard,
     _("DatePicker"): DatePicker,
     _("DateTimePicker"): DateTimePicker,
     _("FileUpload"): FileUpload,

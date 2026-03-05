@@ -25,6 +25,7 @@ from invent.ui.core import (
     ChoiceProperty,
     Event,
 )
+from invent.ui.core.measures import PURPOSES
 from pyscript.web import button
 from pyscript.ffi import create_proxy
 
@@ -48,14 +49,7 @@ class Button(Widget):
     purpose = ChoiceProperty(
         _("The button's purpose."),
         default_value="DEFAULT",
-        choices=[
-            "DEFAULT",
-            "PRIMARY",
-            "SECONDARY",
-            "SUCCESS",
-            "WARNING",
-            "DANGER",
-        ],
+        choices=PURPOSES,
         group="style",
     )
 

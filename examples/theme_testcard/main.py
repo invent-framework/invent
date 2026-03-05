@@ -398,6 +398,89 @@ print(Hello().greet)"""),
                         Label(text="A test video player:"),
                         Video(source=invent.media.video.testcard_invent.webm),
                         Label(text="## Layouts"),
+                        Label(text="Content cards:"),
+                        ContentCard(
+                            children=[
+                                Label(
+                                    text="This is a content card. It can be used to display content that is related to a specific topic or theme. The content can include text, images, and other widgets."
+                                ),
+                                Button(
+                                    text="A button in a content card",
+                                    purpose="PRIMARY",
+                                ),
+                            ]
+                        ),
+                        ContentCard(
+                            title="Content card with image and timestamp",
+                            image=invent.media.images.testcard_invent.png,
+                            published_at=datetime(2025, 12, 31, 23, 59),
+                            children=[
+                                Label(
+                                    text="This is a content card with an image and a timestamp. The image is displayed as an avatar in the header of the card, and the timestamp is displayed at the top of the card."
+                                ),
+                                Button(
+                                    text="Another button in a content card",
+                                    purpose="PRIMARY",
+                                ),
+                            ],
+                        ),
+                        ContentCard(
+                            title="Rounded content card with avatar image, end timestamp and success purpose",
+                            image=invent.media.images.testcard_invent.png,
+                            published_at=datetime(2025, 12, 31, 23, 59),
+                            publish_position="end",
+                            children=[
+                                Label(
+                                    text="This is a rounded content card with an avatar image and the publication timestamp at the end."
+                                ),
+                            ],
+                            purpose="SUCCESS",
+                        ),
+                        ContentCard(
+                            title="A Content card with a banner image and timestamp",
+                            image=invent.media.images.testcard_invent.png,
+                            image_position="banner",
+                            published_at=datetime(2025, 12, 31, 23, 59),
+                            children=[
+                                Label(
+                                    text="This is a content card with a banner image. The image is displayed at the top of the card, and spans the full width of the card."
+                                ),
+                            ],
+                        ),
+                        ContentCard(
+                            shape="square",
+                            title="Square content card with banner image and end timestamp",
+                            image_position="banner",
+                            publish_position="end",
+                            children=[
+                                Label(
+                                    text="This is a square content card with a banner image and the publication timestamp at the end."
+                                ),
+                                Label(
+                                    text="The content card can contain any content, including other widgets. In this case, it contains another label and a button."
+                                ),
+                                Audio(
+                                    source=invent.media.sounds.left_bank_two.ogg
+                                ),
+                                Label(
+                                    text="Remember, that labels can also contain Markdown, so you can have **strong** and *emphasised* text, as well as [links](https://inventframework.org/) in the content of the card too!"
+                                ),
+                            ],
+                            image=invent.media.images.testcard_invent.png,
+                            published_at=datetime(2025, 12, 31, 23, 59),
+                        ),
+                        ContentCard(
+                            title="A content card with the 'danger' purpose",
+                            purpose="DANGER",
+                            image_position="banner",
+                            children=[
+                                Label(
+                                    text="This is a content card with the 'danger' purpose. The purpose of a content card affects the background and border colours of the card, and can be used to visually indicate the importance or urgency of the content."
+                                ),
+                            ],
+                            image=invent.media.images.testcard_invent.png,
+                            published_at=datetime(2025, 12, 31, 23, 59),
+                        ),
                         Label(text="Conversational UI with chat bubbles:"),
                         Timeline(
                             children=[
@@ -418,7 +501,7 @@ print(Hello().greet)"""),
                                 ChatBubble(
                                     author_name="Eve",
                                     direction="received",
-                                    content="Happy new year folks. How are you celebrating?",
+                                    content="Happy new year folks. How are you celebrating? (I don't have an avatar because I prefer to remain mysterious 👻)",
                                     timestamp=datetime(2026, 1, 1, 10, 2),
                                 ),
                                 ChatBubble(

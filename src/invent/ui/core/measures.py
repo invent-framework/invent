@@ -73,3 +73,13 @@ COMPONENT_DISTRIBUTION = [
     "space-around",
     "space-evenly",
 ]
+
+#: Choices for the purpose of buttons, content cards and other components.
+PURPOSES = [
+    "DEFAULT",
+    "PRIMARY",
+    "SECONDARY",
+    "SUCCESS",
+    "WARNING",
+    "DANGER",
+]

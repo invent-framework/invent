@@ -1510,3 +1510,213 @@ input[type="datetime-local"] {
         --max-width: 85%;
     }
 }
+
+
+/* === ContentCard widget ==============================================
+ *
+ * A card for displaying a title, optional image/icon, optional
+ * timestamp and a body of rendered content.
+ *
+ * Modifier classes on the root <article>:
+ *   .square       — removes rounded corners.
+ *   .banner-image — renders the image as a full-width banner above
+ *                   the header rather than as a circular avatar.
+ *   .publish-end  — moves the timestamp from the header to the footer.
+ *
+ * Structural visibility is data-driven: Python sets or clears
+ * attribute values (src, datetime) and textContent; CSS rules here
+ * hide any element that carries no data.  The DOM skeleton is always
+ * fully present; nothing is ever added or removed by Python.
+ *
+ * Works well inside an .invent-timeline column container.
+ */
+
+/* --- Local variables -------------------------------------------------- */
+
+/* Per-instance overrides: re-declare inline on .invent-card to
+ * customise background, border colour, and shape for one card. */
+.invent-card {
+    --card-bg:           var(--main-background);
+    --card-border-color: var(--primary-light);
+    --card-radius:       var(--border-radius-lg);
+    --card-avatar-size:  2.5rem;
+    --card-padding:      1rem;
+}
+
+/* --- Structural visibility rules -------------------------------------- */
+
+/* Elements carrying no data are hidden so that Python change handlers
+ * need only update attribute values, never add or remove nodes. */
+
+/* Images with no src set are invisible. */
+.invent-card img[src=""] {
+    display: none;
+}
+
+/* An empty heading occupies no space. */
+.invent-card header h3:empty {
+    display: none;
+}
+
+/* Timestamps with no datetime value are invisible. */
+.invent-card time[datetime=""] {
+    display: none;
+}
+
+/* --- Card container --------------------------------------------------- */
+
+/* Self-contained block with border, shadow and flexible column layout. */
+.invent-card {
+    background:     var(--card-bg);
+    border:         var(--border-width) solid var(--card-border-color);
+    border-radius:  var(--card-radius);
+    box-shadow:     0 2px 6px rgba(0, 0, 0, 0.08);
+    box-sizing:     border-box;
+    display:        flex;
+    flex-direction: column;
+    /* Required to clip the banner image to the card's rounded corners. */
+    overflow:       hidden;
+    padding:        var(--card-padding);
+    width:          100%;
+}
+
+/* Square variant: suppress all corner rounding. */
+.invent-card.square {
+    --card-radius: 0;
+}
+
+/* --- Banner image ----------------------------------------------------- */
+
+/* Hidden by default; shown only when the card is in banner-image mode
+ * and the src attribute has been set. */
+.invent-card > img {
+    display: none;
+}
+
+/* Full-width image spanning the card edges above the header.
+ * Negative margins pull the image outside the card's padding box;
+ * overflow: hidden on the card clips it to the rounded corners. */
+.invent-card.banner-image > img:not([src=""]) {
+    display:       block;
+    height:        12rem;
+    margin:        calc(-1 * var(--card-padding));
+    margin-bottom: var(--card-padding);
+    max-width:     none;
+    object-fit:    cover;
+    width:         calc(100% + 2 * var(--card-padding));
+}
+
+/* Avatar hidden when the banner-image mode is active. */
+.invent-card.banner-image header > img {
+    display: none;
+}
+
+/* --- Header ----------------------------------------------------------- */
+
+/* Flex row: optional avatar on the start side, metadata on the other. */
+.invent-card header {
+    align-items:   center;
+    display:       flex;
+    gap:           0.75rem;
+    margin-bottom: 0.75rem;
+}
+
+/* Avatar image: circular, fixed size, does not shrink. */
+.invent-card header > img {
+    border-radius: 50%;
+    flex-shrink:   0;
+    height:        var(--card-avatar-size);
+    object-fit:    cover;
+    width:         var(--card-avatar-size);
+}
+
+/* Metadata group: title and optional timestamp stacked vertically.
+ * min-width: 0 prevents long titles from overflowing the flex row. */
+.invent-card header > div {
+    display:        flex;
+    flex-direction: column;
+    gap:            0.15rem;
+    min-width:      0;
+}
+
+/* Card title: overrides the global h3 size which is too large here. */
+.invent-card header h3 {
+    font-size:   1rem;
+    font-weight: 600;
+    line-height: 1.3;
+    margin:      0;
+}
+
+/* Timestamp inside the header: muted, monospaced, small. */
+.invent-card header time {
+    color:       var(--muted-text);
+    font-family: var(--font-mono);
+    font-size:   0.7rem;
+    line-height: 1;
+}
+
+/* Header timestamp hidden when the card is in publish-end mode. */
+.invent-card.publish-end header time {
+    display: none;
+}
+
+/* --- Body ------------------------------------------------------------- */
+
+/* Container for widget children; grows to fill remaining card height. */
+.invent-card > div {
+    flex:        1;
+    font-size:   0.95rem;
+    line-height: var(--line-height);
+    min-width:   0;
+}
+
+/* Remove surplus spacing at the top and bottom of the body content. */
+.invent-card > div > :first-child { margin-top:    0; }
+.invent-card > div > :last-child  { margin-bottom: 0; }
+
+/* --- Footer ----------------------------------------------------------- */
+
+/* Hidden by default; only shown as an end-position timestamp. */
+.invent-card footer {
+    display:         none;
+    border-top:      var(--border-width) solid var(--card-border-color);
+    justify-content: flex-end;
+    margin-top:      0.75rem;
+    padding-top:     0.5rem;
+}
+
+/* Footer shown when publish-end mode is active. */
+.invent-card.publish-end footer {
+    display: flex;
+}
+
+/* Footer hidden again if the timestamp carries no datetime value. */
+.invent-card.publish-end footer:has(time[datetime=""]) {
+    display: none;
+}
+
+/* Timestamp inside the footer: same style as the header timestamp. */
+.invent-card footer time {
+    color:       var(--muted-text);
+    font-family: var(--font-mono);
+    font-size:   0.7rem;
+}
+
+/* --- RTL support ------------------------------------------------------ */
+
+/* Flex and logical margin properties handle most of the mirroring
+ * automatically; the avatar and banner images need no special rules. */
+
+/* --- Responsive: narrow screens (breakpoint: 600px) ------------------- */
+
+@media (max-width: 599px) {
+    .invent-card {
+        --card-padding:     0.75rem;
+        --card-avatar-size: 2rem;
+    }
+
+    /* Reduce the banner height on small screens. */
+    .invent-card.banner-image > img:not([src=""]) {
+        height: 8rem;
+    }
+}

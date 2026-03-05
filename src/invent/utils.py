@@ -6,9 +6,37 @@ import inspect
 import sys
 from pyscript.web import div
 from .app import App
+from .i18n import _
 
 #: A flag to show if MicroPython is the current Python interpreter.
 is_micropython = "micropython" in sys.version.lower()
+
+
+# Weekday and month name lookups; datetime.weekday() returns 0=Mon.
+WEEKDAYS = (
+    _("Mon"),
+    _("Tue"),
+    _("Wed"),
+    _("Thu"),
+    _("Fri"),
+    _("Sat"),
+    _("Sun"),
+)
+
+MONTHS = (
+    _("Jan"),
+    _("Feb"),
+    _("Mar"),
+    _("Apr"),
+    _("May"),
+    _("Jun"),
+    _("Jul"),
+    _("Aug"),
+    _("Sep"),
+    _("Oct"),
+    _("Nov"),
+    _("Dec"),
+)
 
 
 def show_page(page_name):
@@ -253,3 +281,17 @@ def contrast_colours(hex_bg):
         "text": "#1a1a1a",
         "link": _hsl_to_hex(h, link_s, 0.25),
     }
+
+
+def humanise_timestamp(dt):
+    """
+    Format a datetime as a human-readable string. For example, "Thu 01 Jan 2026, 14:32".
+    """
+    day_name = WEEKDAYS[dt.weekday()]
+    month_name = MONTHS[dt.month - 1]
+    period = "AM" if dt.hour < 12 else "PM"
+    hour = dt.hour % 12 or 12
+    return (
+        f"{day_name} {dt.day:02d} {month_name}"
+        f" {dt.year}, {hour}:{dt.minute:02d} {period}"
+    )

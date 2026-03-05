@@ -131,11 +131,6 @@ class Component:
     )
 
     def __init__(self, **kwargs):
-        if invent.is_micropython:  # pragma: no cover
-            # When in MicroPython, ensure all the properties have a reference
-            # to their name within this class.
-            for property_name, property_obj in type(self).properties().items():
-                property_obj.__set_name__(self, property_name)
         self.element = self.render()
         self._parent = None  # A reference to the parent container.
         self._parent_type = None  # Indicates the type of parent container.

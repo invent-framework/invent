@@ -21,7 +21,7 @@ limitations under the License.
 
 from datetime import datetime
 from invent.i18n import _
-from invent.utils import from_markdown, contrast_colours
+from invent.utils import from_markdown, contrast_colours, humanise_timestamp
 from invent.ui.core import (
     Widget,
     TextProperty,
@@ -31,30 +31,7 @@ from invent.ui.core import (
 )
 from pyscript import web
 
-# Weekday and month name lookups; datetime.weekday() returns 0=Mon.
-_WEEKDAYS = (
-    _("Mon"),
-    _("Tue"),
-    _("Wed"),
-    _("Thu"),
-    _("Fri"),
-    _("Sat"),
-    _("Sun"),
-)
-_MONTHS = (
-    _("Jan"),
-    _("Feb"),
-    _("Mar"),
-    _("Apr"),
-    _("May"),
-    _("Jun"),
-    _("Jul"),
-    _("Aug"),
-    _("Sep"),
-    _("Oct"),
-    _("Nov"),
-    _("Dec"),
-)
+_DEFAULT_AUTHOR_IMAGE = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23585858' viewBox='0 0 256 256'%3E%3Cpath d='M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216ZM80,108a12,12,0,1,1,12,12A12,12,0,0,1,80,108Zm96,0a12,12,0,1,1-12-12A12,12,0,0,1,176,108Zm-1.07,48c-10.29,17.79-27.4,28-46.93,28s-36.63-10.2-46.92-28a8,8,0,1,1,13.84-8c7.47,12.91,19.21,20,33.08,20s25.61-7.1,33.07-20a8,8,0,0,1,13.86,8Z'%3E%3C/path%3E%3C/svg%3E%0A"  # noqa
 
 
 class ChatBubble(Widget):
@@ -71,7 +48,8 @@ class ChatBubble(Widget):
         _("The name of the author of the message."), default_value=None
     )
     author_image = TextProperty(
-        _("The URL of the author's image."), default_value=None
+        _("The URL of the author's image."),
+        default_value=_DEFAULT_AUTHOR_IMAGE,
     )
     timestamp = DatetimeProperty(
         _("The time when the message was sent."), default_value=None
@@ -101,19 +79,6 @@ class ChatBubble(Widget):
     @classmethod
     def icon(cls):
         return '<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" fill="#currentColor" viewBox="0 0 256 256"><path d="M216,48H40A16,16,0,0,0,24,64V224a15.85,15.85,0,0,0,9.24,14.5A16.13,16.13,0,0,0,40,240a15.89,15.89,0,0,0,10.25-3.78l.09-.07L83,208H216a16,16,0,0,0,16-16V64A16,16,0,0,0,216,48ZM40,224h0ZM216,192H80a8,8,0,0,0-5.23,1.95L40,224V64H216ZM88,112a8,8,0,0,1,8-8h64a8,8,0,0,1,0,16H96A8,8,0,0,1,88,112Zm0,32a8,8,0,0,1,8-8h64a8,8,0,1,1,0,16H96A8,8,0,0,1,88,144Z"></path></svg>'  # noqa
-
-    def _humanise_timestamp(self, dt):
-        """
-        Format a datetime as a human-readable string. For example, "Thu 01 Jan 2026, 14:32".
-        """
-        day_name = _WEEKDAYS[dt.weekday()]
-        month_name = _MONTHS[dt.month - 1]
-        period = "AM" if dt.hour < 12 else "PM"
-        hour = dt.hour % 12 or 12
-        return (
-            f"{day_name} {dt.day:02d} {month_name}"
-            f" {dt.year}, {hour}:{dt.minute:02d} {period}"
-        )
 
     def update_bubble(self):
         """
@@ -149,7 +114,7 @@ class ChatBubble(Widget):
         bubble_body.append(content)
         if self.timestamp:
             footer = web.footer()
-            time = web.time(self._humanise_timestamp(self.timestamp))
+            time = web.time(humanise_timestamp(self.timestamp))
             time.setAttribute("datetime", self.timestamp.isoformat())
             footer.append(time)
             bubble_body.append(footer)
