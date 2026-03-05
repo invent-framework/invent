@@ -544,7 +544,7 @@ print(Hello().greet)"""),
                         ContentCard(
                             children=[
                                 Label(
-                                    text="This is a content card. It can be used to display content that is related to a specific topic or theme. The content can include text, images, and other widgets."
+                                    text="This is a default content card. It can be used to display content that is related to a specific topic or theme. The content can include text, images, and other widgets."
                                 ),
                                 Button(
                                     text="A button in a content card",
@@ -553,7 +553,7 @@ print(Hello().greet)"""),
                             ]
                         ),
                         ContentCard(
-                            title="Content card with image and timestamp",
+                            title="Content card with image, timestamp and primary purpose",
                             image=invent.media.images.testcard_invent.png,
                             published_at=datetime(2025, 12, 31, 23, 59),
                             children=[
@@ -565,6 +565,7 @@ print(Hello().greet)"""),
                                     purpose="PRIMARY",
                                 ),
                             ],
+                            purpose="PRIMARY",
                         ),
                         ContentCard(
                             title="Rounded content card with avatar image, end timestamp and success purpose",
@@ -579,7 +580,7 @@ print(Hello().greet)"""),
                             purpose="SUCCESS",
                         ),
                         ContentCard(
-                            title="A Content card with a banner image and timestamp",
+                            title="A Content card with a banner image, timestamp and secondary purpose",
                             image=invent.media.images.testcard_invent.png,
                             image_position="banner",
                             published_at=datetime(2025, 12, 31, 23, 59),
@@ -588,6 +589,7 @@ print(Hello().greet)"""),
                                     text="This is a content card with a banner image. The image is displayed at the top of the card, and spans the full width of the card."
                                 ),
                             ],
+                            purpose="SECONDARY",
                         ),
                         ContentCard(
                             shape="square",
@@ -610,6 +612,18 @@ print(Hello().greet)"""),
                             ],
                             image=invent.media.images.testcard_invent.png,
                             published_at=datetime(2025, 12, 31, 23, 59),
+                        ),
+                        ContentCard(
+                            title="Rounded content card with avatar image, end timestamp and warning purpose",
+                            image=invent.media.images.testcard_invent.png,
+                            published_at=datetime(2025, 12, 31, 23, 59),
+                            publish_position="end",
+                            children=[
+                                Label(
+                                    text="This is a rounded content card with an avatar image and the publication timestamp at the end."
+                                ),
+                            ],
+                            purpose="WARNING",
                         ),
                         ContentCard(
                             title="A content card with the 'danger' purpose",

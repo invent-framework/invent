@@ -145,7 +145,6 @@ class ContentCard(Widget):
         """
         card = article(
             style={
-                "--card-bg": f"var(--primary-light)",
                 "--card-border-color": f"var(--primary)",
             }
         )
@@ -274,10 +273,10 @@ class ContentCard(Widget):
         """
         Update the card's colour-scheme CSS variables.
         """
-        p = (
-            self.purpose.lower()
-            if self.purpose is not "DEFAULT"
-            else "primary"
-        )
-        self.element.style["--card-bg"] = f"var(--{p}-light)"
-        self.element.style["--card-border-color"] = f"var(--{p})"
+        if self.purpose == "DEFAULT":
+            self.element.style.pop("--card-bg", None)
+            self.element.style["--card-border-color"] = "var(--primary)"
+        else:
+            p = self.purpose.lower()
+            self.element.style["--card-bg"] = f"var(--{p}-light)"
+            self.element.style["--card-border-color"] = f"var(--{p})"
