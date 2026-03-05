@@ -131,7 +131,9 @@ class ContentCard(Widget):
     )
 
     def click(self, event):
-        """Publish a press event when the card is clicked."""
+        """
+        Publish a press event when the card is clicked.
+        """
         self.publish("press", card=self)
 
     def render(self):
@@ -154,47 +156,37 @@ class ContentCard(Widget):
             card.classes.add("publish-end")
         if self.image_position == "banner":
             card.classes.add("banner-image")
-
         # Banner: full-width image above the header.
         # CSS hides this element unless the banner-image class is set.
         self._banner = img()
         self._banner.setAttribute("src", self.image or "")
         self._banner.setAttribute("alt", self.title or "")
         card.append(self._banner)
-
         # Header: avatar, title and optional start-position timestamp.
         self._header = header()
-
         self._avatar = img()
         self._avatar.setAttribute("src", self.image or "")
         self._avatar.setAttribute("alt", self.title or "")
         self._header.append(self._avatar)
-
         # Meta div: groups the title and header timestamp as a flex
         # column beside the avatar.
         meta = div()
-
         self._h3 = h3()
         self._h3.textContent = self.title or ""
         meta.append(self._h3)
-
         # Shared timestamp values used by both time elements.
         dt = self.published_at.isoformat() if self.published_at else ""
         label = (
             humanise_timestamp(self.published_at) if self.published_at else ""
         )
-
         self._header_time = time()
         self._header_time.setAttribute("datetime", dt)
         self._header_time.textContent = label
         meta.append(self._header_time)
-
         self._header.append(meta)
         card.append(self._header)
-
         # Body: holds the column of child widgets.
         card.append(self.children.element)
-
         # Footer: end-position timestamp.
         # CSS hides the footer unless the publish-end class is set.
         self._footer_time = time()
@@ -203,7 +195,6 @@ class ContentCard(Widget):
         ftr = footer()
         ftr.append(self._footer_time)
         card.append(ftr)
-
         card.addEventListener("click", create_proxy(self.click))
         self._update_header_visibility()
         return card
@@ -221,20 +212,26 @@ class ContentCard(Widget):
         self._header.style.display = "" if visible else "none"
 
     def on_title_changed(self):
-        """Update the heading text and both image alt attributes."""
+        """
+        Update the heading text and both image alt attributes.
+        """
         self._h3.textContent = self.title or ""
         for im in (self._banner, self._avatar):
             im.setAttribute("alt", self.title or "")
         self._update_header_visibility()
 
     def on_image_changed(self):
-        """Update the src attribute on both image elements."""
+        """
+        Update the src attribute on both image elements.
+        """
         for im in (self._banner, self._avatar):
             im.setAttribute("src", self.image or "")
         self._update_header_visibility()
 
     def on_image_position_changed(self):
-        """Switch between avatar and banner image display modes."""
+        """
+        Switch between avatar and banner image display modes.
+        """
         if self.image_position == "banner":
             self.element.classes.add("banner-image")
         else:
@@ -242,7 +239,9 @@ class ContentCard(Widget):
         self._update_header_visibility()
 
     def on_published_at_changed(self):
-        """Update both timestamp elements with the new date/time."""
+        """
+        Update both timestamp elements with the new date/time.
+        """
         dt = self.published_at.isoformat() if self.published_at else ""
         label = (
             humanise_timestamp(self.published_at) if self.published_at else ""
@@ -253,7 +252,9 @@ class ContentCard(Widget):
         self._update_header_visibility()
 
     def on_publish_position_changed(self):
-        """Switch the timestamp between header and footer positions."""
+        """
+        Switch the timestamp between header and footer positions.
+        """
         if self.publish_position == "end":
             self.element.classes.add("publish-end")
         else:
@@ -261,14 +262,18 @@ class ContentCard(Widget):
         self._update_header_visibility()
 
     def on_shape_changed(self):
-        """Toggle square-corner styling on the card."""
+        """
+        Toggle square-corner styling on the card.
+        """
         if self.shape == "square":
             self.element.classes.add("square")
         else:
             self.element.classes.remove("square")
 
     def on_purpose_changed(self):
-        """Update the card's colour-scheme CSS variables."""
+        """
+        Update the card's colour-scheme CSS variables.
+        """
         p = self.purpose.lower() if self.purpose is not "DEFAULT" else "primary"
         self.element.style["--card-bg"] = f"var(--{p}-light)"
         self.element.style["--card-border-color"] = f"var(--{p})"
