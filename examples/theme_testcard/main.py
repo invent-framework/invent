@@ -339,6 +339,138 @@ print(Hello().greet)"""),
                         TimePicker(),
                         Selector(choices=["One", "Two", "Three"]),
                         Label(text="## Multimedia"),
+                        Label(text="Avatars:"),
+                        Row(
+                            children=[
+                                Label(text="Extra small avatars:"),
+                                Avatar(
+                                    name="Default avatar",
+                                    size="XS",
+                                ),
+                                Avatar(
+                                    name="Circle avatar",
+                                    image="https://i.pravatar.cc/40?img=49",
+                                    shape="CIRCLE",
+                                    size="XS",
+                                ),
+                                Avatar(
+                                    name="Rounded avatar",
+                                    image="https://i.pravatar.cc/40?img=50",
+                                    shape="ROUNDED",
+                                    size="XS",
+                                ),
+                                Avatar(
+                                    name="Square avatar",
+                                    image="https://i.pravatar.cc/40?img=51",
+                                    shape="SQUARE",
+                                    size="XS",
+                                ),
+                            ]
+                        ),
+                        Row(
+                            children=[
+                                Label(text="Small avatars:"),
+                                Avatar(
+                                    name="Default avatar",
+                                    size="S",
+                                ),
+                                Avatar(
+                                    name="Circle avatar",
+                                    image="https://i.pravatar.cc/40?img=49",
+                                    shape="CIRCLE",
+                                    size="S"
+                                ),
+                                Avatar(
+                                    name="Rounded avatar",
+                                    image="https://i.pravatar.cc/40?img=50",
+                                    shape="ROUNDED",
+                                    size="S"
+                                ),
+                                Avatar(
+                                    name="Square avatar",
+                                    image="https://i.pravatar.cc/40?img=51",
+                                    shape="SQUARE",
+                                    size="S"
+                                ),
+                            ]
+                        ),
+                        Row(
+                            children=[
+                                Label(text="Medium avatars:"),
+                                Avatar(
+                                    name="Default avatar",
+                                ),
+                                Avatar(
+                                    name="Circle avatar",
+                                    image="https://i.pravatar.cc/60?img=49",
+                                    shape="CIRCLE",
+                                ),
+                                Avatar(
+                                    name="Rounded avatar",
+                                    image="https://i.pravatar.cc/60?img=50",
+                                    shape="ROUNDED",
+                                ),
+                                Avatar(
+                                    name="Square avatar",
+                                    image="https://i.pravatar.cc/60?img=51",
+                                    shape="SQUARE",
+                                ),
+                            ]
+                        ),
+                        Row(
+                            children=[
+                                Label(text="Large avatars:"),
+                                Avatar(
+                                    name="Default avatar",
+                                    size="L",
+                                ),
+                                Avatar(
+                                    name="Circle avatar",
+                                    image="https://i.pravatar.cc/80?img=49",
+                                    shape="CIRCLE",
+                                    size="L"
+                                ),
+                                Avatar(
+                                    name="Rounded avatar",
+                                    image="https://i.pravatar.cc/80?img=50",
+                                    shape="ROUNDED",
+                                    size="L"
+                                ),
+                                Avatar(
+                                    name="Square avatar",
+                                    image="https://i.pravatar.cc/80?img=51",
+                                    shape="SQUARE",
+                                    size="L"
+                                ),
+                            ]
+                        ),
+                        Row(
+                            children=[
+                                Label(text="Extra large avatars:"),
+                                Avatar(
+                                    name="Default avatar",
+                                    size="XL",
+                                ),
+                                Avatar(
+                                    name="Circle avatar",
+                                    image="https://i.pravatar.cc/100?img=49",
+                                    shape="CIRCLE",
+                                    size="XL"
+                                ),
+                                Avatar(
+                                    name="Rounded avatar",
+                                    image="https://i.pravatar.cc/100?img=50",
+                                    shape="ROUNDED",
+                                    size="XL"
+                                ),
+                                Avatar(
+                                    name="Square avatar",
+                                    image="https://i.pravatar.cc/100?img=51",
+                                    shape="SQUARE",
+                                    size="XL"
+                                ),
+                            ]
+                        ),
                         Label(text="A map:"),
                         Map(
                             markers=[

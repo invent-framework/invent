@@ -1720,3 +1720,101 @@ input[type="datetime-local"] {
         height: 8rem;
     }
 }
+
+/* Avatar widget. A circular, rounded, or square image representing
+ * a person or entity. Sizes follow the Invent t-shirt scale. */
+
+/* --- Size tokens ---------------------------------------------------------- */
+
+:root {
+    --avatar-size-xs:  1.5rem;
+    --avatar-size-s:   2rem;
+    --avatar-size-m:   3rem;
+    --avatar-size-l:   4.5rem;
+    --avatar-size-xl:  6rem;
+}
+
+/* --- Base widget ---------------------------------------------------------- */
+
+figure.invent-avatar {
+    /* Inline-flex keeps the figure tight around the image. */
+    display:        inline-flex;
+    margin:         0;
+    padding:        0;
+    cursor:         pointer;
+    /* Default size. */
+    width:          var(--avatar-size-medium);
+    height:         var(--avatar-size-medium);
+}
+
+figure.invent-avatar img {
+    width:          100%;
+    height:         100%;
+    object-fit:     cover;
+    /* Inherit border-radius from the figure so one class controls
+     * the shape for both the container and the image. */
+    border-radius:  inherit;
+    display:        block;
+}
+
+/* --- Shape modifiers ------------------------------------------------------ */
+
+/* Fully circular avatar. */
+figure.invent-avatar.invent-avatar--circle {
+    border-radius: 50%;
+}
+
+/* Softly rounded corners. */
+figure.invent-avatar.invent-avatar--rounded {
+    border-radius: var(--border-radius);
+}
+
+/* No rounding: hard square corners. */
+figure.invent-avatar.invent-avatar--square {
+    border-radius: 0;
+}
+
+/* --- Size modifiers ------------------------------------------------------- */
+
+figure.invent-avatar.invent-avatar--xs {
+    width:  var(--avatar-size-xs);
+    height: var(--avatar-size-xs);
+}
+
+figure.invent-avatar.invent-avatar--s {
+    width:  var(--avatar-size-s);
+    height: var(--avatar-size-s);
+}
+
+figure.invent-avatar.invent-avatar--m {
+    width:  var(--avatar-size-m);
+    height: var(--avatar-size-m);
+}
+
+figure.invent-avatar.invent-avatar--l {
+    width:  var(--avatar-size-l);
+    height: var(--avatar-size-l);
+}
+
+figure.invent-avatar.invent-avatar--xl {
+    width:  var(--avatar-size-xl);
+    height: var(--avatar-size-xl);
+}
+
+/* --- Focus / keyboard accessibility -------------------------------------- */
+
+/* Visible focus ring for keyboard navigation. */
+figure.invent-avatar:focus-visible {
+    outline:        3px solid var(--primary);
+    outline-offset: 2px;
+}
+
+/* --- Responsive ----------------------------------------------------------- */
+
+/* On very narrow screens shrink large avatars so they don't overflow. */
+@media (max-width: 600px) {
+    figure.invent-avatar.invent-avatar--xl {
+        width:  var(--avatar-size-l);
+        height: var(--avatar-size-l);
+    }
+}

@@ -33,6 +33,7 @@ from .containers import (
     Tree,
 )
 from .widgets.audio import Audio
+from .widgets.avatar import Avatar
 from .widgets.button import Button
 from .widgets.calendar import Calendar
 from .widgets.chart import Chart
@@ -73,6 +74,7 @@ __all__ = [
     "Tabs",
     "from_datastore",
     "Audio",
+    "Avatar",
     "Button",
     "Calendar",
     "Chart",
@@ -106,6 +108,7 @@ __all__ = [
 AVAILABLE_COMPONENTS = {
     # Containers...
     _("Accordion"): Accordion,
+    _("Avatar"): Avatar,
     _("Column"): Column,
     _("Footer"): Footer,
     _("Grid"): Grid,
