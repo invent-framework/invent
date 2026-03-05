@@ -35,7 +35,6 @@ from invent.ui.core import (
 from pyscript.web import figure, img
 from pyscript.ffi import create_proxy
 
-
 _DEFAULT_AVATAR_IMAGE = "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='%23585858' viewBox='0 0 256 256'%3E%3Cpath d='M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216ZM80,108a12,12,0,1,1,12,12A12,12,0,0,1,80,108Zm96,0a12,12,0,1,1-12-12A12,12,0,0,1,176,108Zm-1.07,48c-10.29,17.79-27.4,28-46.93,28s-36.63-10.2-46.92-28a8,8,0,1,1,13.84-8c7.47,12.91,19.21,20,33.08,20s25.61-7.1,33.07-20a8,8,0,0,1,13.86,8Z'%3E%3C/path%3E%3C/svg%3E%0A"  # noqa
 
 
@@ -75,7 +74,7 @@ class Avatar(Widget):
     @classmethod
     def icon(cls):
         return '<svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 256 256"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216ZM80,108a12,12,0,1,1,12,12A12,12,0,0,1,80,108Zm96,0a12,12,0,1,1-12-12A12,12,0,0,1,176,108Zm-1.07,48c-10.29,17.79-27.4,28-46.93,28s-36.63-10.2-46.92-28a8,8,0,1,1,13.84-8c7.47,12.91,19.21,20,33.08,20s25.61-7.1,33.07-20a8,8,0,0,1,13.86,8Z"></path></svg>'  # noqa
-    
+
     def click(self, event):
         self.publish("press", avatar=self)
 
@@ -97,15 +96,11 @@ class Avatar(Widget):
         fig.addEventListener("click", create_proxy(self.click))
         return fig
 
-
     def on_image_changed(self):
         """
         Update the src attribute on the <img> element.
         """
-        self.element.find("img")[0].src = (
-            self.image if self.image else ""
-        )
-
+        self.element.find("img")[0].src = self.image if self.image else ""
 
     def on_name_changed(self):
         """
@@ -116,17 +111,13 @@ class Avatar(Widget):
         img.alt = name
         img.title = name
 
-
     def on_shape_changed(self):
         """
         Swap the shape modifier class on the root figure.
         """
         for shape in ("circle", "rounded", "square"):
             self.element.classes.remove(f"invent-avatar--{shape}")
-        self.element.classes.add(
-            f"invent-avatar--{self.shape.lower()}"
-        )
-
+        self.element.classes.add(f"invent-avatar--{self.shape.lower()}")
 
     def on_size_changed(self):
         """
@@ -134,6 +125,4 @@ class Avatar(Widget):
         """
         for size in (s.lower() for s in TSHIRT_SIZES if s is not None):
             self.element.classes.remove(f"invent-avatar--{size}")
-        self.element.classes.add(
-            f"invent-avatar--{self.size.lower()}"
-        )
+        self.element.classes.add(f"invent-avatar--{self.size.lower()}")

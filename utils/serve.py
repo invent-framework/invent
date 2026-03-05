@@ -21,9 +21,9 @@ from watchdog.events import FileSystemEventHandler
 class MyHTTPRequestHandler(server.SimpleHTTPRequestHandler):
     def end_headers(self):
         self.send_header("Access-Control-Allow-Origin:", "*")
-        self.send_header("Cache-Control", "no-cache, must-revalidate")
-        self.send_header("Cross-Origin-Opener-Policy", "same-origin")
-        self.send_header("Cross-Origin-Embedder-Policy", "credentialless")
+        # self.send_header("Cache-Control", "no-cache, must-revalidate")
+        # self.send_header("Cross-Origin-Opener-Policy", "same-origin")
+        # self.send_header("Cross-Origin-Embedder-Policy", "credentialless")
         server.SimpleHTTPRequestHandler.end_headers(self)
 
 

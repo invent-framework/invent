@@ -18,19 +18,65 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
+import re
+
 from invent.i18n import _
 from invent.ui.core import (
     Widget,
     TextProperty,
     Event,
 )
-from pyscript.web import video
+from pyscript.web import div, video
 from pyscript.ffi import create_proxy
+
+# Patterns to extract video IDs from hosted platform URLs.
+_YOUTUBE_ID_RE = re.compile(r"v=([a-zA-Z0-9_-]+)")
+_VIMEO_ID_RE = re.compile(r"vimeo\.com/(\d+)")
+_DAILYMOTION_ID_RE = re.compile(r"video/([a-zA-Z0-9]+)")
+
+
+# Permissions granted to hosted video iframes.
+_IFRAME_ALLOW = (
+    "accelerometer; autoplay; clipboard-write; "
+    "encrypted-media; gyroscope; picture-in-picture"
+)
+
+
+def _hosted_embed_url(source):
+    """
+    Return an iframe embed URL for a known hosted platform, or None.
+    """
+    if "youtube" in source or "youtu.be" in source:
+        m = _YOUTUBE_ID_RE.search(source)
+        return (
+            "https://www.youtube.com/embed/{}".format(m.group(1))
+            if m
+            else None
+        )
+    if "vimeo" in source:
+        m = _VIMEO_ID_RE.search(source)
+        return (
+            "https://player.vimeo.com/video/{}".format(m.group(1))
+            if m
+            else None
+        )
+    if "dailymotion" in source or "dai.ly" in source:
+        m = _DAILYMOTION_ID_RE.search(source)
+        return (
+            "https://www.dailymotion.com/embed/video/{}".format(m.group(1))
+            if m
+            else None
+        )
+    return None
 
 
 class Video(Widget):
     """
-    A video player with a play button, progress indicator and volume control.
+    A video player with a play button, progress indicator and volume
+    control. Supports local/remote video files and hosted platforms
+    (YouTube, Vimeo, Dailymotion). Hosted sources render as responsive
+    iframes; programmatic control (play, pause, etc.) is not available
+    for those sources.
     """
 
     source = TextProperty(_("The video source file to play."))
@@ -58,19 +104,19 @@ class Video(Widget):
 
     def play(self):
         """
-        Play the video source file, from the current position.
+        Play the video from the current position.
         """
-        self.element.play()
+        self.element.querySelector("video").play()
 
     def pause(self):
         """
-        Pause the playing of the source file.
+        Pause the video at the current position.
         """
-        self.element.pause()
+        self.element.querySelector("video").pause()
 
     def reset(self):
         """
-        Reset the current position to the start of the video source file.
+        Reset the current position to the start of the video.
         """
         self.set_position(0)
 
@@ -83,26 +129,88 @@ class Video(Widget):
 
     def set_position(self, position):
         """
-        Set the current place in the video source file to the specified
-        position, as a value in seconds.
+        Seek to the given position (in seconds).
         """
-        self.element.currentTime = position
-        self.publish("position_changed", source=self.source, position=position)
+        native = self.element.querySelector("video")
+        native.currentTime = position
+        self.publish(
+            "position_changed",
+            source=self.source,
+            position=position,
+        )
 
     def on_play(self, event):
+        """Handle the native video play event."""
         self.publish("playing", source=self.source)
 
     def on_pause(self, event):
+        """Handle the native video pause event."""
         self.publish(
-            "paused", source=self.source, position=event.target.currentTime
+            "paused",
+            source=self.source,
+            position=event.target.currentTime,
         )
 
+    def _build_native(self):
+        """
+        Build an HTML5 video element with playback controls and
+        event listeners.
+        """
+        el = video()
+        el.setAttribute("controls", "controls")
+        if self.source:
+            el.setAttribute("src", self.source)
+        el.addEventListener("play", create_proxy(self.on_play))
+        el.addEventListener("pause", create_proxy(self.on_pause))
+        return el
+
+    def _build_hosted(self, embed_url):
+        """
+        Build a responsive 16:9 iframe wrapper for a hosted platform
+        embed URL.
+        """
+        wrapper = div()
+        wrapper.setAttribute(
+            "style",
+            "position:relative;padding-bottom:56.25%;"
+            "height:0;overflow:hidden;",
+        )
+        wrapper.innerHTML = (
+            f'<iframe src="{embed_url}" '
+            f'style="position:absolute;top:0;left:0;'
+            f'width:100%;height:100%;border:0;" '
+            f"allowfullscreen "
+            f'allow="{_IFRAME_ALLOW}">'
+            f"</iframe>"
+        )
+        return wrapper
+
+    def _inject(self):
+        """
+        Clear the container and inject either a native video element
+        or a hosted iframe, depending on the current source.
+        """
+        self.element.innerHTML = ""
+        embed_url = _hosted_embed_url(self.source) if self.source else None
+        child = (
+            self._build_hosted(embed_url)
+            if embed_url
+            else self._build_native()
+        )
+        self.element.append(child)
+
     def on_source_changed(self):
-        self.element.setAttribute("src", self.source)
+        """
+        Re-inject the appropriate player into the container whenever
+        the source property changes.
+        """
+        self._inject()
 
     def render(self):
-        element = video(id=self.id)
-        element.setAttribute("controls", "controls")
-        element.addEventListener("play", create_proxy(self.on_play))
-        element.addEventListener("pause", create_proxy(self.on_pause))
-        return element
+        """
+        Render a stable container div and inject the appropriate
+        player as a child. The container never changes, allowing
+        the source to be switched freely after render.
+        """
+        container = div(id=self.id)
+        return container

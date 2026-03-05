@@ -378,19 +378,19 @@ print(Hello().greet)"""),
                                     name="Circle avatar",
                                     image="https://i.pravatar.cc/40?img=49",
                                     shape="CIRCLE",
-                                    size="S"
+                                    size="S",
                                 ),
                                 Avatar(
                                     name="Rounded avatar",
                                     image="https://i.pravatar.cc/40?img=50",
                                     shape="ROUNDED",
-                                    size="S"
+                                    size="S",
                                 ),
                                 Avatar(
                                     name="Square avatar",
                                     image="https://i.pravatar.cc/40?img=51",
                                     shape="SQUARE",
-                                    size="S"
+                                    size="S",
                                 ),
                             ]
                         ),
@@ -428,19 +428,19 @@ print(Hello().greet)"""),
                                     name="Circle avatar",
                                     image="https://i.pravatar.cc/80?img=49",
                                     shape="CIRCLE",
-                                    size="L"
+                                    size="L",
                                 ),
                                 Avatar(
                                     name="Rounded avatar",
                                     image="https://i.pravatar.cc/80?img=50",
                                     shape="ROUNDED",
-                                    size="L"
+                                    size="L",
                                 ),
                                 Avatar(
                                     name="Square avatar",
                                     image="https://i.pravatar.cc/80?img=51",
                                     shape="SQUARE",
-                                    size="L"
+                                    size="L",
                                 ),
                             ]
                         ),
@@ -455,19 +455,19 @@ print(Hello().greet)"""),
                                     name="Circle avatar",
                                     image="https://i.pravatar.cc/100?img=49",
                                     shape="CIRCLE",
-                                    size="XL"
+                                    size="XL",
                                 ),
                                 Avatar(
                                     name="Rounded avatar",
                                     image="https://i.pravatar.cc/100?img=50",
                                     shape="ROUNDED",
-                                    size="XL"
+                                    size="XL",
                                 ),
                                 Avatar(
                                     name="Square avatar",
                                     image="https://i.pravatar.cc/100?img=51",
                                     shape="SQUARE",
-                                    size="XL"
+                                    size="XL",
                                 ),
                             ]
                         ),
@@ -527,8 +527,18 @@ print(Hello().greet)"""),
                         Image(image=invent.media.images.testcard_invent.png),
                         Label(text="A test audio player:"),
                         Audio(source=invent.media.sounds.left_bank_two.ogg),
-                        Label(text="A test video player:"),
+                        Label(text="A test video player (local source):"),
                         Video(source=invent.media.video.testcard_invent.webm),
+                        Label(text="A test video player (Youtube):"),
+                        Video(
+                            source="https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+                        ),
+                        Label(text="A test video player (Vimeo):"),
+                        Video(source="https://vimeo.com/347119375"),
+                        Label(text="A test video player (DailyMotion):"),
+                        Video(
+                            source="https://www.dailymotion.com/video/x368fgf"
+                        ),
                         Label(text="## Layouts"),
                         Label(text="Content cards:"),
                         ContentCard(

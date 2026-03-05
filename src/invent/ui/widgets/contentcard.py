@@ -274,6 +274,10 @@ class ContentCard(Widget):
         """
         Update the card's colour-scheme CSS variables.
         """
-        p = self.purpose.lower() if self.purpose is not "DEFAULT" else "primary"
+        p = (
+            self.purpose.lower()
+            if self.purpose is not "DEFAULT"
+            else "primary"
+        )
         self.element.style["--card-bg"] = f"var(--{p}-light)"
         self.element.style["--card-border-color"] = f"var(--{p})"
