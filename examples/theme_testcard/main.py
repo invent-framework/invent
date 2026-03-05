@@ -540,6 +540,40 @@ print(Hello().greet)"""),
                             source="https://www.dailymotion.com/video/x368fgf"
                         ),
                         Label(text="## Layouts"),
+                        Label(text="Alerts:"),
+                        Alert(
+                            title="🚨 This is an alert",
+                            text="This is an alert with the default purpose. It has a title and some text to show how the alert looks with both of those things. It also has a dismiss button (X).\n\n We can write Markdown in the text of the alert, so we can have **strong** and *emphasised* text, as well as [links](https://inventframework.org/) in the alert too!",
+                            dismissable=True,
+                        ),
+                        Alert(
+                            title="ℹ️ This is an informational (primary) alert",
+                            text="This is an alert with the informational purpose. It has a title and some text to show how the alert looks with both of those things. It also has a dismiss button.",
+                            purpose="PRIMARY",
+                            dismissable=True,
+                        ),
+                        Alert(
+                            title="💡 This is a secondary alert",
+                            text="This is an alert with the secondary purpose. It has a title and some text to show how the alert looks with both of those things. It also has a dismiss button.",
+                            purpose="SECONDARY",
+                            dismissable=True,
+                        ),
+                        Alert(
+                            title="⚠️ This is a warning alert",
+                            text="This is an alert with the warning purpose. It has a title and some text to show how the alert looks with both of those things. It also has a dismiss button.",
+                            purpose="WARNING",
+                            dismissable=True,
+                        ),
+                        Alert(
+                            title="❌ This is a danger alert",
+                            text="This is an alert with the danger purpose. It has a title and some text to show how the alert looks with both of those things. **BY DEFAULT** alerts don't have a dismiss button (like here).",
+                            purpose="DANGER",
+                        ),
+                        Alert(
+                            title="✅ This is a success alert",
+                            text="This is an alert with the success purpose. It has a title and some text to show how the alert looks with both of those things. It is not dismissable by default (but could be).",
+                            purpose="SUCCESS",
+                        ),
                         Label(text="Content cards:"),
                         ContentCard(
                             children=[

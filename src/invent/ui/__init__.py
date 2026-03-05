@@ -32,6 +32,7 @@ from .containers import (
     Timeline,
     Tree,
 )
+from .widgets.alert import Alert
 from .widgets.audio import Audio
 from .widgets.avatar import Avatar
 from .widgets.button import Button
@@ -73,6 +74,7 @@ __all__ = [
     "Row",
     "Tabs",
     "from_datastore",
+    "Alert",
     "Audio",
     "Avatar",
     "Button",
@@ -118,6 +120,7 @@ AVAILABLE_COMPONENTS = {
     _("Timeline"): Timeline,
     _("Tree"): Tree,
     # Widgets...
+    _("Alert"): Alert,
     _("Audio"): Audio,
     _("Button"): Button,
     _("Calendar"): Calendar,

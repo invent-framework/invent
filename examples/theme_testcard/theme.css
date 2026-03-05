@@ -1818,3 +1818,54 @@ figure.invent-avatar:focus-visible {
         height: var(--avatar-size-l);
     }
 }
+
+/* Alert widget.
+ *
+ * Python sets --alert-bg and --alert-border-color inline via
+ * on_purpose_changed(). The defaults here cover the DEFAULT purpose.
+ * Hidden until text is set; on_text_changed() drives display. */
+.invent-alert {
+    --alert-bg:           var(--main-background);
+    --alert-border-color: var(--primary-light);
+
+    display:       none;
+    position:      relative;
+    padding:       var(--card-padding, 1rem);
+    border:        var(--border-width) solid var(--alert-border-color);
+    border-radius: var(--border-radius-lg);
+    background:    var(--alert-bg);
+    color:         var(--color-body);
+    box-sizing:    border-box;
+}
+
+/* Title: block paragraph above the body text. */
+.invent-alert p.alert-title {
+    font-weight:   600;
+    margin-bottom: 0.35rem;
+    margin-top:    0;
+    padding-inline-end: 2rem;
+}
+
+/* Empty title occupies no space. */
+.invent-alert p.alert-title:empty {
+    display: none;
+}
+
+/* Dismiss button: larger and bolder for visibility. */
+.invent-alert button {
+    position:         absolute;
+    top:              0.5rem;
+    inset-inline-end: 0.5rem;
+    background:       none;
+    border:           none;
+    cursor:           pointer;
+    color:            inherit;
+    font-size:        var(--h6-size);
+    font-weight:      600;
+    line-height:      1;
+    opacity:          0.6;
+}
+
+.invent-alert button:hover {
+    opacity: 1;
+}
