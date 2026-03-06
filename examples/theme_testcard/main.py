@@ -531,15 +531,44 @@ print(Hello().greet)"""),
                         Video(source=invent.media.video.testcard_invent.webm),
                         Label(text="A test video player (Youtube):"),
                         Video(
-                            source="https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+                            source="https://www.youtube.com/watch?v=Rq9Zbz_IJSc"
                         ),
                         Label(text="A test video player (Vimeo):"),
                         Video(source="https://vimeo.com/347119375"),
-                        Label(text="A test video player (DailyMotion):"),
-                        Video(
-                            source="https://www.dailymotion.com/video/x368fgf"
-                        ),
                         Label(text="## Layouts"),
+                        Label(text="A modal triggered by a button:"),
+                        Modal(
+                            text="Open modal",
+                            children=[
+                                Label(
+                                    text="This is the content of the modal. It can contain any widgets, and is displayed in a layer above the main content when the trigger button is pressed."
+                                ),
+                                Button(text="A button in a modal"),
+                                Video(source=invent.media.video.testcard_invent.webm),
+                                CheckBox(label="A checkbox!"),
+                                Switch(label="A switch!"),
+                                Row(
+                                    children=[
+                                        Label(text="Favourite colour radio buttons: "),
+                                        Radio(
+                                            label="Red", group="colour", value="red"
+                                        ),
+                                        Radio(
+                                            label="Green",
+                                            group="colour",
+                                            value="green",
+                                        ),
+                                        Radio(
+                                            label="Blue", group="colour", value="blue"
+                                        ),
+                                    ],
+                                ),
+                                Slider(),
+                                Meter(),
+                                Progress(value=50),
+                                Progress(),
+                            ],
+                        ),
                         Label(text="Alerts:"),
                         Alert(
                             title="🚨 This is an alert",

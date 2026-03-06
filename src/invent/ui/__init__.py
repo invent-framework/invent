@@ -27,6 +27,7 @@ from .containers import (
     Grid,
     Header,
     Page,
+    Modal,
     Row,
     Tabs,
     Timeline,
@@ -64,6 +65,7 @@ from .widgets.video import Video
 __all__ = [
     "Code",
     "Page",
+    "Modal",
     "Widget",
     "Accordion",
     "Container",
@@ -115,6 +117,7 @@ AVAILABLE_COMPONENTS = {
     _("Footer"): Footer,
     _("Grid"): Grid,
     _("Header"): Header,
+    _("Popup"): Modal,
     _("Row"): Row,
     _("Tabs"): Tabs,
     _("Timeline"): Timeline,

@@ -32,12 +32,11 @@ from pyscript.ffi import create_proxy
 # Patterns to extract video IDs from hosted platform URLs.
 _YOUTUBE_ID_RE = re.compile(r"v=([a-zA-Z0-9_-]+)")
 _VIMEO_ID_RE = re.compile(r"vimeo\.com/(\d+)")
-_DAILYMOTION_ID_RE = re.compile(r"video/([a-zA-Z0-9]+)")
 
 
 # Permissions granted to hosted video iframes.
 _IFRAME_ALLOW = (
-    "accelerometer; autoplay; clipboard-write; "
+    "accelerometer; clipboard-write; "
     "encrypted-media; gyroscope; picture-in-picture"
 )
 
@@ -57,13 +56,6 @@ def _hosted_embed_url(source):
         m = _VIMEO_ID_RE.search(source)
         return (
             "https://player.vimeo.com/video/{}".format(m.group(1))
-            if m
-            else None
-        )
-    if "dailymotion" in source or "dai.ly" in source:
-        m = _DAILYMOTION_ID_RE.search(source)
-        return (
-            "https://www.dailymotion.com/embed/video/{}".format(m.group(1))
             if m
             else None
         )

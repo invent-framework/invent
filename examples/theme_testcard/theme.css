@@ -1869,3 +1869,90 @@ figure.invent-avatar:focus-visible {
 .invent-alert button:hover {
     opacity: 1;
 }
+
+/* Modal widget.
+ *
+ * A full-viewport backdrop with a centred dialog box floating above it.
+ * The trigger button lives in the normal page flow; the backdrop and box
+ * are appended to <body> at open time and removed on dismissal.
+ * Clicking outside the box (i.e. on the backdrop itself) also dismisses
+ * the modal. */
+
+/* --- Design tokens --------------------------------------------------- */
+
+:root {
+    --modal-max-width:      560px;
+    --modal-padding:        1.5rem;
+    /* Semi-transparent dark veil behind the dialog box. */
+    --modal-backdrop-color: rgba(0, 0, 0, 0.45);
+    --modal-backdrop-blur:  5px;
+}
+
+/* --- Backdrop -------------------------------------------------------- */
+
+/* Fixed overlay covering the full viewport; blurs the page beneath it.
+ * The -webkit- prefix is required for Safari. */
+.invent-modal-backdrop {
+    background-color:       var(--modal-backdrop-color);
+    backdrop-filter:        blur(var(--modal-backdrop-blur));
+    -webkit-backdrop-filter: blur(var(--modal-backdrop-blur));
+    inset:                  0;
+    position:               fixed;
+    /* Sit above all page content and Invent widgets. */
+    z-index:                99999999;
+}
+
+/* --- Modal box ------------------------------------------------------- */
+
+/* Card centred within the backdrop; scrollable if taller than the
+ * viewport. Uses existing theme variables so light/dark mode is free. */
+.invent-modal {
+    background:    var(--main-background);
+    border:        var(--border-width) solid var(--primary-light);
+    border-radius: var(--border-radius-lg);
+    box-shadow:    0 8px 32px rgba(0, 0, 0, 0.2);
+    box-sizing:    border-box;
+    color:         var(--color-body);
+    left:          50%;
+    /* Leave breathing room above and below on tall content. */
+    max-height:    85vh;
+    max-width:     var(--modal-max-width);
+    overflow-y:    auto;
+    padding:       var(--modal-padding);
+    position:      absolute;
+    top:           50%;
+    transform:     translate(-50%, -50%);
+    /* Ensure the box never touches the viewport edges. */
+    width:         calc(100% - 2rem);
+}
+
+/* --- Dismiss button -------------------------------------------------- */
+
+/* Styled to match the alert widget's dismiss button for consistency.
+ * Logical inset property ensures correct placement in RTL layouts. */
+.invent-modal > button.dismiss {
+    background:       none;
+    border:           none;
+    color:            inherit;
+    cursor:           pointer;
+    font-size:        var(--h6-size);
+    font-weight:      600;
+    inset-inline-end: 0.5rem;
+    line-height:      1;
+    opacity:          0.6;
+    position:         absolute;
+    top:              0.5rem;
+}
+
+.invent-modal > button.dismiss:hover {
+    opacity: 1;
+}
+
+/* --- Responsive: narrow screens (breakpoint: 600px) ----------------- */
+
+@media (max-width: 599px) {
+    .invent-modal {
+        /* Tighter padding on small screens. */
+        --modal-padding: 1rem;
+    }
+}
