@@ -1,5 +1,5 @@
 """
-A divider is used to separate content vertically or horizontally.
+A divider widget for the Invent framework.
 
 Based on original pre-COVID work by [Nicholas H.Tollervey.](https://ntoll.org/)
 
@@ -19,9 +19,46 @@ limitations under the License.
 """
 
 from invent.i18n import _
-from invent.ui.core import (
-    Widget,
-    TextProperty,
-    ChoiceProperty,
-    Event,
-)
+from pyscript.web import hr, div
+from invent.ui.core import Widget
+from invent.ui.containers import Row
+
+
+class Divider(Widget):
+    """
+    A divider. Renders as a vertical rule inside a Row, or a horizontal rule
+    everywhere else. The actual orientation is determined after the widget is 
+    inserted into its parent
+    """
+
+    @classmethod
+    def icon(cls):
+        return '<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 256 256"><path fill="currentColor" d="M216 128a8 8 0 0 1-8 8H48a8 8 0 0 1 0-16h160a8 8 0 0 1 8 8Z"/></svg>'  # noqa
+
+    def render(self):
+        # Always render as <hr> initially
+        element = hr(id=self.id)
+        element.classes.add("divider")
+        element.classes.add("divider-horizontal")
+        return element
+
+    @property
+    def parent(self):
+        return getattr(self, "_parent", None)
+
+    @parent.setter
+    def parent(self, value):
+        self._parent = value
+        self._update_orientation()
+
+    def _update_orientation(self):
+        # Swap the orientation to match the actual parent container.
+        # Called whenever _parent is assigned
+        if self.element is None:
+            return
+        self.element.classes.remove("divider-horizontal")
+        self.element.classes.remove("divider-vertical")
+        if isinstance(self._parent, Row):
+            self.element.classes.add("divider-vertical")
+        else:
+            self.element.classes.add("divider-horizontal")

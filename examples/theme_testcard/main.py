@@ -290,6 +290,17 @@ print(Hello().greet)"""),
                                 ),
                             ],
                         ),
+                        Label(text="### Dividers"),
+                        Label(text="Horizontal divider (inside a Column):"),
+                        Divider(),
+                        Label(text="Vertical divider (inside a Row):"),
+                        Row(
+                            children=[
+                                Label(text="Before"),
+                                Divider(),
+                                Label(text="After"),
+                            ]
+                        ),
                         Label(text="### Inputs"),
                         CheckBox(label="A checkbox!"),
                         Switch(label="A switch!"),
@@ -314,7 +325,6 @@ print(Hello().greet)"""),
                         Progress(value=50),
                         Progress(),
                         FileUpload(),
-                        Html(html="<hr>Some arbitrary HTML<hr>"),
                         ColorPicker(),
                         TextInput(
                             input_type="text",
@@ -544,14 +554,20 @@ print(Hello().greet)"""),
                                     text="This is the content of the modal. It can contain any widgets, and is displayed in a layer above the main content when the trigger button is pressed."
                                 ),
                                 Button(text="A button in a modal"),
-                                Video(source=invent.media.video.testcard_invent.webm),
+                                Video(
+                                    source=invent.media.video.testcard_invent.webm
+                                ),
                                 CheckBox(label="A checkbox!"),
                                 Switch(label="A switch!"),
                                 Row(
                                     children=[
-                                        Label(text="Favourite colour radio buttons: "),
+                                        Label(
+                                            text="Favourite colour radio buttons: "
+                                        ),
                                         Radio(
-                                            label="Red", group="colour", value="red"
+                                            label="Red",
+                                            group="colour",
+                                            value="red",
                                         ),
                                         Radio(
                                             label="Green",
@@ -559,7 +575,9 @@ print(Hello().greet)"""),
                                             value="green",
                                         ),
                                         Radio(
-                                            label="Blue", group="colour", value="blue"
+                                            label="Blue",
+                                            group="colour",
+                                            value="blue",
                                         ),
                                     ],
                                 ),
