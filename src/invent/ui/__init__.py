@@ -54,6 +54,7 @@ from .widgets.map import Map
 from .widgets.meter import Meter
 from .widgets.progress import Progress
 from .widgets.radio import Radio
+from .widgets.rating import Rating
 from .widgets.selector import Selector
 from .widgets.slider import Slider
 from .widgets.switch import Switch
@@ -97,6 +98,7 @@ __all__ = [
     "Meter",
     "Progress",
     "Radio",
+    "Rating",
     "Selector",
     "Slider",
     "Switch",
@@ -138,6 +140,7 @@ AVAILABLE_COMPONENTS = {
     _("Html"): Html,
     _("Image"): Image,
     _("Radio"): Radio,
+    _("Rating"): Rating,
     _("Slider"): Slider,
     _("Switch"): Switch,
     _("Label"): Label,

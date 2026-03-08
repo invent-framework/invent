@@ -33,6 +33,7 @@
     --border-width: 2px;
     --border-radius: 4px;
     --border-radius-lg: 8px;
+    --spacing-sm: 8px;
 
     /* Transitions (suppressed by prefers-reduced-motion below). */
     --transition-speed: 0.2s;
@@ -1955,4 +1956,127 @@ figure.invent-avatar:focus-visible {
         /* Tighter padding on small screens. */
         --modal-padding: 1rem;
     }
+}
+
+
+/* === Rating === */
+
+@keyframes rating-fade-out {
+    0%   { opacity: 1;   transform: translateY(0);    }
+    70%  { opacity: 1;   transform: translateY(0);    }
+    100% { opacity: 0;   transform: translateY(-6px); }
+}
+
+.rating {
+    display: inline-flex;
+    align-items: center;
+    gap: var(--spacing-sm);
+    flex-wrap: wrap;
+    position: relative;
+    padding: 4px 8px;
+    border-radius: var(--border-radius-lg);
+}
+
+.rating-stars {
+    display: inline-flex;
+    gap: 2px;
+}
+
+/* Individual star */
+
+.rating-star {
+    position: relative;     /* stacking context for the half-zone overlays */
+    display: inline-block;
+    font-size: 1.5rem;
+    line-height: 1;
+    user-select: none;
+}
+
+/* The visible star — inherits color/gradient from the state classes below. */
+.rating-star-glyph {
+    display: block;
+    pointer-events: none;   /* clicks fall through to the half zones */
+}
+
+/* Fill states */
+
+.rating-star-full .rating-star-glyph {
+    color: var(--warning);
+}
+
+.rating-star-half .rating-star-glyph {
+    background: linear-gradient(
+        to right,
+        var(--warning) 50%,
+        var(--main-background) 50%
+    );
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-clip: text;
+    -webkit-text-stroke: 0.5px var(--warning);
+}
+
+.rating-star-empty .rating-star-glyph {
+    color: var(--main-background);
+    -webkit-text-stroke: 0.5px var(--warning);
+}
+
+/* Invisible click zones */
+
+.rating-half {
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    width: 50%;
+}
+
+.rating-half-left  { left: 0; }
+.rating-half-right { right: 0; }
+
+.rating-interactive .rating-half {
+    cursor: pointer;
+}
+
+.rating-interactive .rating-star:hover .rating-star-glyph {
+    display: inline-block;
+    transform: scale(1.2);
+    transition: transform 0.15s;
+}
+
+/* Read-only styles */
+
+.rating-readonly .rating-star-glyph {
+    filter: drop-shadow(0 0 0.5px var(--warning));
+}
+
+/* Numeric value label */
+
+.rating-value {
+    font-size: 0.9rem;
+    color: var(--secondary-text, #555);
+    min-width: 3ch;
+}
+
+/* Popup message */
+
+.rating-message {
+    position: absolute;
+    bottom: 25%;
+    left: 100%;
+    transform: translateX(-50%);
+    white-space: nowrap;
+
+    font-size: 0.8rem;
+    color: var(--color-body);
+    background-color: var(--main-background);
+    border: 1px solid var(--color-body);
+    border-radius: var(--border-radius-lg);
+    padding: 3px 10px;
+
+    opacity: 0;
+    pointer-events: none;
+}
+
+.rating-message-visible {
+    animation: rating-fade-out 2.5s ease-in forwards;
 }

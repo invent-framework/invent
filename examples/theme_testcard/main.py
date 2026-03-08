@@ -338,6 +338,41 @@ print(Hello().greet)"""),
                         DatePicker(),
                         TimePicker(),
                         Selector(choices=["One", "Two", "Three"]),
+                        Label(text="### Ratings"),
+                        Row(
+                            children=[
+                                Label(text="Default:"),
+                                Rating(),
+                            ]
+                        ),
+                        Row(
+                            children=[
+                                Label(text="3-star half:"),
+                                Rating(value=2.5, maximum="3"),
+                            ]
+                        ),
+                        Row(
+                            children=[
+                                Label(text="5-star:"),
+                                Rating(value=3.5, maximum="5"),
+                            ]
+                        ),
+                        Row(
+                            children=[
+                                Label(text="5-star full:"),
+                                Rating(value=5.0, maximum="5"),
+                            ]
+                        ),
+                        Row(
+                            children=[
+                                Label(text="10-star read-only:"),
+                                Rating(
+                                    value=7.5,
+                                    maximum="10",
+                                    read_only=True,
+                                ),
+                            ]
+                        ),
                         Label(text="## Multimedia"),
                         Label(text="Avatars:"),
                         Row(
@@ -544,14 +579,20 @@ print(Hello().greet)"""),
                                     text="This is the content of the modal. It can contain any widgets, and is displayed in a layer above the main content when the trigger button is pressed."
                                 ),
                                 Button(text="A button in a modal"),
-                                Video(source=invent.media.video.testcard_invent.webm),
+                                Video(
+                                    source=invent.media.video.testcard_invent.webm
+                                ),
                                 CheckBox(label="A checkbox!"),
                                 Switch(label="A switch!"),
                                 Row(
                                     children=[
-                                        Label(text="Favourite colour radio buttons: "),
+                                        Label(
+                                            text="Favourite colour radio buttons: "
+                                        ),
                                         Radio(
-                                            label="Red", group="colour", value="red"
+                                            label="Red",
+                                            group="colour",
+                                            value="red",
                                         ),
                                         Radio(
                                             label="Green",
@@ -559,7 +600,9 @@ print(Hello().greet)"""),
                                             value="green",
                                         ),
                                         Radio(
-                                            label="Blue", group="colour", value="blue"
+                                            label="Blue",
+                                            group="colour",
+                                            value="blue",
                                         ),
                                     ],
                                 ),
