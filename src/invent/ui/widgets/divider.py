@@ -1,5 +1,5 @@
 """
-A divider widget for the Invent framework.
+A divider is used to separate content vertically or horizontally.
 
 Based on original pre-COVID work by [Nicholas H.Tollervey.](https://ntoll.org/)
 
