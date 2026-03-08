@@ -56,13 +56,9 @@ class Alert(Widget):
         group="style",
     )
     dismissable = BooleanProperty(
-        _("Whether the alert can be dismissed by the user."),
-        default_value=False,
+        _("Whether the alert can be dismissed by the user."), default_value=False
     )
-    dismissed = Event(
-        _("An event that is fired when the alert is dismissed."),
-        alert=_("The alert that was dismissed."),
-    )
+    dismissed = Event(_("An event that is fired when the alert is dismissed."), alert=_("The alert that was dismissed."))
 
     @classmethod
     def icon(cls):
@@ -74,7 +70,7 @@ class Alert(Widget):
         """
         self.element.remove()
         self.publish("dismissed", alert=self)
-
+    
     def on_purpose_changed(self):
         """
         Update the alert's colour-scheme CSS variables.
@@ -86,7 +82,7 @@ class Alert(Widget):
             p = self.purpose.lower()
             self.element.style["--alert-bg"] = f"var(--{p}-light)"
             self.element.style["--alert-border-color"] = f"var(--{p})"
-
+    
     def on_text_changed(self):
         """
         Update the alert's text content and visibility in the DOM.
@@ -107,7 +103,9 @@ class Alert(Widget):
         if self.dismissable:
             btn = button("✕")
             btn.setAttribute("aria-label", _("Dismiss"))
-            btn.addEventListener("click", lambda e: self.on_dismissed())
+            btn.addEventListener(
+                "click", lambda e: self.on_dismissed()
+            )
             self.element.append(btn)
         else:
             for btn in self.element.querySelectorAll("button"):
