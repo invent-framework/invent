@@ -290,6 +290,17 @@ print(Hello().greet)"""),
                                 ),
                             ],
                         ),
+                        Label(text="### Dividers"),
+                        Label(text="Horizontal divider (inside a Column):"),
+                        Divider(),
+                        Label(text="Vertical divider (inside a Row):"),
+                        Row(
+                            children=[
+                                Label(text="Before"),
+                                Divider(),
+                                Label(text="After"),
+                            ]
+                        ),
                         Label(text="### Inputs"),
                         CheckBox(label="A checkbox!"),
                         Switch(label="A switch!"),
@@ -551,7 +562,9 @@ print(Hello().greet)"""),
                                     children=[
                                         Label(text="Favourite colour radio buttons: "),
                                         Radio(
-                                            label="Red", group="colour", value="red"
+                                            label="Red",
+                                            group="colour",
+                                            value="red",
                                         ),
                                         Radio(
                                             label="Green",
@@ -559,7 +572,9 @@ print(Hello().greet)"""),
                                             value="green",
                                         ),
                                         Radio(
-                                            label="Blue", group="colour", value="blue"
+                                            label="Blue",
+                                            group="colour",
+                                            value="blue",
                                         ),
                                     ],
                                 ),

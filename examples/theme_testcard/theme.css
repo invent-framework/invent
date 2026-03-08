@@ -30,9 +30,11 @@
     --page-max-width: 960px;
 
     /* Borders and shape. */
+    --border: black;
     --border-width: 2px;
     --border-radius: 4px;
     --border-radius-lg: 8px;
+    --spacing-sm: 12px;
 
     /* Transitions (suppressed by prefers-reduced-motion below). */
     --transition-speed: 0.2s;
@@ -1955,4 +1957,34 @@ figure.invent-avatar:focus-visible {
         /* Tighter padding on small screens. */
         --modal-padding: 1rem;
     }
+}
+
+
+/* === Divider === */
+
+.divider {
+    flex-shrink: 0;
+    pointer-events: none;
+    border: none;
+    box-sizing: border-box; /* Ensures padding/border don't affect total size */
+}
+
+/* Horizontal */
+
+.divider-horizontal {
+    align-self: stretch;
+    border-top: var(--border-width) solid var(--border);
+    margin: var(--spacing-sm) 0;
+    width: 100%;
+    height: 0;
+}
+
+/* Vertical */
+
+.divider-vertical {
+    align-self: stretch;
+    border-left: var(--border-width) solid var(--border);
+    margin: 0 var(--spacing-sm);
+    width: 0;
+    min-height: 1em; 
 }

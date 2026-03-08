@@ -46,6 +46,7 @@ from .widgets.color import ColorPicker
 from .widgets.contentcard import ContentCard
 from .widgets.date import DatePicker
 from .widgets.datetime import DateTimePicker
+from .widgets.divider import Divider
 from .widgets.fileupload import FileUpload
 from .widgets.html import Html
 from .widgets.image import Image
@@ -89,6 +90,7 @@ __all__ = [
     "ContentCard",
     "DatePicker",
     "DateTimePicker",
+    "Divider",
     "FileUpload",
     "Html",
     "Image",
@@ -134,6 +136,7 @@ AVAILABLE_COMPONENTS = {
     _("ContentCard"): ContentCard,
     _("DatePicker"): DatePicker,
     _("DateTimePicker"): DateTimePicker,
+    _("Divider"): Divider,
     _("FileUpload"): FileUpload,
     _("Html"): Html,
     _("Image"): Image,
