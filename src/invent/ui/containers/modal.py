@@ -65,9 +65,7 @@ class Modal(Widget):
 
     modal = Column()
 
-    text = TextProperty(
-        _("The text on the button."), default_value="Click Me"
-    )
+    text = TextProperty(_("The text on the button."), default_value="Click Me")
     size = ChoiceProperty(
         _("The size of the button."),
         default_value="MEDIUM",
@@ -160,7 +158,5 @@ class Modal(Widget):
         self.modal.render()
         # Only the trigger button is placed in the normal page flow.
         element = self.trigger_button.render()
-        element.addEventListener(
-            "click", create_proxy(self.open_modal)
-        )
+        element.addEventListener("click", create_proxy(self.open_modal))
         return element
