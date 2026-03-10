@@ -341,6 +341,17 @@ print(Hello().greet)"""),
                                 ),
                             ],
                         ),
+                        Label(text="### Dividers"),
+                        Label(text="Horizontal divider (inside a Column):"),
+                        Divider(),
+                        Label(text="Vertical divider (inside a Row):"),
+                        Row(
+                            children=[
+                                Label(text="Before"),
+                                Divider(),
+                                Label(text="After"),
+                            ]
+                        ),
                         Label(text="### Inputs"),
                         CheckBox(label="A checkbox!"),
                         Switch(label="A switch!"),
