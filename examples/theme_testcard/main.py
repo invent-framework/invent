@@ -4,6 +4,8 @@ UI aspects of the Invent framework are shown in a page, and allow the user to
 select different "themes" to see how they affect the appearance of the page.
 """
 
+import random
+
 import invent
 from invent.ui import *
 
@@ -17,6 +19,30 @@ await invent.setup()  # Load default values for the datastore.
 # year, so that the calendar will show some appointments when it is rendered. Needs to
 # include both just plain dates, and datetimes with times, to show how both are rendered.
 from datetime import date, datetime
+
+
+def navigate(message):
+    """
+    Handle navigation between pages based on button clicks / names.
+    """
+    # Extract the page name from the button name. The button names are in the format
+    # "pagename_button", so we split on "_button" and take the first part to get the page
+    # name.
+    page_name = message.button.name.split("_button")[0]
+    invent.show_page(page_name)
+
+
+invent.subscribe(navigate, to_channel="navigate", when_subject=["press"])
+
+
+# Some random funky backgrounds for page 4. It's just boring CSS.
+backgrounds = [
+    "linear-gradient(to bottom, #ff7e5f, #feb47b)",  # Linear gradient.
+    "#3498db",  # A solid single colour.
+    f"url('{invent.media.images.repeat_image.png}') repeat",  # A repeated image.
+    f"url('{invent.media.images.random.png}') center / cover no-repeat",  # A centered, cover image.
+]
+
 
 today = date.today()
 appointments = {
@@ -51,7 +77,7 @@ app = invent.App(
     name="Theme Testcard",
     pages=[
         Page(
-            name="Testcard",
+            id="testcard",
             children=[
                 Column(
                     children=[
@@ -61,6 +87,31 @@ app = invent.App(
                                 Image(
                                     image=invent.media.images.invent_logo.png,
                                     width="64px",
+                                ),
+                            ]
+                        ),
+                        Label(
+                            text="This is a test card for the Invent framework. It includes all the different widgets and components in the framework, so that we can see how they look with different themes applied."
+                        ),
+                        Row(
+                            children=[
+                                Button(
+                                    text="Visit page 2",
+                                    name="page2_button",
+                                    purpose="PRIMARY",
+                                    channel="navigate",
+                                ),
+                                Button(
+                                    text="Random transition to page 3",
+                                    name="page3_button",
+                                    purpose="PRIMARY",
+                                    channel="navigate",
+                                ),
+                                Button(
+                                    text="Random background on page 4",
+                                    name="page4_button",
+                                    purpose="PRIMARY",
+                                    channel="navigate",
                                 ),
                             ]
                         ),
@@ -289,6 +340,17 @@ print(Hello().greet)"""),
                                     ]
                                 ),
                             ],
+                        ),
+                        Label(text="### Dividers"),
+                        Label(text="Horizontal divider (inside a Column):"),
+                        Divider(),
+                        Label(text="Vertical divider (inside a Row):"),
+                        Row(
+                            children=[
+                                Label(text="Before"),
+                                Divider(),
+                                Label(text="After"),
+                            ]
                         ),
                         Label(text="### Inputs"),
                         CheckBox(label="A checkbox!"),
@@ -1272,7 +1334,81 @@ Those Invent developers are really trying to think of everything to help make ou
                             ],
                         ),
                     ]
-                )
+                ),
+            ],
+        ),
+        Page(
+            id="page2",
+            children=[
+                Label(
+                    text="# This is page 2.\n\nThe content cards below are all examples of different configurations of the content card component, which is a versatile component for displaying content in a visually appealing way. The content card can be configured with different shapes, image positions, publication timestamp positions, and purposes to suit a wide variety of use cases."
+                ),
+                ContentCard(
+                    title="Default content card with banner image and start timestamp",
+                    children=[
+                        Label(
+                            text="This is a default content card with the image positioned as a banner at the top, and the publication timestamp positioned at the start (below the title)."
+                        ),
+                    ],
+                    image=invent.media.images.testcard_invent.png,
+                    published_at=datetime(2025, 12, 31, 23, 59),
+                ),
+                Button(
+                    text="Back to Testcard page",
+                    name="testcard_button",
+                    channel="navigate",
+                ),
+            ],
+        ),
+        Page(
+            id="page3",
+            transition=random.choice(
+                ["FADE", "SLIDE", "ZOOM", "CONVEX", "CONCAVE"]
+            ),
+            transition_speed=random.choice(["SLOW", "MEDIUM", "FAST"]),
+            children=[
+                Label(
+                    text="# This is page 3.\n\nThe content cards below are all examples of different configurations of the content card component, which is a versatile component for displaying content in a visually appealing way. The content card can be configured with different shapes, image positions, publication timestamp positions, and purposes to suit a wide variety of use cases."
+                ),
+                ContentCard(
+                    title="Default content card with banner image and start timestamp",
+                    children=[
+                        Label(
+                            text="This is a default content card with the image positioned as a banner at the top, and the publication timestamp positioned at the start (below the title)."
+                        ),
+                    ],
+                    image=invent.media.images.testcard_invent.png,
+                    published_at=datetime(2025, 12, 31, 23, 59),
+                ),
+                Button(
+                    text="Back to Testcard page",
+                    name="testcard_button",
+                    channel="navigate",
+                ),
+            ],
+        ),
+        Page(
+            id="page4",
+            background=random.choice(backgrounds),
+            children=[
+                Label(
+                    text="# This is page 4.\n\nThe content cards below are all examples of different configurations of the content card component, which is a versatile component for displaying content in a visually appealing way. The content card can be configured with different shapes, image positions, publication timestamp positions, and purposes to suit a wide variety of use cases."
+                ),
+                ContentCard(
+                    title="Default content card with banner image and start timestamp",
+                    children=[
+                        Label(
+                            text="This is a default content card with the image positioned as a banner at the top, and the publication timestamp positioned at the start (below the title)."
+                        ),
+                    ],
+                    image=invent.media.images.testcard_invent.png,
+                    published_at=datetime(2025, 12, 31, 23, 59),
+                ),
+                Button(
+                    text="Back to Testcard page",
+                    name="testcard_button",
+                    channel="navigate",
+                ),
             ],
         ),
     ],
