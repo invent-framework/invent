@@ -400,6 +400,41 @@ print(Hello().greet)"""),
                         DatePicker(),
                         TimePicker(),
                         Selector(choices=["One", "Two", "Three"]),
+                        Label(text="### Ratings"),
+                        Row(
+                            children=[
+                                Label(text="Default:"),
+                                Rating(),
+                            ]
+                        ),
+                        Row(
+                            children=[
+                                Label(text="3-star half:"),
+                                Rating(value=2.5, maximum="3"),
+                            ]
+                        ),
+                        Row(
+                            children=[
+                                Label(text="5-star:"),
+                                Rating(value=3.5, maximum="5"),
+                            ]
+                        ),
+                        Row(
+                            children=[
+                                Label(text="5-star full:"),
+                                Rating(value=5.0, maximum="5"),
+                            ]
+                        ),
+                        Row(
+                            children=[
+                                Label(text="10-star read-only:"),
+                                Rating(
+                                    value=7.5,
+                                    maximum="10",
+                                    read_only=True,
+                                ),
+                            ]
+                        ),
                         Label(text="## Multimedia"),
                         Label(text="Avatars:"),
                         Row(
