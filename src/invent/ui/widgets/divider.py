@@ -27,7 +27,7 @@ from invent.ui.containers import Row
 class Divider(Widget):
     """
     A divider. Renders as a vertical rule inside a Row, or a horizontal rule
-    everywhere else. The actual orientation is determined after the widget is 
+    everywhere else. The actual orientation is determined after the widget is
     inserted into its parent
     """
 

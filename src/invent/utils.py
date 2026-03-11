@@ -62,15 +62,15 @@ def iscoroutinefunction(obj):
     """
     Cross-interpreter implementation of inspect.iscoroutinefunction.
     """
-    if is_micropython:  # pragma: no cover
-        # MicroPython seems to treat coroutines as generators :)
-        # But the object may be a closure containing a generator.
-        if "<closure <generator>" in repr(obj):
-            # As far as I can tell, there's no way to check if a closure
-            # contains a generator in MicroPython except by checking the
-            # string representation.
+    if is_micropython:
+        # MicroPython doesn't appear to have a way to determine if a closure is
+        # an async function except via the repr. This is a bit hacky.
+        r = repr(obj)
+        if "<closure <generator>" in r:
             return True
-        # And if not, just check it's a generator function.
+        # Same applies to bound methods.
+        if "<bound_method" in r and "<generator>" in r:
+            return True 
         return inspect.isgeneratorfunction(obj)
 
     return inspect.iscoroutinefunction(obj)

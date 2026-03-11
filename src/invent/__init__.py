@@ -20,7 +20,7 @@ limitations under the License.
 
 from pyscript import js_import
 from pyscript import storage
-from pyscript.web import link, page
+from pyscript.web import link, style, page
 from .channels import Message, subscribe, publish, unsubscribe, when
 from .datastore import DataStore, IndexDBBackend
 from .i18n import _, load_translations
@@ -46,6 +46,7 @@ __all__ = [
     "go",
     "init",
     "marked",
+    "shiki",
 ]
 
 
@@ -83,19 +84,73 @@ purify = None
 leaflet = None
 #: The chart.js JavaScript module for charting.
 chart_js = None
+#: The Shiki JavaScript module for syntax highlighting.
+shiki = None
+#: The Shiki transformers module for line highlighting etc.
+shiki_transformers = None
+
+
+# CSS required by Shiki. The @media block activates Shiki's dark theme tokens
+# (embedded as CSS custom properties on each token span). The .highlighted
+# rule styles lines marked by transformerMetaHighlight with a neutral tint
+# that works in both light and dark mode.
+_SHIKI_CSS = """
+@media (prefers-color-scheme: dark) {
+    .shiki, .shiki span {
+        color: var(--shiki-dark) !important;
+        background-color: var(--shiki-dark-bg) !important;
+    }
+
+    /* Re-assert highlight on the line and all token spans within it. */
+    pre.shiki .line.highlighted,
+    pre.shiki .line.highlighted span {
+        background-color: rgba(255, 200, 0, 0.12) !important;
+    }
+}
+
+/* Line numbers: CSS counter on Shiki's generated .line spans.
+   The line-numbers class on <pre> acts as the toggle. */
+pre.shiki.line-numbers {
+    counter-reset: line;
+}
+
+pre.shiki.line-numbers .line::before {
+    counter-increment: line;
+    content: counter(line);
+    display: inline-block;
+    /* Enough width for 3-4 digit line counts. */
+    width: 2rem;
+    margin-right: 1rem;
+    text-align: right;
+    /* Muted so numbers don't compete with code. */
+    color: #888;
+    user-select: none;
+}
+
+/* Highlighted lines: neutral tint with a subtle left accent. Works in
+   both light and dark mode without needing separate colour values. */
+pre.shiki .line.highlighted {
+    background-color: rgba(255, 200, 0, 0.15) !important;
+    /* Inset box-shadow gives the left accent without affecting layout. */
+    box-shadow: inset 3px 0 0 rgba(255, 200, 0, 0.6);
+    padding-left: 3px;
+}
+"""
 
 
 async def load_js_modules():
     """
     Load the JavaScript modules required by the Invent framework.
     """
-    global marked, purify, leaflet, chart_js
-    marked, purify, leaflet, chart_js = await js_import(
+    global marked, purify, leaflet, chart_js, shiki, shiki_transformers
+    marked, purify, leaflet, chart_js, shiki, shiki_transformers = await js_import(
         # TODO: esm.run all the things here... ;-)
         "https://cdn.jsdelivr.net/npm/marked/lib/marked.esm.js",
         "https://esm.run/dompurify",
         "https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet-src.esm.js",
         "https://esm.run/chart.js/auto",
+        "https://esm.sh/shiki@3",
+        "https://esm.sh/@shikijs/transformers",
     )
     # CSS needed for leaflet.
     leaflet_css = link(
@@ -103,6 +158,9 @@ async def load_js_modules():
         href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css",
     )
     page.head.append(leaflet_css)
+    # CSS needed for Shiki dark mode token activation.
+    shiki_style = style(_SHIKI_CSS)
+    page.head.append(shiki_style)
 
 
 #: The root from which all media files can be found.

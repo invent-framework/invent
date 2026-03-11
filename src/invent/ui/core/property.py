@@ -19,11 +19,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
+import asyncio
 import datetime
 import json
 import invent
 import collections
 from invent.i18n import _
+from invent.utils import iscoroutinefunction
 
 
 class ValidationError(ValueError):
@@ -223,7 +225,11 @@ class Property:
         # Handle the existence of an on_FOO_changed function.
         on_changed = getattr(obj, "on" + property_name + "_changed", None)
         if on_changed:
-            on_changed()
+            # Check if the on_changed is awaitable and schedule it.
+            if iscoroutinefunction(on_changed):
+                asyncio.create_task(on_changed())
+            else:
+                on_changed()
 
     def coerce(self, value):
         """

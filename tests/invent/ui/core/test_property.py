@@ -1,3 +1,6 @@
+import asyncio
+from collections import OrderedDict
+
 from pyscript.web import div
 import upytest
 import umock
@@ -170,6 +173,37 @@ def test_property_react_on_change():
     fw.update_attribute.assert_called_once_with("test", "yes")
     # The on_FOO_changed function for the property has been called.
     fw.on_my_property_changed.assert_called_once_with()
+
+
+async def test_property_async_react_on_change():
+    """
+    If the property is given a map_to_attribute and the parent object has an
+    async on_FOO_changed method, both situations are handled so the new value set
+    against the property is propagated as expected.
+    """
+
+    is_changed_called = asyncio.Event()
+
+    class FakeWidget(Component):
+        my_property = Property("A test", map_to_attribute="test")
+
+        async def on_my_property_changed(self):
+            is_changed_called.set()
+
+        def render(self):
+            return div()
+
+    fw = FakeWidget()
+    # Mock to check the methods are called.
+    fw.update_attribute = umock.Mock()
+    fw.element = umock.Mock()
+    # Set the property to a new value.
+    fw.my_property = "yes"
+    # The element's attribute to which the property is mapped has been updated.
+    fw.update_attribute.assert_called_once_with("test", "yes")
+    # The on_FOO_changed function for the property has been called.
+    await is_changed_called.wait()
+    assert is_changed_called.is_set()
 
 
 def test_property_map_to_style():
@@ -646,7 +680,7 @@ def test_dict_property_validation():
             return div()
 
     tc = TestComponent()
-    assert tc.content == {}
+    assert tc.content == OrderedDict()
     tc.content = {"foo": "bar"}
     tc.content = None
     with upytest.raises(ValidationError):

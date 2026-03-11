@@ -72,6 +72,7 @@ class Rating(Widget):
 
     def _half_click(self, half_value):
         """Return a click handler that sets the rating to `half_value`."""
+
         def handler(event):
             event.stopPropagation()
             if not self.read_only:
@@ -80,6 +81,7 @@ class Rating(Widget):
                     _(f"Rating changed to {self.value} out of {self.maximum}.")
                 )
                 self.publish("change", rating=self, value=self.value)
+
         return create_proxy(handler)
 
     def _show_message(self, text):
