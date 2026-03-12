@@ -57,7 +57,8 @@ class Divider(Widget):
     def _update_orientation(self):
         # Swap the orientation to match the actual parent container.
         # Called whenever the parent is assigned.
-        self.element.classes -= {"divider-horizontal", "divider-vertical"}
+        self.element.classes.remove("divider-horizontal")
+        self.element.classes.remove("divider-vertical")
         if isinstance(self._parent, Row):
             self.element.classes.add("divider-vertical")
         else:
