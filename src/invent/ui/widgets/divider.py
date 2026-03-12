@@ -19,7 +19,7 @@ limitations under the License.
 """
 
 from invent.i18n import _
-from pyscript.web import hr, div
+from pyscript.web import hr
 from invent.ui.core import Widget
 from invent.ui.containers import Row
 
@@ -44,20 +44,20 @@ class Divider(Widget):
 
     @property
     def parent(self):
-        return getattr(self, "_parent", None)
+        return super().parent
 
     @parent.setter
-    def parent(self, value):
-        self._parent = value
+    def parent(self, parent):
+        self._parent = parent
+        self._parent_type = type(parent).__name__
+        self.on_horizontal_align_changed()
+        self.on_vertical_align_changed()
         self._update_orientation()
 
     def _update_orientation(self):
         # Swap the orientation to match the actual parent container.
-        # Called whenever _parent is assigned
-        if self.element is None:
-            return
-        self.element.classes.remove("divider-horizontal")
-        self.element.classes.remove("divider-vertical")
+        # Called whenever the parent is assigned.
+        self.element.classes -= {"divider-horizontal", "divider-vertical"}
         if isinstance(self._parent, Row):
             self.element.classes.add("divider-vertical")
         else:

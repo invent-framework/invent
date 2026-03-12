@@ -25,6 +25,13 @@
     --h5-size: 1.5rem;
     --h6-size: 1.25rem;
 
+    /* Typography: UI scale tokens for component-level sizing. */
+    --font-size-xl: 1.5rem;
+    --font-size-sm: 0.875rem;
+    --font-size-xs: 0.75rem;
+    /* Line heights. */
+    --line-height-tight: 1;
+
     /* Layout. */
     --page-width: 80%;
     --page-max-width: 960px;
@@ -39,6 +46,7 @@
     --border-width: 2px;
     --border-radius: 4px;
     --border-radius-lg: 8px;
+    --spacing-xs: 4px;
     --spacing-sm: 8px;
     --spacing-md: 12px;
     --spacing-lg: 16px;
@@ -1986,32 +1994,34 @@ figure.invent-avatar:focus-visible {
     gap: var(--spacing-sm);
     flex-wrap: wrap;
     position: relative;
-    padding: 4px 8px;
+    padding: var(--spacing-xs) var(--spacing-sm);
     border-radius: var(--border-radius-lg);
 }
 
 .rating-stars {
     display: inline-flex;
+    /* 2px is intentionally below --spacing-xs; the gap between stars is
+     * deliberately tighter than any named spacing token. */
     gap: 2px;
 }
 
-/* Individual star */
+/* Individual star. */
 
 .rating-star {
-    position: relative;     /* stacking context for the half-zone overlays */
+    position: relative;     /* Stacking context for the half-zone overlays. */
     display: inline-block;
-    font-size: 1.5rem;
-    line-height: 1;
+    font-size: var(--font-size-xl);
+    line-height: var(--line-height-tight);
     user-select: none;
 }
 
 /* The visible star — inherits color/gradient from the state classes below. */
 .rating-star-glyph {
     display: block;
-    pointer-events: none;   /* clicks fall through to the half zones */
+    pointer-events: none;   /* Clicks fall through to the half zones. */
 }
 
-/* Fill states */
+/* Fill states. */
 
 .rating-star-full .rating-star-glyph {
     color: var(--warning);
@@ -2034,7 +2044,7 @@ figure.invent-avatar:focus-visible {
     -webkit-text-stroke: 0.5px var(--warning);
 }
 
-/* Invisible click zones */
+/* Invisible click zones. */
 
 .rating-half {
     position: absolute;
@@ -2053,24 +2063,26 @@ figure.invent-avatar:focus-visible {
 .rating-interactive .rating-star:hover .rating-star-glyph {
     display: inline-block;
     transform: scale(1.2);
-    transition: transform 0.15s;
+    /* Uses --transition-speed-fast so prefers-reduced-motion is respected. */
+    transition: transform var(--transition-speed-fast);
 }
 
-/* Read-only styles */
+/* Read-only styles. */
 
 .rating-readonly .rating-star-glyph {
     filter: drop-shadow(0 0 0.5px var(--warning));
 }
 
-/* Numeric value label */
+/* Numeric value label. */
 
 .rating-value {
-    font-size: 0.9rem;
-    color: var(--secondary-text, #555);
+    font-size: var(--font-size-sm);
+    /* Fallback removed: --secondary-text is always defined in :root. */
+    color: var(--secondary-text);
     min-width: 3ch;
 }
 
-/* Popup message */
+/* Popup message. */
 
 .rating-message {
     position: absolute;
@@ -2079,12 +2091,12 @@ figure.invent-avatar:focus-visible {
     transform: translateX(-50%);
     white-space: nowrap;
 
-    font-size: 0.8rem;
+    font-size: var(--font-size-xs);
     color: var(--color-body);
     background-color: var(--main-background);
-    border: 1px solid var(--color-body);
+    border: var(--border-width) solid var(--color-body);
     border-radius: var(--border-radius-lg);
-    padding: 3px 10px;
+    padding: var(--spacing-xs) var(--spacing-md);
 
     opacity: 0;
     pointer-events: none;
@@ -2100,7 +2112,7 @@ figure.invent-avatar:focus-visible {
     flex-shrink: 0;
     pointer-events: none;
     border: none;
-    box-sizing: border-box; /* Ensures padding/border don't affect total size */
+    box-sizing: border-box; /* Ensures padding/border don't affect total size. */
 }
 
 .divider-horizontal {
@@ -2116,8 +2128,9 @@ figure.invent-avatar:focus-visible {
     border-left: var(--border-width) solid var(--color-body);
     margin: 0 var(--spacing-md);
     width: 0;
-    min-height: 1em; 
+    min-height: 1em;
 }
+
 /* === Page transitions === */
 
 /* -- Duration driven by --page-transition-duration, set inline    -- */
