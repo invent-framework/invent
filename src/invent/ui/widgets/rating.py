@@ -35,7 +35,7 @@ class Rating(Widget):
     A star rating widget with half-star precision (0.5 steps).
 
     Each star is split into a left half (scores i-0.5) and a right half
-    (scores i), giving values like 0.5, 1.0, 1.5 ... up to maximum.
+    (scores i), giving values like 0.5, 1, 1.5 ... up to maximum.
 
     Displays the numeric value alongside the stars. When the user changes
     the rating a brief popup message appears and then fades away.
@@ -46,12 +46,15 @@ class Rating(Widget):
         default_value=0.0,
     )
 
+    # TODO: Allow a choice of 1. This could be used to indicate a favourite item, without implying a 5-star rating system.
     maximum = ChoiceProperty(
         _("The number of stars to display."),
         default_value="5",
         choices=["3", "5", "10"],
         group="style",
     )
+
+    # TODO: Add a "step" property to allow either whole or half-star steps.
 
     read_only = BooleanProperty(
         _("Prevent the user from changing the rating."),
@@ -66,7 +69,7 @@ class Rating(Widget):
 
     @classmethod
     def icon(cls):
-        return '<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 256 256"><path fill="currentColor" d="m234.5 114.38l-45.1 39.36l13.51 58.6a16 16 0 0 1-23.84 17.34l-51.11-31l-51 31a16 16 0 0 1-23.84-17.34l13.49-58.54l-45.11-39.42a16 16 0 0 1 9.12-28.06l59.46-5.15l23.21-55.36a15.95 15.95 0 0 1 29.44 0L191 81.17l59.44 5.15a16 16 0 0 1 9.11 28.06Z"/></svg>'  # noqa
+        return '<svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 256 256"><path d="M239.18,97.26A16.38,16.38,0,0,0,224.92,86l-59-4.76L143.14,26.15a16.36,16.36,0,0,0-30.27,0L90.11,81.23,31.08,86a16.46,16.46,0,0,0-9.37,28.86l45,38.83L53,211.75a16.38,16.38,0,0,0,24.5,17.82L128,198.49l50.53,31.08A16.4,16.4,0,0,0,203,211.75l-13.76-58.07,45-38.83A16.43,16.43,0,0,0,239.18,97.26Zm-15.34,5.47-48.7,42a8,8,0,0,0-2.56,7.91l14.88,62.8a.37.37,0,0,1-.17.48c-.18.14-.23.11-.38,0l-54.72-33.65a8,8,0,0,0-8.38,0L69.09,215.94c-.15.09-.19.12-.38,0a.37.37,0,0,1-.17-.48l14.88-62.8a8,8,0,0,0-2.56-7.91l-48.7-42c-.12-.1-.23-.19-.13-.5s.18-.27.33-.29l63.92-5.16A8,8,0,0,0,103,91.86l24.62-59.61c.08-.17.11-.25.35-.25s.27.08.35.25L153,91.86a8,8,0,0,0,6.75,4.92l63.92,5.16c.15,0,.24,0,.33.29S224,102.63,223.84,102.73Z"></path></svg>'  # noqa
 
     # Helpers
 
@@ -84,6 +87,7 @@ class Rating(Widget):
 
         return create_proxy(handler)
 
+    # TODO: Do we need this? ;-)
     def _show_message(self, text):
         """Restart the fade-out animation on the message element."""
         el = self._message_element
