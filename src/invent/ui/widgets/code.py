@@ -68,12 +68,16 @@ class Code(Widget):
         Re-render the highlighted code block using Shiki. Imported lazily to
         avoid a circular import at module load time.
         """
-        from invent import shiki, shiki_transformers  # Avoid circular import at module load time.
+        from invent import (
+            shiki,
+            shiki_transformers,
+        )  # Avoid circular import at module load time.
+
         options = {"lang": self.language, "themes": _THEMES}
         if self.highlight:
             # Wrap the highlight spec in braces as Shiki's meta string format
             # requires, e.g. '1,3-5' becomes '{1,3-5}'.
-            options["meta"] = {"__raw": "{"+self.highlight+"}"}
+            options["meta"] = {"__raw": "{" + self.highlight + "}"}
             options["transformers"] = [
                 shiki_transformers.transformerMetaHighlight()
             ]
@@ -115,7 +119,7 @@ class Code(Widget):
         Toggle line numbers without re-highlighting.
         """
         self._update_line_numbers()
-    
+
     async def on_highlight_changed(self):
         """
         Re-highlight when the highlighted lines change.
@@ -124,7 +128,7 @@ class Code(Widget):
 
     def render(self):
         """
-        Return a container div. Shiki generates its own <pre> block which is 
+        Return a container div. Shiki generates its own <pre> block which is
         inserted as innerHTML.
         """
         self._container = div(id=self.id)

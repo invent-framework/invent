@@ -143,14 +143,16 @@ async def load_js_modules():
     Load the JavaScript modules required by the Invent framework.
     """
     global marked, purify, leaflet, chart_js, shiki, shiki_transformers
-    marked, purify, leaflet, chart_js, shiki, shiki_transformers = await js_import(
-        # TODO: esm.run all the things here... ;-)
-        "https://cdn.jsdelivr.net/npm/marked/lib/marked.esm.js",
-        "https://esm.run/dompurify",
-        "https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet-src.esm.js",
-        "https://esm.run/chart.js/auto",
-        "https://esm.sh/shiki@3",
-        "https://esm.sh/@shikijs/transformers",
+    marked, purify, leaflet, chart_js, shiki, shiki_transformers = (
+        await js_import(
+            # TODO: esm.run all the things here... ;-)
+            "https://cdn.jsdelivr.net/npm/marked/lib/marked.esm.js",
+            "https://esm.run/dompurify",
+            "https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet-src.esm.js",
+            "https://esm.run/chart.js/auto",
+            "https://esm.sh/shiki@3",
+            "https://esm.sh/@shikijs/transformers",
+        )
     )
     # CSS needed for leaflet.
     leaflet_css = link(

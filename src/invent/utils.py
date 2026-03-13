@@ -70,7 +70,7 @@ def iscoroutinefunction(obj):
             return True
         # Same applies to bound methods.
         if "<bound_method" in r and "<generator>" in r:
-            return True 
+            return True
         return inspect.isgeneratorfunction(obj)
 
     return inspect.iscoroutinefunction(obj)

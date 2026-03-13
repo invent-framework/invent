@@ -27,7 +27,6 @@ from .containers import (
     Grid,
     Header,
     Page,
-    Modal,
     Row,
     Tabs,
     Timeline,
@@ -53,6 +52,7 @@ from .widgets.image import Image
 from .widgets.label import Label
 from .widgets.map import Map
 from .widgets.meter import Meter
+from .widgets.modal import Modal
 from .widgets.progress import Progress
 from .widgets.radio import Radio
 from .widgets.rating import Rating
@@ -67,7 +67,6 @@ from .widgets.video import Video
 __all__ = [
     "Code",
     "Page",
-    "Modal",
     "Widget",
     "Accordion",
     "Container",
@@ -98,6 +97,7 @@ __all__ = [
     "Label",
     "Map",
     "Meter",
+    "Modal",
     "Progress",
     "Radio",
     "Rating",

@@ -127,8 +127,11 @@ Here's some code:"""
                         ),
                         Code(code="""def hello(name="world"):
     return f"Hello, {name}" """),
-                        Label(text="Some more extensive code (with line numbers):"),
-                        Code(code="""class Hello:  # Enterprise programmer 👔
+                        Label(
+                            text="Some more extensive code (with line numbers):"
+                        ),
+                        Code(
+                            code="""class Hello:  # Enterprise programmer 👔
 
   def __init__(self, name="world!"):
     self.name = name
@@ -137,10 +140,14 @@ Here's some code:"""
   def greet(self):
     return f"{self.__class__.__name__} {name}"
 
-print(Hello().greet)""", line_numbers=True),
-
-                        Label(text="Now with line numbers and line highlighting:"),
-                        Code(code="""class Hello:  # Enterprise programmer 👔
+print(Hello().greet)""",
+                            line_numbers=True,
+                        ),
+                        Label(
+                            text="Now with line numbers and line highlighting:"
+                        ),
+                        Code(
+                            code="""class Hello:  # Enterprise programmer 👔
 
   def __init__(self, name="world!"):
     self.name = name
@@ -149,7 +156,10 @@ print(Hello().greet)""", line_numbers=True),
   def greet(self):
     return f"{self.__class__.__name__} {name}"
 
-print(Hello().greet)""", line_numbers=True, highlight="1,6-8"),
+print(Hello().greet)""",
+                            line_numbers=True,
+                            highlight="1,6-8",
+                        ),
                         Label(
                             text="# Heading 1\n\n## Heading2\n\n### Heading 3\n\n#### Heading 4\n\n##### Heading 5\n\n###### Heading 6"
                         ),

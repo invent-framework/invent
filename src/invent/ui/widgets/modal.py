@@ -101,6 +101,14 @@ class Modal(Widget):
         self.trigger_button.parent = self
         self.modal.parent = self
 
+    def close_modal(self, event=None):
+        """
+        If it exists, remove the backdrop from the DOM and signal closure.
+        """
+        if hasattr(self, "backdrop"):
+            self.backdrop.remove()
+            self.publish("close", modal=self)
+
     def open_modal(self, event):
         """
         Render the modal's content into a div, then display it as a layer
@@ -116,17 +124,12 @@ class Modal(Widget):
         """
         self.publish("open", button=self.trigger_button, modal=self)
 
-        def close_modal(event=None):
-            # Remove the backdrop from the DOM and signal closure.
-            backdrop.remove()
-            self.publish("close", modal=self)
-
         # Dismiss ("×") button anchored to the modal's top-right corner.
         dismiss = button("×")
         dismiss.classList.add("dismiss")
         dismiss.setAttribute("aria-label", _("Close"))
         dismiss.addEventListener(
-            "click", create_proxy(lambda e: close_modal())
+            "click", create_proxy(lambda e: self.close_modal())
         )
 
         # The modal box: a dialog floating above the backdrop.
@@ -144,14 +147,14 @@ class Modal(Widget):
 
         # The backdrop: a full-viewport overlay; clicking it closes the
         # modal.
-        backdrop = div()
-        backdrop.classList.add("invent-modal-backdrop")
-        backdrop.append(modal_box)
-        backdrop.addEventListener(
-            "click", create_proxy(lambda e: close_modal())
+        self.backdrop = div()
+        self.backdrop.classList.add("invent-modal-backdrop")
+        self.backdrop.append(modal_box)
+        self.backdrop.addEventListener(
+            "click", create_proxy(lambda e: self.close_modal())
         )
 
-        page.body.append(backdrop)
+        page.body.append(self.backdrop)
 
     def render(self):
         # Render the modal content into a div, but don't add it to the DOM yet.
