@@ -431,20 +431,26 @@ print(Hello().greet)""",
                         ),
                         Row(
                             children=[
+                                Label(text="1-star:"),
+                                Rating(value=1, step="1", maximum="1", show_label=False),
+                            ]
+                        ),
+                        Row(
+                            children=[
                                 Label(text="3-star half:"),
-                                Rating(value=2.5, maximum="3"),
+                                Rating(value=2.5, step="0.5", maximum="3"),
                             ]
                         ),
                         Row(
                             children=[
                                 Label(text="5-star:"),
-                                Rating(value=3.5, maximum="5"),
+                                Rating(value=3.5, step="0.5", maximum="5"),
                             ]
                         ),
                         Row(
                             children=[
                                 Label(text="5-star full:"),
-                                Rating(value=5.0, maximum="5"),
+                                Rating(value=5.0, step="1", maximum="5"),
                             ]
                         ),
                         Row(
@@ -452,6 +458,7 @@ print(Hello().greet)""",
                                 Label(text="10-star read-only:"),
                                 Rating(
                                     value=7.5,
+                                    step="0.5",
                                     maximum="10",
                                     read_only=True,
                                 ),

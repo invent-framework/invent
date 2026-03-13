@@ -29,6 +29,10 @@ from invent.ui.core import (
 from pyscript.web import div, span
 from pyscript.ffi import create_proxy
 
+# todo:
+# label optional
+# fix logic for full star when step=1 (currently labels as half star)
+
 
 class Rating(Widget):
     """
@@ -50,15 +54,27 @@ class Rating(Widget):
     maximum = ChoiceProperty(
         _("The number of stars to display."),
         default_value="5",
-        choices=["3", "5", "10"],
+        choices=["1", "3", "5", "10"],
         group="style",
     )
 
     # TODO: Add a "step" property to allow either whole or half-star steps.
+    step = ChoiceProperty(
+        _("The rating step size."),
+        default_value="0.5",
+        choices=["0.5", "1"],
+        group="style",
+    )
 
     read_only = BooleanProperty(
         _("Prevent the user from changing the rating."),
         default_value=False,
+    )
+
+    show_label = BooleanProperty(
+        _("Whether to show the numeric rating value next to the stars."),
+        default_value=True,
+        group="style",
     )
 
     change = Event(
@@ -73,28 +89,19 @@ class Rating(Widget):
 
     # Helpers
 
-    def _half_click(self, half_value):
-        """Return a click handler that sets the rating to `half_value`."""
-
+    def _click(self, value):
+        """Return a click handler that sets the rating to `value`."""
+        print(f"Click handler for value {value} (current value: {self.value})")
+        if self.value == self.step:
+            value = 0.0  # Allow clicking the first star to reset to zero.
         def handler(event):
             event.stopPropagation()
             if not self.read_only:
-                self.value = half_value
-                self._show_message(
-                    _(f"Rating changed to {self.value} out of {self.maximum}.")
-                )
+                self.value = value
                 self.publish("change", rating=self, value=self.value)
 
         return create_proxy(handler)
-
-    # TODO: Do we need this? ;-)
-    def _show_message(self, text):
-        """Restart the fade-out animation on the message element."""
-        el = self._message_element
-        el.classes.remove("rating-message-visible")
-        el.textContent = text
-        _ = el._dom_element.offsetWidth
-        el.classes.add("rating-message-visible")
+    
 
     def _rebuild_stars(self):
         """Redraw all star spans to reflect the current value and maximum."""
@@ -108,7 +115,7 @@ class Rating(Widget):
             # Fill state — drives the CSS color/gradient.
             if self.value >= i:
                 star.classes.add("rating-star-full")
-            elif self.value >= i - 0.5:
+            elif self.value >= i - 0.5 and self.step == "0.5":
                 star.classes.add("rating-star-half")
             else:
                 star.classes.add("rating-star-empty")
@@ -120,27 +127,37 @@ class Rating(Widget):
 
             # Invisible left/right halves that capture clicks.
             # Only added when the widget is interactive.
+            
             if not self.read_only:
-                left = span()
-                left.classes.add("rating-half")
-                left.classes.add("rating-half-left")
-                left._dom_element.addEventListener(
-                    "click", self._half_click(i - 0.5)
-                )
+                if self.step == "0.5":
+                    left = span()
+                    left.classes.add("rating-half")
+                    left.classes.add("rating-half-left")
+                    left._dom_element.addEventListener(
+                        "click", self._click(i - 0.5)
+                    )
 
-                right = span()
-                right.classes.add("rating-half")
-                right.classes.add("rating-half-right")
-                right._dom_element.addEventListener(
-                    "click", self._half_click(float(i))
-                )
+                    right = span()
+                    right.classes.add("rating-half")
+                    right.classes.add("rating-half-right")
+                    right._dom_element.addEventListener(
+                        "click", self._click(float(i))
+                    )
 
-                star.append(left)
-                star.append(right)
-
+                    star.append(left)
+                    star.append(right)
+                else:
+                    star._dom_element.addEventListener(
+                        "click", self._click(float(i))
+                    )
+            
             self._stars_element.append(star)
 
-        self._value_element.textContent = f"{self.value}/{self.maximum}"
+        if self.show_label:
+            new_value = f"{self.value}".replace(".0", "")  # Remove trailing .0 for whole numbers.
+            self._value_element.textContent = f"{new_value}/{self.maximum}"
+        else:
+            self._value_element.textContent = ""
 
     # Property change hooks
 
