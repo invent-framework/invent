@@ -29,10 +29,6 @@ from invent.ui.core import (
 from pyscript.web import div, span
 from pyscript.ffi import create_proxy
 
-# todo:
-# label optional
-# fix logic for full star when step=1 (currently labels as half star)
-
 
 class Rating(Widget):
     """
@@ -50,7 +46,6 @@ class Rating(Widget):
         default_value=0.0,
     )
 
-    # TODO: Allow a choice of 1. This could be used to indicate a favourite item, without implying a 5-star rating system.
     maximum = ChoiceProperty(
         _("The number of stars to display."),
         default_value="5",
@@ -58,7 +53,6 @@ class Rating(Widget):
         group="style",
     )
 
-    # TODO: Add a "step" property to allow either whole or half-star steps.
     step = ChoiceProperty(
         _("The rating step size."),
         default_value="0.5",
@@ -116,7 +110,7 @@ class Rating(Widget):
             star = span()
             star.classes.add("rating-star")
 
-            # Fill state — drives the CSS color/gradient.
+            # Fill state determines the CSS color/gradient.
             if self.value >= i:
                 star.classes.add("rating-star-full")
             elif self.value >= i - 0.5 and self.step == "0.5":
@@ -124,14 +118,14 @@ class Rating(Widget):
             else:
                 star.classes.add("rating-star-empty")
 
-            # Visible glyph — always ★, appearance controlled by CSS.
+            # The star's unicode character remains the same, 
+            # state (i.e. full/half/empty) is determined by CSS
             glyph = span("★")
             glyph.classes.add("rating-star-glyph")
             star.append(glyph)
 
             # Invisible left/right halves that capture clicks.
             # Only added when the widget is interactive.
-
             if not self.read_only:
                 if self.step == "0.5":
                     left = span()
