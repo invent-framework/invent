@@ -91,17 +91,21 @@ class Rating(Widget):
 
     def _click(self, value):
         """Return a click handler that sets the rating to `value`."""
-        print(f"Click handler for value {value} (current value: {self.value})")
-        if self.value == self.step:
-            value = 0.0  # Allow clicking the first star to reset to zero.
+
         def handler(event):
             event.stopPropagation()
             if not self.read_only:
-                self.value = value
+                step = float(self.step)
+
+                if self.value == value or (
+                    value == step and self.value == step
+                ):
+                    self.value = 0.0
+                else:
+                    self.value = value
                 self.publish("change", rating=self, value=self.value)
 
         return create_proxy(handler)
-    
 
     def _rebuild_stars(self):
         """Redraw all star spans to reflect the current value and maximum."""
@@ -127,7 +131,7 @@ class Rating(Widget):
 
             # Invisible left/right halves that capture clicks.
             # Only added when the widget is interactive.
-            
+
             if not self.read_only:
                 if self.step == "0.5":
                     left = span()
@@ -150,11 +154,13 @@ class Rating(Widget):
                     star._dom_element.addEventListener(
                         "click", self._click(float(i))
                     )
-            
+
             self._stars_element.append(star)
 
         if self.show_label:
-            new_value = f"{self.value}".replace(".0", "")  # Remove trailing .0 for whole numbers.
+            new_value = f"{self.value}".replace(
+                ".0", ""
+            )  # Remove trailing .0 for whole numbers.
             self._value_element.textContent = f"{new_value}/{self.maximum}"
         else:
             self._value_element.textContent = ""

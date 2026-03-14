@@ -432,7 +432,12 @@ print(Hello().greet)""",
                         Row(
                             children=[
                                 Label(text="1-star:"),
-                                Rating(value=1, step="1", maximum="1", show_label=False),
+                                Rating(
+                                    value=1,
+                                    step="1",
+                                    maximum="1",
+                                    show_label=False,
+                                ),
                             ]
                         ),
                         Row(
