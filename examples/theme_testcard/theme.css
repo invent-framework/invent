@@ -2056,7 +2056,13 @@ figure.invent-avatar:focus-visible {
 .rating-half-left  { left: 0; }
 .rating-half-right { right: 0; }
 
+/* Cursor hover effect for multiple stars */
 .rating-interactive .rating-half {
+    cursor: pointer;
+}
+
+/* Cursor hover effect for 1-star */
+.rating-interactive .rating-star {
     cursor: pointer;
 }
 
@@ -2077,34 +2083,10 @@ figure.invent-avatar:focus-visible {
 
 .rating-value {
     font-size: var(--font-size-sm);
-    /* Fallback removed: --secondary-text is always defined in :root. */
     color: var(--secondary-text);
     min-width: 3ch;
 }
 
-/* Popup message. */
-
-.rating-message {
-    position: absolute;
-    bottom: 25%;
-    left: 100%;
-    transform: translateX(-50%);
-    white-space: nowrap;
-
-    font-size: var(--font-size-xs);
-    color: var(--color-body);
-    background-color: var(--main-background);
-    border: var(--border-width) solid var(--color-body);
-    border-radius: var(--border-radius-lg);
-    padding: var(--spacing-xs) var(--spacing-md);
-
-    opacity: 0;
-    pointer-events: none;
-}
-
-.rating-message-visible {
-    animation: rating-fade-out 2.5s ease-in forwards;
-}
 
 /* === Divider === */
 
