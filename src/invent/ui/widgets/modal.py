@@ -61,10 +61,6 @@ class Modal(Widget):
     complex modals with forms and other interactive content.
     """
 
-    trigger_button = Button()
-
-    modal = Column()
-
     text = TextProperty(_("The text on the button."), default_value="Click Me")
     size = ChoiceProperty(
         _("The size of the button."),
@@ -90,9 +86,14 @@ class Modal(Widget):
         modal=_("The modal that was closed."),
     )
 
-    on_text_changed = trigger_button.on_text_changed
-    on_size_changed = trigger_button.on_size_changed
-    on_purpose_changed = trigger_button.on_purpose_changed
+    def on_text_changed(self):
+        self.trigger_button.text = self.text
+
+    def on_size_changed(self):
+        self.trigger_button.size = self.size
+
+    def on_purpose_changed(self):
+        self.trigger_button.purpose = self.purpose
 
     def __init__(self, **kwargs):
         kids = kwargs.pop("children", [])
@@ -157,9 +158,12 @@ class Modal(Widget):
         page.body.append(self.backdrop)
 
     def render(self):
+        self.trigger_button = Button()
+        self.modal = Column()
         # Render the modal content into a div, but don't add it to the DOM yet.
         self.modal.render()
         # Only the trigger button is placed in the normal page flow.
-        element = self.trigger_button.render()
+        self.trigger_button.render()
+        element = self.trigger_button.element
         element.addEventListener("click", create_proxy(self.open_modal))
         return element

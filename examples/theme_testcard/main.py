@@ -707,6 +707,51 @@ print(Hello().greet)""",
                                 Progress(value=50),
                                 Progress(),
                             ],
+                            purpose="SECONDARY",
+                        ),
+                        Label(text="Menu popups triggered by buttons:"),
+                        Row(
+                            children=[
+                                Menu(
+                                    text="Open menu ↓",
+                                    choices=[
+                                        "Option 1",
+                                        "Option 2",
+                                        "Option 3",
+                                    ],
+                                    purpose="PRIMARY",
+                                ),
+                                Menu(
+                                    text="Another menu ↑",
+                                    choices=[
+                                        "Option A",
+                                        "Option B",
+                                        "Option C",
+                                    ],
+                                    purpose="SECONDARY",
+                                    hover="ABOVE",
+                                ),
+                                Menu(
+                                    text="Another menu →",
+                                    choices=[
+                                        "Option X",
+                                        "Option Y",
+                                        "Option Z",
+                                    ],
+                                    purpose="WARNING",
+                                    hover="AFTER",
+                                ),
+                                Menu(
+                                    text="Another menu ←",
+                                    choices=[
+                                        "Option L",
+                                        "Option M",
+                                        "Option N",
+                                    ],
+                                    purpose="DANGER",
+                                    hover="BEFORE",
+                                ),
+                            ]
                         ),
                         Label(text="Alerts:"),
                         Alert(
@@ -1088,6 +1133,14 @@ Those Invent developers are really trying to think of everything to help make ou
                         Label(text="A header:"),
                         Header(
                             children=[
+                                Menu(
+                                    choices=[
+                                        "Option 1",
+                                        "Option 2",
+                                        "Option 3",
+                                    ],
+                                    purpose="SECONDARY",
+                                ),
                                 Label(text="This is a non sticky header."),
                                 Button(
                                     text="A button in the header",
@@ -1098,6 +1151,15 @@ Those Invent developers are really trying to think of everything to help make ou
                         Label(text="A footer:"),
                         Footer(
                             children=[
+                                Menu(
+                                    choices=[
+                                        "Option 1",
+                                        "Option 2",
+                                        "Option 3",
+                                    ],
+                                    purpose="SECONDARY",
+                                    hover="ABOVE",
+                                ),
                                 Label(text="This is a sticky footer."),
                                 Button(
                                     text="A button in the footer",

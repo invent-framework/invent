@@ -51,6 +51,7 @@ from .widgets.html import Html
 from .widgets.image import Image
 from .widgets.label import Label
 from .widgets.map import Map
+from .widgets.menu import Menu
 from .widgets.meter import Meter
 from .widgets.modal import Modal
 from .widgets.progress import Progress
@@ -96,6 +97,7 @@ __all__ = [
     "Image",
     "Label",
     "Map",
+    "Menu",
     "Meter",
     "Modal",
     "Progress",

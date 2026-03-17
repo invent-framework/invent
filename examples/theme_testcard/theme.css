@@ -57,6 +57,13 @@
     --transition-speed-slow: 0.4s;
     --transition-speed-fast: 0.1s;
 
+
+    /* Menu. */
+    --menu-min-width:    10rem;
+    --menu-shadow:       0 4px 16px rgba(0, 0, 0, 0.15);
+    /* Vertical padding per item. */
+    --menu-item-padding: var(--spacing-sm) var(--spacing-lg);
+
     /* Colours: base. */
     --color-body: #111;
     --main-background: white;
@@ -2252,6 +2259,129 @@ figure.invent-avatar:focus-visible {
 @media (prefers-reduced-motion: reduce) {
     [class*="invent-page--entering-"],
     [class*="invent-page--leaving-"] {
+        animation: none;
+    }
+}
+
+
+/* -- MENU --*
+
+/* --- Wrapper --------------------------------------------------------- */
+ 
+/* Inline-block so it hugs the button and does not stretch full-width.
+ * position: relative is the anchor for the absolutely-positioned list. */
+.invent-menu-wrapper {
+    display:  inline-block;
+    position: relative;
+}
+
+.invent-menu-wrapper--open {
+    /* Ensure the menu floats above all other page content. */
+    z-index: 9999999999;
+}
+ 
+/* --- Menu list ------------------------------------------------------- */
+ 
+/* Absolutely positioned relative to the wrapper. Each position
+ * modifier class repositions the list and sets the correct
+ * transform-origin so the open animation grows from the button edge. */
+.invent-menu {
+    animation:     invent-menu-open var(--transition-speed-fast) ease;
+    background:    var(--main-background);
+    border:        var(--border-width) solid var(--primary-light);
+    border-radius: var(--border-radius-lg);
+    box-shadow:    var(--menu-shadow);
+    box-sizing:    border-box;
+    list-style:    none;
+    margin:        0;
+    min-width:     var(--menu-min-width);
+    overflow:      hidden;
+    padding:       var(--spacing-xs) 0;
+    position:      absolute;
+}
+ 
+/* BELOW (default): list drops below the button, anchored to its left
+ * edge. Animation grows downward from the top of the list. */
+.invent-menu-wrapper--below .invent-menu {
+    top:              100%;
+    left:             0;
+    transform-origin: top left;
+}
+ 
+/* ABOVE: list rises above the button. Animation grows upward from the
+ * bottom of the list (the edge touching the button). */
+.invent-menu-wrapper--above .invent-menu {
+    bottom:           100%;
+    left:             0;
+    transform-origin: bottom left;
+}
+ 
+/* AFTER: list opens to the right of the button. Animation grows
+ * rightward from the left edge of the list. */
+.invent-menu-wrapper--after .invent-menu {
+    top:              0;
+    left:             100%;
+    transform-origin: top left;
+}
+ 
+/* BEFORE: list opens to the left of the button. Animation grows
+ * leftward from the right edge of the list. */
+.invent-menu-wrapper--before .invent-menu {
+    top:              0;
+    right:            100%;
+    transform-origin: top right;
+}
+ 
+/* --- Menu items ------------------------------------------------------ */
+ 
+.invent-menu-item {
+    color:       var(--color-body);
+    cursor:      pointer;
+    display:     block;
+    font-family: var(--font);
+    font-size:   1rem;
+    /* white-space prevents long labels from wrapping and narrowing
+     * the menu to less than its natural width. */
+    padding:     var(--menu-item-padding);
+    transition:  background var(--transition-speed-fast);
+    white-space: nowrap;
+}
+ 
+.invent-menu-item:hover {
+    background: var(--secondary-light);
+    color:      var(--secondary-text);
+}
+ 
+.invent-menu-item:active {
+    background: var(--secondary-active);
+}
+ 
+/* Keyboard focus ring, matching the global :focus-visible convention. */
+.invent-menu-item:focus-visible {
+    background:     var(--secondary-light);
+    outline:        var(--border-width) solid var(--secondary);
+    outline-offset: -2px;
+}
+ 
+/* --- Open animation -------------------------------------------------- */
+ 
+/* Scales from slightly compressed to full size. transform-origin is set
+ * per position class above so the animation always grows away from the
+ * button, never toward it. */
+@keyframes invent-menu-open {
+    from {
+        opacity:   0;
+        transform: scaleY(0.85);
+    }
+    to {
+        opacity:   1;
+        transform: scaleY(1);
+    }
+}
+ 
+/* Respect the user's motion preference. */
+@media (prefers-reduced-motion: reduce) {
+    .invent-menu {
         animation: none;
     }
 }

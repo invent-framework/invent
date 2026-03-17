@@ -118,7 +118,7 @@ class Rating(Widget):
             else:
                 star.classes.add("rating-star-empty")
 
-            # The star's unicode character remains the same, 
+            # The star's unicode character remains the same,
             # state (i.e. full/half/empty) is determined by CSS
             glyph = span("★")
             glyph.classes.add("rating-star-glyph")
