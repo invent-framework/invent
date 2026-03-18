@@ -1,0 +1,14 @@
+{
+    "fr-FR": {
+        "hello": "bonjour",
+        "goodbye": "au revoir"
+    },
+    "de": {
+        "hello": "guten tag",
+        "goodbye": "lebewohl"
+    },
+    "zh": {
+        "hello": "你好",
+        "goodbye": "再见"
+    }
+}
