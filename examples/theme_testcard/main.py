@@ -1153,9 +1153,9 @@ Those Invent developers are really trying to think of everything to help make ou
                             children=[
                                 Menu(
                                     choices=[
-                                        "Option 1",
-                                        "Option 2",
-                                        "Option 3",
+                                        "Menu Option 1",
+                                        "Menu Option 2",
+                                        "Menu Option 3",
                                     ],
                                     purpose="SECONDARY",
                                     hover="ABOVE",
