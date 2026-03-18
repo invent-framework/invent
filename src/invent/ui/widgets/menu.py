@@ -102,9 +102,7 @@ class Menu(Widget):
     def on_hover_changed(self):
         # Swap the position modifier class on the wrapper.
         for pos in ("above", "below", "before", "after"):
-            self._wrapper.classList.remove(
-                f"invent-menu-wrapper--{pos}"
-            )
+            self._wrapper.classList.remove(f"invent-menu-wrapper--{pos}")
         self._wrapper.classList.add(
             f"invent-menu-wrapper--{self.hover.lower()}"
         )
@@ -148,15 +146,14 @@ class Menu(Widget):
             def handler(e):
                 e.stopPropagation()
                 self._close_menu()
-                self.publish(
-                    "selected", menu=self, selected=option
-                )
+                self.publish("selected", menu=self, selected=option)
+
             return create_proxy(handler)
 
         # Build the menu list from the current choices.
         menu_list = ul()
         menu_list.classList.add("invent-menu")
-        for choice in (self.choices or []):
+        for choice in self.choices or []:
             item = li(choice)
             item.classList.add("invent-menu-item")
             item.addEventListener("click", make_item_handler(choice))
@@ -173,9 +170,7 @@ class Menu(Widget):
         self.trigger_button = Button()
         self.trigger_button.render()
         btn_element = self.trigger_button.element
-        btn_element.addEventListener(
-            "click", create_proxy(self.open_menu)
-        )
+        btn_element.addEventListener("click", create_proxy(self.open_menu))
 
         # Initialise open-state tracker.
         self._menu_list = None

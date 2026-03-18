@@ -419,7 +419,9 @@ print(Hello().greet)""",
                         Progress(),
                         Label(text="File upload:"),
                         FileUpload(),
-                        Label(text="Arbitrary user generated HTML (the escape hatch):"),
+                        Label(
+                            text="Arbitrary user generated HTML (the escape hatch):"
+                        ),
                         Html(html="<hr>Some arbitrary HTML<hr>"),
                         Label(text="More form inputs:"),
                         ColorPicker(),

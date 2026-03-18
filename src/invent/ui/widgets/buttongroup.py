@@ -35,6 +35,7 @@ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
 """
+
 from collections import OrderedDict
 
 from invent.i18n import _
@@ -117,12 +118,16 @@ class ButtonGroup(Widget):
         drives the active-state appearance.
         """
         button_id = f"{self.group}-{index}"
-        radio = input_(type="radio", name=self.group, id=button_id, value=choice, classes=["invent-btn-check"])
+        radio = input_(
+            type="radio",
+            name=self.group,
+            id=button_id,
+            value=choice,
+            classes=["invent-btn-check"],
+        )
         if choice == self.value:
             radio.checked = True
-        radio.addEventListener(
-            "change", create_proxy(self._on_radio_change)
-        )
+        radio.addEventListener("change", create_proxy(self._on_radio_change))
         button_label = label(choice, for_=button_id, classes=["invent-btn"])
         return radio, button_label
 
@@ -153,7 +158,7 @@ class ButtonGroup(Widget):
         Sync radio checked state when value is set programmatically.
         """
         for choice, (radio, _) in self._items.items():
-            radio.checked = (choice == self.value)
+            radio.checked = choice == self.value
 
     def on_size_changed(self):
         """Update the size class on the group when size changes."""
