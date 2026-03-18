@@ -36,6 +36,7 @@ from .widgets.alert import Alert
 from .widgets.audio import Audio
 from .widgets.avatar import Avatar
 from .widgets.button import Button
+from .widgets.buttongroup import ButtonGroup
 from .widgets.calendar import Calendar
 from .widgets.chart import Chart
 from .widgets.chatbubble import ChatBubble
@@ -82,6 +83,7 @@ __all__ = [
     "Audio",
     "Avatar",
     "Button",
+    "ButtonGroup",
     "Calendar",
     "Chart",
     "ChatBubble",

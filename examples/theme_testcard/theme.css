@@ -2385,3 +2385,157 @@ figure.invent-avatar:focus-visible {
         animation: none;
     }
 }
+
+/* === Button Group ===
+ *
+ * A set of radio-backed toggle buttons where only one may be active at
+ * a time. The hidden radio inputs carry state; the visible <label>
+ * elements are styled as buttons. Size and purpose modifier classes are
+ * set on the group container and cascade to the labels, matching the
+ * same pattern as the Button widget.
+ *
+ * The global input[type="radio"] rule already hides the inputs visually
+ * whilst keeping them accessible to keyboard and screen readers.
+ */
+ 
+/* --- Group container ----------------------------------------------- */
+ 
+.invent-btn-group {
+    display:   inline-flex;
+    flex-wrap: nowrap;
+}
+ 
+/* --- Label-as-button base ------------------------------------------ */
+ 
+/* Mirrors the button base style so the two stay visually consistent. */
+.invent-btn {
+    background-color: var(--primary-light);
+    border-color:     var(--primary);
+    border-radius:    0;
+    border-style:     solid;
+    border-width:     var(--border-width);
+    color:            var(--primary-text);
+    cursor:           pointer;
+    display:          inline-block;
+    font-family:      var(--font);
+    font-size:        1rem;
+    padding:          0.75rem;
+    transition:       all var(--transition-speed-button);
+    user-select:      none;
+    white-space:      nowrap;
+}
+ 
+/* Collapse the shared border between adjacent labels. Logical property
+ * ensures correct behaviour in right-to-left locales. */
+.invent-btn-group .invent-btn:not(:last-of-type) {
+    border-inline-end-width: 0;
+}
+ 
+/* Round only the outer corners of the group. Logical properties handle
+ * right-to-left locales correctly. */
+.invent-btn-group .invent-btn:first-of-type {
+    border-start-start-radius: var(--border-radius-lg);
+    border-end-start-radius:   var(--border-radius-lg);
+}
+ 
+.invent-btn-group .invent-btn:last-of-type {
+    border-start-end-radius: var(--border-radius-lg);
+    border-end-end-radius:   var(--border-radius-lg);
+}
+ 
+.invent-btn-group .invent-btn:hover {
+    background-color: var(--primary-active);
+    border-color:     var(--primary-dark);
+}
+ 
+/* Active state: filled, matching button:active. */
+.invent-btn-group input[type="radio"]:checked + .invent-btn {
+    background-color: var(--primary);
+    border-color:     var(--primary-dark);
+    color:            var(--primary-light);
+}
+ 
+/* Keyboard focus ring on the label when the hidden radio is focused. */
+.invent-btn-group input[type="radio"]:focus-visible + .invent-btn {
+    outline:        var(--border-width) solid var(--secondary);
+    outline-offset: 2px;
+}
+ 
+/* --- Size modifiers: cascaded from the group container ------------- */
+ 
+.invent-btn-group.large .invent-btn {
+    font-size: 2rem;
+    padding:   1rem;
+}
+ 
+.invent-btn-group.small .invent-btn {
+    font-size: 0.75rem;
+    padding:   0.5rem;
+}
+ 
+/* --- Purpose modifiers: cascaded from the group container ---------- */
+ 
+.invent-btn-group.secondary .invent-btn {
+    background-color: var(--secondary-light);
+    border-color:     var(--secondary);
+    color:            var(--secondary-text);
+}
+ 
+.invent-btn-group.secondary .invent-btn:hover {
+    background-color: var(--secondary-active);
+}
+ 
+.invent-btn-group.secondary input[type="radio"]:checked + .invent-btn {
+    background-color: var(--secondary);
+    border-color:     var(--secondary-dark);
+    color:            var(--secondary-light);
+}
+ 
+.invent-btn-group.success .invent-btn {
+    background-color: var(--success-light);
+    border-color:     var(--success);
+    color:            var(--success-text);
+}
+ 
+.invent-btn-group.success .invent-btn:hover {
+    background-color: var(--success-active);
+}
+ 
+.invent-btn-group.success input[type="radio"]:checked + .invent-btn {
+    background-color: var(--success);
+    border-color:     var(--success-dark);
+    color:            var(--success-light);
+}
+ 
+.invent-btn-group.warning .invent-btn {
+    background-color: var(--warning-light);
+    border-color:     var(--warning);
+    color:            var(--warning-text);
+}
+ 
+.invent-btn-group.warning .invent-btn:hover {
+    background-color: var(--warning-active);
+}
+ 
+.invent-btn-group.warning input[type="radio"]:checked + .invent-btn {
+    background-color: var(--warning);
+    border-color:     var(--warning-dark);
+    color:            var(--warning-light);
+}
+ 
+.invent-btn-group.danger .invent-btn {
+    background-color: var(--danger-light);
+    border-color:     var(--danger);
+    color:            var(--danger-text);
+}
+ 
+.invent-btn-group.danger .invent-btn:hover {
+    background-color: var(--danger-active);
+}
+ 
+.invent-btn-group.danger input[type="radio"]:checked + .invent-btn {
+    background-color: var(--danger);
+    border-color:     var(--danger-dark);
+    color:            var(--danger-light);
+}
+ 
