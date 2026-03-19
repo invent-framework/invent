@@ -408,7 +408,13 @@ print(Hello().greet)""",
                         ),
                         Label(text="A small, danger button group:"),
                         ButtonGroup(
-                            choices=["Option 1", "Option 2", "Option 3", "Option 4", "Option 5"],
+                            choices=[
+                                "Option 1",
+                                "Option 2",
+                                "Option 3",
+                                "Option 4",
+                                "Option 5",
+                            ],
                             group="small_danger_button_group",
                             size="SMALL",
                             purpose="DANGER",
@@ -693,11 +699,17 @@ print(Hello().greet)""",
                         Label(text="A test video player (Vimeo):"),
                         Video(source="https://vimeo.com/347119375"),
                         Label(text="## Layouts"),
-                        Label(text="A default fade carousel (can contain other widgets):"),
+                        Label(
+                            text="A default fade carousel (can contain other widgets):"
+                        ),
                         Carousel(
                             children=[
-                                Image(image=invent.media.images.testcard_invent.png),
-                                Video(source=invent.media.video.testcard_invent.webm),
+                                Image(
+                                    image=invent.media.images.testcard_invent.png
+                                ),
+                                Video(
+                                    source=invent.media.video.testcard_invent.webm
+                                ),
                                 ContentCard(
                                     title="A content card in a carousel",
                                     image=invent.media.images.testcard_invent.png,
@@ -714,12 +726,20 @@ print(Hello().greet)""",
                                 ),
                             ],
                         ),
-                        Label(text="The transition of a carousel can be slide:"),
+                        Label(
+                            text="The transition of a carousel can be slide:"
+                        ),
                         Carousel(
                             children=[
-                                Image(image=invent.media.images.orangutan1.jpg),
-                                Image(image=invent.media.images.orangutan2.jpg),
-                                Image(image=invent.media.images.orangutan3.jpg),
+                                Image(
+                                    image=invent.media.images.orangutan1.jpg
+                                ),
+                                Image(
+                                    image=invent.media.images.orangutan2.jpg
+                                ),
+                                Image(
+                                    image=invent.media.images.orangutan3.jpg
+                                ),
                             ],
                             transition="slide",
                         ),

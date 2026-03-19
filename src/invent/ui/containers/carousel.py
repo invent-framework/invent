@@ -33,7 +33,6 @@ from invent.ui.core import ListProperty, ChoiceProperty, IntegerProperty
 from pyscript import ffi
 from pyscript.web import div, button
 
-
 # SVG icons for the carousel controls. These are defined as constants to avoid
 # cluttering the main class definition. They are simple left and right carets
 # that will be used for the previous and next buttons in the carousel controls.
@@ -74,7 +73,7 @@ class Carousel(Component):
         n = len(self.children) if self.children else 0
         if n:
             self.current_index = (self.current_index - 1) % n
- 
+
     def _on_next(self, event):
         """
         Move to the next item, wrapping from last to first.
@@ -88,11 +87,11 @@ class Carousel(Component):
         Record the X position where a swipe gesture begins.
         """
         self._touch_start_x = event.touches[0].clientX
- 
+
     def _on_touch_end(self, event):
         """
         Complete a swipe gesture.
- 
+
         A swipe of more than 50px to the left advances to the next
         item; to the right it returns to the previous item. Smaller
         movements are ignored to avoid triggering on accidental nudges.
@@ -113,11 +112,11 @@ class Carousel(Component):
             slot.classes.remove("leaving")
             if i == index:
                 slot.classes.add("active")
- 
+
     def on_children_changed(self):
         """
         Rebuild the carousel track when the child list changes.
- 
+
         Each child is wrapped in a slot div that the carousel uses to
         manage visibility and transitions. The first item is shown
         immediately, without transition animation.
@@ -134,11 +133,11 @@ class Carousel(Component):
             self._track.append(slot)
         self._prev_index = 0
         self._activate(0)
- 
+
     def on_current_index_changed(self):
         """
         Animate to the newly selected item.
- 
+
         Computes travel direction from the previous and new indices,
         sets the data-direction attribute for CSS to act on, then
         moves the outgoing slot to 'leaving' and the incoming slot
@@ -172,20 +171,20 @@ class Carousel(Component):
             old_slot.classes.add("leaving")
         new_slot.classes.add("active")
         self._prev_index = new_index
- 
+
     def on_transition_changed(self):
         """
         Apply the chosen transition mode to the carousel element.
- 
+
         The CSS uses the data-transition attribute to select between
         the fade and slide transition styles.
         """
         self.element.setAttribute("data-transition", self.transition)
- 
+
     def render(self):
         """
         Create the static HTML scaffold for the carousel.
- 
+
         Builds the track div (which will hold child slots) and the two
         control buttons, then returns the outer wrapper as self.element.
         The transition and direction data attributes are given their
@@ -194,25 +193,21 @@ class Carousel(Component):
         self._track = div(classes="invent-carousel-track")
         self._item_slots = []
         self._prev_index = 0
- 
+
         prev_btn = button(
             classes="invent-carousel-ctrl invent-carousel-ctrl--prev"
         )
         prev_btn.innerHTML = _CARET_LEFT
         prev_btn.setAttribute("aria-label", _("Previous"))
-        prev_btn.addEventListener(
-            "click", ffi.create_proxy(self._on_prev)
-        )
- 
+        prev_btn.addEventListener("click", ffi.create_proxy(self._on_prev))
+
         next_btn = button(
             classes="invent-carousel-ctrl invent-carousel-ctrl--next"
         )
         next_btn.innerHTML = _CARET_RIGHT
         next_btn.setAttribute("aria-label", _("Next"))
-        next_btn.addEventListener(
-            "click", ffi.create_proxy(self._on_next)
-        )
- 
+        next_btn.addEventListener("click", ffi.create_proxy(self._on_next))
+
         wrapper = div(classes="invent-carousel")
         # Set the initial transition mode; on_transition_changed will
         # update this if the user sets a different value.
