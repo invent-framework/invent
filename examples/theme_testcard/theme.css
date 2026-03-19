@@ -2539,3 +2539,157 @@ figure.invent-avatar:focus-visible {
     color:            var(--danger-light);
 }
  
+/* === Carousel ===
+ *
+ * Displays one child at a time with prev/next controls.
+ *
+ * Transition mode is driven by the data-transition attribute on the
+ * outer wrapper ("fade" or "slide"). Slide direction is driven by the
+ * data-direction attribute ("forward" or "backward"), set in Python
+ * before each transition begins.
+ *
+ * The track uses a single-cell CSS Grid so all item slots stack in
+ * the same space. The wrapper naturally sizes to the tallest and
+ * widest child with no JavaScript measurement required.
+ */
+
+/* --- Outer wrapper -------------------------------------------------- */
+
+/* position: relative anchors the absolutely-positioned controls. */
+.invent-carousel {
+    display: inline-block;
+    position: relative;
+}
+
+/* --- Track ---------------------------------------------------------- */
+
+/* Single-cell grid: all slots occupy row 1 / column 1, so the track
+ * always sizes to the largest child. overflow: hidden clips slides
+ * that are mid-animation outside the visible area. */
+.invent-carousel-track {
+    display: grid;
+    grid-template-columns: 1fr;
+    overflow: hidden;
+}
+
+/* --- Item slots ----------------------------------------------------- */
+
+/* Every slot occupies the same grid cell and is hidden by default. */
+.invent-carousel-item {
+    grid-column: 1;
+    grid-row: 1;
+    pointer-events: none;
+    visibility: hidden;
+}
+
+/* The active item is fully shown and interactive. */
+.invent-carousel-item.active {
+    pointer-events: auto;
+    visibility: visible;
+}
+
+/* A leaving item must remain visible while its exit animation plays. */
+.invent-carousel-item.leaving {
+    pointer-events: none;
+    visibility: visible;
+}
+
+/* --- Fade transition ------------------------------------------------ */
+
+.invent-carousel[data-transition="fade"] .invent-carousel-item {
+    opacity: 0;
+    transition: opacity var(--transition-speed-slow);
+}
+
+.invent-carousel[data-transition="fade"] .invent-carousel-item.active {
+    opacity: 1;
+}
+
+/* --- Slide transition ----------------------------------------------- */
+
+/* Keyframes for the four possible movements. */
+@keyframes invent-carousel-in-from-right {
+    from { transform: translateX(100%); }
+    to   { transform: translateX(0); }
+}
+
+@keyframes invent-carousel-out-to-left {
+    from { transform: translateX(0); }
+    to   { transform: translateX(-100%); }
+}
+
+@keyframes invent-carousel-in-from-left {
+    from { transform: translateX(-100%); }
+    to   { transform: translateX(0); }
+}
+
+@keyframes invent-carousel-out-to-right {
+    from { transform: translateX(0); }
+    to   { transform: translateX(100%); }
+}
+
+/* Forward: new item enters from the right, old exits to the left. */
+.invent-carousel[data-transition="slide"][data-direction="forward"]
+.invent-carousel-item.active {
+    animation: invent-carousel-in-from-right var(--transition-speed-slow) both;
+}
+
+.invent-carousel[data-transition="slide"][data-direction="forward"]
+.invent-carousel-item.leaving {
+    animation: invent-carousel-out-to-left var(--transition-speed-slow) forwards;
+}
+
+/* Backward: new item enters from the left, old exits to the right. */
+.invent-carousel[data-transition="slide"][data-direction="backward"]
+.invent-carousel-item.active {
+    animation: invent-carousel-in-from-left var(--transition-speed-slow) both;
+}
+
+.invent-carousel[data-transition="slide"][data-direction="backward"]
+.invent-carousel-item.leaving {
+    animation: invent-carousel-out-to-right var(--transition-speed-slow) forwards;
+}
+
+/* --- Controls ------------------------------------------------------- */
+
+/* Absolutely positioned at the vertical midpoint of the track.
+ * Uses the primary colour variables (which have dark-mode overrides)
+ * so the caret is always legible against any content, including
+ * photographs. Matches the global button border-radius convention. */
+.invent-carousel-ctrl {
+    align-items: center;
+    background-color: var(--primary-light);
+    border-color: var(--primary);
+    border-radius: var(--border-radius-lg);
+    border-style: solid;
+    border-width: var(--border-width);
+    color: var(--primary-text);
+    display: flex;
+    justify-content: center;
+    padding: var(--spacing-sm);
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    transition: all var(--transition-speed-button);
+    z-index: 1;
+}
+
+.invent-carousel-ctrl:hover {
+    background-color: var(--primary-active);
+    border-color: var(--primary-dark);
+}
+
+.invent-carousel-ctrl:active {
+    background-color: var(--primary);
+    border-color: var(--primary-dark);
+    color: var(--primary-light);
+}
+
+/* Size the SVG caret icons. */
+.invent-carousel-ctrl svg {
+    height: 2rem;
+    width: 2rem;
+}
+
+.invent-carousel-ctrl--prev { left:  var(--spacing-sm); }
+.invent-carousel-ctrl--next { right: var(--spacing-sm); }

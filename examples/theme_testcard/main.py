@@ -400,14 +400,15 @@ print(Hello().greet)""",
                         ),
                         Label(text="A large, secondary button group:"),
                         ButtonGroup(
-                            choices=["Option 1", "Option 2", "Option 3"],
+                            choices=["Option 1", "Option 2"],
                             group="large_primary_button_group",
                             size="LARGE",
                             purpose="SECONDARY",
+                            value="Option 2",
                         ),
                         Label(text="A small, danger button group:"),
                         ButtonGroup(
-                            choices=["Option 1", "Option 2", "Option 3"],
+                            choices=["Option 1", "Option 2", "Option 3", "Option 4", "Option 5"],
                             group="small_danger_button_group",
                             size="SMALL",
                             purpose="DANGER",
@@ -692,6 +693,36 @@ print(Hello().greet)""",
                         Label(text="A test video player (Vimeo):"),
                         Video(source="https://vimeo.com/347119375"),
                         Label(text="## Layouts"),
+                        Label(text="A default fade carousel (can contain other widgets):"),
+                        Carousel(
+                            children=[
+                                Image(image=invent.media.images.testcard_invent.png),
+                                Video(source=invent.media.video.testcard_invent.webm),
+                                ContentCard(
+                                    title="A content card in a carousel",
+                                    image=invent.media.images.testcard_invent.png,
+                                    image_position="banner",
+                                    children=[
+                                        Label(
+                                            text="This is a content card inside a carousel. The carousel can contain any widgets, and the transition between items can be either a fade (the default) or a slide."
+                                        ),
+                                        Button(
+                                            text="A button in a carousel content card",
+                                            purpose="PRIMARY",
+                                        ),
+                                    ],
+                                ),
+                            ],
+                        ),
+                        Label(text="The transition of a carousel can be slide:"),
+                        Carousel(
+                            children=[
+                                Image(image=invent.media.images.orangutan1.jpg),
+                                Image(image=invent.media.images.orangutan2.jpg),
+                                Image(image=invent.media.images.orangutan3.jpg),
+                            ],
+                            transition="slide",
+                        ),
                         Label(text="A modal triggered by a button:"),
                         Modal(
                             text="Open modal",

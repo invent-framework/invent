@@ -22,6 +22,7 @@ from ..i18n import _
 from .core import Widget, Container, from_datastore
 from .containers import (
     Accordion,
+    Carousel,
     Column,
     Footer,
     Grid,
@@ -71,6 +72,7 @@ __all__ = [
     "Page",
     "Widget",
     "Accordion",
+    "Carousel",
     "Container",
     "Column",
     "Footer",
