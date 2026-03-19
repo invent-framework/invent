@@ -43,6 +43,7 @@ from .widgets.chart import Chart
 from .widgets.chatbubble import ChatBubble
 from .widgets.checkbox import CheckBox
 from .widgets.code import Code
+from .widgets.codeeditor import CodeEditor
 from .widgets.color import ColorPicker
 from .widgets.contentcard import ContentCard
 from .widgets.date import DatePicker
@@ -91,6 +92,7 @@ __all__ = [
     "ChatBubble",
     "CheckBox",
     "Code",
+    "CodeEditor",
     "ColorPicker",
     "ContentCard",
     "DatePicker",

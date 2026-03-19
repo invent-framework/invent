@@ -2693,3 +2693,25 @@ figure.invent-avatar:focus-visible {
 
 .invent-carousel-ctrl--prev { left:  var(--spacing-sm); }
 .invent-carousel-ctrl--next { right: var(--spacing-sm); }
+/* ===== CodeEditor widget ================================================
+   Wraps the CodeMirror 6 editor mount point. CodeMirror renders its own
+   internal DOM; these rules integrate it with the Invent design system
+   without overriding CodeMirror's own layout internals.
+   ====================================================================== */
+
+/* Outer container: border and shape from the design system. */
+.invent-code-editor {
+  border: var(--border-width) solid var(--primary-light);
+  border-radius: var(--border-radius);
+  overflow: hidden;
+}
+
+/* Height is set programmatically from the widget's min_height property. */
+.invent-code-editor .cm-editor {
+  height: 100%;
+}
+
+/* Allow horizontal scroll on long lines rather than wrapping. */
+.invent-code-editor .cm-scroller {
+  overflow: auto;
+}

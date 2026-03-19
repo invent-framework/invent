@@ -454,6 +454,11 @@ print(Hello().greet)""",
                         DatePicker(),
                         TimePicker(),
                         Selector(choices=["One", "Two", "Three"]),
+                        CodeEditor(
+                            language="python",
+                            code="""def hello(name="world"):
+    return f"Hello, {name}" """,
+                        ),
                         Label(text="### Ratings"),
                         Row(
                             children=[
