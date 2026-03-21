@@ -477,8 +477,14 @@ class DictProperty(Property):
         try:
             val = collections.OrderedDict(value)
             for k, v in val.items():
+                val[k] = v
                 if isinstance(v, (dict, tuple, list)):
-                    val[k] = self.coerce(v)
+                    # Check if the value is a nested structure that also needs
+                    # to be coerced.
+                    try:
+                        val[k] = self.coerce(v)
+                    except ValueError:
+                        pass
             return val
         except:  # pragma: no cover
             raise ValidationError(_("Not a valid dictionary."), value)

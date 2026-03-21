@@ -11,7 +11,9 @@ from invent.ui import *
 
 # Datastore ############################################################################
 
-await invent.setup()  # Load default values for the datastore.
+await invent.setup(
+    richtext="This is a **rich text editor**. It supports _formatting_, [links](https://inventframework.org/), and more!"
+)  # Load default values for the datastore.
 
 # Code #################################################################################
 
@@ -70,6 +72,9 @@ appointments = {
     ).isoformat(): "Dentist appointment",
 }
 invent.datastore["calendar_appointments"] = appointments
+invent.datastore["code_in_editor"] = """def greet(name):
+    return f"Hello, {name}!"
+"""
 
 # User Interface #######################################################################
 
@@ -450,15 +455,37 @@ print(Hello().greet)""",
                         TextInput(
                             input_type="number", placeholder="A numeric input"
                         ),
+                        TextInput(
+                            input_type="text",
+                            placeholder="A multiline text input",
+                            number_of_lines=4,
+                        ),
                         DateTimePicker(),
                         DatePicker(),
                         TimePicker(),
                         Selector(choices=["One", "Two", "Three"]),
+                        Label(text="### More complex input widgets"),
+                        Label(text="A code editor with syntax highlighting:"),
                         CodeEditor(
                             language="python",
-                            code="""def hello(name="world"):
-    return f"Hello, {name}" """,
+                            code=from_datastore(
+                                "code_in_editor"
+                            ),  # Load initial code from the datastore, and keep it in sync.
                         ),
+                        Label(text="A rich text editor:"),
+                        TextEditor(
+                            text=from_datastore("richtext"),
+                        ),
+                        Label(
+                            text="The output from the rich text editor (rendered via markdown):"
+                        ),
+                        TextInput(
+                            number_of_lines=8, value=from_datastore("richtext")
+                        ),
+                        Label(
+                            text="And rendered as a label (HTML sanitised, but with markdown formatting):"
+                        ),
+                        Label(text=from_datastore("richtext")),
                         Label(text="### Ratings"),
                         Row(
                             children=[

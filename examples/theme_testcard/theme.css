@@ -2701,8 +2701,7 @@ figure.invent-avatar:focus-visible {
 
 /* Outer container: border and shape from the design system. */
 .invent-code-editor {
-  border: var(--border-width) solid var(--primary-light);
-  border-radius: var(--border-radius);
+  border: var(--border-width) solid var(--primary);
   overflow: hidden;
 }
 
@@ -2714,4 +2713,123 @@ figure.invent-avatar:focus-visible {
 /* Allow horizontal scroll on long lines rather than wrapping. */
 .invent-code-editor .cm-scroller {
   overflow: auto;
+}
+
+
+/* ===== TextEditor widget =============================================
+ *
+ * Wraps the Quill 2 Snow editor. Quill's Snow CSS is injected into
+ * <head> dynamically by the widget after this stylesheet loads, so
+ * overrides must have higher specificity than Quill's own rules.
+ *
+ * Scoping every rule under .invent-text-editor gives an extra class
+ * selector (0-3-0 or higher) that beats Quill's .ql-snow .ql-*
+ * rules (0-2-0). CSS variables are used throughout so dark mode is
+ * handled automatically by the :root overrides above.
+ * ================================================================== */
+
+/* --- Outer container ----------------------------------------------- */
+
+.invent-text-editor {
+  border: var(--border-width) solid var(--primary);
+  /* Clip toolbar and editor corners to the container border-radius. */
+  overflow: hidden;
+}
+
+/* --- Toolbar ------------------------------------------------------- */
+
+/* Background and separator; replaces Quill's hardcoded #ccc border. */
+.invent-text-editor .ql-toolbar.ql-snow {
+  background-color: var(--primary-light);
+  border-bottom: var(--border-width) solid var(--primary);
+  border-left: none;
+  border-right: none;
+  border-top: none;
+  font-family: var(--font);
+  padding: var(--spacing-sm);
+}
+
+/* --- Editor container --------------------------------------------- */
+
+/* Remove Quill's outer border; the wrapper provides it. */
+.invent-text-editor .ql-container.ql-snow {
+  background-color: var(--main-background);
+  border: none;
+  font-family: var(--font);
+  font-size: 1rem;
+}
+
+/* --- Editable content area ---------------------------------------- */
+
+.invent-text-editor .ql-editor {
+  color: var(--color-body);
+  line-height: var(--line-height);
+}
+
+/* Placeholder text. */
+.invent-text-editor .ql-editor.ql-blank::before {
+  color: var(--muted-text);
+  font-style: normal;
+}
+
+/* Code blocks inside the editor. */
+.invent-text-editor .ql-editor pre.ql-syntax {
+  background-color: var(--muted-light);
+  border-radius: var(--border-radius);
+  color: var(--color-body);
+  font-family: var(--font-mono);
+}
+
+/* --- Toolbar icon colours ----------------------------------------- */
+
+/* Default state: inherit the primary text colour. */
+.invent-text-editor .ql-toolbar.ql-snow .ql-stroke {
+  stroke: var(--primary-text);
+}
+
+.invent-text-editor .ql-toolbar.ql-snow .ql-fill {
+  fill: var(--primary-text);
+}
+
+.invent-text-editor .ql-toolbar.ql-snow .ql-picker {
+  color: var(--primary-text);
+}
+
+/* Hover and active state: use the secondary (accent) colour. */
+.invent-text-editor .ql-toolbar.ql-snow button:hover .ql-stroke,
+.invent-text-editor .ql-toolbar.ql-snow button.ql-active .ql-stroke {
+  stroke: var(--secondary);
+}
+
+.invent-text-editor .ql-toolbar.ql-snow button:hover .ql-fill,
+.invent-text-editor .ql-toolbar.ql-snow button.ql-active .ql-fill {
+  fill: var(--secondary);
+}
+
+.invent-text-editor .ql-toolbar.ql-snow button:hover,
+.invent-text-editor .ql-toolbar.ql-snow button.ql-active,
+.invent-text-editor .ql-toolbar.ql-snow .ql-picker-label:hover {
+  color: var(--secondary);
+}
+
+/* --- Header picker dropdown --------------------------------------- */
+
+.invent-text-editor .ql-toolbar.ql-snow .ql-picker-label {
+  color: var(--primary-text);
+}
+
+/* The options list is rendered inside the toolbar, so the scoped
+ * selector works here. */
+.invent-text-editor .ql-toolbar.ql-snow .ql-picker-options {
+  background-color: var(--main-background);
+  border: var(--border-width) solid var(--primary);
+  border-radius: var(--border-radius);
+}
+
+.invent-text-editor .ql-toolbar.ql-snow .ql-picker-item {
+  color: var(--primary-text);
+}
+
+.invent-text-editor .ql-toolbar.ql-snow .ql-picker-item:hover {
+  color: var(--secondary);
 }

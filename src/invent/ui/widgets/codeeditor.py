@@ -143,14 +143,7 @@ class CodeEditor(Widget):
     @classmethod
     def icon(cls):
         """Return a pencil SVG icon for the Invent UI builder."""
-        return (
-            '<svg xmlns="http://www.w3.org/2000/svg" width="1em"'
-            ' height="1em" viewBox="0 0 256 256"><path fill="currentColor"'
-            ' d="M227.31 73.37L182.63 28.69a16 16 0 0 0-22.63 0L36.69'
-            " 152A15.86 15.86 0 0 0 32 163.31V208a16 16 0 0 0 16 16h44.69"
-            "a15.86 15.86 0 0 0 11.31-4.69L227.31 96a16 16 0 0 0"
-            ' 0-22.63Z"/></svg>'
-        )
+        return '<svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 256 256"><path d="M58.34,101.66l-32-32a8,8,0,0,1,0-11.32l32-32A8,8,0,0,1,69.66,37.66L43.31,64,69.66,90.34a8,8,0,0,1-11.32,11.32Zm40,0a8,8,0,0,0,11.32,0l32-32a8,8,0,0,0,0-11.32l-32-32A8,8,0,0,0,98.34,37.66L124.69,64,98.34,90.34A8,8,0,0,0,98.34,101.66ZM200,40H176a8,8,0,0,0,0,16h24V200H56V136a8,8,0,0,0-16,0v64a16,16,0,0,0,16,16H200a16,16,0,0,0,16-16V56A16,16,0,0,0,200,40Z"></path></svg>'  # noqa
 
     def __init__(self, **kwargs):
         """
@@ -194,9 +187,7 @@ class CodeEditor(Widget):
         if self.theme == "dark":
             return True
         if self.theme == "auto":
-            return js.window.matchMedia(
-                "(prefers-color-scheme: dark)"
-            ).matches
+            return js.window.matchMedia("(prefers-color-scheme: dark)").matches
         return False
 
     def _remove_mq_listener(self):
@@ -235,9 +226,7 @@ class CodeEditor(Widget):
                 extensions.append(lang_fn())
         if self.readonly:
             extensions.append(_cm.EditorView.editable.of(False))
-        extensions.append(
-            _cm.EditorView.updateListener.of(self._update_proxy)
-        )
+        extensions.append(_cm.EditorView.updateListener.of(self._update_proxy))
         # In auto mode, watch for OS theme changes and reconfigure.
         if self.theme == "auto" and self._mq_proxy is None:
             self._mq_proxy = create_proxy(
@@ -260,10 +249,12 @@ class CodeEditor(Widget):
             to_js({"doc": self.code or "", "extensions": extensions})
         )
         self._view = _cm.EditorView.new(
-            to_js({
-                "state": state,
-                "parent": self.element._dom_element,
-            })
+            to_js(
+                {
+                    "state": state,
+                    "parent": self.element._dom_element,
+                }
+            )
         )
         # Set height on the CodeMirror element directly, since it
         # is only available after mount.
@@ -324,13 +315,15 @@ class CodeEditor(Widget):
         if self._setting_code or self._view is None:
             return
         self._view.dispatch(
-            to_js({
-                "changes": {
-                    "from": 0,
-                    "to": self._view.state.doc.length,
-                    "insert": self.code or "",
+            to_js(
+                {
+                    "changes": {
+                        "from": 0,
+                        "to": self._view.state.doc.length,
+                        "insert": self.code or "",
+                    }
                 }
-            })
+            )
         )
 
     def on_min_height_changed(self):
