@@ -2,5 +2,5 @@
 Vibrate
 Microphone
 Flashlight
-Camera?
+Camera
 """

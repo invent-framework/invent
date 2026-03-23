@@ -63,7 +63,6 @@ package:
 	cd test_suite && tar --no-xattrs -czvf ../test_suite.tar.gz tests/* invent/*
 	rm -rf test_suite
 	cp invent.tar.gz static/
-	cp invent.tar.gz src/tools/builder/public/python/
 	cp test_suite.tar.gz static/
 	rm invent.tar.gz
 	rm test_suite.tar.gz
