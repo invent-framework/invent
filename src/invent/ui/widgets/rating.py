@@ -108,20 +108,20 @@ class Rating(Widget):
         max_stars = int(self.maximum)
         for i in range(1, max_stars + 1):
             star = span()
-            star.classes.add("rating-star")
+            star.classes.add("invent-rating-star")
 
             # Fill state determines the CSS color/gradient.
             if self.value >= i:
-                star.classes.add("rating-star-full")
+                star.classes.add("invent-rating-star-full")
             elif self.value >= i - 0.5 and self.step == "0.5":
-                star.classes.add("rating-star-half")
+                star.classes.add("invent-rating-star-half")
             else:
-                star.classes.add("rating-star-empty")
+                star.classes.add("invent-rating-star-empty")
 
             # The star's unicode character remains the same,
             # state (i.e. full/half/empty) is determined by CSS
             glyph = span("★")
-            glyph.classes.add("rating-star-glyph")
+            glyph.classes.add("invent-rating-star-glyph")
             star.append(glyph)
 
             # Invisible left/right halves that capture clicks.
@@ -129,15 +129,15 @@ class Rating(Widget):
             if not self.read_only:
                 if self.step == "0.5":
                     left = span()
-                    left.classes.add("rating-half")
-                    left.classes.add("rating-half-left")
+                    left.classes.add("invent-rating-half")
+                    left.classes.add("invent-rating-half-left")
                     left._dom_element.addEventListener(
                         "click", self._click(i - 0.5)
                     )
 
                     right = span()
-                    right.classes.add("rating-half")
-                    right.classes.add("rating-half-right")
+                    right.classes.add("invent-rating-half")
+                    right.classes.add("invent-rating-half-right")
                     right._dom_element.addEventListener(
                         "click", self._click(float(i))
                     )
@@ -174,24 +174,24 @@ class Rating(Widget):
     def on_read_only_changed(self):
         if hasattr(self, "_stars_element"):
             if self.read_only:
-                self.element.classes.remove("rating-interactive")
-                self.element.classes.add("rating-readonly")
+                self.element.classes.remove("invent-rating-interactive")
+                self.element.classes.add("invent-rating-readonly")
             else:
-                self.element.classes.remove("rating-readonly")
-                self.element.classes.add("rating-interactive")
+                self.element.classes.remove("invent-rating-readonly")
+                self.element.classes.add("invent-rating-interactive")
             self._rebuild_stars()
 
     # Render
 
     def render(self):
         self._stars_element = span()
-        self._stars_element.classes.add("rating-stars")
+        self._stars_element.classes.add("invent-rating-stars")
 
         self._value_element = span(f"{self.value}/{self.maximum}")
-        self._value_element.classes.add("rating-value")
+        self._value_element.classes.add("invent-rating-value")
 
         self._message_element = span("")
-        self._message_element.classes.add("rating-message")
+        self._message_element.classes.add("invent-rating-message")
 
         element = div(
             self._stars_element,
@@ -199,11 +199,11 @@ class Rating(Widget):
             self._message_element,
             id=self.id,
         )
-        element.classes.add("rating")
+        element.classes.add("invent-rating")
         if self.read_only:
-            element.classes.add("rating-readonly")
+            element.classes.add("invent-rating-readonly")
         else:
-            element.classes.add("rating-interactive")
+            element.classes.add("invent-rating-interactive")
 
         self._rebuild_stars()
         return element

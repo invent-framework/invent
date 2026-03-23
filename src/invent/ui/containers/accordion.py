@@ -49,19 +49,20 @@ class Accordion(Column):
         controls its visibility. The radio inputs are grouped by the
         accordion's id, allowing only one child to be visible at a time.
 
-        The `accordion-item` class is used to style each item, and the
-        `accordion-title` and `accordion-content` classes are used to style
-        the title and content divs of each item respectively. The
-        accordion-title div contains the name of the child component, and
-        the accordion-content div contains the child element itself.
+        The `invent-accordion-item` class is used to style each item, and the
+        `invent-accordion-title` and `invent-accordion-content` classes are
+        used to style the title and content divs of each item respectively. The
+        `invent-accordion-title` div contains the name of the child component,
+        and the `invent-accordion-content` div contains the child element
+        itself.
         """
         self.element.replaceChildren()
         for i, child in enumerate(self.children):
             item = div(
                 input_(type="checkbox", name=self.id, checked=i == 0),
-                div(child.name, classes="accordion-title"),
-                div(child.element, classes="accordion-content"),
-                classes="accordion-item",
+                div(child.name, classes="invent-accordion-title"),
+                div(child.element, classes="invent-accordion-content"),
+                classes="invent-accordion-item",
             )
             self.element.append(item)
 

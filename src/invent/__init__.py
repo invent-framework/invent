@@ -133,7 +133,6 @@ pre.shiki .line.highlighted {
     background-color: rgba(255, 200, 0, 0.15) !important;
     /* Inset box-shadow gives the left accent without affecting layout. */
     box-shadow: inset 3px 0 0 rgba(255, 200, 0, 0.6);
-    padding-left: 3px;
 }
 """
 

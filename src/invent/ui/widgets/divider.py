@@ -38,8 +38,8 @@ class Divider(Widget):
     def render(self):
         # Always render as <hr> initially
         element = hr(id=self.id)
-        element.classes.add("divider")
-        element.classes.add("divider-horizontal")
+        element.classes.add("invent-divider")
+        element.classes.add("invent-divider-horizontal")
         return element
 
     @property
@@ -57,9 +57,9 @@ class Divider(Widget):
     def _update_orientation(self):
         # Swap the orientation to match the actual parent container.
         # Called whenever the parent is assigned.
-        self.element.classes.remove("divider-horizontal")
-        self.element.classes.remove("divider-vertical")
+        self.element.classes.remove("invent-divider-horizontal")
+        self.element.classes.remove("invent-divider-vertical")
         if isinstance(self._parent, Row):
-            self.element.classes.add("divider-vertical")
+            self.element.classes.add("invent-divider-vertical")
         else:
-            self.element.classes.add("divider-horizontal")
+            self.element.classes.add("invent-divider-horizontal")

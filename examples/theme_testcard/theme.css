@@ -3,21 +3,32 @@
  * Override any variable by re-declaring it inside a :root {} block
  * in your own stylesheet, loaded after this one.
  *
- * Note: --breakpoint-sm (600px) is used in @media rules below.
+ * Note: --breakpoint-sm (600px) is used in @media rules throughout.
  * CSS custom properties cannot be referenced inside @media queries,
- * so this value is hardcoded.  Update the comment and the media
- * query together if you change the breakpoint.
+ * so this value is hardcoded. Update both the comment and every @media
+ * rule together if you change the breakpoint.
  */
 
-/* === Variables: light theme (default) === */
+
+/* =====================================================================
+ * DESIGN TOKENS — light theme (default)
+ *
+ * All custom properties live here. Dark-mode colour overrides follow
+ * immediately below in the @media block. There are no other :root
+ * declarations anywhere in this file.
+ * ===================================================================== */
 
 :root {
     color-scheme: light;
 
-    /* Typography. */
-    --font: 'Roboto', sans-serif;
-    --font-mono: monospace, monospace;
-    --line-height: 1.5;
+    /* --- Typography ----------------------------------------------------- */
+
+    --font:              'Roboto', sans-serif;
+    --font-mono:         monospace, monospace;
+    --line-height:       1.5;
+    --line-height-tight: 1;
+
+    /* Heading scale. */
     --h1-size: 3.5rem;
     --h2-size: 3rem;
     --h3-size: 2.5rem;
@@ -25,223 +36,281 @@
     --h5-size: 1.5rem;
     --h6-size: 1.25rem;
 
-    /* Typography: UI scale tokens for component-level sizing. */
-    --font-size-xl: 1.5rem;
-    --font-size-sm: 0.875rem;
+    /* UI component scale. */
     --font-size-xs: 0.75rem;
-    /* Line heights. */
-    --line-height-tight: 1;
+    --font-size-sm: 0.875rem;
+    --font-size-xl: 1.5rem;
 
-    /* Layout. */
-    --page-width: 80%;
+    /* --- Layout --------------------------------------------------------- */
+
+    --page-width:     80%;
     --page-max-width: 960px;
+    --page-padding:   2rem;
 
-    /* Background overlays.
-     * These can be used to apply a semi-transparent overlay to background
-     * images, improving contrast and readability. */
-    --bg-image-overlay: rgba(255, 255, 255, 0.66); /* pale wash. */
+    /* --- Spacing -------------------------------------------------------- */
 
-
-    /* Borders and shape. */
-    --border-width: 2px;
-    --border-radius: 4px;
-    --border-radius-lg: 8px;
     --spacing-xs: 4px;
     --spacing-sm: 8px;
     --spacing-md: 12px;
     --spacing-lg: 16px;
 
-    /* Transitions (suppressed by prefers-reduced-motion below). */
-    --transition-speed: 0.2s;
+    /* --- Borders and shape ---------------------------------------------- */
+
+    --border-width:     2px;
+    --border-radius:    4px;
+    --border-radius-lg: 8px;
+
+    /* --- Transitions ---------------------------------------------------- */
+
+    /* All transition values are suppressed by prefers-reduced-motion below. */
+    --transition-speed:        0.2s;
+    --transition-speed-fast:   0.1s;
+    --transition-speed-slow:   0.4s;
     --transition-speed-button: 235ms ease-in-out 0s;
-    --transition-speed-slow: 0.4s;
-    --transition-speed-fast: 0.1s;
 
+    /* --- Shadows -------------------------------------------------------- */
 
-    /* Menu. */
+    /* Generic scale for cards, bubbles, and modals; no dark-mode overrides. */
+    --shadow-sm: 0 2px 6px rgba(0, 0, 0, 0.08);
+    --shadow-md: 0 2px 6px rgba(0, 0, 0, 0.10);
+    --shadow-lg: 0 8px 32px rgba(0, 0, 0, 0.20);
+
+    /* Header/footer bar shadows; overridden in the dark @media block below.
+     * The sticky-footer shadow uses a negative y-offset so it points upward.
+     * Note: dark mode applies a uniform positive y-offset to both sticky
+     * bars — this asymmetry is intentional and matches the original design. */
+    --shadow-bar:               0 2px 6px rgba(0, 0, 0, 0.10);
+    --shadow-bar-sticky-header: 0 3px 10px rgba(0, 0, 0, 0.18);
+    --shadow-bar-sticky-footer: 0 -3px 10px rgba(0, 0, 0, 0.18);
+
+    /* --- Z-index layers ------------------------------------------------- */
+
+    /* Layers are spaced far apart to avoid conflicts with third-party
+     * libraries. */
+    --z-sticky: 99999;
+    --z-modal:  99999999;
+    --z-menu:   9999999999;
+
+    /* --- Background overlays -------------------------------------------- */
+
+    /* Semi-transparent wash over background images; improves contrast and
+     * readability of text laid over images. */
+    --bg-image-overlay: rgba(255, 255, 255, 0.66);
+
+    /* --- Menu ----------------------------------------------------------- */
+
     --menu-min-width:    10rem;
     --menu-shadow:       0 4px 16px rgba(0, 0, 0, 0.15);
-    /* Vertical padding per item. */
     --menu-item-padding: var(--spacing-sm) var(--spacing-lg);
 
-    /* Colours: base. */
-    --color-body: #111;
+    /* --- Modal ---------------------------------------------------------- */
+
+    --modal-max-width:      560px;
+    --modal-padding:        1.5rem;
+    --modal-backdrop-color: rgba(0, 0, 0, 0.45);
+    --modal-backdrop-blur:  5px;
+
+    /* --- Avatar sizes --------------------------------------------------- */
+
+    /* T-shirt scale used by the Avatar widget size modifier classes. */
+    --avatar-size-xs: 1.5rem;
+    --avatar-size-s:  2rem;
+    --avatar-size-m:  3rem;
+    --avatar-size-l:  4.5rem;
+    --avatar-size-xl: 6rem;
+
+    /* --- Colours: base -------------------------------------------------- */
+
+    --color-body:      #111;
     --main-background: white;
 
-    /* Colours: links. */
-    --link: #085aa5;
-    --link-hover: #208ef3;
+    /* --- Colours: links ------------------------------------------------- */
+
+    --link:         #085aa5;
+    --link-hover:   #208ef3;
     --link-visited: #5a2a8a;
 
-    /* Colours: semantic. */
-    --primary: #41403e;
+    /* --- Colours: semantic ---------------------------------------------- */
+
+    --primary:   #41403e;
     --secondary: #0b74d5;
-    --success: #4a9e6a;
-    --warning: #e0a030;
-    --danger: #a7342d;
-    --muted: #868e96;
+    --success:   #4a9e6a;
+    --warning:   #e0a030;
+    --danger:    #a7342d;
+    --muted:     #868e96;
 
-    /* Colours: light variants. */
-    --primary-light: #cdcccb;
+    /* --- Colours: light variants ---------------------------------------- */
+
+    --primary-light:   #cdcccb;
     --secondary-light: #d8ebfd;
-    --success-light: #d0e8d6;
-    --warning-light: #f5e6c0;
-    --danger-light: #f0cbc9;
-    --muted-light: #e6e7e9;
+    --success-light:   #d0e8d6;
+    --warning-light:   #f5e6c0;
+    --danger-light:    #f0cbc9;
+    --muted-light:     #e6e7e9;
 
-    /* Colours: active variants. */
-    --primary-active: #b4b3b0;
+    /* --- Colours: active variants --------------------------------------- */
+
+    --primary-active:   #b4b3b0;
     --secondary-active: #a7d3fa;
-    --success-active: #a8d4b5;
-    --warning-active: #e8cc88;
-    --danger-active: #e6a5a1;
+    --success-active:   #a8d4b5;
+    --warning-active:   #e8cc88;
+    --danger-active:    #e6a5a1;
 
-    /* Colours: dark variants. */
-    --primary-dark: #1a1918;
+    /* --- Colours: dark variants ----------------------------------------- */
+
+    --primary-dark:   #1a1918;
     --secondary-dark: #053a6a;
-    --success-dark: #1e5a32;
-    --warning-dark: #8a5c10;
-    --danger-dark: #5a1410;
-    --muted-dark: #313538;
+    --success-dark:   #1e5a32;
+    --warning-dark:   #8a5c10;
+    --danger-dark:    #5a1410;
+    --muted-dark:     #313538;
 
-    /* Colours: neutral. */
+    /* --- Colours: neutral ----------------------------------------------- */
+
     --white: white;
     --black: black;
 
-    /* Colours: text. */
-    --primary-text: #272625;
+    /* --- Colours: text -------------------------------------------------- */
+
+    --primary-text:   #272625;
     --secondary-text: #085aa5;
-    --success-text: #2a5e38;
-    --warning-text: #7a5510;
-    --danger-text: #7f2722;
-    --muted-text: #6c757d;
+    --success-text:   #2a5e38;
+    --warning-text:   #7a5510;
+    --danger-text:    #7f2722;
+    --muted-text:     #6c757d;
 }
 
-/* === Variables: dark theme overrides === */
+
+/* =====================================================================
+ * DESIGN TOKENS — dark theme overrides
+ *
+ * Only colour and shadow values change; structural tokens (spacing,
+ * typography, borders, layout) remain as declared in :root above.
+ * ===================================================================== */
 
 @media (prefers-color-scheme: dark) {
     :root {
         color-scheme: dark;
 
         /* Background overlays. */
-        --bg-image-overlay: rgba(0, 0, 0, 0.66); /* dark wash. */
+        --bg-image-overlay: rgba(0, 0, 0, 0.66);
 
+        /* Shadows: stronger to suit darker backgrounds. Dark mode applies a
+         * positive y-offset to both sticky bars (matching the original). */
+        --shadow-bar:               0 2px 8px rgba(0, 0, 0, 0.35);
+        --shadow-bar-sticky-header: 0 3px 12px rgba(0, 0, 0, 0.50);
+        --shadow-bar-sticky-footer: 0 3px 12px rgba(0, 0, 0, 0.50);
 
         /* Colours: base. */
-        --color-body: #e0e0e0;
+        --color-body:      #e0e0e0;
         --main-background: #1a1a1e;
 
         /* Colours: links. */
-        --link: #4da8f0;
-        --link-hover: #7cc4ff;
+        --link:         #4da8f0;
+        --link-hover:   #7cc4ff;
         --link-visited: #c084fc;
 
         /* Colours: semantic. */
-        --primary: #9a9895;
+        --primary:   #9a9895;
         --secondary: #3d9cf0;
-        --success: #5fb87e;
-        --warning: #e8b040;
-        --danger: #cf5048;
-        --muted: #6c757d;
+        --success:   #5fb87e;
+        --warning:   #e8b040;
+        --danger:    #cf5048;
+        --muted:     #6c757d;
 
         /* Colours: light variants. */
-        --primary-light: #3a3937;
+        --primary-light:   #3a3937;
         --secondary-light: #1a2d42;
-        --success-light: #1e3025;
-        --warning-light: #3a2e15;
-        --danger-light: #3d1f1d;
-        --muted-light: #2a2d30;
+        --success-light:   #1e3025;
+        --warning-light:   #3a2e15;
+        --danger-light:    #3d1f1d;
+        --muted-light:     #2a2d30;
 
         /* Colours: active variants. */
-        --primary-active: #4a4947;
+        --primary-active:   #4a4947;
         --secondary-active: #253d55;
-        --success-active: #2a4030;
-        --warning-active: #4d3d20;
-        --danger-active: #522a27;
+        --success-active:   #2a4030;
+        --warning-active:   #4d3d20;
+        --danger-active:    #522a27;
 
         /* Colours: dark variants. */
-        --primary-dark: #c0bfbd;
+        --primary-dark:   #c0bfbd;
         --secondary-dark: #6db8f7;
-        --success-dark: #90d8a5;
-        --warning-dark: #f0cc70;
-        --danger-dark: #e8807a;
-        --muted-dark: #b0b5ba;
+        --success-dark:   #90d8a5;
+        --warning-dark:   #f0cc70;
+        --danger-dark:    #e8807a;
+        --muted-dark:     #b0b5ba;
 
         /* Colours: neutral. */
         --white: #1a1a1e;
         --black: #e0e0e0;
 
         /* Colours: text. */
-        --primary-text: #e0dfdd;
+        --primary-text:   #e0dfdd;
         --secondary-text: #6db8f7;
-        --success-text: #85cc9a;
-        --warning-text: #e0b848;
-        --danger-text: #e0756f;
-        --muted-text: #9ca3ab;
+        --success-text:   #85cc9a;
+        --warning-text:   #e0b848;
+        --danger-text:    #e0756f;
+        --muted-text:     #9ca3ab;
     }
 
-    /* Checkbox tick: re-drawn using the dark secondary colour.
-     * The light-mode SVG fill is hardcoded and will not respond
-     * to CSS variables, so a separate rule is required here. */
+    /* Checkbox tick: re-drawn in the dark secondary colour.
+     * The SVG fill is hardcoded in the data URI and cannot reference CSS
+     * variables, so a separate dark-mode rule is required. */
     input[type="checkbox"]:checked + .checkbox::before {
         background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1em' height='1em' viewBox='0 0 256 256'%3E%3Cpath fill='%233d9cf0' d='m243.31 90.91l-128.4 128.4a16 16 0 0 1-22.62 0l-71.62-72a16 16 0 0 1 0-22.61l20-20a16 16 0 0 1 22.58 0L104 144.22l96.76-95.57a16 16 0 0 1 22.59 0l19.95 19.54a16 16 0 0 1 .01 22.72'/%3E%3C/svg%3E");
     }
 
-    /* Radio dot: re-drawn using the dark secondary colour. */
+    /* Radio dot: re-drawn in the dark secondary colour. */
     input[type="radio"]:checked + span::before {
         background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1em' height='1em' viewBox='0 0 256 256'%3E%3Cpath fill='%233d9cf0' d='M232 128A104 104 0 1 1 128 24a104.13 104.13 0 0 1 104 104'/%3E%3C/svg%3E");
     }
 }
 
-/* === Accessibility: disable transitions for users who prefer it === */
 
+/* =====================================================================
+ * ACCESSIBILITY
+ * ===================================================================== */
+
+/* Suppress all transitions and animations for users who prefer reduced
+ * motion. !important overrides any inline or component-level values. */
 @media (prefers-reduced-motion: reduce) {
     *, *::before, *::after {
         transition-duration: 0.01ms !important;
-        animation-duration: 0.01ms !important;
+        animation-duration:  0.01ms !important;
     }
 }
 
-/* === Page layout === */
+
+/* =====================================================================
+ * BASE RESET
+ * ===================================================================== */
 
 html, body {
-    margin: 0;
+    margin:  0;
     padding: 0;
 }
 
 body {
-    font-family: var(--font);
-    font-size: 100%;
-    line-height: var(--line-height);
-    color: var(--color-body);
     background-color: var(--main-background);
-    min-height: 100vh;
+    color:            var(--color-body);
+    font-family:      var(--font);
+    font-size:        100%;
+    line-height:      var(--line-height);
+    min-height:       100vh;
 }
 
-.invent-page {
-    box-sizing: border-box;
-    margin: 1rem auto;
-    padding: 2rem;
-    width: var(--page-width);
-    max-width: var(--page-max-width);
-}
 
-/* For apps that need a native app (full width) layout. */
-body.app-view .invent-page {
-    width: 100%;
-    max-width: none;
-    margin: 0;
-    padding: 1rem;
-}
-
-/* === Typography === */
+/* =====================================================================
+ * TYPOGRAPHY
+ * ===================================================================== */
 
 p {
     font-size: 1rem;
 }
 
 a {
-    color: var(--link);
+    color:           var(--link);
     text-decoration: none;
 }
 
@@ -249,13 +318,14 @@ a:visited {
     color: var(--link-visited);
 }
 
-a:hover, a:active {
-    color: var(--link-hover);
+a:hover,
+a:active {
+    color:           var(--link-hover);
     text-decoration: underline;
 }
 
 a:focus {
-    color: var(--link);
+    color:           var(--link);
     text-decoration: underline;
 }
 
@@ -277,23 +347,26 @@ b, strong {
 
 code, kbd, samp {
     font-family: var(--font-mono);
-    font-size: 1rem;
+    font-size:   1rem;
 }
 
 pre {
-    display: block;
-    max-width: 100%;
-    overflow: auto;
-    padding: 1rem;
-    border: var(--border-width) solid var(--primary-light);
     background-color: var(--muted-light);
+    border:           var(--border-width) solid var(--primary-light);
+    display:          block;
+    max-width:        100%;
+    overflow:         auto;
+    padding:          1rem;
 }
 
-/* === Tables === */
+
+/* =====================================================================
+ * TABLES
+ * ===================================================================== */
 
 table {
     border-collapse: collapse;
-    width: 100%;
+    width:           100%;
 }
 
 tr:nth-child(even) {
@@ -312,30 +385,163 @@ td, th {
     padding: 0.5rem;
 }
 
-/* === Multimedia === */
+
+/* =====================================================================
+ * MULTIMEDIA
+ * ===================================================================== */
+
+audio {
+    display: block;
+    margin:  0 auto;
+    width:   100%;
+}
 
 img, video {
-    max-width: 100%;
-    height: auto;
+    height:     auto;
+    max-width:  100%;
     object-fit: contain;
 }
 
-/* === Form elements === */
+
+/* =====================================================================
+ * LAYOUT
+ * ===================================================================== */
+
+/* --- Page --------------------------------------------------------------- */
+
+.invent-page {
+    box-sizing: border-box;
+    margin:     1rem auto;
+    max-width:  var(--page-max-width);
+    padding:    var(--page-padding);
+    width:      var(--page-width);
+}
+
+/* Full-width native-app layout: removes the centred document column. */
+body.app-view .invent-page {
+    margin:    0;
+    max-width: none;
+    padding:   1rem;
+    width:     100%;
+}
+
+/* --- Header and footer bars --------------------------------------------- */
+
+/* Shared base: tinted background with a subtle lift shadow. */
+.invent-header,
+.invent-footer {
+    align-items: center;
+    background:  var(--primary-light);
+    box-shadow:  var(--shadow-bar);
+    box-sizing:  border-box;
+    color:       var(--color-body);
+    display:     flex;
+    flex-flow:   row wrap;
+    font-family: var(--font);
+    gap:         0.5rem;
+    padding:     0.5rem 1rem;
+    transition:  box-shadow var(--transition-speed) ease;
+    width:       100%;
+}
+
+/* Accent stripe on the inward-facing edge of each bar. */
+.invent-header { border-block-end:   3px solid var(--secondary); }
+.invent-footer { border-block-start: 3px solid var(--secondary); }
+
+/* Sticky header: pins to the top; stronger shadow signals it is floating
+ * above scrolled content. */
+.invent-header--sticky {
+    box-shadow: var(--shadow-bar-sticky-header);
+    position:   sticky;
+    top:        0;
+    z-index:    var(--z-sticky);
+}
+
+/* Sticky footer: pins to the bottom; the light-mode shadow points upward
+ * (negative y); dark-mode override uses a positive y — see token comment
+ * in :root. */
+.invent-footer--sticky {
+    bottom:     0;
+    box-shadow: var(--shadow-bar-sticky-footer);
+    position:   sticky;
+    z-index:    var(--z-sticky);
+}
+
+/* Dark mode: a lifted tone distinguishes bars from the darker page body. */
+@media (prefers-color-scheme: dark) {
+    .invent-header,
+    .invent-footer {
+        background: var(--muted-dark);
+        box-shadow: var(--shadow-bar);
+        color:      var(--white);
+    }
+
+    .invent-header--sticky { box-shadow: var(--shadow-bar-sticky-header); }
+    .invent-footer--sticky { box-shadow: var(--shadow-bar-sticky-footer); }
+}
+
+/* Disable the shadow transition for users who prefer reduced motion. */
+@media (prefers-reduced-motion: reduce) {
+    .invent-header,
+    .invent-footer {
+        transition: none;
+    }
+}
+
+/* Responsive: full-bleed bars on narrow screens (breakpoint: 600px).
+ *
+ * Because header/footer are children of .invent-page, they inherit its
+ * narrowed width on desktop. On mobile the page is made full-width and
+ * the padding token is reduced; the bars use negative margin-inline to
+ * cancel that padding and span edge-to-edge. overflow: visible on the
+ * page allows the bars to reach the viewport edges without being clipped.
+ * flex-flow: row wrap (already set) ensures content wraps rather than
+ * overflows the expanded bar. */
+@media (max-width: 599px) {
+
+    body {
+        overflow-x: clip;
+    }
+
+    .invent-page {
+        --page-padding: 1rem;
+        margin:         0 auto;
+        max-width:      none;
+        width:          100%;
+    }
+
+    .invent-header,
+    .invent-footer {
+        /* Break out of the page padding to span the full viewport width. */
+        margin-inline:  calc(-1 * var(--page-padding));
+        width:          calc(100% + 2 * var(--page-padding));
+    }
+}
+
+
+/* =====================================================================
+ * FORM ELEMENTS
+ *
+ * Sections are ordered alphabetically, with the exception of the shared
+ * base rules which must come first as cascade dependencies.
+ * ===================================================================== */
+
+/* --- Shared base -------------------------------------------------------- */
 
 input,
 select,
 textarea {
-    color: var(--primary);
+    background:   transparent;
     border-color: var(--primary);
-    background: transparent;
     border-style: solid;
     border-width: var(--border-width);
-    display: block;
-    font-size: 1rem;
-    /* Suppress the default outline; a keyboard-focus ring is
-     * provided via :focus-visible below. */
-    outline: none;
-    padding: 0.5rem;
+    color:        var(--primary);
+    display:      block;
+    font-size:    1rem;
+    /* Suppress the default outline; a keyboard-focus ring is provided
+     * via :focus-visible below. */
+    outline:      none;
+    padding:      0.5rem;
 }
 
 input:focus,
@@ -351,7 +557,7 @@ input:focus-visible,
 select:focus-visible,
 textarea:focus-visible,
 button:focus-visible {
-    outline: var(--border-width) solid var(--secondary);
+    outline:        var(--border-width) solid var(--secondary);
     outline-offset: 2px;
 }
 
@@ -363,213 +569,321 @@ label {
     cursor: pointer;
 }
 
-.disabled, input.disabled, input[disabled],
-select.disabled, select[disabled],
+/* Disabled state applies to elements with the class or the attribute. */
+.disabled,
+input.disabled,    input[disabled],
+select.disabled,   select[disabled],
 textarea.disabled, textarea[disabled] {
-    cursor: not-allowed;
+    cursor:  not-allowed;
     opacity: 0.5;
 }
 
-/* === Buttons ===
+/* --- Buttons ------------------------------------------------------------
  *
- * The unstyled button has the primary appearance by default.
- * Use .secondary, .success, .warning, or .danger to vary the
- * intent; omit the class (or leave it unstyled) for a primary
- * action.
- */
+ * The unstyled button carries the primary intent by default. Add a class
+ * (.secondary, .success, .warning, .danger) to change it.
+ *
+ * Intent base and hover styles are shared with the Button Group widget
+ * (.invent-btn-group) via combined selectors below. Active states remain
+ * separate because the button-group checked state also updates border-color.
+ * ---------------------------------------------------------------------- */
 
 button {
-    align-self: center;
+    align-self:       center;
     background-color: var(--primary-light);
     background-image: none;
-    border-color: var(--primary);
-    border-radius: var(--border-radius-lg);
-    border-style: solid;
-    border-width: var(--border-width);
-    color: var(--primary-text);
-    cursor: pointer;
-    display: inline-block;
-    font-size: 1rem;
-    /* Suppress the default outline; a keyboard-focus ring is
-     * provided via :focus-visible above. */
-    outline: none;
-    padding: 0.75rem;
-    transition: all var(--transition-speed-button);
+    border-color:     var(--primary);
+    border-radius:    var(--border-radius-lg);
+    border-style:     solid;
+    border-width:     var(--border-width);
+    color:            var(--primary-text);
+    cursor:           pointer;
+    display:          inline-block;
+    font-size:        1rem;
+    /* Suppress the default outline; :focus-visible above provides the ring. */
+    outline:          none;
+    padding:          0.75rem;
+    transition:       all var(--transition-speed-button);
 }
 
 button:hover {
     background-color: var(--primary-active);
-    border-color: var(--primary-dark);
+    border-color:     var(--primary-dark);
 }
 
 button:active {
     background-color: var(--primary);
-    border-color: var(--primary-dark);
-    color: var(--primary-light);
+    border-color:     var(--primary-dark);
+    color:            var(--primary-light);
 }
 
 button.large {
     font-size: 2rem;
-    padding: 1rem;
+    padding:   1rem;
 }
 
 button.small {
     font-size: 0.75rem;
-    padding: 0.5rem;
+    padding:   0.5rem;
 }
 
-button.secondary {
-    color: var(--secondary-text);
+/* Secondary intent. */
+button.secondary,
+.invent-btn-group.secondary .invent-btn {
     background-color: var(--secondary-light);
-    border-color: var(--secondary);
+    border-color:     var(--secondary);
+    color:            var(--secondary-text);
 }
 
-button.secondary:hover {
+button.secondary:hover,
+.invent-btn-group.secondary .invent-btn:hover {
     background-color: var(--secondary-active);
 }
 
 button.secondary:active {
     background-color: var(--secondary);
-    color: var(--secondary-light);
+    color:            var(--secondary-light);
 }
 
-button.success {
-    color: var(--success-text);
+.invent-btn-group.secondary input[type="radio"]:checked + .invent-btn {
+    background-color: var(--secondary);
+    border-color:     var(--secondary-dark);
+    color:            var(--secondary-light);
+}
+
+/* Success intent. */
+button.success,
+.invent-btn-group.success .invent-btn {
     background-color: var(--success-light);
-    border-color: var(--success);
+    border-color:     var(--success);
+    color:            var(--success-text);
 }
 
-button.success:hover {
+button.success:hover,
+.invent-btn-group.success .invent-btn:hover {
     background-color: var(--success-active);
 }
 
 button.success:active {
     background-color: var(--success);
-    color: var(--success-light);
+    color:            var(--success-light);
 }
 
-button.warning {
-    color: var(--warning-text);
+.invent-btn-group.success input[type="radio"]:checked + .invent-btn {
+    background-color: var(--success);
+    border-color:     var(--success-dark);
+    color:            var(--success-light);
+}
+
+/* Warning intent. */
+button.warning,
+.invent-btn-group.warning .invent-btn {
     background-color: var(--warning-light);
-    border-color: var(--warning);
+    border-color:     var(--warning);
+    color:            var(--warning-text);
 }
 
-button.warning:hover {
+button.warning:hover,
+.invent-btn-group.warning .invent-btn:hover {
     background-color: var(--warning-active);
 }
 
 button.warning:active {
     background-color: var(--warning);
-    color: var(--warning-light);
+    color:            var(--warning-light);
 }
 
-button.danger {
-    color: var(--danger-text);
+.invent-btn-group.warning input[type="radio"]:checked + .invent-btn {
+    background-color: var(--warning);
+    border-color:     var(--warning-dark);
+    color:            var(--warning-light);
+}
+
+/* Danger intent. */
+button.danger,
+.invent-btn-group.danger .invent-btn {
     background-color: var(--danger-light);
-    border-color: var(--danger);
+    border-color:     var(--danger);
+    color:            var(--danger-text);
 }
 
-button.danger:hover {
+button.danger:hover,
+.invent-btn-group.danger .invent-btn:hover {
     background-color: var(--danger-active);
 }
 
 button.danger:active {
     background-color: var(--danger);
-    color: var(--danger-light);
+    color:            var(--danger-light);
 }
 
-/* === Slider === */
-
-input[type=range] {
-    -webkit-appearance: none;
-       -moz-appearance: none;
-            appearance: none;
-    border-width: 0;
-    padding: 0;
+.invent-btn-group.danger input[type="radio"]:checked + .invent-btn {
+    background-color: var(--danger);
+    border-color:     var(--danger-dark);
+    color:            var(--danger-light);
 }
 
-input[type="range"]::-webkit-slider-runnable-track {
-    background: var(--secondary);
-    border-color: var(--primary);
-    border-radius: 18px;
-    border-style: solid;
-    border-width: 1px;
-    cursor: pointer;
-    height: 8px;
-    margin: 10px 0;
-    width: 100%;
+/* --- Checkboxes, radios, and switch ------------------------------------- */
+
+/* Visually hidden but still accessible to keyboard and screen readers. */
+input[type="checkbox"],
+input[type="radio"] {
+    border:   0;
+    height:   1px;
+    margin:   -1px;
+    opacity:  0;
+    overflow: hidden;
+    padding:  0;
+    position: absolute;
+    width:    1px;
 }
 
-input[type=range]::-moz-range-track {
-    background: var(--secondary);
-    border-color: var(--primary);
-    border-radius: 18px;
-    cursor: pointer;
-    height: 8px;
-    width: 100%;
+input[type="checkbox"] + span,
+input[type="radio"] + span {
+    cursor:    pointer;
+    display:   inline-block;
+    font-size: 1rem;
+    margin:    15px 0;
+    position:  relative;
 }
 
-input[type="range"]::-webkit-slider-thumb {
-    -webkit-appearance: none;
-            appearance: none;
-    background: var(--white);
-    border-color: var(--primary);
-    border-radius: 1rem;
-    border-style: solid;
-    border-width: var(--border-width);
-    cursor: pointer;
-    height: 36px;
-    margin-top: -14px;
-    width: 16px;
+/* Checkbox tick SVG: fill matches the light secondary colour.
+ * The dark-theme override is in the dark @media block above. */
+input[type="checkbox"]:checked + .checkbox::before {
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1em' height='1em' viewBox='0 0 256 256'%3E%3Cpath fill='%230b74d5' d='m243.31 90.91l-128.4 128.4a16 16 0 0 1-22.62 0l-71.62-72a16 16 0 0 1 0-22.61l20-20a16 16 0 0 1 22.58 0L104 144.22l96.76-95.57a16 16 0 0 1 22.59 0l19.95 19.54a16 16 0 0 1 .01 22.72'/%3E%3C/svg%3E");
 }
 
-input[type=range]::-moz-range-thumb {
-    background: var(--white);
-    border-color: var(--primary);
-    border-radius: 1rem;
-    border-style: solid;
-    border-width: var(--border-width);
-    cursor: pointer;
-    height: 36px;
-    width: 16px;
+input[type="checkbox"] + .checkbox::before {
+    border-color:   var(--primary);
+    border-radius:  var(--border-radius);
+    border-style:   solid;
+    border-width:   var(--border-width);
+    content:        "";
+    display:        inline-block;
+    height:         1rem;
+    margin-right:   0.75em;
+    position:       relative;
+    vertical-align: -0.25em;
+    width:          1rem;
 }
 
-input[type=range]::-ms-track {
-    background: transparent;
-    border-color: transparent;
-    border-width: 16px 0;
-    color: transparent;
-    cursor: pointer;
-    height: 8px;
-    width: 100%;
+input[type="radio"] + span {
+    padding: 0 15px;
 }
 
-input[type=range]::-ms-fill-lower,
-input[type=range]::-ms-fill-upper {
-    background: var(--secondary);
-    border-color: var(--primary);
-    border-radius: 18px;
-    border-style: solid;
-    border-width: 1px;
+/* Radio dot SVG: fill matches the light secondary colour.
+ * The dark-theme override is in the dark @media block above. */
+input[type="radio"]:checked + span::before {
+    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1em' height='1em' viewBox='0 0 256 256'%3E%3Cpath fill='%230b74d5' d='M232 128A104 104 0 1 1 128 24a104.13 104.13 0 0 1 104 104'/%3E%3C/svg%3E");
 }
 
-input[type=range]::-ms-thumb {
-    background: var(--white);
-    border-color: var(--primary);
-    border-radius: 1rem;
-    border-style: solid;
-    border-width: var(--border-width);
-    cursor: pointer;
-    height: 36px;
-    width: 16px;
+input[type="radio"] + span::before {
+    border-color:   var(--primary);
+    border-radius:  50%;
+    border-style:   solid;
+    border-width:   var(--border-width);
+    content:        "";
+    display:        inline-block;
+    height:         1rem;
+    margin-right:   0.75em;
+    position:       relative;
+    vertical-align: -0.25em;
+    width:          1rem;
 }
 
-/* === Meter === */
+/* Switch: a visible toggle track and thumb laid over a hidden checkbox. */
+.switch {
+    display:      inline-block;
+    height:       1.5rem;
+    margin-right: 0.75em;
+    position:     relative;
+    width:        3rem;
+}
+
+.switch-label {
+    cursor:      pointer;
+    padding-top: 0.25em;
+    position:    absolute;
+}
+
+/* The visible track. */
+.slider {
+    background-color: var(--primary-light);
+    border:           var(--border-width) solid var(--primary);
+    border-radius:    var(--border-radius);
+    bottom:           0;
+    cursor:           pointer;
+    height:           1.5rem;
+    left:             0;
+    margin:           0 1rem 0 0 !important;
+    position:         absolute;
+    right:            0;
+    top:              0;
+    transition:       var(--transition-speed);
+    width:            3rem;
+}
+
+/* The draggable thumb. */
+.slider:before {
+    background-color: var(--white);
+    bottom:           4px;
+    content:          "";
+    height:           1rem;
+    left:             4px;
+    position:         absolute;
+    transition:       var(--transition-speed);
+    width:            1rem;
+}
+
+input[type="checkbox"]:focus + .slider {
+    box-shadow: 0 0 1px var(--secondary);
+}
+
+input[type="checkbox"]:checked + .slider {
+    background-color: var(--secondary) !important;
+}
+
+input[type="checkbox"]:checked + .slider:before {
+    transform: translateX(1.5rem);
+}
+
+/* --- Colour picker ------------------------------------------------------- */
+
+input[type="color"] {
+    border:        var(--border-width) solid var(--primary);
+    border-radius: var(--border-radius);
+    cursor:        pointer;
+    display:       inline-block;
+    height:        2rem;
+    margin-right:  0.75em;
+    padding:       0.1rem;
+    width:         3rem;
+}
+
+/* --- Date and time pickers ----------------------------------------------- */
+
+input[type="date"],
+input[type="time"],
+input[type="datetime-local"] {
+    border:       var(--border-width) solid var(--primary);
+    cursor:       pointer;
+    display:      inline-block;
+    margin-right: 0.75em;
+}
+
+/* --- File selector ------------------------------------------------------- */
+
+input[type="file"] {
+    border:  0;
+    cursor:  pointer;
+}
+
+/* --- Meter --------------------------------------------------------------- */
 
 meter {
     display: block;
-    width: 100%;
-    height: 36px;
+    height:  36px;
+    width:   100%;
 }
 
 meter::-webkit-meter-optimum-value,
@@ -590,229 +904,159 @@ meter::-ms-fill-upper {
     background-color: var(--danger);
 }
 
-/* === Progress bar === */
-
-progress:not([value]) {
-    accent-color: var(--warning);
-    display: block;
-    width: 100%;
-    height: 18px;
-}
+/* --- Progress bar -------------------------------------------------------- */
 
 progress {
     accent-color: var(--secondary);
-    display: block;
-    width: 100%;
-    height: 18px;
+    display:      block;
+    height:       18px;
+    width:        100%;
 }
 
-/* === Checkboxes, switches, and radio buttons === */
-
-input[type="checkbox"], input[type="radio"] {
-    border: 0;
-    height: 1px;
-    margin: -1px;
-    opacity: 0;
-    overflow: hidden;
-    padding: 0;
-    position: absolute;
-    width: 1px;
+/* Indeterminate (no value attribute): warning colour signals an operation
+ * is in progress with unknown duration. */
+progress:not([value]) {
+    accent-color: var(--warning);
 }
 
-input[type="checkbox"] + span,
-input[type="radio"] + span {
-    cursor: pointer;
-    display: inline-block;
-    font-size: 1rem;
-    margin: 15px 0;
-    position: relative;
+/* --- Slider (range input) ------------------------------------------------ */
+
+input[type=range] {
+    -webkit-appearance: none;
+       -moz-appearance: none;
+            appearance: none;
+    border-width: 0;
+    padding:      0;
 }
 
-/* Checkbox tick SVG: fill matches the light secondary colour.
- * The dark-theme override is in the dark @media block above. */
-input[type="checkbox"]:checked + .checkbox::before {
-    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1em' height='1em' viewBox='0 0 256 256'%3E%3Cpath fill='%230b74d5' d='m243.31 90.91l-128.4 128.4a16 16 0 0 1-22.62 0l-71.62-72a16 16 0 0 1 0-22.61l20-20a16 16 0 0 1 22.58 0L104 144.22l96.76-95.57a16 16 0 0 1 22.59 0l19.95 19.54a16 16 0 0 1 .01 22.72'/%3E%3C/svg%3E");
+input[type="range"]::-webkit-slider-runnable-track {
+    background:    var(--secondary);
+    border-color:  var(--primary);
+    border-radius: 18px;
+    border-style:  solid;
+    border-width:  1px;
+    cursor:        pointer;
+    height:        8px;
+    margin:        10px 0;
+    width:         100%;
 }
 
-input[type="checkbox"] + .checkbox::before {
-    border-color: var(--primary);
-    border-style: solid;
-    border-width: var(--border-width);
-    border-radius: var(--border-radius);
-    content: "";
-    display: inline-block;
-    height: 1rem;
-    margin-right: 0.75em;
-    position: relative;
-    vertical-align: -0.25em;
-    width: 1rem;
+input[type=range]::-moz-range-track {
+    background:    var(--secondary);
+    border-color:  var(--primary);
+    border-radius: 18px;
+    cursor:        pointer;
+    height:        8px;
+    width:         100%;
 }
 
-input[type="radio"] + span {
-    padding: 0 15px;
+input[type="range"]::-webkit-slider-thumb {
+    -webkit-appearance: none;
+            appearance: none;
+    background:    var(--white);
+    border-color:  var(--primary);
+    border-radius: 1rem;
+    border-style:  solid;
+    border-width:  var(--border-width);
+    cursor:        pointer;
+    height:        36px;
+    margin-top:    -14px;
+    width:         16px;
 }
 
-/* Radio dot SVG: fill matches the light secondary colour.
- * The dark-theme override is in the dark @media block above. */
-input[type="radio"]:checked + span::before {
-    background: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1em' height='1em' viewBox='0 0 256 256'%3E%3Cpath fill='%230b74d5' d='M232 128A104 104 0 1 1 128 24a104.13 104.13 0 0 1 104 104'/%3E%3C/svg%3E");
+input[type=range]::-moz-range-thumb {
+    background:    var(--white);
+    border-color:  var(--primary);
+    border-radius: 1rem;
+    border-style:  solid;
+    border-width:  var(--border-width);
+    cursor:        pointer;
+    height:        36px;
+    width:         16px;
 }
 
-input[type="radio"] + span::before {
-    border-color: var(--primary);
-    border-style: solid;
-    border-width: var(--border-width);
-    border-radius: 50%;
-    content: "";
-    display: inline-block;
-    height: 1rem;
-    margin-right: 0.75em;
-    position: relative;
-    vertical-align: -0.25em;
-    width: 1rem;
+input[type=range]::-ms-track {
+    background:   transparent;
+    border-color: transparent;
+    border-width: 16px 0;
+    color:        transparent;
+    cursor:       pointer;
+    height:       8px;
+    width:        100%;
 }
 
-/* Switch. */
-
-.switch {
-    display: inline-block;
-    height: 1.5rem;
-    margin-right: 0.75em;
-    position: relative;
-    width: 3rem;
+input[type=range]::-ms-fill-lower,
+input[type=range]::-ms-fill-upper {
+    background:    var(--secondary);
+    border-color:  var(--primary);
+    border-radius: 18px;
+    border-style:  solid;
+    border-width:  1px;
 }
 
-.switch-label {
-    cursor: pointer;
-    padding-top: 0.25em;
-    position: absolute;
+input[type=range]::-ms-thumb {
+    background:    var(--white);
+    border-color:  var(--primary);
+    border-radius: 1rem;
+    border-style:  solid;
+    border-width:  var(--border-width);
+    cursor:        pointer;
+    height:        36px;
+    width:         16px;
 }
 
-.slider {
-    background-color: var(--primary-light);
-    border: var(--border-width) solid var(--primary);
-    border-radius: var(--border-radius);
-    bottom: 0;
-    cursor: pointer;
-    height: 1.5rem;
-    left: 0;
-    margin: 0 1rem 0 0 !important;
-    position: absolute;
-    right: 0;
-    top: 0;
-    transition: var(--transition-speed);
-    width: 3rem;
+/* --- Specialised text inputs -------------------------------------------- */
+
+/* Shared background icon layout for all decorated text inputs. */
+input[type="email"],
+input[type="password"],
+input[type="tel"],
+input[type="url"] {
+    background-position: right;
+    background-repeat:   no-repeat;
+    background-size:     contain;
 }
-
-.slider:before {
-    background-color: var(--white);
-    bottom: 4px;
-    content: "";
-    height: 1rem;
-    left: 4px;
-    position: absolute;
-    transition: var(--transition-speed);
-    width: 1rem;
-}
-
-input[type="checkbox"]:focus + .slider {
-    box-shadow: 0 0 1px var(--secondary);
-}
-
-input[type="checkbox"]:checked + .slider {
-    background-color: var(--secondary) !important;
-}
-
-input[type="checkbox"]:checked + .slider:before {
-    transform: translateX(1.5rem);
-}
-
-/* === Audio === */
-
-audio {
-    display: block;
-    margin: 0 auto;
-    width: 100%;
-}
-
-/* === Specialised text inputs === */
 
 input[type="email"] {
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1em' height='1em' viewBox='0 0 256 256'%3E%3Cpath fill='grey' d='M224 48H32a8 8 0 0 0-8 8v136a16 16 0 0 0 16 16h176a16 16 0 0 0 16-16V56a8 8 0 0 0-8-8m-96 85.15L52.57 64h150.86ZM98.71 128L40 181.81V74.19Zm11.84 10.85l12 11.05a8 8 0 0 0 10.82 0l12-11.05l58 53.15H52.57ZM157.29 128L216 74.18v107.64Z'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right;
-    background-size: contain;
 }
 
 input[type="password"] {
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1em' height='1em' viewBox='0 0 256 256'%3E%3Cpath fill='grey' d='M48 56v144a8 8 0 0 1-16 0V56a8 8 0 0 1 16 0m92 54.5l-20 6.5V96a8 8 0 0 0-16 0v21l-20-6.5a8 8 0 0 0-5 15.22l20 6.49l-12.34 17a8 8 0 1 0 12.94 9.4l12.34-17l12.34 17a8 8 0 1 0 12.94-9.4l-12.34-17l20-6.49A8 8 0 0 0 140 110.5m106 5.14a8 8 0 0 0-10-5.14l-20 6.5V96a8 8 0 0 0-16 0v21l-20-6.49a8 8 0 0 0-4.95 15.22l20 6.49l-12.34 17a8 8 0 1 0 12.94 9.4l12.34-17l12.34 17a8 8 0 1 0 12.94-9.4l-12.34-17l20-6.49a8 8 0 0 0 5.07-10.09'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right;
-    background-size: contain;
 }
 
 input[type="tel"] {
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1em' height='1em' viewBox='0 0 256 256'%3E%3Cpath fill='grey' d='m222.37 158.46l-47.11-21.11l-.13-.06a16 16 0 0 0-15.17 1.4a8 8 0 0 0-.75.56L134.87 160c-15.42-7.49-31.34-23.29-38.83-38.51l20.78-24.71c.2-.25.39-.5.57-.77a16 16 0 0 0 1.32-15.06v-.12L97.54 33.64a16 16 0 0 0-16.62-9.52A56.26 56.26 0 0 0 32 80c0 79.4 64.6 144 144 144a56.26 56.26 0 0 0 55.88-48.92a16 16 0 0 0-9.51-16.62M176 208A128.14 128.14 0 0 1 48 80a40.2 40.2 0 0 1 34.87-40a.6.6 0 0 0 0 .12l21 47l-20.67 24.74a6 6 0 0 0-.57.77a16 16 0 0 0-1 15.7c9.06 18.53 27.73 37.06 46.46 46.11a16 16 0 0 0 15.75-1.14a8 8 0 0 0 .74-.56L168.89 152l47 21.05h.11A40.21 40.21 0 0 1 176 208'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right;
-    background-size: contain;
 }
 
 input[type="url"] {
     background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='1em' height='1em' viewBox='0 0 256 256'%3E%3Cpath fill='grey' d='M128 24a104 104 0 1 0 104 104A104.12 104.12 0 0 0 128 24m88 104a87.6 87.6 0 0 1-3.33 24h-38.51a157.4 157.4 0 0 0 0-48h38.51a87.6 87.6 0 0 1 3.33 24m-114 40h52a115.1 115.1 0 0 1-26 45a115.3 115.3 0 0 1-26-45m-3.9-16a140.8 140.8 0 0 1 0-48h59.88a140.8 140.8 0 0 1 0 48ZM40 128a87.6 87.6 0 0 1 3.33-24h38.51a157.4 157.4 0 0 0 0 48H43.33A87.6 87.6 0 0 1 40 128m114-40h-52a115.1 115.1 0 0 1 26-45a115.3 115.3 0 0 1 26 45m52.33 0h-35.62a135.3 135.3 0 0 0-22.3-45.6A88.29 88.29 0 0 1 206.37 88Zm-98.74-45.6A135.3 135.3 0 0 0 85.29 88H49.63a88.29 88.29 0 0 1 57.96-45.6M49.63 168h35.66a135.3 135.3 0 0 0 22.3 45.6A88.29 88.29 0 0 1 49.63 168m98.78 45.6a135.3 135.3 0 0 0 22.3-45.6h35.66a88.29 88.29 0 0 1-57.96 45.6'/%3E%3C/svg%3E");
-    background-repeat: no-repeat;
-    background-position: right;
-    background-size: contain;
 }
 
-/* === Colour picker === */
 
-input[type="color"] {
-    border: var(--border-width) solid var(--primary);
-    border-radius: var(--border-radius);
-    cursor: pointer;
-    display: inline-block;
-    height: 2rem;
-    margin-right: 0.75em;
-    padding: 0.1rem;
-    width: 3rem;
-}
+/* =====================================================================
+ * WIDGETS
+ *
+ * Each widget is a self-contained section, ordered alphabetically.
+ * ===================================================================== */
 
-/* === File selector === */
+/* === Accordion ========================================================== */
 
-input[type="file"] {
-    border: 0;
-    cursor: pointer;
-}
-
-/* === Date and time pickers === */
-
-input[type="date"],
-input[type="time"],
-input[type="datetime-local"] {
-    border: var(--border-width) solid var(--primary);
-    cursor: pointer;
-    display: inline-block;
-    margin-right: 0.75em;
-}
-
-/* === Accordion === */
-
-.accordion-item {
-    border: var(--border-width) solid var(--primary);
-    display: grid;
+.invent-accordion-item {
+    border:             var(--border-width) solid var(--primary);
+    display:            grid;
     grid-template-rows: max-content 0fr;
-    isolation: isolate;
-    overflow: hidden;
-    padding-bottom: 8px;
-    position: relative;
-    transition: grid-template-rows var(--transition-speed);
+    isolation:          isolate;
+    overflow:           hidden;
+    padding:            var(--spacing-sm);
+    position:           relative;
+    transition:         grid-template-rows var(--transition-speed);
 
     > input:is([type="checkbox"], [type="radio"]) {
-        appearance: none;
+        appearance:        none;
         grid-column-start: 1;
-        grid-row-start: 1;
-        opacity: 0;
+        grid-row-start:    1;
+        opacity:           0;
     }
 
     &:is([open], :focus:not(.collapse-close)),
@@ -835,10 +1079,10 @@ input[type="datetime-local"] {
     &:has(
         > input:is([type="checkbox"], [type="radio"]):focus-visible
     ) {
-        outline-color: var(--color-body);
+        outline-color:  var(--color-body);
         outline-offset: 2px;
-        outline-style: solid;
-        outline-width: var(--border-width);
+        outline-style:  solid;
+        outline-width:  var(--border-width);
     }
 
     &:not(.collapse-close) {
@@ -865,12 +1109,12 @@ input[type="datetime-local"] {
     }
 
     > input:is([type="checkbox"], [type="radio"]) {
-        min-height: 1lh;
-        padding: 1rem;
+        min-height:         1lh;
+        padding:            1rem;
         padding-inline-end: 3rem;
-        transition: background-color var(--transition-speed) ease-out;
-        width: 100%;
-        z-index: 1;
+        transition:         background-color var(--transition-speed) ease-out;
+        width:              100%;
+        z-index:            1;
     }
 
     /* Rotate the chevron when the accordion is open. */
@@ -883,929 +1127,137 @@ input[type="datetime-local"] {
         transform: translateY(-50%) rotate(225deg);
     }
 
-    > .accordion-title:after {
-        content: "";
-        display: inline-block;
-        height: 0.5rem;
-        width: 0.5rem;
-        border-inline-end: var(--border-width) solid currentColor;
-        border-block-end: var(--border-width) solid currentColor;
-        transform: translateY(-100%) rotate(45deg);
-        transform-origin: 75% 75%;
-        transition-property: all;
+    > .invent-accordion-title:after {
+        border-block-end:           var(--border-width) solid currentColor;
+        border-inline-end:          var(--border-width) solid currentColor;
+        content:                    "";
+        display:                    inline-block;
+        height:                     0.5rem;
+        inset-inline-end:           1.4rem;
+        pointer-events:             none;
+        position:                   absolute;
+        top:                        1.9rem;
+        transform:                  translateY(-100%) rotate(45deg);
+        transform-origin:           75% 75%;
+        transition-duration:        var(--transition-speed);
+        transition-property:        all;
         transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
-        transition-duration: var(--transition-speed);
-        inset-inline-end: 1.4rem;
-        pointer-events: none;
-        position: absolute;
-        top: 1.9rem;
+        width:                      0.5rem;
     }
 }
 
-.accordion-title,
-.accordion-content {
+.invent-accordion-title,
+.invent-accordion-content {
     grid-column-start: 1;
-    grid-row-start: 1;
+    grid-row-start:    1;
 }
 
-.accordion-title {
+.invent-accordion-title {
     font-weight: bold;
-    padding: 1rem;
+    padding:     1rem;
 }
 
-.accordion-content {
-    box-sizing: border-box;
-    cursor: unset;
+.invent-accordion-content {
+    box-sizing:     border-box;
+    cursor:         unset;
     grid-row-start: 2;
-    max-width: 100%;
-    min-height: 0;
-    overflow-x: auto;
-    padding-left: 1rem;
-    padding-right: 1rem;
+    max-width:      100%;
+    min-height:     0;
+    overflow-x:     clip;
+    padding-left:   1rem;
+    padding-right:  1rem;
     transition:
-        visibility var(--transition-speed),
         padding var(--transition-speed) ease-out,
         background-color var(--transition-speed) ease-out;
-    visibility: hidden;
-    word-break: break-word;
+    visibility:     hidden;
+    word-break:     break-word;
 }
 
-/* === Tabs === */
+/* === Alert ============================================================== */
 
-.invent-tabs {
-    border-radius: var(--border-radius) var(--border-radius) 0 0;
-    box-sizing: border-box;
-    display: flex;
-    flex-wrap: wrap;
-    margin: 0 auto 20px;
-    width: 100%;
-}
+/* Python sets --alert-bg and --alert-border-color inline via
+ * on_purpose_changed(). Hidden until text is set; on_text_changed()
+ * drives display. */
+.invent-alert {
+    --alert-bg:           var(--main-background);
+    --alert-border-color: var(--primary-light);
 
-.invent-tabs-radiotab {
-    opacity: 0;
-    position: absolute;
-}
-
-.invent-tabs-label {
-    background-color: var(--primary-light);
-    border: solid var(--border-width) var(--primary);
-    cursor: pointer;
-    font-weight: bold;
-    padding: 22px 20px;
-    width: 100%;
-}
-
-.invent-tabs-panel {
-    background: var(--main-background);
-    border-bottom: solid var(--border-width) var(--primary);
-    border-left: solid var(--border-width) var(--primary);
-    border-right: solid var(--border-width) var(--primary);
-    box-sizing: border-box;
-    display: none;
-    max-width: 100%;
-    overflow-x: auto;
-    padding: 20px 30px 30px;
-    width: 100%;
-    word-break: break-word;
-}
-
-.invent-tabs-radiotab:checked + .invent-tabs-label {
-    background: var(--main-background);
-    border-bottom: none;
-    border-right: solid var(--border-width) var(--primary);
-    border-top: solid var(--border-width) var(--primary);
-}
-
-.invent-tabs-radiotab:checked + .invent-tabs-label + .invent-tabs-panel {
-    display: block;
-}
-
-/* Tabs: wider-screen layout (breakpoint: 600px). */
-@media (min-width: 600px) {
-    .invent-tabs-panel {
-        order: 99;
-    }
-
-    .invent-tabs-label {
-        border-bottom: solid var(--border-width) var(--primary);
-        border-left: none;
-        border-radius:
-            var(--border-radius-lg) var(--border-radius-lg) 0 0;
-        flex-grow: 1;
-        min-width: calc(100% / 8);
-        width: unset;
-    }
-
-    :nth-child(1 of label.invent-tabs-label) {
-        border-left: solid var(--border-width) var(--primary);
-    }
-}
-
-/* -- Tree view widget, uses native <details>/<summary> -- */
-/* -- for toggling with no JavaScript required.         -- */
-.invent-tree {
-    font-family: var(--font);
-    color: var(--color-body);
-    background: var(--main-background);
-    padding: 0.25rem 0;
-    user-select: none;
-}
-
-/* -- Nested branches and leaves indented under their parent. -- */
-.invent-tree details details,
-.invent-tree details .invent-tree-leaf {
-    margin-inline-start: 1.5rem;
-}
-
-/* -- Remove the default browser disclosure triangle. -- */
-.invent-tree summary {
-    list-style: none;
-    cursor: pointer;
-    padding: 0.3rem 0.5rem;
-    border-radius: 3px;
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-    font-weight: 600;
-    color: var(--primary-text);
-    transition: background 0.15s ease;
-}
-
-.invent-tree summary::marker,
-.invent-tree summary::-webkit-details-marker {
-    display: none;
-}
-
-/* -- Toggle arrow sits before the label. -- */
-.invent-tree summary::before {
-    content: "▶";
-    font-size: 0.65rem;
-    color: var(--secondary);
-    transition: transform 0.15s ease;
-    display: inline-block;
-    flex-shrink: 0;
-}
-
-.invent-tree details[open] > summary::before {
-    transform: rotate(90deg);
-}
-
-/* -- Leaf wrapper: flex row to align bullet with content. -- */
-.invent-tree-leaf {
-    display: flex;
-    align-items: center;
-    gap: 0.4rem;
-    padding: 0.15rem 0.5rem;
-    border-radius: 3px;
-    transition: background 0.15s ease;
-}
-
-/* -- Muted bullet aligns leaves with sibling branch labels. -- */
-.invent-tree-leaf::before {
-    content: "•";
-    font-size: 1.6rem;
-    color: var(--muted);
-    flex-shrink: 0;
-}
-
-/* -- Hover and focus states. -- */
-.invent-tree summary:hover {
-    background: var(--primary-light);
-}
-
-.invent-tree summary:focus-visible {
-    outline: 2px solid var(--secondary);
-    outline-offset: -2px;
-}
-
-.invent-tree summary:active {
-    background: var(--primary-active);
-}
-
-.invent-tree-leaf:hover {
-    background: var(--secondary-light);
-}
-
-/* === Header and Footer containers === */
-
-/* -- Shared base: a tinted background distinguishes         -- */
-/* -- header/footer from the main page body whilst keeping  -- */
-/* -- all child widget colours intact.                      -- */
-.invent-header,
-.invent-footer {
-    display: flex;
-    flex-flow: row wrap;
-    align-items: center;
-    gap: 0.5rem;
-    padding: 0.5rem 1rem;
-    width: 100%;
-    box-sizing: border-box;
-    background: var(--primary-light);
-    color: var(--color-body);
-    font-family: var(--font);
-    /* -- Subtle shadow lifts the bars off the page content. -- */
-    box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
-    transition: box-shadow var(--transition-speed) ease;
-}
-
-/* -- Accent stripe on the inward-facing edge of each bar.  -- */
-.invent-header {
-    border-block-end: 3px solid var(--secondary);
-}
-
-.invent-footer {
-    border-block-start: 3px solid var(--secondary);
-}
-
-/* -- Sticky header: pins to top; stronger shadow signals    -- */
-/* -- it is floating above scrolled content.               -- */
-.invent-header--sticky {
-    position: sticky;
-    top: 0;
-    z-index: 99999;
-    box-shadow: 0 3px 10px rgba(0, 0, 0, 0.18);
-}
-
-/* -- Sticky footer: pins to bottom; shadow points upward.  -- */
-.invent-footer--sticky {
-    position: sticky;
-    bottom: 0;
-    z-index: 99999;
-    box-shadow: 0 -3px 10px rgba(0, 0, 0, 0.18);
-}
-
-/* -- Dark mode: a slightly lifted tone distinguishes the    -- */
-/* -- bars from the darker page body.                       -- */
-@media (prefers-color-scheme: dark) {
-    .invent-header,
-    .invent-footer {
-        background: var(--muted-dark);
-        color: var(--white);
-        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
-    }
-
-    .invent-header--sticky,
-    .invent-footer--sticky {
-        box-shadow: 0 3px 12px rgba(0, 0, 0, 0.5);
-    }
-}
-
-/* -- Reduced motion: disable shadow transitions. -- */
-@media (prefers-reduced-motion: reduce) {
-    .invent-header,
-    .invent-footer {
-        transition: none;
-    }
-}
-
-/* === Calendar widget ===
- *
- * Scoped under .invent-calendar to avoid conflicts with the base
- * table styles in theme.css (especially zebra-striping and thead
- * background, which do not suit a calendar layout).
- *
- * Depends on the CSS variables defined in theme.css.
- */
-
-/* -- Outer wrapper: contains nav bar and table. -- */
-.invent-calendar {
-    border: var(--border-width) solid var(--primary-light);
+    background:    var(--alert-bg);
+    border:        var(--border-width) solid var(--alert-border-color);
     border-radius: var(--border-radius-lg);
-    font-family: var(--font);
-    /* Clip the table so rounded corners apply cleanly. */
-    overflow: hidden;
-}
-
-/* -- Navigation bar: previous/next buttons with centred title. -- */
-.invent-calendar-nav {
-    align-items: center;
-    background: var(--primary-light);
-    border-block-end: var(--border-width) solid var(--primary-light);
-    display: flex;
-    justify-content: space-between;
-    padding: 0.4rem 0.6rem;
-}
-
-.invent-calendar-nav h2 {
-    flex: 1;
-    font-size: 1.1rem;
-    font-weight: bold;
-    margin: 0;
-    text-align: center;
-}
-
-/* -- Nav buttons: compact variant of the base button style. -- */
-.invent-calendar-nav button {
-    border-radius: var(--border-radius);
-    font-size: 1.5rem;
-    line-height: 1;
-    padding: 0.1rem 0.5rem;
-}
-
-/* -- Base table overrides for the calendar context. -- */
-
-/* Suppress the base zebra-striping inside the calendar. */
-.invent-calendar tr:nth-child(even) {
-    background-color: transparent;
-}
-
-/* Suppress the default thead background; the nav bar serves
- * as the visual header for the widget. */
-.invent-calendar thead {
-    background-color: var(--muted-light);
-}
-
-.invent-calendar table {
-    border-collapse: collapse;
-    table-layout: fixed;
-    width: 100%;
-}
-
-/* -- Day-name column headers. -- */
-.invent-calendar th {
-    border-block-end: var(--border-width) solid var(--primary-light);
-    color: var(--muted-text);
-    font-size: 0.8rem;
-    font-weight: bold;
-    padding: 0.35rem 0;
-    text-align: center;
-}
-
-/* Weekend column headers: slightly de-emphasised. */
-.invent-calendar th:nth-child(6),
-.invent-calendar th:nth-child(7) {
-    color: var(--primary-light);
-    background-color: var(--primary-light);
-    color: var(--primary);
-}
-
-/* -- All cells: shared baseline. -- */
-.invent-calendar td {
-    border: 1px solid var(--primary-light);
-    padding: 0;
-    vertical-align: top;
-    width: calc(100% / 7);
-}
-
-/* -- Inner wrapper: fixed height with scroll for overflow content. -- */
-.invent-calendar td > div {
-    box-sizing: border-box;
-    height: 8rem;
-    overflow-y: auto;
-    padding: 0.3rem 0.35rem;
-    /* Firefox scrollbar: thin width with theme colours. */
-    scrollbar-width: thin;
-    scrollbar-color: var(--secondary) var(--primary-light);
-}
-
-/* WebKit scrollbar (Chrome, Safari, Edge): width and theme colours. */
-.invent-calendar td > div::-webkit-scrollbar {
-    width: var(--border-width);
-}
-
-.invent-calendar td > div::-webkit-scrollbar-track {
-    background: var(--primary-light);
-}
-
-.invent-calendar td > div::-webkit-scrollbar-thumb {
-    background: var(--secondary);
-}
-
-/* -- Padding cells: days outside the current month. -- */
-.invent-calendar td.calendar-empty {
-    background: var(--muted-light);
-}
-
-/* -- Active day cells. -- */
-.invent-calendar td.calendar-day {
-    background: var(--main-background);
-}
-
-/* -- Today: accent stripe on the top edge. -- */
-.invent-calendar td.calendar-today {
-    background: var(--warning-light);
-    border-block-start: 3px solid var(--warning);
-}
-
-/* -- Day number: displayed top-right within each cell. -- */
-.invent-calendar .calendar-day-num {
-    color: var(--muted-text);
-    display: block;
-    font-size: 0.8rem;
-    font-weight: bold;
-    line-height: 1;
-    margin-block-end: 0.25rem;
-    text-align: end;
-}
-
-/* Today's number gets the warning accent colour. */
-.invent-calendar td.calendar-today .calendar-day-num {
-    color: var(--warning);
-}
-
-/* -- Events list: stacked chips below the day number. -- */
-.invent-calendar .calendar-events {
-    display: flex;
-    flex-direction: column;
-    gap: 0.15rem;
-    list-style: none;
-    margin: 0;
-    padding: 0;
-}
-
-.invent-calendar .calendar-events li {
-    background: var(--secondary-light);
-    border-inline-start: 2px solid var(--secondary);
-    border-radius: 2px;
-    color: var(--primary-text);
-    font-size: 0.7rem;
-    line-height: 1.3;
-    overflow: hidden;
-    padding: 0.1rem 0.25rem;
-    word-break: break-word;
-}
-
-/* Event time: monospaced and in the secondary text colour. */
-.invent-calendar .calendar-events time {
-    color: var(--secondary-text);
-    font-family: var(--font-mono);
-    font-size: 0.65rem;
-    margin-inline-end: 0.2rem;
-}
-
-/* -- Dark mode adjustments. -- */
-@media (prefers-color-scheme: dark) {
-    .invent-calendar td.calendar-today {
-        background: var(--warning-light);
-    }
-
-    .invent-calendar .calendar-events li {
-        background: var(--secondary-light);
-    }
-}
-
-/* -- Responsive: compact layout for narrow viewports.
- *    Breakpoint: 600px (matches --breakpoint-sm in theme.css). -- */
-@media (max-width: 599px) {
-    .invent-calendar td > div {
-        height: 2.8rem;
-        padding: 0.2rem 0.15rem;
-    }
-
-    /* Hide event chips; a dot signals the presence of events. */
-    .invent-calendar .calendar-events {
-        display: none;
-    }
-
-    /* Small coloured dot below the day number for cells with events. */
-    .invent-calendar td.has-events::after {
-        background: var(--secondary);
-        border-radius: 50%;
-        content: "";
-        display: block;
-        height: 0.35rem;
-        margin: 0.15rem auto 0;
-        width: 0.35rem;
-    }
-
-    .invent-calendar .calendar-day-num {
-        font-size: 0.7rem;
-        text-align: center;
-    }
-
-    .invent-calendar th {
-        font-size: 0.6rem;
-        padding: 0.25rem 0;
-    }
-
-    .invent-calendar-nav h2 {
-        font-size: 0.95rem;
-    }
-
-    .invent-calendar-nav button {
-        font-size: 1.2rem;
-        padding: 0.1rem 0.35rem;
-    }
-}
-
-/* --- Bubble-local variables -------------------------------------------- */
-
-/* These are per-instance overrides, not theme-level tokens.
- * --bubble-bg is set inline per participant; it falls back to
- * the theme's secondary colour as a sensible default.
- * --bubble-text is the text colour rendered over --bubble-bg;
- * override inline if a dark bubble colour needs light text. */
-.invent-bubble {
-    --bubble-bg:   var(--secondary);
-    --bubble-text: var(--white);
-    --bubble-link: var(--secondary-light);
-    /* Size of the triangular tail pointing toward the avatar. */
-    --bubble-tail: 0.5rem;
-    --avatar-size: 2.5rem;
-    --bubble-gap:  0.6rem;
-    --max-width:   70%;
-}
-
-.invent-bubble.sent {
-    --bubble-bg: var(--primary);
-}
-
-/* --- Bubble container -------------------------------------------------- */
-
-/* Row holding the optional avatar and the bubble body side by side. */
-.invent-bubble {
-    display:        flex;
-    align-items:    flex-end;
-    gap:            var(--bubble-gap);
-    max-width:      var(--max-width);
-    /* Default: received message sits on the left. */
-    flex-direction: row;
-}
-
-/* Sent bubbles sit on the right edge of the container. */
-.invent-bubble.sent {
-    flex-direction: row-reverse;
-    align-self:     flex-end;
-}
-
-.invent-bubble-body a {
-    color: var(--bubble-link, var(--link));
-    text-decoration: underline;
-}
-
-.invent-bubble-body a:hover {
-    color: var(--bubble-link, var(--link-hover));
-    opacity: 0.85;
-}
-
-/* RTL locales: mirror sent/received so layout follows reading order. */
-[dir="rtl"] .invent-bubble          { flex-direction: row-reverse; }
-[dir="rtl"] .invent-bubble.sent     { flex-direction: row; }
-
-/* --- Avatar ------------------------------------------------------------ */
-
-/* The avatar image sits outside the bubble, beside the tail. */
-.invent-bubble > img {
-    width:         var(--avatar-size);
-    height:        var(--avatar-size);
-    border-radius: 50%;
-    flex-shrink:   0;
-    object-fit:    cover;
-    box-shadow:    0 1px 3px rgba(0, 0, 0, 0.15);
-}
-
-/* --- Bubble body ------------------------------------------------------- */
-
-/* The coloured bubble containing all message content. */
-.invent-bubble-body {
+    box-sizing:    border-box;
+    color:         var(--color-body);
+    display:       none;
+    padding:       var(--card-padding, 1rem);
     position:      relative;
-    background:    var(--bubble-bg);
-    color:         var(--bubble-text);
-    border-radius: var(--border-radius-lg);
-    padding:       0.6rem 0.85rem;
-    box-shadow:    0 2px 6px rgba(0, 0, 0, 0.1);
 }
 
-/* --- Bubble tail ------------------------------------------------------- */
-
-/* Tail for received bubbles: points left toward the avatar side. */
-.invent-bubble.received .invent-bubble-body::after {
-    content:      '';
-    position:     absolute;
-    bottom:       0.6rem;
-    left:         calc(-1 * var(--bubble-tail));
-    border-width: var(--bubble-tail) var(--bubble-tail) 0 0;
-    border-style: solid;
-    /* Only the right border is visible, inheriting the bubble colour. */
-    border-color:
-        transparent
-        var(--bubble-bg)
-        transparent
-        transparent;
+/* Title: block paragraph above the body text. */
+.invent-alert p.alert-title {
+    font-weight:        600;
+    margin-bottom:      0.35rem;
+    margin-top:         0;
+    padding-inline-end: 2rem;
 }
 
-/* Tail for sent bubbles: points right toward the avatar side. */
-.invent-bubble.sent .invent-bubble-body::after {
-    content:      '';
-    position:     absolute;
-    bottom:       0.6rem;
-    right:        calc(-1 * var(--bubble-tail));
-    border-width: var(--bubble-tail) 0 0 var(--bubble-tail);
-    border-style: solid;
-    /* Only the left border is visible, inheriting the bubble colour. */
-    border-color:
-        transparent
-        transparent
-        transparent
-        var(--bubble-bg);
-}
-
-/* --- Metadata: username ------------------------------------------------ */
-
-.invent-bubble-body header {
-    margin-bottom: 0.3rem;
-}
-
-.invent-bubble-body header strong {
-    font-size:   0.75rem;
-    font-weight: 600;
-    opacity:     0.85;
-}
-
-/* --- Message text ------------------------------------------------------ */
-
-.invent-bubble-body p {
-    line-height: var(--line-height);
-}
-
-/* --- Metadata: timestamp ----------------------------------------------- */
-
-.invent-bubble-body footer {
-    margin-top: 0.35rem;
-    text-align: end;
-}
-
-/* Semi-transparent so it reads as secondary information over any
- * bubble colour without needing a per-colour text override. */
-.invent-bubble-body footer time {
-    font-size: 0.7rem;
-    color: var(--bubble-text);
-    opacity: 0.75;
-}
-
-/* --- Responsive: narrow screens (breakpoint: 600px) ------------------- */
-
-@media (max-width: 599px) {
-    .invent-bubble {
-        --max-width: 85%;
-    }
-}
-
-
-/* === ContentCard widget ==============================================
- *
- * A card for displaying a title, optional image/icon, optional
- * timestamp and a body of rendered content.
- *
- * Modifier classes on the root <article>:
- *   .square       — removes rounded corners.
- *   .banner-image — renders the image as a full-width banner above
- *                   the header rather than as a circular avatar.
- *   .publish-end  — moves the timestamp from the header to the footer.
- *
- * Structural visibility is data-driven: Python sets or clears
- * attribute values (src, datetime) and textContent; CSS rules here
- * hide any element that carries no data.  The DOM skeleton is always
- * fully present; nothing is ever added or removed by Python.
- *
- * Works well inside an .invent-timeline column container.
- */
-
-/* --- Local variables -------------------------------------------------- */
-
-/* Per-instance overrides: re-declare inline on .invent-card to
- * customise background, border colour, and shape for one card. */
-.invent-card {
-    --card-bg:           var(--main-background);
-    --card-border-color: var(--primary-light);
-    --card-radius:       var(--border-radius-lg);
-    --card-avatar-size:  2.5rem;
-    --card-padding:      1rem;
-}
-
-/* --- Structural visibility rules -------------------------------------- */
-
-/* Elements carrying no data are hidden so that Python change handlers
- * need only update attribute values, never add or remove nodes. */
-
-/* Images with no src set are invisible. */
-.invent-card img[src=""] {
+/* Empty title occupies no space. */
+.invent-alert p.alert-title:empty {
     display: none;
 }
 
-/* An empty heading occupies no space. */
-.invent-card header h3:empty {
-    display: none;
+/* Dismiss button: shared with the Modal widget (see Modal section).
+ * Logical inset-inline-end ensures correct placement in RTL layouts. */
+.invent-alert button,
+.invent-modal > button.dismiss {
+    background:       none;
+    border:           none;
+    color:            inherit;
+    cursor:           pointer;
+    font-size:        var(--h6-size);
+    font-weight:      600;
+    inset-inline-end: 0.5rem;
+    line-height:      1;
+    opacity:          0.6;
+    position:         absolute;
+    top:              0.5rem;
 }
 
-/* Timestamps with no datetime value are invisible. */
-.invent-card time[datetime=""] {
-    display: none;
+.invent-alert button:hover,
+.invent-modal > button.dismiss:hover {
+    opacity: 1;
 }
 
-/* --- Card container --------------------------------------------------- */
+/* === Avatar ============================================================= */
 
-/* Self-contained block with border, shadow and flexible column layout. */
-.invent-card {
-    background:     var(--card-bg);
-    border:         var(--border-width) solid var(--card-border-color);
-    border-radius:  var(--card-radius);
-    box-shadow:     0 2px 6px rgba(0, 0, 0, 0.08);
-    box-sizing:     border-box;
-    display:        flex;
-    flex-direction: column;
-    /* Required to clip the banner image to the card's rounded corners. */
-    overflow:       hidden;
-    padding:        var(--card-padding);
-    width:          100%;
-}
+/* Circular, rounded, or square image representing a person or entity.
+ * Sizes follow the t-shirt scale tokens defined in :root. */
 
-/* Square variant: suppress all corner rounding. */
-.invent-card.square {
-    --card-radius: 0;
-}
-
-/* --- Banner image ----------------------------------------------------- */
-
-/* Hidden by default; shown only when the card is in banner-image mode
- * and the src attribute has been set. */
-.invent-card > img {
-    display: none;
-}
-
-/* Full-width image spanning the card edges above the header.
- * Negative margins pull the image outside the card's padding box;
- * overflow: hidden on the card clips it to the rounded corners. */
-.invent-card.banner-image > img:not([src=""]) {
-    display:       block;
-    height:        12rem;
-    margin:        calc(-1 * var(--card-padding));
-    margin-bottom: var(--card-padding);
-    max-width:     none;
-    object-fit:    cover;
-    width:         calc(100% + 2 * var(--card-padding));
-}
-
-/* Avatar hidden when the banner-image mode is active. */
-.invent-card.banner-image header > img {
-    display: none;
-}
-
-/* --- Header ----------------------------------------------------------- */
-
-/* Flex row: optional avatar on the start side, metadata on the other. */
-.invent-card header {
-    align-items:   center;
-    display:       flex;
-    gap:           0.75rem;
-    margin-bottom: 0.75rem;
-}
-
-/* Avatar image: circular, fixed size, does not shrink. */
-.invent-card header > img {
-    border-radius: 50%;
-    flex-shrink:   0;
-    height:        var(--card-avatar-size);
-    object-fit:    cover;
-    width:         var(--card-avatar-size);
-}
-
-/* Metadata group: title and optional timestamp stacked vertically.
- * min-width: 0 prevents long titles from overflowing the flex row. */
-.invent-card header > div {
-    display:        flex;
-    flex-direction: column;
-    gap:            0.15rem;
-    min-width:      0;
-}
-
-/* Card title: overrides the global h3 size which is too large here. */
-.invent-card header h3 {
-    font-size:   1rem;
-    font-weight: 600;
-    line-height: 1.3;
-    margin:      0;
-}
-
-/* Timestamp inside the header: muted, monospaced, small. */
-.invent-card header time {
-    color:       var(--muted-text);
-    font-family: var(--font-mono);
-    font-size:   0.7rem;
-    line-height: 1;
-}
-
-/* Header timestamp hidden when the card is in publish-end mode. */
-.invent-card.publish-end header time {
-    display: none;
-}
-
-/* --- Body ------------------------------------------------------------- */
-
-/* Container for widget children; grows to fill remaining card height. */
-.invent-card > div {
-    flex:        1;
-    font-size:   0.95rem;
-    line-height: var(--line-height);
-    min-width:   0;
-}
-
-/* Remove surplus spacing at the top and bottom of the body content. */
-.invent-card > div > :first-child { margin-top:    0; }
-.invent-card > div > :last-child  { margin-bottom: 0; }
-
-/* --- Footer ----------------------------------------------------------- */
-
-/* Hidden by default; only shown as an end-position timestamp. */
-.invent-card footer {
-    display:         none;
-    border-top:      var(--border-width) solid var(--card-border-color);
-    justify-content: flex-end;
-    margin-top:      0.75rem;
-    padding-top:     0.5rem;
-}
-
-/* Footer shown when publish-end mode is active. */
-.invent-card.publish-end footer {
-    display: flex;
-}
-
-/* Footer hidden again if the timestamp carries no datetime value. */
-.invent-card.publish-end footer:has(time[datetime=""]) {
-    display: none;
-}
-
-/* Timestamp inside the footer: same style as the header timestamp. */
-.invent-card footer time {
-    color:       var(--muted-text);
-    font-family: var(--font-mono);
-    font-size:   0.7rem;
-}
-
-/* --- RTL support ------------------------------------------------------ */
-
-/* Flex and logical margin properties handle most of the mirroring
- * automatically; the avatar and banner images need no special rules. */
-
-/* --- Responsive: narrow screens (breakpoint: 600px) ------------------- */
-
-@media (max-width: 599px) {
-    .invent-card {
-        --card-padding:     0.75rem;
-        --card-avatar-size: 2rem;
-    }
-
-    /* Reduce the banner height on small screens. */
-    .invent-card.banner-image > img:not([src=""]) {
-        height: 8rem;
-    }
-}
-
-/* Avatar widget. A circular, rounded, or square image representing
- * a person or entity. Sizes follow the Invent t-shirt scale. */
-
-/* --- Size tokens ---------------------------------------------------------- */
-
-:root {
-    --avatar-size-xs:  1.5rem;
-    --avatar-size-s:   2rem;
-    --avatar-size-m:   3rem;
-    --avatar-size-l:   4.5rem;
-    --avatar-size-xl:  6rem;
-}
-
-/* --- Base widget ---------------------------------------------------------- */
-
+/* Default size is medium; use a size modifier class to override. */
 figure.invent-avatar {
-    /* Inline-flex keeps the figure tight around the image. */
-    display:        inline-flex;
-    margin:         0;
-    padding:        0;
-    cursor:         pointer;
-    /* Default size. */
-    width:          var(--avatar-size-medium);
-    height:         var(--avatar-size-medium);
+    cursor:  pointer;
+    display: inline-flex;
+    height:  var(--avatar-size-m);
+    margin:  0;
+    padding: 0;
+    width:   var(--avatar-size-m);
 }
 
 figure.invent-avatar img {
-    width:          100%;
-    height:         100%;
-    object-fit:     cover;
-    /* Inherit border-radius from the figure so one class controls
-     * the shape for both the container and the image. */
-    border-radius:  inherit;
-    display:        block;
+    /* Inherit border-radius from the figure so one class controls the
+     * shape for both container and image. */
+    border-radius: inherit;
+    display:       block;
+    height:        100%;
+    object-fit:    cover;
+    width:         100%;
 }
 
-/* --- Shape modifiers ------------------------------------------------------ */
+/* Shape modifiers. */
+figure.invent-avatar.invent-avatar--circle  { border-radius: 50%; }
+figure.invent-avatar.invent-avatar--rounded { border-radius: var(--border-radius); }
+figure.invent-avatar.invent-avatar--square  { border-radius: 0; }
 
-/* Fully circular avatar. */
-figure.invent-avatar.invent-avatar--circle {
-    border-radius: 50%;
-}
-
-/* Softly rounded corners. */
-figure.invent-avatar.invent-avatar--rounded {
-    border-radius: var(--border-radius);
-}
-
-/* No rounding: hard square corners. */
-figure.invent-avatar.invent-avatar--square {
-    border-radius: 0;
-}
-
-/* --- Size modifiers ------------------------------------------------------- */
-
+/* Size modifiers. */
 figure.invent-avatar.invent-avatar--xs {
     width:  var(--avatar-size-xs);
     height: var(--avatar-size-xs);
@@ -1831,583 +1283,42 @@ figure.invent-avatar.invent-avatar--xl {
     height: var(--avatar-size-xl);
 }
 
-/* --- Focus / keyboard accessibility -------------------------------------- */
-
 /* Visible focus ring for keyboard navigation. */
 figure.invent-avatar:focus-visible {
     outline:        3px solid var(--primary);
     outline-offset: 2px;
 }
 
-/* --- Responsive ----------------------------------------------------------- */
-
-/* On very narrow screens shrink large avatars so they don't overflow. */
-@media (max-width: 600px) {
+/* On very narrow screens, shrink extra-large avatars to prevent overflow
+ * (breakpoint: 600px). */
+@media (max-width: 599px) {
     figure.invent-avatar.invent-avatar--xl {
         width:  var(--avatar-size-l);
         height: var(--avatar-size-l);
     }
 }
 
-/* Alert widget.
+/* === Button Group ======================================================= */
+
+/* A set of radio-backed toggle buttons where only one may be active at a
+ * time. Hidden radio inputs carry state; visible <label> elements are
+ * styled as buttons.
  *
- * Python sets --alert-bg and --alert-border-color inline via
- * on_purpose_changed(). The defaults here cover the DEFAULT purpose.
- * Hidden until text is set; on_text_changed() drives display. */
-.invent-alert {
-    --alert-bg:           var(--main-background);
-    --alert-border-color: var(--primary-light);
-
-    display:       none;
-    position:      relative;
-    padding:       var(--card-padding, 1rem);
-    border:        var(--border-width) solid var(--alert-border-color);
-    border-radius: var(--border-radius-lg);
-    background:    var(--alert-bg);
-    color:         var(--color-body);
-    box-sizing:    border-box;
-}
-
-/* Title: block paragraph above the body text. */
-.invent-alert p.alert-title {
-    font-weight:   600;
-    margin-bottom: 0.35rem;
-    margin-top:    0;
-    padding-inline-end: 2rem;
-}
-
-/* Empty title occupies no space. */
-.invent-alert p.alert-title:empty {
-    display: none;
-}
-
-/* Dismiss button: larger and bolder for visibility. */
-.invent-alert button {
-    position:         absolute;
-    top:              0.5rem;
-    inset-inline-end: 0.5rem;
-    background:       none;
-    border:           none;
-    cursor:           pointer;
-    color:            inherit;
-    font-size:        var(--h6-size);
-    font-weight:      600;
-    line-height:      1;
-    opacity:          0.6;
-}
-
-.invent-alert button:hover {
-    opacity: 1;
-}
-
-/* Modal widget.
- *
- * A full-viewport backdrop with a centred dialog box floating above it.
- * The trigger button lives in the normal page flow; the backdrop and box
- * are appended to <body> at open time and removed on dismissal.
- * Clicking outside the box (i.e. on the backdrop itself) also dismisses
- * the modal. */
-
-/* --- Design tokens --------------------------------------------------- */
-
-:root {
-    --modal-max-width:      560px;
-    --modal-padding:        1.5rem;
-    /* Semi-transparent dark veil behind the dialog box. */
-    --modal-backdrop-color: rgba(0, 0, 0, 0.45);
-    --modal-backdrop-blur:  5px;
-}
-
-/* --- Backdrop -------------------------------------------------------- */
-
-/* Fixed overlay covering the full viewport; blurs the page beneath it.
- * The -webkit- prefix is required for Safari. */
-.invent-modal-backdrop {
-    background-color:       var(--modal-backdrop-color);
-    backdrop-filter:        blur(var(--modal-backdrop-blur));
-    -webkit-backdrop-filter: blur(var(--modal-backdrop-blur));
-    inset:                  0;
-    position:               fixed;
-    /* Sit above all page content and Invent widgets. */
-    z-index:                99999999;
-}
-
-/* --- Modal box ------------------------------------------------------- */
-
-/* Card centred within the backdrop; scrollable if taller than the
- * viewport. Uses existing theme variables so light/dark mode is free. */
-.invent-modal {
-    background:    var(--main-background);
-    border:        var(--border-width) solid var(--primary-light);
-    border-radius: var(--border-radius-lg);
-    box-shadow:    0 8px 32px rgba(0, 0, 0, 0.2);
-    box-sizing:    border-box;
-    color:         var(--color-body);
-    left:          50%;
-    /* Leave breathing room above and below on tall content. */
-    max-height:    85vh;
-    max-width:     var(--modal-max-width);
-    overflow-y:    auto;
-    padding:       var(--modal-padding);
-    position:      absolute;
-    top:           50%;
-    transform:     translate(-50%, -50%);
-    /* Ensure the box never touches the viewport edges. */
-    width:         calc(100% - 2rem);
-}
-
-/* --- Dismiss button -------------------------------------------------- */
-
-/* Styled to match the alert widget's dismiss button for consistency.
- * Logical inset property ensures correct placement in RTL layouts. */
-.invent-modal > button.dismiss {
-    background:       none;
-    border:           none;
-    color:            inherit;
-    cursor:           pointer;
-    font-size:        var(--h6-size);
-    font-weight:      600;
-    inset-inline-end: 0.5rem;
-    line-height:      1;
-    opacity:          0.6;
-    position:         absolute;
-    top:              0.5rem;
-}
-
-.invent-modal > button.dismiss:hover {
-    opacity: 1;
-}
-
-/* --- Responsive: narrow screens (breakpoint: 600px) ----------------- */
-
-@media (max-width: 599px) {
-    .invent-modal {
-        /* Tighter padding on small screens. */
-        --modal-padding: 1rem;
-    }
-}
-
-/* === Rating === */
-
-@keyframes rating-fade-out {
-    0%   { opacity: 1;   transform: translateY(0);    }
-    70%  { opacity: 1;   transform: translateY(0);    }
-    100% { opacity: 0;   transform: translateY(-6px); }
-}
-
-.rating {
-    display: inline-flex;
-    align-items: center;
-    gap: var(--spacing-sm);
-    flex-wrap: wrap;
-    position: relative;
-    padding: var(--spacing-xs) var(--spacing-sm);
-    border-radius: var(--border-radius-lg);
-}
-
-.rating-stars {
-    display: inline-flex;
-    /* 2px is intentionally below --spacing-xs; the gap between stars is
-     * deliberately tighter than any named spacing token. */
-    gap: 2px;
-}
-
-/* Individual star. */
-
-.rating-star {
-    position: relative;     /* Stacking context for the half-zone overlays. */
-    display: inline-block;
-    font-size: var(--font-size-xl);
-    line-height: var(--line-height-tight);
-    user-select: none;
-}
-
-/* The visible star — inherits color/gradient from the state classes below. */
-.rating-star-glyph {
-    display: block;
-    pointer-events: none;   /* Clicks fall through to the half zones. */
-}
-
-/* Fill states. */
-
-.rating-star-full .rating-star-glyph {
-    color: var(--warning);
-}
-
-.rating-star-half .rating-star-glyph {
-    background: linear-gradient(
-        to right,
-        var(--warning) 50%,
-        var(--main-background) 50%
-    );
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-clip: text;
-    -webkit-text-stroke: 0.5px var(--warning);
-}
-
-.rating-star-empty .rating-star-glyph {
-    color: var(--main-background);
-    -webkit-text-stroke: 0.5px var(--warning);
-}
-
-/* Invisible click zones. */
-
-.rating-half {
-    position: absolute;
-    top: 0;
-    bottom: 0;
-    width: 50%;
-}
-
-.rating-half-left  { left: 0; }
-.rating-half-right { right: 0; }
-
-/* Cursor hover effect for multiple stars */
-.rating-interactive .rating-half {
-    cursor: pointer;
-}
-
-/* Cursor hover effect for 1-star */
-.rating-interactive .rating-star {
-    cursor: pointer;
-}
-
-.rating-interactive .rating-star:hover .rating-star-glyph {
-    display: inline-block;
-    transform: scale(1.2);
-    /* Uses --transition-speed-fast so prefers-reduced-motion is respected. */
-    transition: transform var(--transition-speed-fast);
-}
-
-/* Read-only styles. */
-
-.rating-readonly .rating-star-glyph {
-    filter: drop-shadow(0 0 0.5px var(--warning));
-}
-
-/* Numeric value label. */
-
-.rating-value {
-    font-size: var(--font-size-sm);
-    color: var(--secondary-text);
-    min-width: 3ch;
-}
-
-
-/* === Divider === */
-
-.divider {
-    flex-shrink: 0;
-    pointer-events: none;
-    border: none;
-    box-sizing: border-box; /* Ensures padding/border don't affect total size. */
-}
-
-.divider-horizontal {
-    align-self: stretch;
-    border-top: var(--border-width) solid var(--color-body);
-    margin: var(--spacing-md) 0;
-    width: 100%;
-    height: 0;
-}
-
-.divider-vertical {
-    align-self: stretch;
-    border-left: var(--border-width) solid var(--color-body);
-    margin: 0 var(--spacing-md);
-    width: 0;
-    min-height: 1em;
-}
-
-/* === Page transitions === */
-
-/* -- Duration driven by --page-transition-duration, set inline    -- */
-/* -- on each page element from its transition_speed property.    -- */
-
-@keyframes invent-fade-in {
-    from { opacity: 0; }
-    to   { opacity: 1; }
-}
-
-@keyframes invent-fade-out {
-    from { opacity: 1; }
-    to   { opacity: 0; }
-}
-
-@keyframes invent-slide-in {
-    from { transform: translateX(-100%); }
-    to   { transform: translateX(0); }
-}
-
-@keyframes invent-slide-out {
-    from { transform: translateX(0); }
-    to   { transform: translateX(100%); }
-}
-
-@keyframes invent-zoom-in {
-    from { opacity: 0; transform: scale(0.2); }
-    to   { opacity: 1; transform: scale(1); }
-}
-
-@keyframes invent-zoom-out {
-    from { opacity: 1; transform: scale(1); }
-    to   { opacity: 0; transform: scale(0.2); }
-}
-
-/* -- Convex: page rotates outward on exit, inward on entry.      -- */
-@keyframes invent-convex-in {
-    from {
-        opacity: 0;
-        transform: perspective(2000px)
-                   translateX(-100%) rotateY(90deg);
-    }
-    to {
-        opacity: 1;
-        transform: perspective(2000px)
-                   translateX(0) rotateY(0deg);
-    }
-}
-
-@keyframes invent-convex-out {
-    from {
-        opacity: 1;
-        transform: perspective(2000px)
-                   translateX(0) rotateY(0deg);
-    }
-    to {
-        opacity: 0;
-        transform: perspective(2000px)
-                   translateX(100%) rotateY(-90deg);
-    }
-}
-
-/* -- Concave: page rotates inward on exit, outward on entry.     -- */
-@keyframes invent-concave-in {
-    from {
-        opacity: 0;
-        transform: perspective(2000px)
-                   translateX(-100%) rotateY(-90deg);
-    }
-    to {
-        opacity: 1;
-        transform: perspective(2000px)
-                   translateX(0) rotateY(0deg);
-    }
-}
-
-@keyframes invent-concave-out {
-    from {
-        opacity: 1;
-        transform: perspective(2000px)
-                   translateX(0) rotateY(0deg);
-    }
-    to {
-        opacity: 0;
-        transform: perspective(2000px)
-                   translateX(100%) rotateY(90deg);
-    }
-}
-
-.invent-page--entering-fade {
-    animation: invent-fade-in
-               var(--page-transition-duration) ease both;
-}
-.invent-page--leaving-fade {
-    animation: invent-fade-out
-               var(--page-transition-duration) ease both;
-}
-.invent-page--entering-slide,
-.invent-page--leaving-slide {
-    overflow: hidden;
-}
-.invent-page--entering-slide {
-    animation: invent-slide-in
-               var(--page-transition-duration) ease both;
-}
-.invent-page--leaving-slide {
-    animation: invent-slide-out
-               var(--page-transition-duration) ease both;
-}
-.invent-page--entering-zoom {
-    animation: invent-zoom-in
-               var(--page-transition-duration) ease both;
-}
-.invent-page--leaving-zoom {
-    animation: invent-zoom-out
-               var(--page-transition-duration) ease both;
-}
-.invent-page--entering-convex {
-    animation: invent-convex-in
-               var(--page-transition-duration) ease both;
-}
-.invent-page--leaving-convex {
-    animation: invent-convex-out
-               var(--page-transition-duration) ease both;
-}
-.invent-page--entering-concave {
-    animation: invent-concave-in
-               var(--page-transition-duration) ease both;
-}
-.invent-page--leaving-concave {
-    animation: invent-concave-out
-               var(--page-transition-duration) ease both;
-}
-
-/* -- Disable all page animations for users who prefer reduced     -- */
-/* -- motion.                                                      -- */
-@media (prefers-reduced-motion: reduce) {
-    [class*="invent-page--entering-"],
-    [class*="invent-page--leaving-"] {
-        animation: none;
-    }
-}
-
-
-/* -- MENU --*
-
-/* --- Wrapper --------------------------------------------------------- */
- 
-/* Inline-block so it hugs the button and does not stretch full-width.
- * position: relative is the anchor for the absolutely-positioned list. */
-.invent-menu-wrapper {
-    display:  inline-block;
-    position: relative;
-}
-
-.invent-menu-wrapper--open {
-    /* Ensure the menu floats above all other page content. */
-    z-index: 9999999999;
-}
- 
-/* --- Menu list ------------------------------------------------------- */
- 
-/* Absolutely positioned relative to the wrapper. Each position
- * modifier class repositions the list and sets the correct
- * transform-origin so the open animation grows from the button edge. */
-.invent-menu {
-    animation:     invent-menu-open var(--transition-speed-fast) ease;
-    background:    var(--main-background);
-    border:        var(--border-width) solid var(--primary-light);
-    border-radius: var(--border-radius-lg);
-    box-shadow:    var(--menu-shadow);
-    box-sizing:    border-box;
-    list-style:    none;
-    margin:        0;
-    min-width:     var(--menu-min-width);
-    overflow:      hidden;
-    padding:       var(--spacing-xs) 0;
-    position:      absolute;
-}
- 
-/* BELOW (default): list drops below the button, anchored to its left
- * edge. Animation grows downward from the top of the list. */
-.invent-menu-wrapper--below .invent-menu {
-    top:              100%;
-    left:             0;
-    transform-origin: top left;
-}
- 
-/* ABOVE: list rises above the button. Animation grows upward from the
- * bottom of the list (the edge touching the button). */
-.invent-menu-wrapper--above .invent-menu {
-    bottom:           100%;
-    left:             0;
-    transform-origin: bottom left;
-}
- 
-/* AFTER: list opens to the right of the button. Animation grows
- * rightward from the left edge of the list. */
-.invent-menu-wrapper--after .invent-menu {
-    top:              0;
-    left:             100%;
-    transform-origin: top left;
-}
- 
-/* BEFORE: list opens to the left of the button. Animation grows
- * leftward from the right edge of the list. */
-.invent-menu-wrapper--before .invent-menu {
-    top:              0;
-    right:            100%;
-    transform-origin: top right;
-}
- 
-/* --- Menu items ------------------------------------------------------ */
- 
-.invent-menu-item {
-    color:       var(--color-body);
-    cursor:      pointer;
-    display:     block;
-    font-family: var(--font);
-    font-size:   1rem;
-    /* white-space prevents long labels from wrapping and narrowing
-     * the menu to less than its natural width. */
-    padding:     var(--menu-item-padding);
-    transition:  background var(--transition-speed-fast);
-    white-space: nowrap;
-}
- 
-.invent-menu-item:hover {
-    background: var(--secondary-light);
-    color:      var(--secondary-text);
-}
- 
-.invent-menu-item:active {
-    background: var(--secondary-active);
-}
- 
-/* Keyboard focus ring, matching the global :focus-visible convention. */
-.invent-menu-item:focus-visible {
-    background:     var(--secondary-light);
-    outline:        var(--border-width) solid var(--secondary);
-    outline-offset: -2px;
-}
- 
-/* --- Open animation -------------------------------------------------- */
- 
-/* Scales from slightly compressed to full size. transform-origin is set
- * per position class above so the animation always grows away from the
- * button, never toward it. */
-@keyframes invent-menu-open {
-    from {
-        opacity:   0;
-        transform: scaleY(0.85);
-    }
-    to {
-        opacity:   1;
-        transform: scaleY(1);
-    }
-}
- 
-/* Respect the user's motion preference. */
-@media (prefers-reduced-motion: reduce) {
-    .invent-menu {
-        animation: none;
-    }
-}
-
-/* === Button Group ===
- *
- * A set of radio-backed toggle buttons where only one may be active at
- * a time. The hidden radio inputs carry state; the visible <label>
- * elements are styled as buttons. Size and purpose modifier classes are
- * set on the group container and cascade to the labels, matching the
- * same pattern as the Button widget.
+ * Intent base and hover styles are defined with the button rules above,
+ * using combined selectors. Active/checked and size modifier styles are
+ * defined here.
  *
  * The global input[type="radio"] rule already hides the inputs visually
- * whilst keeping them accessible to keyboard and screen readers.
- */
- 
-/* --- Group container ----------------------------------------------- */
- 
+ * whilst keeping them accessible to keyboard and screen readers. */
+
+/* Group container. */
 .invent-btn-group {
     display:   inline-flex;
     flex-wrap: nowrap;
 }
- 
-/* --- Label-as-button base ------------------------------------------ */
- 
-/* Mirrors the button base style so the two stay visually consistent. */
+
+/* Label-as-button base: mirrors the base button style but with no border
+ * radius so the group controls its own outer corner shape. */
 .invent-btn {
     background-color: var(--primary-light);
     border-color:     var(--primary);
@@ -2424,180 +1335,344 @@ figure.invent-avatar:focus-visible {
     user-select:      none;
     white-space:      nowrap;
 }
- 
+
 /* Collapse the shared border between adjacent labels. Logical property
- * ensures correct behaviour in right-to-left locales. */
+ * handles right-to-left locales correctly. */
 .invent-btn-group .invent-btn:not(:last-of-type) {
     border-inline-end-width: 0;
 }
- 
-/* Round only the outer corners of the group. Logical properties handle
- * right-to-left locales correctly. */
+
+/* Round only the outer corners of the group. */
 .invent-btn-group .invent-btn:first-of-type {
     border-start-start-radius: var(--border-radius-lg);
     border-end-start-radius:   var(--border-radius-lg);
 }
- 
+
 .invent-btn-group .invent-btn:last-of-type {
     border-start-end-radius: var(--border-radius-lg);
     border-end-end-radius:   var(--border-radius-lg);
 }
- 
+
+/* Default (primary) hover. */
 .invent-btn-group .invent-btn:hover {
     background-color: var(--primary-active);
     border-color:     var(--primary-dark);
 }
- 
-/* Active state: filled, matching button:active. */
+
+/* Primary checked state: filled, matching button:active. */
 .invent-btn-group input[type="radio"]:checked + .invent-btn {
     background-color: var(--primary);
     border-color:     var(--primary-dark);
     color:            var(--primary-light);
 }
- 
-/* Keyboard focus ring on the label when the hidden radio is focused. */
+
+/* Keyboard focus ring on the label when the hidden radio has focus. */
 .invent-btn-group input[type="radio"]:focus-visible + .invent-btn {
     outline:        var(--border-width) solid var(--secondary);
     outline-offset: 2px;
 }
- 
-/* --- Size modifiers: cascaded from the group container ------------- */
- 
+
+/* Size modifiers: cascaded from the group container. */
 .invent-btn-group.large .invent-btn {
     font-size: 2rem;
     padding:   1rem;
 }
- 
+
 .invent-btn-group.small .invent-btn {
     font-size: 0.75rem;
     padding:   0.5rem;
 }
- 
-/* --- Purpose modifiers: cascaded from the group container ---------- */
- 
-.invent-btn-group.secondary .invent-btn {
-    background-color: var(--secondary-light);
-    border-color:     var(--secondary);
-    color:            var(--secondary-text);
-}
- 
-.invent-btn-group.secondary .invent-btn:hover {
-    background-color: var(--secondary-active);
-}
- 
-.invent-btn-group.secondary input[type="radio"]:checked + .invent-btn {
-    background-color: var(--secondary);
-    border-color:     var(--secondary-dark);
-    color:            var(--secondary-light);
-}
- 
-.invent-btn-group.success .invent-btn {
-    background-color: var(--success-light);
-    border-color:     var(--success);
-    color:            var(--success-text);
-}
- 
-.invent-btn-group.success .invent-btn:hover {
-    background-color: var(--success-active);
-}
- 
-.invent-btn-group.success input[type="radio"]:checked + .invent-btn {
-    background-color: var(--success);
-    border-color:     var(--success-dark);
-    color:            var(--success-light);
-}
- 
-.invent-btn-group.warning .invent-btn {
-    background-color: var(--warning-light);
-    border-color:     var(--warning);
-    color:            var(--warning-text);
-}
- 
-.invent-btn-group.warning .invent-btn:hover {
-    background-color: var(--warning-active);
-}
- 
-.invent-btn-group.warning input[type="radio"]:checked + .invent-btn {
-    background-color: var(--warning);
-    border-color:     var(--warning-dark);
-    color:            var(--warning-light);
-}
- 
-.invent-btn-group.danger .invent-btn {
-    background-color: var(--danger-light);
-    border-color:     var(--danger);
-    color:            var(--danger-text);
-}
- 
-.invent-btn-group.danger .invent-btn:hover {
-    background-color: var(--danger-active);
-}
- 
-.invent-btn-group.danger input[type="radio"]:checked + .invent-btn {
-    background-color: var(--danger);
-    border-color:     var(--danger-dark);
-    color:            var(--danger-light);
-}
- 
-/* === Carousel ===
- *
- * Displays one child at a time with prev/next controls.
- *
- * Transition mode is driven by the data-transition attribute on the
- * outer wrapper ("fade" or "slide"). Slide direction is driven by the
- * data-direction attribute ("forward" or "backward"), set in Python
- * before each transition begins.
- *
- * The track uses a single-cell CSS Grid so all item slots stack in
- * the same space. The wrapper naturally sizes to the tallest and
- * widest child with no JavaScript measurement required.
- */
 
-/* --- Outer wrapper -------------------------------------------------- */
+/* Responsive: vertical stack on narrow screens (breakpoint: 600px).
+ *
+ * The horizontal group becomes a full-width column. Borders rotate
+ * accordingly: the collapsed inline-end border is restored, and the
+ * block-end border is collapsed instead to avoid double borders between
+ * stacked buttons. Outer corner radii are re-applied to the new top
+ * (first) and bottom (last) edges. white-space: normal allows button
+ * label text to wrap rather than overflow. */
+@media (max-width: 599px) {
+    .invent-btn-group {
+        display:        flex;
+        flex-direction: column;
+        width:          100%;
+    }
+
+    .invent-btn-group .invent-btn {
+        white-space: normal;
+    }
+
+    /* Restore the inline-end border and collapse block-end instead. */
+    .invent-btn-group .invent-btn:not(:last-of-type) {
+        border-block-end-width:   0;
+        border-inline-end-width:  var(--border-width);
+    }
+
+    /* Round the top edge of the first button. */
+    .invent-btn-group .invent-btn:first-of-type {
+        border-start-start-radius: var(--border-radius-lg);
+        border-start-end-radius:   var(--border-radius-lg);
+        border-end-start-radius:   0;
+        border-end-end-radius:     0;
+    }
+
+    /* Round the bottom edge of the last button. */
+    .invent-btn-group .invent-btn:last-of-type {
+        border-start-start-radius: 0;
+        border-start-end-radius:   0;
+        border-end-start-radius:   var(--border-radius-lg);
+        border-end-end-radius:     var(--border-radius-lg);
+    }
+}
+
+/* === Calendar =========================================================== */
+
+/* Scoped under .invent-calendar to avoid conflicts with the base table
+ * styles (especially zebra-striping and thead background). */
+
+/* Outer wrapper: contains nav bar and table. */
+.invent-calendar {
+    border:        var(--border-width) solid var(--primary-light);
+    border-radius: var(--border-radius-lg);
+    font-family:   var(--font);
+    /* Clip the table so rounded corners apply cleanly. */
+    overflow:      hidden;
+}
+
+/* Navigation bar: previous/next buttons with a centred month title. */
+.invent-calendar-nav {
+    align-items:      center;
+    background:       var(--primary-light);
+    border-block-end: var(--border-width) solid var(--primary-light);
+    display:          flex;
+    justify-content:  space-between;
+    padding:          0.4rem 0.6rem;
+}
+
+.invent-calendar-nav h2 {
+    flex:        1;
+    font-size:   1.1rem;
+    font-weight: bold;
+    margin:      0;
+    text-align:  center;
+}
+
+/* Nav buttons: compact variant of the base button style. */
+.invent-calendar-nav button {
+    border-radius: var(--border-radius);
+    font-size:     1.5rem;
+    line-height:   1;
+    padding:       0.1rem 0.5rem;
+}
+
+/* Suppress base zebra-striping; the calendar uses its own cell treatments. */
+.invent-calendar tr:nth-child(even) {
+    background-color: transparent;
+}
+
+/* Suppress base thead background; the nav bar serves as the visual header. */
+.invent-calendar thead {
+    background-color: var(--muted-light);
+}
+
+.invent-calendar table {
+    border-collapse: collapse;
+    table-layout:    fixed;
+    width:           100%;
+}
+
+/* Day-name column headers. */
+.invent-calendar th {
+    border-block-end: var(--border-width) solid var(--primary-light);
+    color:            var(--muted-text);
+    font-size:        0.8rem;
+    font-weight:      bold;
+    padding:          0.35rem 0;
+    text-align:       center;
+}
+
+/* Weekend column headers: slightly de-emphasised. */
+.invent-calendar th:nth-child(6),
+.invent-calendar th:nth-child(7) {
+    background-color: var(--primary-light);
+    color:            var(--primary);
+}
+
+/* All cells: shared baseline. */
+.invent-calendar td {
+    border:         1px solid var(--primary-light);
+    padding:        0;
+    vertical-align: top;
+    width:          calc(100% / 7);
+}
+
+/* Inner wrapper: fixed height with scrollable overflow content. */
+.invent-calendar td > div {
+    box-sizing:      border-box;
+    height:          8rem;
+    overflow-y:      auto;
+    padding:         0.3rem 0.35rem;
+    /* Firefox scrollbar: thin with theme colours. */
+    scrollbar-color: var(--secondary) var(--primary-light);
+    scrollbar-width: thin;
+}
+
+/* WebKit scrollbar (Chrome, Safari, Edge). */
+.invent-calendar td > div::-webkit-scrollbar       { width: var(--border-width); }
+.invent-calendar td > div::-webkit-scrollbar-track { background: var(--primary-light); }
+.invent-calendar td > div::-webkit-scrollbar-thumb { background: var(--secondary); }
+
+/* Days outside the current month. */
+.invent-calendar td.calendar-empty { background: var(--muted-light); }
+
+/* Active day cells. */
+.invent-calendar td.calendar-day { background: var(--main-background); }
+
+/* Today: accent stripe on the top edge. */
+.invent-calendar td.calendar-today {
+    background:         var(--warning-light);
+    border-block-start: 3px solid var(--warning);
+}
+
+/* Day number: displayed top-right within each cell. */
+.invent-calendar .calendar-day-num {
+    color:            var(--muted-text);
+    display:          block;
+    font-size:        0.8rem;
+    font-weight:      bold;
+    line-height:      1;
+    margin-block-end: 0.25rem;
+    text-align:       end;
+}
+
+/* Today's number receives the warning accent colour. */
+.invent-calendar td.calendar-today .calendar-day-num {
+    color: var(--warning);
+}
+
+/* Events list: stacked chips below the day number. */
+.invent-calendar .calendar-events {
+    display:        flex;
+    flex-direction: column;
+    gap:            0.15rem;
+    list-style:     none;
+    margin:         0;
+    padding:        0;
+}
+
+.invent-calendar .calendar-events li {
+    background:          var(--secondary-light);
+    border-inline-start: 2px solid var(--secondary);
+    border-radius:       2px;
+    color:               var(--primary-text);
+    font-size:           0.7rem;
+    line-height:         1.3;
+    overflow:            hidden;
+    padding:             0.1rem 0.25rem;
+    word-break:          break-word;
+}
+
+/* Event time: monospaced in the secondary text colour. */
+.invent-calendar .calendar-events time {
+    color:             var(--secondary-text);
+    font-family:       var(--font-mono);
+    font-size:         0.65rem;
+    margin-inline-end: 0.2rem;
+}
+
+/* Dark mode: today's cell background adapts to the inverted palette. */
+@media (prefers-color-scheme: dark) {
+    .invent-calendar td.calendar-today  { background: var(--warning-light); }
+    .invent-calendar .calendar-events li { background: var(--secondary-light); }
+}
+
+/* Responsive: compact layout for narrow viewports (breakpoint: 600px). */
+@media (max-width: 599px) {
+    .invent-calendar td > div {
+        height:  2.8rem;
+        padding: 0.2rem 0.15rem;
+    }
+
+    /* Hide event chips; a dot signals the presence of events instead. */
+    .invent-calendar .calendar-events {
+        display: none;
+    }
+
+    /* Small coloured dot below the day number for cells with events. */
+    .invent-calendar td.has-events::after {
+        background:    var(--secondary);
+        border-radius: 50%;
+        content:       "";
+        display:       block;
+        height:        0.35rem;
+        margin:        0.15rem auto 0;
+        width:         0.35rem;
+    }
+
+    .invent-calendar .calendar-day-num {
+        font-size:  0.7rem;
+        text-align: center;
+    }
+
+    .invent-calendar th {
+        font-size: 0.6rem;
+        padding:   0.25rem 0;
+    }
+
+    .invent-calendar-nav h2     { font-size: 0.95rem; }
+    .invent-calendar-nav button { font-size: 1.2rem; padding: 0.1rem 0.35rem; }
+}
+
+/* === Carousel =========================================================== */
+
+/* Displays one child at a time with prev/next controls.
+ *
+ * Transition mode is driven by data-transition on the outer wrapper
+ * ("fade" or "slide"). Direction is driven by data-direction ("forward"
+ * or "backward"), set in Python before each transition begins.
+ *
+ * The track uses a single-cell CSS Grid so all item slots stack in the
+ * same space; the wrapper sizes naturally to the largest child with no
+ * JavaScript measurement required. */
 
 /* position: relative anchors the absolutely-positioned controls. */
 .invent-carousel {
-    display: inline-block;
+    display:  inline-block;
     position: relative;
 }
 
-/* --- Track ---------------------------------------------------------- */
-
-/* Single-cell grid: all slots occupy row 1 / column 1, so the track
- * always sizes to the largest child. overflow: hidden clips slides
- * that are mid-animation outside the visible area. */
+/* overflow: hidden clips slides that are mid-animation outside the
+ * visible area. */
 .invent-carousel-track {
-    display: grid;
+    display:               grid;
     grid-template-columns: 1fr;
-    overflow: hidden;
+    overflow:              hidden;
 }
-
-/* --- Item slots ----------------------------------------------------- */
 
 /* Every slot occupies the same grid cell and is hidden by default. */
 .invent-carousel-item {
-    grid-column: 1;
-    grid-row: 1;
+    grid-column:    1;
+    grid-row:       1;
     pointer-events: none;
-    visibility: hidden;
+    visibility:     hidden;
 }
 
 /* The active item is fully shown and interactive. */
 .invent-carousel-item.active {
     pointer-events: auto;
-    visibility: visible;
+    visibility:     visible;
 }
 
 /* A leaving item must remain visible while its exit animation plays. */
 .invent-carousel-item.leaving {
     pointer-events: none;
-    visibility: visible;
+    visibility:     visible;
 }
 
-/* --- Fade transition ------------------------------------------------ */
+/* --- Fade transition ---------------------------------------------------- */
 
 .invent-carousel[data-transition="fade"] .invent-carousel-item {
-    opacity: 0;
+    opacity:    0;
     transition: opacity var(--transition-speed-slow);
 }
 
@@ -2605,9 +1680,8 @@ figure.invent-avatar:focus-visible {
     opacity: 1;
 }
 
-/* --- Slide transition ----------------------------------------------- */
+/* --- Slide transition: keyframes for the four possible movements. ------- */
 
-/* Keyframes for the four possible movements. */
 @keyframes invent-carousel-in-from-right {
     from { transform: translateX(100%); }
     to   { transform: translateX(0); }
@@ -2650,186 +1724,908 @@ figure.invent-avatar:focus-visible {
     animation: invent-carousel-out-to-right var(--transition-speed-slow) forwards;
 }
 
-/* --- Controls ------------------------------------------------------- */
+/* --- Controls ----------------------------------------------------------- */
 
 /* Absolutely positioned at the vertical midpoint of the track.
- * Uses the primary colour variables (which have dark-mode overrides)
- * so the caret is always legible against any content, including
- * photographs. Matches the global button border-radius convention. */
+ * Uses primary colour variables (with dark-mode overrides) so the caret
+ * is always legible against any content, including photographs. */
 .invent-carousel-ctrl {
-    align-items: center;
+    align-items:      center;
     background-color: var(--primary-light);
-    border-color: var(--primary);
-    border-radius: var(--border-radius-lg);
-    border-style: solid;
-    border-width: var(--border-width);
-    color: var(--primary-text);
-    display: flex;
-    justify-content: center;
-    padding: var(--spacing-sm);
-    position: absolute;
-    top: 50%;
-    transform: translateY(-50%);
-    transition: all var(--transition-speed-button);
-    z-index: 1;
+    border-color:     var(--primary);
+    border-radius:    var(--border-radius-lg);
+    border-style:     solid;
+    border-width:     var(--border-width);
+    color:            var(--primary-text);
+    display:          flex;
+    justify-content:  center;
+    padding:          var(--spacing-sm);
+    position:         absolute;
+    top:              50%;
+    transform:        translateY(-50%);
+    transition:       all var(--transition-speed-button);
+    z-index:          1;
 }
 
 .invent-carousel-ctrl:hover {
     background-color: var(--primary-active);
-    border-color: var(--primary-dark);
+    border-color:     var(--primary-dark);
 }
 
 .invent-carousel-ctrl:active {
     background-color: var(--primary);
-    border-color: var(--primary-dark);
-    color: var(--primary-light);
+    border-color:     var(--primary-dark);
+    color:            var(--primary-light);
 }
 
 /* Size the SVG caret icons. */
 .invent-carousel-ctrl svg {
     height: 2rem;
-    width: 2rem;
+    width:  2rem;
 }
 
 .invent-carousel-ctrl--prev { left:  var(--spacing-sm); }
 .invent-carousel-ctrl--next { right: var(--spacing-sm); }
-/* ===== CodeEditor widget ================================================
-   Wraps the CodeMirror 6 editor mount point. CodeMirror renders its own
-   internal DOM; these rules integrate it with the Invent design system
-   without overriding CodeMirror's own layout internals.
-   ====================================================================== */
 
-/* Outer container: border and shape from the design system. */
+/* === Chat bubble ======================================================== */
+
+/* Per-bubble local variables; re-declare inline on .invent-bubble to
+ * customise colours for individual participants. */
+.invent-bubble {
+    --bubble-bg:   var(--secondary);
+    --bubble-text: var(--white);
+    --bubble-link: var(--secondary-light);
+    /* Size of the triangular tail pointing toward the avatar. */
+    --bubble-tail: 0.5rem;
+    --avatar-size: 2.5rem;
+    --bubble-gap:  0.6rem;
+    --max-width:   70%;
+}
+
+/* Sent bubbles use the primary colour instead of secondary. */
+.invent-bubble.sent {
+    --bubble-bg: var(--primary);
+}
+
+/* Row holding the optional avatar and bubble body. Default is received
+ * (left-aligned). */
+.invent-bubble {
+    align-items:    flex-end;
+    display:        flex;
+    flex-direction: row;
+    gap:            var(--bubble-gap);
+    max-width:      var(--max-width);
+}
+
+/* Sent bubbles sit on the right edge of the container. */
+.invent-bubble.sent {
+    align-self:     flex-end;
+    flex-direction: row-reverse;
+}
+
+/* RTL locales: mirror sent/received so layout follows reading order. */
+[dir="rtl"] .invent-bubble      { flex-direction: row-reverse; }
+[dir="rtl"] .invent-bubble.sent { flex-direction: row; }
+
+/* Avatar image: circular, fixed size, does not shrink. */
+.invent-bubble > img {
+    border-radius: 50%;
+    box-shadow:    0 1px 3px rgba(0, 0, 0, 0.15);
+    flex-shrink:   0;
+    height:        var(--avatar-size);
+    object-fit:    cover;
+    width:         var(--avatar-size);
+}
+
+/* The coloured bubble containing all message content. */
+.invent-bubble-body {
+    background:    var(--bubble-bg);
+    border-radius: var(--border-radius-lg);
+    box-shadow:    var(--shadow-md);
+    color:         var(--bubble-text);
+    padding:       0.6rem 0.85rem;
+    position:      relative;
+}
+
+.invent-bubble-body a {
+    color:           var(--bubble-link, var(--link));
+    text-decoration: underline;
+}
+
+.invent-bubble-body a:hover {
+    color:   var(--bubble-link, var(--link-hover));
+    opacity: 0.85;
+}
+
+/* Tail for received bubbles: points left toward the avatar. */
+.invent-bubble.received .invent-bubble-body::after {
+    border-color: transparent var(--bubble-bg) transparent transparent;
+    border-style: solid;
+    border-width: var(--bubble-tail) var(--bubble-tail) 0 0;
+    bottom:       0.6rem;
+    content:      '';
+    left:         calc(-1 * var(--bubble-tail));
+    position:     absolute;
+}
+
+/* Tail for sent bubbles: points right toward the avatar. */
+.invent-bubble.sent .invent-bubble-body::after {
+    border-color: transparent transparent transparent var(--bubble-bg);
+    border-style: solid;
+    border-width: var(--bubble-tail) 0 0 var(--bubble-tail);
+    bottom:       0.6rem;
+    content:      '';
+    position:     absolute;
+    right:        calc(-1 * var(--bubble-tail));
+}
+
+/* Username in the bubble header. */
+.invent-bubble-body header        { margin-bottom: 0.3rem; }
+.invent-bubble-body header strong { font-size: 0.75rem; font-weight: 600; opacity: 0.85; }
+
+/* Message text. */
+.invent-bubble-body p { line-height: var(--line-height); }
+
+/* Timestamp in the bubble footer. */
+.invent-bubble-body footer { margin-top: 0.35rem; text-align: end; }
+
+/* Semi-transparent so it reads as secondary information over any bubble
+ * colour without needing a per-colour text override. */
+.invent-bubble-body footer time {
+    color:     var(--bubble-text);
+    font-size: 0.7rem;
+    opacity:   0.75;
+}
+
+/* Responsive: wider max-width on narrow screens (breakpoint: 600px). */
+@media (max-width: 599px) {
+    .invent-bubble { --max-width: 85%; }
+}
+
+/* === Code editor ======================================================== */
+
+/* Wraps the CodeMirror 6 editor mount point. These rules integrate it with
+ * the Invent design system without overriding CodeMirror's own internals. */
+
+/* Outer container: border from the design system. */
 .invent-code-editor {
-  border: var(--border-width) solid var(--primary);
-  overflow: hidden;
+    border:   var(--border-width) solid var(--primary);
+    overflow: hidden;
 }
 
 /* Height is set programmatically from the widget's min_height property. */
-.invent-code-editor .cm-editor {
-  height: 100%;
-}
+.invent-code-editor .cm-editor  { height: 100%; }
 
 /* Allow horizontal scroll on long lines rather than wrapping. */
-.invent-code-editor .cm-scroller {
-  overflow: auto;
+.invent-code-editor .cm-scroller { overflow: auto; }
+
+/* === Content card ======================================================= */
+
+/* A card for displaying a title, optional image/icon, optional timestamp,
+ * and a body of rendered content.
+ *
+ * Modifier classes on the root <article>:
+ *   .square       — removes rounded corners.
+ *   .banner-image — renders the image as a full-width banner above the
+ *                   header rather than as a circular avatar.
+ *   .publish-end  — moves the timestamp from the header to the footer.
+ *
+ * Structural visibility is data-driven: Python sets or clears attribute
+ * values (src, datetime) and textContent; CSS hides elements that carry
+ * no data. The DOM skeleton is always fully present. */
+
+/* Per-instance overrides: re-declare inline on .invent-card to customise
+ * background, border colour, and shape for a single card. */
+.invent-card {
+    --card-bg:           var(--main-background);
+    --card-border-color: var(--primary-light);
+    --card-radius:       var(--border-radius-lg);
+    --card-avatar-size:  2.5rem;
+    --card-padding:      1rem;
 }
 
+/* Images with no src, empty headings, and dateless timestamps are hidden
+ * so Python change handlers only need to update attribute values. */
+.invent-card img[src=""]       { display: none; }
+.invent-card header h3:empty   { display: none; }
+.invent-card time[datetime=""] { display: none; }
 
-/* ===== TextEditor widget =============================================
+/* Self-contained block with border, shadow, and flexible column layout. */
+.invent-card {
+    background:     var(--card-bg);
+    border:         var(--border-width) solid var(--card-border-color);
+    border-radius:  var(--card-radius);
+    box-shadow:     var(--shadow-sm);
+    box-sizing:     border-box;
+    display:        flex;
+    flex-direction: column;
+    /* Required to clip the banner image to the card's rounded corners. */
+    overflow:       hidden;
+    padding:        var(--card-padding);
+    width:          100%;
+}
+
+/* Square variant: suppress all corner rounding. */
+.invent-card.square { --card-radius: 0; }
+
+/* Banner image: hidden by default; shown only in banner-image mode with a
+ * src set. Negative margins pull it outside the padding box; overflow:
+ * hidden on the card clips it to the rounded corners. */
+.invent-card > img { display: none; }
+
+.invent-card.banner-image > img:not([src=""]) {
+    display:       block;
+    height:        12rem;
+    margin:        calc(-1 * var(--card-padding));
+    margin-bottom: var(--card-padding);
+    max-width:     none;
+    object-fit:    cover;
+    width:         calc(100% + 2 * var(--card-padding));
+}
+
+/* Avatar hidden when banner-image mode is active. */
+.invent-card.banner-image header > img { display: none; }
+
+/* Header: flex row with optional avatar on the start side. */
+.invent-card header {
+    align-items:   center;
+    display:       flex;
+    gap:           0.75rem;
+    margin-bottom: 0.75rem;
+}
+
+/* Avatar image: circular, fixed size, does not shrink. */
+.invent-card header > img {
+    border-radius: 50%;
+    flex-shrink:   0;
+    height:        var(--card-avatar-size);
+    object-fit:    cover;
+    width:         var(--card-avatar-size);
+}
+
+/* Metadata group: title and optional timestamp stacked vertically.
+ * min-width: 0 prevents long titles from overflowing the flex row. */
+.invent-card header > div {
+    display:        flex;
+    flex-direction: column;
+    gap:            0.15rem;
+    min-width:      0;
+}
+
+/* Card title: overrides the global h3 size which is too large here. */
+.invent-card header h3 {
+    font-size:   1rem;
+    font-weight: 600;
+    line-height: 1.3;
+    margin:      0;
+}
+
+/* Timestamps in header and footer share the same style: muted, monospaced,
+ * small. line-height: 1 collapses extra leading in both locations. */
+.invent-card header time,
+.invent-card footer time {
+    color:       var(--muted-text);
+    font-family: var(--font-mono);
+    font-size:   0.7rem;
+    line-height: 1;
+}
+
+/* Header timestamp is hidden in publish-end mode. */
+.invent-card.publish-end header time { display: none; }
+
+/* Body: grows to fill remaining card height. */
+.invent-card > div {
+    flex:        1;
+    font-size:   0.95rem;
+    line-height: var(--line-height);
+    min-width:   0;
+}
+
+/* Remove surplus spacing at the extremes of the body content. */
+.invent-card > div > :first-child { margin-top:    0; }
+.invent-card > div > :last-child  { margin-bottom: 0; }
+
+/* Footer: hidden by default; shown only as an end-position timestamp. */
+.invent-card footer {
+    border-top:      var(--border-width) solid var(--card-border-color);
+    display:         none;
+    justify-content: flex-end;
+    margin-top:      0.75rem;
+    padding-top:     0.5rem;
+}
+
+.invent-card.publish-end footer { display: flex; }
+
+/* Footer hidden again if the timestamp carries no datetime value. */
+.invent-card.publish-end footer:has(time[datetime=""]) { display: none; }
+
+/* Responsive: tighter padding on narrow screens (breakpoint: 600px). */
+@media (max-width: 599px) {
+    .invent-card {
+        --card-padding:     0.75rem;
+        --card-avatar-size: 2rem;
+    }
+
+    .invent-card.banner-image > img:not([src=""]) { height: 8rem; }
+}
+
+/* === Divider ============================================================ */
+
+.invent-divider {
+    border:         none;
+    box-sizing:     border-box;
+    flex-shrink:    0;
+    pointer-events: none;
+}
+
+.invent-divider-horizontal {
+    align-self: stretch;
+    border-top: var(--border-width) solid var(--color-body);
+    height:     0;
+    margin:     var(--spacing-md) 0;
+    width:      100%;
+}
+
+.invent-divider-vertical {
+    align-self:  stretch;
+    border-left: var(--border-width) solid var(--color-body);
+    margin:      0 var(--spacing-md);
+    min-height:  1em;
+    width:       0;
+}
+
+/* === Menu =============================================================== */
+
+/* Inline-block keeps the wrapper tight around its trigger button.
+ * position: relative anchors the absolutely-positioned list. */
+.invent-menu-wrapper {
+    display:  inline-block;
+    position: relative;
+}
+
+/* When open, the wrapper floats above all other page content. */
+.invent-menu-wrapper--open {
+    z-index: var(--z-menu);
+}
+
+/* Absolutely positioned list. Each position modifier class repositions
+ * the list and sets transform-origin so the open animation always grows
+ * away from the button, never toward it. */
+.invent-menu {
+    animation:     invent-menu-open var(--transition-speed-fast) ease;
+    background:    var(--main-background);
+    border:        var(--border-width) solid var(--primary-light);
+    border-radius: var(--border-radius-lg);
+    box-shadow:    var(--menu-shadow);
+    box-sizing:    border-box;
+    list-style:    none;
+    margin:        0;
+    min-width:     var(--menu-min-width);
+    overflow:      hidden;
+    padding:       var(--spacing-xs) 0;
+    position:      absolute;
+}
+
+/* Below (default): drops below the button, anchored to its left edge. */
+.invent-menu-wrapper--below .invent-menu {
+    left:             0;
+    top:              100%;
+    transform-origin: top left;
+}
+
+/* Above: rises above the button; animation grows upward. */
+.invent-menu-wrapper--above .invent-menu {
+    bottom:           100%;
+    left:             0;
+    transform-origin: bottom left;
+}
+
+/* After: opens to the right; animation grows rightward. */
+.invent-menu-wrapper--after .invent-menu {
+    left:             100%;
+    top:              0;
+    transform-origin: top left;
+}
+
+/* Before: opens to the left; animation grows leftward. */
+.invent-menu-wrapper--before .invent-menu {
+    right:            100%;
+    top:              0;
+    transform-origin: top right;
+}
+
+.invent-menu-item {
+    color:       var(--color-body);
+    cursor:      pointer;
+    display:     block;
+    font-family: var(--font);
+    font-size:   1rem;
+    /* Prevent long labels from wrapping and narrowing the menu. */
+    padding:     var(--menu-item-padding);
+    transition:  background var(--transition-speed-fast);
+    white-space: nowrap;
+}
+
+.invent-menu-item:hover  { background: var(--secondary-light); color: var(--secondary-text); }
+.invent-menu-item:active { background: var(--secondary-active); }
+
+/* Keyboard focus ring: matches the global :focus-visible convention. */
+.invent-menu-item:focus-visible {
+    background:     var(--secondary-light);
+    outline:        var(--border-width) solid var(--secondary);
+    outline-offset: -2px;
+}
+
+/* Open animation: scales from slightly compressed to full size.
+ * transform-origin is set per position modifier so growth is always
+ * directed away from the button. */
+@keyframes invent-menu-open {
+    from { opacity: 0; transform: scaleY(0.85); }
+    to   { opacity: 1; transform: scaleY(1); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .invent-menu { animation: none; }
+}
+
+/* === Modal ============================================================== */
+
+/* A full-viewport backdrop with a centred dialog box floating above it.
+ * The trigger button lives in the normal page flow; the backdrop and box
+ * are appended to <body> at open time and removed on dismissal. Clicking
+ * outside the box (on the backdrop) also dismisses it.
  *
- * Wraps the Quill 2 Snow editor. Quill's Snow CSS is injected into
- * <head> dynamically by the widget after this stylesheet loads, so
- * overrides must have higher specificity than Quill's own rules.
+ * The dismiss button style is shared with the Alert widget and defined
+ * in the Alert section above via combined selectors. */
+
+/* Fixed overlay covering the full viewport; blurs the page beneath.
+ * The -webkit- prefix is required for Safari. */
+.invent-modal-backdrop {
+    backdrop-filter:         blur(var(--modal-backdrop-blur));
+    -webkit-backdrop-filter: blur(var(--modal-backdrop-blur));
+    background-color:        var(--modal-backdrop-color);
+    inset:                   0;
+    position:                fixed;
+    z-index:                 var(--z-modal);
+}
+
+/* Centred dialog box; scrollable if content is taller than the viewport. */
+.invent-modal {
+    background:    var(--main-background);
+    border:        var(--border-width) solid var(--primary-light);
+    border-radius: var(--border-radius-lg);
+    box-shadow:    var(--shadow-lg);
+    box-sizing:    border-box;
+    color:         var(--color-body);
+    left:          50%;
+    /* Leave breathing room above and below on tall content. */
+    max-height:    85vh;
+    max-width:     var(--modal-max-width);
+    overflow-y:    auto;
+    padding:       var(--modal-padding);
+    position:      absolute;
+    top:           50%;
+    transform:     translate(-50%, -50%);
+    /* Ensure the box never touches the viewport edges. */
+    width:         calc(100% - 2rem);
+}
+
+/* Responsive: tighter padding on narrow screens (breakpoint: 600px). */
+@media (max-width: 599px) {
+    .invent-modal { --modal-padding: 1rem; }
+}
+
+/* === Page transitions =================================================== */
+
+/* Duration is driven by --page-transition-duration, set inline on each
+ * page element from its transition_speed property in Python. */
+
+@keyframes invent-fade-in  { from { opacity: 0; } to { opacity: 1; } }
+@keyframes invent-fade-out { from { opacity: 1; } to { opacity: 0; } }
+
+@keyframes invent-slide-in  {
+    from { transform: translateX(-100%); }
+    to   { transform: translateX(0); }
+}
+@keyframes invent-slide-out {
+    from { transform: translateX(0); }
+    to   { transform: translateX(100%); }
+}
+
+@keyframes invent-zoom-in  {
+    from { opacity: 0; transform: scale(0.2); }
+    to   { opacity: 1; transform: scale(1); }
+}
+@keyframes invent-zoom-out {
+    from { opacity: 1; transform: scale(1); }
+    to   { opacity: 0; transform: scale(0.2); }
+}
+
+/* Convex: page rotates outward on exit, inward on entry. */
+@keyframes invent-convex-in {
+    from { opacity: 0; transform: perspective(2000px) translateX(-100%) rotateY(90deg); }
+    to   { opacity: 1; transform: perspective(2000px) translateX(0) rotateY(0deg); }
+}
+@keyframes invent-convex-out {
+    from { opacity: 1; transform: perspective(2000px) translateX(0) rotateY(0deg); }
+    to   { opacity: 0; transform: perspective(2000px) translateX(100%) rotateY(-90deg); }
+}
+
+/* Concave: page rotates inward on exit, outward on entry. */
+@keyframes invent-concave-in {
+    from { opacity: 0; transform: perspective(2000px) translateX(-100%) rotateY(-90deg); }
+    to   { opacity: 1; transform: perspective(2000px) translateX(0) rotateY(0deg); }
+}
+@keyframes invent-concave-out {
+    from { opacity: 1; transform: perspective(2000px) translateX(0) rotateY(0deg); }
+    to   { opacity: 0; transform: perspective(2000px) translateX(100%) rotateY(90deg); }
+}
+
+.invent-page--entering-fade    { animation: invent-fade-in    var(--page-transition-duration) ease both; }
+.invent-page--leaving-fade     { animation: invent-fade-out   var(--page-transition-duration) ease both; }
+.invent-page--entering-zoom    { animation: invent-zoom-in    var(--page-transition-duration) ease both; }
+.invent-page--leaving-zoom     { animation: invent-zoom-out   var(--page-transition-duration) ease both; }
+.invent-page--entering-convex  { animation: invent-convex-in  var(--page-transition-duration) ease both; }
+.invent-page--leaving-convex   { animation: invent-convex-out var(--page-transition-duration) ease both; }
+.invent-page--entering-concave { animation: invent-concave-in  var(--page-transition-duration) ease both; }
+.invent-page--leaving-concave  { animation: invent-concave-out var(--page-transition-duration) ease both; }
+
+/* Slide transitions also suppress overflow to prevent scroll during
+ * animation. */
+.invent-page--entering-slide,
+.invent-page--leaving-slide {
+    overflow: hidden;
+}
+
+.invent-page--entering-slide { animation: invent-slide-in  var(--page-transition-duration) ease both; }
+.invent-page--leaving-slide  { animation: invent-slide-out var(--page-transition-duration) ease both; }
+
+/* Disable all page animations for users who prefer reduced motion. */
+@media (prefers-reduced-motion: reduce) {
+    [class*="invent-page--entering-"],
+    [class*="invent-page--leaving-"] {
+        animation: none;
+    }
+}
+
+/* === Rating ============================================================= */
+
+@keyframes invent-rating-fade-out {
+    0%   { opacity: 1; transform: translateY(0); }
+    70%  { opacity: 1; transform: translateY(0); }
+    100% { opacity: 0; transform: translateY(-6px); }
+}
+
+.invent-rating {
+    align-items:   center;
+    border-radius: var(--border-radius-lg);
+    display:       inline-flex;
+    flex-wrap:     wrap;
+    gap:           var(--spacing-sm);
+    padding:       var(--spacing-xs) var(--spacing-sm);
+    position:      relative;
+}
+
+.invent-rating-stars {
+    display: inline-flex;
+    /* 2px is intentionally below --spacing-xs; the gap between stars is
+     * deliberately tighter than any named spacing token. */
+    gap:     2px;
+}
+
+/* Individual star: stacking context for the half-zone overlays. */
+.invent-rating-star {
+    display:     inline-block;
+    font-size:   var(--font-size-xl);
+    line-height: var(--line-height-tight);
+    position:    relative;
+    user-select: none;
+}
+
+/* The visible glyph; clicks fall through to the half zones. */
+.invent-rating-star-glyph {
+    display:        block;
+    pointer-events: none;
+}
+
+/* Fill states. */
+.invent-rating-star-full .invent-rating-star-glyph {
+    color: var(--warning);
+}
+
+.invent-rating-star-half .invent-rating-star-glyph {
+    background:              linear-gradient(to right, var(--warning) 50%, var(--main-background) 50%);
+    -webkit-background-clip: text;
+    background-clip:         text;
+    -webkit-text-fill-color: transparent;
+    -webkit-text-stroke:     0.5px var(--warning);
+}
+
+.invent-rating-star-empty .invent-rating-star-glyph {
+    color:               var(--main-background);
+    -webkit-text-stroke: 0.5px var(--warning);
+}
+
+/* Invisible click zones covering each half of the star. */
+.invent-rating-half {
+    bottom:   0;
+    position: absolute;
+    top:      0;
+    width:    50%;
+}
+
+.invent-rating-half-left  { left:  0; }
+.invent-rating-half-right { right: 0; }
+
+/* Cursor for interactive (multi-star) mode. */
+.invent-rating-interactive .invent-rating-half { cursor: pointer; }
+
+/* Cursor for interactive single-star mode. */
+.invent-rating-interactive .invent-rating-star { cursor: pointer; }
+
+/* Scale-up hover on the glyph; uses --transition-speed-fast so
+ * prefers-reduced-motion is respected. */
+.invent-rating-interactive .invent-rating-star:hover .invent-rating-star-glyph {
+    display:    inline-block;
+    transform:  scale(1.2);
+    transition: transform var(--transition-speed-fast);
+}
+
+/* Read-only: subtle glow to reinforce the non-interactive state. */
+.invent-rating-readonly .invent-rating-star-glyph {
+    filter: drop-shadow(0 0 0.5px var(--warning));
+}
+
+/* Numeric value label. */
+.invent-rating-value {
+    color:     var(--secondary-text);
+    font-size: var(--font-size-sm);
+    min-width: 3ch;
+}
+
+/* === Tabs =============================================================== */
+
+.invent-tabs {
+    border-radius: var(--border-radius) var(--border-radius) 0 0;
+    box-sizing:    border-box;
+    display:       flex;
+    flex-wrap:     wrap;
+    margin:        0 auto 20px;
+    width:         100%;
+}
+
+/* The hidden radio input that carries the active-tab state. */
+.invent-tabs-radiotab {
+    opacity:  0;
+    position: absolute;
+}
+
+.invent-tabs-label {
+    background-color: var(--primary-light);
+    border:           solid var(--border-width) var(--primary);
+    cursor:           pointer;
+    font-weight:      bold;
+    padding:          22px 20px;
+    width:            100%;
+}
+
+.invent-tabs-panel {
+    background:    var(--main-background);
+    border-bottom: solid var(--border-width) var(--primary);
+    border-left:   solid var(--border-width) var(--primary);
+    border-right:  solid var(--border-width) var(--primary);
+    box-sizing:    border-box;
+    display:       none;
+    max-width:     100%;
+    overflow-x:    auto;
+    padding:       20px 30px 30px;
+    width:         100%;
+    word-break:    break-word;
+}
+
+/* Active tab: background matches the panel, bottom border removed to
+ * create visual continuity. */
+.invent-tabs-radiotab:checked + .invent-tabs-label {
+    background:    var(--main-background);
+    border-bottom: none;
+    border-right:  solid var(--border-width) var(--primary);
+    border-top:    solid var(--border-width) var(--primary);
+}
+
+.invent-tabs-radiotab:checked + .invent-tabs-label + .invent-tabs-panel {
+    display: block;
+}
+
+/* Wider-screen layout (breakpoint: 600px). */
+@media (min-width: 600px) {
+    .invent-tabs-panel {
+        order: 99;
+    }
+
+    .invent-tabs-label {
+        border-bottom: solid var(--border-width) var(--primary);
+        border-left:   none;
+        border-radius: var(--border-radius-lg) var(--border-radius-lg) 0 0;
+        flex-grow:     1;
+        min-width:     calc(100% / 8);
+        width:         unset;
+    }
+
+    :nth-child(1 of label.invent-tabs-label) {
+        border-left: solid var(--border-width) var(--primary);
+    }
+}
+
+/* === Text editor ======================================================== */
+
+/* Wraps the Quill 2 Snow editor. Quill's Snow CSS is injected into <head>
+ * dynamically by the widget after this stylesheet loads, so overrides must
+ * have higher specificity than Quill's own rules.
  *
  * Scoping every rule under .invent-text-editor gives an extra class
- * selector (0-3-0 or higher) that beats Quill's .ql-snow .ql-*
- * rules (0-2-0). CSS variables are used throughout so dark mode is
- * handled automatically by the :root overrides above.
- * ================================================================== */
+ * selector (0-3-0 or higher) that beats Quill's .ql-snow .ql-* rules
+ * (0-2-0). CSS variables are used throughout so dark mode is handled
+ * automatically by the :root overrides above. */
 
-/* --- Outer container ----------------------------------------------- */
-
+/* Outer container: border from the design system. Clip toolbar and editor
+ * corners to the container border-radius. */
 .invent-text-editor {
-  border: var(--border-width) solid var(--primary);
-  /* Clip toolbar and editor corners to the container border-radius. */
-  overflow: hidden;
+    border:   var(--border-width) solid var(--primary);
+    overflow: hidden;
 }
 
-/* --- Toolbar ------------------------------------------------------- */
-
-/* Background and separator; replaces Quill's hardcoded #ccc border. */
+/* Toolbar background and separator; replaces Quill's hardcoded #ccc. */
 .invent-text-editor .ql-toolbar.ql-snow {
-  background-color: var(--primary-light);
-  border-bottom: var(--border-width) solid var(--primary);
-  border-left: none;
-  border-right: none;
-  border-top: none;
-  font-family: var(--font);
-  padding: var(--spacing-sm);
+    background-color: var(--primary-light);
+    border-bottom:    var(--border-width) solid var(--primary);
+    border-left:      none;
+    border-right:     none;
+    border-top:       none;
+    font-family:      var(--font);
+    padding:          var(--spacing-sm);
 }
-
-/* --- Editor container --------------------------------------------- */
 
 /* Remove Quill's outer border; the wrapper provides it. */
 .invent-text-editor .ql-container.ql-snow {
-  background-color: var(--main-background);
-  border: none;
-  font-family: var(--font);
-  font-size: 1rem;
+    background-color: var(--main-background);
+    border:           none;
+    font-family:      var(--font);
+    font-size:        1rem;
 }
 
-/* --- Editable content area ---------------------------------------- */
-
+/* Editable content area. */
 .invent-text-editor .ql-editor {
-  color: var(--color-body);
-  line-height: var(--line-height);
+    color:       var(--color-body);
+    line-height: var(--line-height);
 }
 
 /* Placeholder text. */
 .invent-text-editor .ql-editor.ql-blank::before {
-  color: var(--muted-text);
-  font-style: normal;
+    color:      var(--muted-text);
+    font-style: normal;
 }
 
 /* Code blocks inside the editor. */
 .invent-text-editor .ql-editor pre.ql-syntax {
-  background-color: var(--muted-light);
-  border-radius: var(--border-radius);
-  color: var(--color-body);
-  font-family: var(--font-mono);
+    background-color: var(--muted-light);
+    border-radius:    var(--border-radius);
+    color:            var(--color-body);
+    font-family:      var(--font-mono);
 }
 
-/* --- Toolbar icon colours ----------------------------------------- */
+/* Toolbar icons: default state uses primary text colour. */
+.invent-text-editor .ql-toolbar.ql-snow .ql-stroke { stroke: var(--primary-text); }
+.invent-text-editor .ql-toolbar.ql-snow .ql-fill   { fill:   var(--primary-text); }
+.invent-text-editor .ql-toolbar.ql-snow .ql-picker  { color:  var(--primary-text); }
 
-/* Default state: inherit the primary text colour. */
-.invent-text-editor .ql-toolbar.ql-snow .ql-stroke {
-  stroke: var(--primary-text);
-}
-
-.invent-text-editor .ql-toolbar.ql-snow .ql-fill {
-  fill: var(--primary-text);
-}
-
-.invent-text-editor .ql-toolbar.ql-snow .ql-picker {
-  color: var(--primary-text);
-}
-
-/* Hover and active state: use the secondary (accent) colour. */
+/* Toolbar icons: hover and active states use the secondary accent colour. */
 .invent-text-editor .ql-toolbar.ql-snow button:hover .ql-stroke,
 .invent-text-editor .ql-toolbar.ql-snow button.ql-active .ql-stroke {
-  stroke: var(--secondary);
+    stroke: var(--secondary);
 }
 
 .invent-text-editor .ql-toolbar.ql-snow button:hover .ql-fill,
 .invent-text-editor .ql-toolbar.ql-snow button.ql-active .ql-fill {
-  fill: var(--secondary);
+    fill: var(--secondary);
 }
 
 .invent-text-editor .ql-toolbar.ql-snow button:hover,
 .invent-text-editor .ql-toolbar.ql-snow button.ql-active,
 .invent-text-editor .ql-toolbar.ql-snow .ql-picker-label:hover {
-  color: var(--secondary);
+    color: var(--secondary);
 }
 
-/* --- Header picker dropdown --------------------------------------- */
-
+/* Header picker dropdown. */
 .invent-text-editor .ql-toolbar.ql-snow .ql-picker-label {
-  color: var(--primary-text);
+    color: var(--primary-text);
 }
 
-/* The options list is rendered inside the toolbar, so the scoped
- * selector works here. */
 .invent-text-editor .ql-toolbar.ql-snow .ql-picker-options {
-  background-color: var(--main-background);
-  border: var(--border-width) solid var(--primary);
-  border-radius: var(--border-radius);
+    background-color: var(--main-background);
+    border:           var(--border-width) solid var(--primary);
+    border-radius:    var(--border-radius);
 }
 
-.invent-text-editor .ql-toolbar.ql-snow .ql-picker-item {
-  color: var(--primary-text);
+.invent-text-editor .ql-toolbar.ql-snow .ql-picker-item { color: var(--primary-text); }
+
+.invent-text-editor .ql-toolbar.ql-snow .ql-picker-item:hover { color: var(--secondary); }
+
+/* === Tree =============================================================== */
+
+/* Uses native <details>/<summary> elements for toggling with no JavaScript
+ * required. */
+
+.invent-tree {
+    background:  var(--main-background);
+    color:       var(--color-body);
+    font-family: var(--font);
+    padding:     var(--spacing-xs) 0;
+    user-select: none;
 }
 
-.invent-text-editor .ql-toolbar.ql-snow .ql-picker-item:hover {
-  color: var(--secondary);
+/* Nested branches and leaves indented under their parent. */
+.invent-tree details details,
+.invent-tree details .invent-tree-leaf {
+    margin-inline-start: 1.5rem;
+}
+
+/* Remove the default browser disclosure triangle. */
+.invent-tree summary {
+    align-items:   center;
+    border-radius: var(--border-radius);
+    color:         var(--primary-text);
+    cursor:        pointer;
+    display:       flex;
+    font-weight:   600;
+    gap:           0.4rem;
+    list-style:    none;
+    padding:       0.3rem 0.5rem;
+    transition:    background var(--transition-speed) ease;
+}
+
+.invent-tree summary::marker,
+.invent-tree summary::-webkit-details-marker {
+    display: none;
+}
+
+/* Toggle arrow sits before the label; rotates 90° when open. */
+.invent-tree summary::before {
+    color:       var(--secondary);
+    content:     "▶";
+    display:     inline-block;
+    flex-shrink: 0;
+    font-size:   0.65rem;
+    transition:  transform var(--transition-speed) ease;
+}
+
+.invent-tree details[open] > summary::before {
+    transform: rotate(90deg);
+}
+
+/* Leaf wrapper: flex row to align bullet with content. */
+.invent-tree-leaf {
+    align-items:   center;
+    border-radius: var(--border-radius);
+    display:       flex;
+    gap:           0.4rem;
+    padding:       0.15rem 0.5rem;
+    transition:    background var(--transition-speed) ease;
+}
+
+/* Muted bullet aligns leaves with sibling branch labels. */
+.invent-tree-leaf::before {
+    color:       var(--muted);
+    content:     "•";
+    flex-shrink: 0;
+    font-size:   1.6rem;
+}
+
+/* Hover, focus, and active states. */
+.invent-tree summary:hover         { background: var(--primary-light); }
+.invent-tree summary:active        { background: var(--primary-active); }
+.invent-tree-leaf:hover            { background: var(--secondary-light); }
+
+.invent-tree summary:focus-visible {
+    outline:        var(--border-width) solid var(--secondary);
+    outline-offset: calc(-1 * var(--border-width));
 }
