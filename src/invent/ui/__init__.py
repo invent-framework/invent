@@ -64,6 +64,7 @@ from .widgets.selector import Selector
 from .widgets.slider import Slider
 from .widgets.switch import Switch
 from .widgets.table import Table
+from .widgets.terminal import Terminal
 from .widgets.textinput import TextInput
 from .widgets.texteditor import TextEditor
 from .widgets.time import TimePicker
@@ -114,6 +115,7 @@ __all__ = [
     "Slider",
     "Switch",
     "Table",
+    "Terminal",
     "TextInput",
     "TextEditor",
     "Timeline",
@@ -158,6 +160,7 @@ AVAILABLE_COMPONENTS = {
     _("Switch"): Switch,
     _("Label"): Label,
     _("Table"): Table,
+    _("Terminal"): Terminal,
     _("TextInput"): TextInput,
     _("TextEditor"): TextEditor,
     _("TimePicker"): TimePicker,

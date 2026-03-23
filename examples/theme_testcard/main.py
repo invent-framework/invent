@@ -74,6 +74,8 @@ appointments = {
 invent.datastore["calendar_appointments"] = appointments
 invent.datastore["code_in_editor"] = """def greet(name):
     return f"Hello, {name}!"
+
+print(greet("world"))
 """
 
 # User Interface #######################################################################
@@ -486,6 +488,12 @@ print(Hello().greet)""",
                             text="And rendered as a label (HTML sanitised, but with markdown formatting):"
                         ),
                         Label(text=from_datastore("richtext")),
+                        Label(text="A Python terminal widget:"),
+                        Terminal(
+                            interpreter="mpy",  # Use the MicroPython interpreter for fun.
+                            code="print('Hello from the terminal widget! This code was evaluated by MicroPython. 🔬🐍')",
+                            worker=False,  # Run in the main thread so we can see the output immediately.
+                        ),
                         Label(text="### Ratings"),
                         Row(
                             children=[
