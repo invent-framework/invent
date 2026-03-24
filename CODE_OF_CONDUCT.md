@@ -5,7 +5,7 @@ When being together, especially if things go wrong,
 we acknowledge and work through differences.  
 In so doing, we transform and enlarge each other.
 
-To nurture our mutual growth,
+To nurture our mutual growth:
 
   this is a place of  
     learning, understanding, and sharing;  
@@ -19,11 +19,11 @@ To nurture our mutual growth,
 All the aspects of yourself you choose to bring to this place  
 are welcome here.
 
-Reciprocate! Welcome, embrace and learn from others  
+Reciprocate. Welcome, embrace and learn from others  
 (even in the face of apparent hostility or misunderstanding).
 
 Thoughtful, careful and courteous contributions are a gift,
-and never knowingly diminish, dehumanize or harm others.
+and never knowingly diminish, dehumanize, harass or harm others.
 
 To act against this spirit invites ostracism, 
 a loss that diminishes us all.
