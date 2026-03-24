@@ -19,8 +19,8 @@ clean:
 	rm -rf .pytest_cache
 	rm -rf dist
 	rm -rf invent.tar.gz
+	rm -rf invent.min.tar.gz
 	rm -rf test_suite.tar.gz
-	rm -rf src/tools/builder/src/python/invent.tar.gz
 	rm -rf static/*.tar.gz
 	rm -rf test_suite
 	find . | grep -E "(__pycache__)" | xargs rm -rf
@@ -34,7 +34,7 @@ lint:
 lint-all:
 	flake8 --extend-ignore=E203,E701 src/invent tests/*
 
-serve: clean tidy package
+serve: clean tidy package minify
 	python utils/serve.py
 
 test:
@@ -66,3 +66,13 @@ package:
 	cp test_suite.tar.gz static/
 	rm invent.tar.gz
 	rm test_suite.tar.gz
+
+minify:
+	mkdir -p temp/invent
+	cp -r src/invent/* temp/invent/
+	python -m rcssmin <src/invent/theme.css > temp/invent/theme.css
+	pyminify -i --remove-literal-statements temp/invent/
+	cd temp && tar --no-xattrs -czvf ../invent.min.tar.gz invent
+	cp invent.min.tar.gz static/
+	rm invent.min.tar.gz
+	rm -rf temp/invent

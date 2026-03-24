@@ -117,3 +117,4 @@ venv.bak/
 # Packaged assets
 invent.tar.gz
 test_suite.tar.gz
+invent.min.tar.gz
