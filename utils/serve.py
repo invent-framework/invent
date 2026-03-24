@@ -72,6 +72,7 @@ class SourceChangeHander(FileSystemEventHandler):
         print("♻️  Restarting server...")
         self.stop_server()
         subprocess.run(["make", "package"])
+        subprocess.run(["make", "minify"])
         self.start_server()
 
     def start_server(self):

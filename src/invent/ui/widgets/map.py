@@ -417,9 +417,9 @@ class Map(Widget):
         if self.map is None:
             return
         t = _TILES[self.tile_set]
-        _leaflet.tileLayer(
-            t["url"], {"attribution": t["attribution"]}
-        ).addTo(self.map)
+        _leaflet.tileLayer(t["url"], {"attribution": t["attribution"]}).addTo(
+            self.map
+        )
         self.publish("tiles_changed", tile_set=self.tile_set)
 
     def _select_point(self, event):
@@ -446,9 +446,9 @@ class Map(Widget):
         )
         # Add the initial tile layer.
         t = _TILES[self.tile_set]
-        _leaflet.tileLayer(
-            t["url"], {"attribution": t["attribution"]}
-        ).addTo(self.map)
+        _leaflet.tileLayer(t["url"], {"attribution": t["attribution"]}).addTo(
+            self.map
+        )
         # Add any markers that were set before the map initialised.
         for marker in self.markers:
             marker._build()
@@ -468,7 +468,7 @@ class Map(Widget):
         self.map = None
         self._element = div(id=self.id)
         self._element.classes.add("invent-map-widget")
-        self._element.style["height"] = self.height        
+        self._element.style["height"] = self.height
         asyncio.create_task(self._init_map())
         return self._element
 

@@ -1,20 +1,50 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Test Card</title>
-
-    <!-- Recommended meta tags -->
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width,initial-scale=1.0">
 
     <!-- PyScript -->
     <link rel="stylesheet" href="https://pyscript.net/releases/2026.2.1/core.css">
     <script type="module" src="https://pyscript.net/releases/2026.2.1/core.js"></script>
-    <!-- App CSS Styles -->
-    <link rel="stylesheet" href="./theme.css">
+
+    <style id="invent-theme">
+      /* Honour the OS light/dark preference via browser defaults. */
+      :root { color-scheme: light dark; }
+
+      html { height: 100%; }
+ 
+      body {
+        display:     grid;
+        place-items: center;
+        min-height:  100vh;
+        margin:      0;
+      }
+ 
+      #loader {
+        width:        6rem;
+        height:       6rem;
+        border:           8px solid color-mix(in srgb, currentColor 15%, transparent);
+        border-top-color: currentColor;
+        border-radius:    50%;
+        animation: spin .8s linear infinite,
+                   fade 1s ease forwards;
+      }
+ 
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
+ 
+      @keyframes fade {
+        from { opacity: 0; }
+        to   { opacity: 1; }
+      }
+    </style>
 </head>
 <!-- <body class="app-view"> for native app look (full width)-->
 <body> <!-- default "website" look (responsive width) -->
+  <div id="loader" role="status" aria-label="Loading, please wait"></div>
   <script type="mpy" src="./main.py" config="./config.json"></script>
 </body>
 </html>

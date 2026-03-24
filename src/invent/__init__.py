@@ -20,13 +20,12 @@ limitations under the License.
 
 from pyscript import js_import
 from pyscript import storage
-from pyscript.web import link, style, page
 from .channels import Message, subscribe, publish, unsubscribe
 from .datastore import DataStore, IndexDBBackend
 from .i18n import _, load_translations
 from .media import Media, set_media_root, get_media_root
 from .app import App
-from .utils import show_page, is_micropython
+from .utils import show_page, is_micropython, set_theme
 
 __all__ = [
     "Message",
@@ -42,6 +41,7 @@ __all__ = [
     "App",
     "show_page",
     "is_micropython",
+    "set_theme",
     "go",
     "init",
     "marked",

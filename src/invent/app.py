@@ -93,6 +93,7 @@ class App:
         license=None,
         pages=None,
         native=False,
+        theme="default.css",
     ):
         """
         Create a new instance of `App`.
@@ -134,6 +135,7 @@ class App:
             # Set the app to be a full width native looking app.
             dom.body.classes.add("app-view")
         invent.set_media_root(media_root)
+        invent.set_theme(theme)
 
     @property
     def pages(self):

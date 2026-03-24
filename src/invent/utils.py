@@ -4,7 +4,7 @@ Utility and compatibility functions.
 
 import inspect
 import sys
-from pyscript.web import div
+from pyscript.web import div, page, link, style
 from .app import App
 from .i18n import _
 
@@ -299,3 +299,43 @@ def humanise_timestamp(dt):
         f"{day_name} {dt.day:02d} {month_name}"
         f" {dt.year}, {hour}:{dt.minute:02d} {period}"
     )
+
+
+def set_theme(theme):
+    """
+    Set the app's theme to the specified CSS file.
+
+    The `theme` argument should be a path to a CSS file.
+
+    This can be in one of two places:
+
+    * Built into Invent, in which case it'll be on the local filesystem under the
+      `~/invent/themes/` directory. E.g. `set_theme("default.css")` will set the
+      theme to the default built-in theme. This is injected into the app's head
+      as a single style tag.
+    * Packaged with the app, in which case it'll be under the media root.
+    """
+    # Remove any previous theme style tag to avoid conflicts.
+    existing = page.find("#invent-theme")
+    for el in existing:
+        el.remove()
+    # Remove the loading indicator if it's still present.
+    loader = page.find("#loader")
+    for el in loader:
+        el.remove()
+    # Check if the theme is a built-in one by looking for it in the filesystem
+    # under the `~/invent/themes/` directory. If it's there, load it and inject
+    # it as a style tag.
+    # print contents of themes directory for debugging
+    import os
+
+    print("HELLO")
+    print("Available themes:", os.listdir("./invent/themes"))
+    try:
+        with open(f"./invent/themes/{theme}", "r") as f:
+            css = f.read()
+        page.head.append(style(css, id="invent-theme"))
+    except OSError:
+        # If it's not a built-in theme, assume it's just a URL to a CSS file and
+        # link it in the head.
+        page.head.append(link(rel="stylesheet", href=theme, id="invent-theme"))

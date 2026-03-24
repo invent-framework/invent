@@ -70,7 +70,7 @@ package:
 minify:
 	mkdir -p temp/invent
 	cp -r src/invent/* temp/invent/
-	python -m rcssmin <src/invent/theme.css > temp/invent/theme.css
+	python -m rcssmin <src/invent/themes/default.css > temp/invent/themes/default.css
 	pyminify -i --remove-literal-statements temp/invent/
 	cd temp && tar --no-xattrs -czvf ../invent.min.tar.gz invent
 	cp invent.min.tar.gz static/
