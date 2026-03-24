@@ -12,7 +12,7 @@ from .i18n import _
 is_micropython = "micropython" in sys.version.lower()
 
 
-# Weekday and month name lookups; datetime.weekday() returns 0=Mon.
+#: Weekday lookups; datetime.weekday() returns 0=Mon.
 WEEKDAYS = (
     _("Mon"),
     _("Tue"),
@@ -23,6 +23,8 @@ WEEKDAYS = (
     _("Sun"),
 )
 
+
+#: Month lookups; datetime.month returns 1=Jan.
 MONTHS = (
     _("Jan"),
     _("Feb"),
@@ -39,17 +41,17 @@ MONTHS = (
 )
 
 
-def show_page(page_name):
+def show_page(page_id):
     """
-    Show the page with the specified name. Hide the current page if there is
-    one.
+    Show the page with the specified `page_id`. Hide the current page if
+    there is one.
     """
-    App.app().show_page(page_name)
+    App.app().show_page(page_id)
 
 
 def getmembers_static(cls):
     """
-    Cross-interpreter implementation of inspect.getmembers_static.
+    Cross-interpreter implementation of `inspect.getmembers_static`.
     """
     if is_micropython:  # pragma: no cover
         return [
@@ -60,7 +62,7 @@ def getmembers_static(cls):
 
 def iscoroutinefunction(obj):
     """
-    Cross-interpreter implementation of inspect.iscoroutinefunction.
+    Cross-interpreter implementation of `inspect.iscoroutinefunction`.
     """
     if is_micropython:
         # MicroPython doesn't appear to have a way to determine if a closure is
@@ -78,14 +80,14 @@ def iscoroutinefunction(obj):
 
 def capitalize(s):
     """
-    Cross-interpreter implementation of str.capitalize.
+    Cross-interpreter implementation of `str.capitalize`.
     """
     return s[0].upper() + s[1:].lower()
 
 
 def sanitize(raw):
     """
-    Returns an HTML safe version of the raw input string.
+    Returns an HTML safe version of the `raw` input string.
     """
     temp = div()
     temp.innerText = raw
@@ -94,7 +96,7 @@ def sanitize(raw):
 
 def from_markdown(raw_markdown):
     """
-    Convert markdown to sanitized HTML.
+    Convert `raw_markdown` to sanitized HTML.
     """
     result = raw_markdown
     from . import marked, purify  # To avoid circular imports.
@@ -106,9 +108,9 @@ def from_markdown(raw_markdown):
 
 def _hex_to_rgb(hex_colour):
     """
-    Parse a CSS hex colour string to an (r, g, b) tuple.
+    Parse a CSS `hex_colour` string to an `(r, g, b)` tuple.
 
-    Accepts a #rrggbb string and returns each channel as an integer in the
+    Accepts a `#rrggbb` string and returns each channel as an integer in the
     range 0-255.
 
     Created with the help of an LLM.
@@ -123,7 +125,7 @@ def _hex_to_rgb(hex_colour):
 
 def _linearise(channel):
     """
-    Convert a single sRGB channel to linear light.
+    Convert a single sRGB `channel` to linear light.
 
     Put simply, how bright is this channel, as a fraction of its maximum
     brightness?
@@ -148,7 +150,7 @@ def _luminance(r, g, b):
     Put simply, how bright is this colour overall, as a fraction of absolute
     white?
 
-    Accepts r, g, b as 0-255 integers and returns a 0-1 float where 0 is
+    Accepts `r`, `g`, `b` as 0-255 integers and returns a 0-1 float where 0 is
     absolute black and 1 is absolute white. Uses the standard WCAG 2.1
     luminance coefficients (0.2126, 0.7152, 0.0722) which reflect human eye
     sensitivity across the visible spectrum:
@@ -168,9 +170,9 @@ def _rgb_to_hsl(r, g, b):
     """
     Convert an RGB colour to HSL (hue, saturation, lightness).
 
-    Accepts r, g, b as 0-255 integers and returns a tuple of
-    (hue, saturation, lightness) where hue is 0-360 degrees and
-    saturation and lightness are 0-1 floats. Uses the standard
+    Accepts `r`, `g`, `b` as 0-255 integers and returns a tuple of
+    `(hue, saturation, lightness)` where `hue` is 0-360 degrees and
+    `saturation` and `lightness` are 0-1 floats. Uses the standard
     geometric derivation from the RGB colour cube:
 
     https://en.wikipedia.org/wiki/HSL_and_HSV#From_RGB
@@ -198,7 +200,7 @@ def _hue_to_rgb(p, q, t):
     """
     Map a hue fraction to a single RGB channel value.
 
-    A helper for _hsl_to_hex implementing the standard HSL-to-RGB
+    A helper for `_hsl_to_hex` implementing the standard HSL-to-RGB
     piecewise interpolation across the six hue sectors:
 
     https://en.wikipedia.org/wiki/HSL_and_HSV#HSL_to_RGB
@@ -222,8 +224,8 @@ def _hsl_to_hex(h, s, l):
     """
     Convert an HSL (hue, saturation, lightness) colour to a CSS hex string.
 
-    Accepts hue as 0-360 degrees and saturation and lightness as 0-1 floats.
-    Returns a lowercase #rrggbb string. Achromatic colours (s == 0) bypass
+    Accepts `hue` as 0-360 degrees and `saturation` and `lightness` as 0-1 floats.
+    Returns a lowercase `#rrggbb` string. Achromatic colours (`s == 0`) bypass
     the hue calculation entirely. See:
 
     https://en.wikipedia.org/wiki/HSL_and_HSV#HSL_to_RGB
@@ -244,9 +246,10 @@ def _hsl_to_hex(h, s, l):
 
 def contrast_colours(hex_bg):
     """
-    Return contrasting text and link colours for a given background.
+    Return contrasting text and link colours for a given `hex_bg`
+    background.
 
-    Accepts a #rrggbb hex string and returns a dict with 'text' and
+    Accepts a `#rrggbb` hex string and returns a dict with 'text' and
     'link' keys, each a hex colour string chosen to remain legible
     over the supplied background.
 
@@ -285,7 +288,8 @@ def contrast_colours(hex_bg):
 
 def humanise_timestamp(dt):
     """
-    Format a datetime as a human-readable string. For example, "Thu 01 Jan 2026, 14:32".
+    Format a datetime `dt` as a human-readable string. For example, 
+    "Thu 01 Jan 2026, 14:32".
     """
     day_name = WEEKDAYS[dt.weekday()]
     month_name = MONTHS[dt.month - 1]

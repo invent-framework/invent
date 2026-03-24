@@ -48,7 +48,9 @@ class DataBackend:
 
     def get(self, key, default=None):
         """
-        Return the value of the item with the specified key.
+        Return the value of the item with the specified `key`.
+
+        If the `key` does not exist, return the `default` value.
         """
         if key in self:
             return self[key]
@@ -70,8 +72,8 @@ class DataBackend:
 
     def pop(self, key, default=None):
         """
-        Pop the specified item from the data store and return the associated
-        value.
+        Pop the specified `key` from the data store and return the associated
+        value. If the `key` does not exist, return the `default` value.
         """
         if key in self:
             result = self[key]
@@ -89,11 +91,11 @@ class DataBackend:
 
     def setdefault(self, key, value=None):
         """
-        Returns the value of the item with the specified key.
+        Returns the value of the item with the specified `key`.
 
-        If the key does not exist, insert the key, with the specified value.
+        If the `key` does not exist, insert the `key`, with the specified `value`.
 
-        Default value is `None`.
+        Default `value` is `None`.
         """
         if key in self:
             return self[key]
@@ -136,19 +138,19 @@ class DataBackend:
 
     def __setitem__(self, key, value):
         """
-        Set the value against the given key.
+        Set the `value` against the given `key`.
         """
         raise NotImplementedError
 
     def __getitem__(self, key):
         """
-        Get the value stored against the given key.
+        Get the value stored against the given `key`.
         """
         raise NotImplementedError
 
     def __delitem__(self, key):
         """
-        Delete the item stored against the given key.
+        Delete the item stored against the given `key`.
         """
         raise NotImplementedError
 
@@ -160,18 +162,18 @@ class DataBackend:
 
     def __contains__(self, key):
         """
-        Checks if a key is in the datastore.
+        Checks if a `key` is in the datastore.
         """
         return key in self.keys()
 
 
 class _FakeStorage(dict):
     """
-    A Python dict with some JavaScript method shims. This is used if
-    window.localStorage is not available due to the security context in which
+    A Python `dict` with some JavaScript method shims. This is used if
+    `window.localStorage` is not available due to the security context in which
     Invent finds itself.
 
-    This localStorage lasts only as long as the page.
+    This `_FakeStorage` lasts only as long as the page.
     """
 
     @property
@@ -194,8 +196,8 @@ class _FakeStorage(dict):
 class LocalStorageBackend(DataBackend):
     """
     A simple key/value data store using the browser's `localStorage`. If the
-    browser's `localStorage` is not available, a Python dict based solution
-    based upon _FakeStorage is used instead.
+    browser's `localStorage` is not available, a Python `dict` based solution
+    based upon `_FakeStorage` is used instead.
 
     Wraps a JavaScript `Storage` object for browser based data storage. Looks
     and feels mostly like a Python `dict` but has the same characteristics
@@ -251,13 +253,13 @@ class LocalStorageBackend(DataBackend):
 
     def _namespace_key(self, key):
         """
-        Convenience method to create a properly namespaced key.
+        Convenience method to create a properly namespaced `key`.
         """
         return f"{self.namespace}{key}"
 
     def __getitem__(self, key):
         """
-        Get and JSON deserialize the item stored against the given key.
+        Get and JSON deserialize the item stored against the given `key`.
         """
         if key in self:
             return json.loads(self.store.getItem(self._namespace_key(key)))
@@ -266,7 +268,7 @@ class LocalStorageBackend(DataBackend):
 
     def __setitem__(self, key, value):
         """
-        Set the value (as a JSON string) against the given key.
+        Set the `value` (as a JSON string) against the given `key`.
 
         The underlying JavaScript Storage only stored values as strings.
         """
@@ -277,7 +279,7 @@ class LocalStorageBackend(DataBackend):
 
     def __delitem__(self, key):
         """
-        Delete the item stored against the given key.
+        Delete the item stored against the given `key`.
         """
         if key in self:
             result = self.store.removeItem(self._namespace_key(key))
@@ -289,7 +291,7 @@ class LocalStorageBackend(DataBackend):
 class IndexDBBackend(Storage, DataBackend):
     """
     A simple key/value data store using the browser's `indexedDB` via
-    PyScript's own Storage class.
+    PyScript's own  `Storage` class.
 
     Wraps a JavaScript `IDBDatabase` object for browser based data storage.
     Looks and feels mostly like a Python `dict` but has the same characteristics
@@ -299,20 +301,6 @@ class IndexDBBackend(Storage, DataBackend):
 
     <https://developer.mozilla.org/en-US/docs/Web/API/IndexedDB_API>
     """
-
-    ...
-
-
-class RemoteStorageBackend(DataBackend):
-    """
-    A simple key/value data store using a remote server.
-
-    Wraps a remote server for data storage. Looks and feels mostly like a Python
-    `dict` but uses a simple API to store and retrieve data via background
-    HTTP requests.
-    """
-
-    # TODO: Implement this class to store data remotely.
 
     ...
 
@@ -337,7 +325,7 @@ class DataStore(DataBackend):
 
     def __init__(self, _backend=None, **kwargs):
         """
-        Create a new data store with the given _backend. If no _backend is
+        Create a new data store with the given  `_backend`. If no `_backend` is
         provided, a default `LocalStorageBackend` is used.
 
         Any `**kwargs` are passed to the backend.
@@ -368,16 +356,16 @@ class DataStore(DataBackend):
 
     def __getitem__(self, key):
         """
-        Get the value stored against the given key.
+        Get the value stored against the given  `key`.
         """
         return self.backend[key]
 
     def __setitem__(self, key, value):
         """
-        Set the value against the given key.
+        Set the `value` against the given `key`.
 
-        Publishes a message whose type is the item's key, along with the new
-        value, to the self.DATASTORE_SET_CHANNEL channel.
+        Publishes a message whose type is the item's `key`, along with the new
+        `value`, to the `self.DATASTORE_SET_CHANNEL` channel.
         """
         self.backend[key] = value
         publish(
@@ -387,10 +375,10 @@ class DataStore(DataBackend):
 
     def __delitem__(self, key):
         """
-        Delete the item stored against the given key.
+        Delete the item stored against the given `key`.
 
-        Publishes a message whose type is the item's the key, to the
-        "delete-data" channel.
+        Publishes a message whose type is the item's `key`, to the
+        `self.DATASTORE_DELETE_CHANNEL` channel.
         """
         del self.backend[key]
         publish(

@@ -1,9 +1,6 @@
 """
 A very simple PubSub message bus for the Invent framework.
 
-For convenience, we also provide two "when" abstractions that sit on top of the
-pubsub mechanism.
-
 Based on original pre-COVID work by [Nicholas H.Tollervey.](https://ntoll.org/)
 
 Copyright (c) 2019-present Invent contributors.
@@ -43,7 +40,7 @@ class Message:
     Represents any Invent related messages sent to channels.
 
     The message's subject ("click", "slide", "whatever") becomes the
-    thing to which to listen for (i.e. the "when" when subscribing).
+    thing to which to listen for (i.e. the `when_subject` when subscribing).
     """
 
     def __init__(self, subject, **kwargs):
@@ -61,15 +58,17 @@ class Message:
 
 def subscribe(handler, to_channel, when_subject):
     """
-    Subscribe an event handler to a channel[s] to handle when a certain sort of
-    message[s] is received (identified by subject).
+    Subscribe a callable event `handler` `to_channel`[s] to handle when a
+    certain sort of message[s] is received (identified by `when_subject`).
 
-    The to_channel and when arguments can be either individual strings or a
-    list of strings to indicate the channel[s] and message subjects (when).
+    The `to_channel` and `when_subject` arguments can be either individual
+    strings or a list of strings to indicate the channel[s] and message subjects.
 
     E.g.
 
-    subscribe(handler=my_handler, to_channel=["foo", "bar", ], when="click")
+    ```python
+    subscribe(handler=my_handler, to_channel=["foo", "bar", ], when_subject="click")
+    ```
     """
     if isinstance(to_channel, str):
         to_channel = [
@@ -90,14 +89,16 @@ def subscribe(handler, to_channel, when_subject):
 
 def publish(message, to_channel):
     """
-    Publish a message to a certain channel[s].
+    Publish a `message` `to_channel`[s].
 
-    The to_channel can be either an individual string of the name of a channel
-    or a list of strings of channel names to which to publish the message.
+    The `to_channel` can be either an individual string of the name of a channel
+    or a list of strings of channel names to which to publish the `message`.
 
     E.g.
 
+    ```python
     publish(message=my_message, to_channel=["foo", "bar", ])
+    ```
     """
     if isinstance(to_channel, str):
         to_channel = [
@@ -115,15 +116,17 @@ def publish(message, to_channel):
 
 def unsubscribe(handler, from_channel, when_subject):
     """
-    Unsubscribe a handler from a channel[s] to stop it handling when a certain
-    message[s] is received (identified by subject).
+    Unsubscribe a `handler` `from_channel`[s] to stop it handling when a certain
+    message[s] is received (identified by `when_subject`).
 
-    The from_channel and when arguments can be either individual strings or a
-    list of strings to indicate the channel[s] and message subjects (when).
+    The `from_channel` and `when_subject` arguments can be either individual
+    strings or a list of strings to indicate the channel[s] and message subjects.
 
     E.g.
 
-    unsubscribe(handler=a_handler, from_channel=["foo", "bar", ], when="click")
+    ```python
+    unsubscribe(handler=a_handler, from_channel=["foo", "bar", ], when_subject="click")
+    ```
     """
     if isinstance(from_channel, str):
         from_channel = [
@@ -148,24 +151,3 @@ def unsubscribe(handler, from_channel, when_subject):
             raise ValueError(
                 f"Cannot unsubscribe from unknown channel: {channel}"
             )
-
-
-def when(subject, to_channel, do=None):
-    """
-    Convenience function for wrapping subscriptions.
-
-    If no "do" handler is given, we assume this function is decorating the
-    handler to "do" the stuff.
-
-    The subject and to_channel can be either individual strings or a
-    list of strings to indicate the channel[s] and message subject[s] to match.
-    """
-    if do:
-        # Block friendly subscription of a given handler.
-        subscribe(handler=do, to_channel=to_channel, when_subject=subject)
-    else:
-        # Decorator friendly subscription.
-        def inner_function(do):
-            subscribe(handler=do, to_channel=to_channel, when_subject=subject)
-
-        return inner_function

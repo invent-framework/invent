@@ -31,7 +31,7 @@ __root__ = "."
 
 def set_media_root(root):
     """
-    Set the URL root for the media assets.
+    Set the URL root path for the media assets.
     """
     global __root__
     __root__ = root
@@ -54,30 +54,32 @@ class Media:
 
     e.g.
 
+    ```
     invent.media.images.goose.png
+    ```
 
     Will resolve to the "/media/images/goose.png" asset.
 
-    The path for all Media objects starts with a media root that defaults to
-    "". Use the set_media_root() function to override this on a per-app
+    The path for all `Media` objects starts with a media root that defaults to
+    `""`. Use the `set_media_root()` function to override this on a per-app
     basis.
     """
 
     def __init__(self, path, name):
         """
-        The path contains the parent's path as a list. The name is
+        The `path` contains the parent's path as a list. The `name` is
         (potentially) the end of a path, which should be a file extension
-        (like, .jpg, .mp3 etc...).
+        (like, `.jpg`, `.mp3` etc...).
 
-        If this class becomes a parent to yet another Media object (see:
-        __getattribute__), the name is assumed NOT to be a file extension.
+        If this class becomes a parent to yet another `Media` object (see:
+        `__getattribute__`), the `name` is assumed NOT to be a file extension.
         """
         self._path = path
         self._name = name
 
     def __getattr__(self, attr_name):
         """
-        Return a new child Media object.
+        Return a new child `Media` object.
         """
         return Media(
             self._path
