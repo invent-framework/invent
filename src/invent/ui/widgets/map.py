@@ -18,7 +18,10 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-from pyscript.web import div
+import asyncio
+from pyscript import js_import, window
+from pyscript.web import div, link, page
+from pyscript.ffi import create_proxy
 from invent.i18n import _
 from invent.utils import from_markdown
 from invent.ui.core import (
@@ -30,8 +33,6 @@ from invent.ui.core import (
     ListProperty,
     ChoiceProperty,
 )
-from pyscript import window
-from pyscript.ffi import create_proxy
 
 MARKER_ICON_DEFAULT = "default"
 MARKER_ICON_AIRPORT = "airport"
@@ -173,6 +174,29 @@ _TILES = {
     },
 }
 
+# Module-level Leaflet reference, loaded once on first use.
+_leaflet = None
+# Guard so the Leaflet CSS link is only injected into the page head once.
+_leaflet_css_injected = False
+
+
+async def _ensure_leaflet():
+    """
+    Load Leaflet and its CSS the first time a Map widget is rendered.
+    """
+    global _leaflet, _leaflet_css_injected
+    if _leaflet is None:
+        (_leaflet,) = await js_import(
+            "https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet-src.esm.js",
+        )
+    if not _leaflet_css_injected:
+        leaflet_css = link(
+            rel="stylesheet",
+            href="https://cdn.jsdelivr.net/npm/leaflet@1.9.4/dist/leaflet.css",
+        )
+        page.head.append(leaflet_css)
+        _leaflet_css_injected = True
+
 
 class Map(Widget):
     """
@@ -262,7 +286,7 @@ class Map(Widget):
     height = TextProperty(
         _("The height of the map."),
         required=True,
-        default_value="280px",
+        default_value="320px",
     )
 
     markers = ListProperty(
@@ -318,11 +342,14 @@ class Map(Widget):
         return '<svg xmlns="http://www.w3.org/2000/svg" width="256" height="256" viewBox="0 0 256 256"><path fill="currentColor" d="M112 80a16 16 0 1 1 16 16a16 16 0 0 1-16-16m-48 0a64 64 0 0 1 128 0c0 59.95-57.58 93.54-60 94.95a8 8 0 0 1-7.94 0C121.58 173.54 64 140 64 80m16 0c0 42.2 35.84 70.21 48 78.5c12.15-8.28 48-36.3 48-78.5a48 48 0 0 0-96 0m122.77 67.63a8 8 0 0 0-5.54 15C213.74 168.74 224 176.92 224 184c0 13.36-36.52 32-96 32s-96-18.64-96-32c0-7.08 10.26-15.26 26.77-21.36a8 8 0 0 0-5.54-15C29.22 156.49 16 169.41 16 184c0 31.18 57.71 48 112 48s112-16.82 112-48c0-14.59-13.22-27.51-37.23-36.37"/></svg>'  # noqa
 
     def _recenter(self):
-        # Late binding of leaflet to ensure it's available.
-        from invent import leaflet as L
-
+        """
+        Re-centre the map view at the current lat/lng and zoom level.
+        Bails out silently if _init_map() has not yet completed.
+        """
+        if self.map is None:
+            return
         self.map.setView(
-            L.latLng(self.center_latitude, self.center_longitude),
+            _leaflet.latLng(self.center_latitude, self.center_longitude),
             self.zoom_level,
         )
         self.publish(
@@ -332,21 +359,46 @@ class Map(Widget):
         )
 
     def on_center_latitude_changed(self):
+        """
+        Re-centre the map when the latitude changes.
+        """
         self._recenter()
 
     def on_center_longitude_changed(self):
+        """
+        Re-centre the map when the longitude changes.
+        """
         self._recenter()
 
     def on_zoom_level_changed(self):
+        """
+        Update the map zoom when the zoom level changes.
+        Bails out silently if _init_map() has not yet completed.
+        """
+        if self.map is None:
+            return
         self.map.setZoom(self.zoom_level)
         self.publish("zoom_level_changed", zoom_level=self.zoom_level)
 
     def on_height_changed(self):
+        """
+        Resize the map element when the height property changes.
+        Bails out silently if _init_map() has not yet completed.
+        """
+        if self.map is None:
+            return
         self.element.style["height"] = self.height
         self.publish("height_changed", height=self.height)
 
     def on_markers_changed(self):
+        """
+        Add any markers not already present on the map.
+        Bails out silently if _init_map() has not yet completed.
+        """
+        if self.map is None:
+            return
         for marker in self.markers:
+            marker._build()
             if not self.map.hasLayer(marker.marker):
                 self.map.addLayer(marker.marker)
                 self.publish(
@@ -358,39 +410,67 @@ class Map(Widget):
                 )
 
     def on_tile_set_changed(self):
+        """
+        Swap the tile layer when the tile set changes.
+        Bails out silently if _init_map() has not yet completed.
+        """
+        if self.map is None:
+            return
         t = _TILES[self.tile_set]
-        layer = self.L.tileLayer(
+        _leaflet.tileLayer(
             t["url"], {"attribution": t["attribution"]}
         ).addTo(self.map)
         self.publish("tiles_changed", tile_set=self.tile_set)
 
     def _select_point(self, event):
+        """
+        Publish a point_selected event with the clicked lat/lng.
+        """
         self.publish(
             "point_selected",
             latitude=event.latlng.lat,
             longitude=event.latlng.lng,
         )
 
-    def render(self):
-        # Late binding of leaflet to ensure it's available.
-        from invent import leaflet as L
-
-        self.L = L  # escape hatch for advanced users.
-
-        element = div(id=self.id)
-        element.classes.add("invent-map-widget")
-
-        self.map = L.map(element._dom_element).setView(
-            L.latLng(self.center_latitude, self.center_longitude),
+    async def _init_map(self):
+        """
+        Load Leaflet then build the map. Runs as a background task started
+        by render() so that render() itself stays synchronous.
+        """
+        await _ensure_leaflet()
+        # Expose Leaflet as an escape hatch for advanced users.
+        self.L = _leaflet
+        self.map = _leaflet.map(self._element._dom_element).setView(
+            _leaflet.latLng(self.center_latitude, self.center_longitude),
             self.zoom_level,
         )
+        # Add the initial tile layer.
+        t = _TILES[self.tile_set]
+        _leaflet.tileLayer(
+            t["url"], {"attribution": t["attribution"]}
+        ).addTo(self.map)
+        # Add any markers that were set before the map initialised.
+        for marker in self.markers:
+            marker._build()
+            self.map.addLayer(marker.marker)
         # Ensure map clicks are handled properly.
         self.map.on("click", self._select_point)
         # Ensures the map is properly rendered once added to the DOM.
         window.requestAnimationFrame(
             create_proxy(lambda *args: self.map.invalidateSize())
         )
-        return element
+
+    def render(self):
+        """
+        Return the container element immediately and schedule Leaflet
+        loading and map initialisation as a background task.
+        """
+        self.map = None
+        self._element = div(id=self.id)
+        self._element.classes.add("invent-map-widget")
+        self._element.style["height"] = self.height        
+        asyncio.create_task(self._init_map())
+        return self._element
 
     class Marker:
         """
@@ -402,6 +482,10 @@ class Map(Widget):
         popup. The icon should be an image (use the built-in icons provided as
         MARKER_ICON_* constants or a URL to an image). The icon color should be
         a hex / valid HTML color code.
+
+        Construction is deliberately synchronous and free of Leaflet calls.
+        The actual Leaflet objects are created lazily via _build(), which is
+        called by Map.on_markers_changed() once Leaflet is guaranteed loaded.
         """
 
         def __init__(
@@ -412,31 +496,39 @@ class Map(Widget):
             icon=MARKER_ICON_DEFAULT,
             icon_color="#F00",
         ):
-            # Late binding of leaflet to ensure it's available.
-            from invent import leaflet as L
-
             self.latitude = latitude
             self.longitude = longitude
             self.popup_content = popup_content
-            # Ensure the icon is a valid built-in image.
+            # Resolve a named built-in icon to its SVG data URI.
             if icon in MARKER_ICONS:
                 icon = MARKER_ICONS[icon]
-            # Make the color of the icon URL safe.
+            # Make the colour URL-safe and substitute into the SVG template.
             icon_color = icon_color.replace("#", "%23")
-            # Replace the color in the icon URL.
-            icon = icon.format(icon_color=icon_color)
-            # Create the icon for the marker.
-            self.icon = L.icon(
-                iconUrl=icon,
-                iconSize=L.point(50, 50),
-                iconAnchor=L.point(25, 50),
-                popupAnchor=L.point(0, -50),
+            self._icon_url = icon.format(icon_color=icon_color)
+            # Leaflet marker and icon objects are built lazily in _build().
+            self.marker = None
+            self.icon = None
+
+        def _build(self):
+            """
+            Create the Leaflet marker and icon objects. Safe to call multiple
+            times; subsequent calls are no-ops once already built.
+            """
+            if self.marker is not None:
+                return
+            # Create the Leaflet icon.
+            self.icon = _leaflet.icon(
+                iconUrl=self._icon_url,
+                iconSize=_leaflet.point(50, 50),
+                iconAnchor=_leaflet.point(25, 50),
+                popupAnchor=_leaflet.point(0, -50),
             )
-            # Create the marker.
-            self.marker = L.marker(L.latLng(self.latitude, self.longitude))
+            # Create the Leaflet marker and apply the icon.
+            self.marker = _leaflet.marker(
+                _leaflet.latLng(self.latitude, self.longitude)
+            )
             self.marker.setIcon(self.icon)
-            # Add the popup content if it exists, checking if it's a string or
-            # a widget etc...
+            # Attach popup content if provided, accepting strings or widgets.
             if self.popup_content:
                 if isinstance(self.popup_content, str):
                     self.popup_content = from_markdown(self.popup_content)

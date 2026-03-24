@@ -19,11 +19,12 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-from invent.i18n import _
-from invent.ui.core import Widget, Event, ChoiceProperty, JSONProperty
+import asyncio
+from pyscript import js_import, window
 from pyscript.web import div, canvas
 from pyscript.ffi import to_js, create_proxy
-from pyscript import window
+from invent.i18n import _
+from invent.ui.core import Widget, Event, ChoiceProperty, JSONProperty
 
 #: The types of chart that can be rendered.
 _CHARTS = [
@@ -36,6 +37,18 @@ _CHARTS = [
     "radar",
     "scatter",
 ]
+
+# Module-level Chart.js reference, loaded once on first use.
+_chart_js = None
+
+
+async def _ensure_chart_js():
+    """
+    Load Chart.js the first time a Chart widget is rendered.
+    """
+    global _chart_js
+    if _chart_js is None:
+        (_chart_js,) = await js_import("https://esm.run/chart.js/auto")
 
 
 class Chart(Widget):
@@ -118,11 +131,10 @@ class Chart(Widget):
         """
         If required, kick off Chart.js with the required canvas and given
         settings. Otherwise, update the chart with the current state of the
-        options and data.
+        options and data. Assumes _ensure_chart_js() has already been awaited
+        during render().
         """
         if self.parent:
-            from invent import chart_js
-
             chart_args = {
                 "data": self.data,
                 "responsive": True,
@@ -137,7 +149,7 @@ class Chart(Widget):
                 self.chart_instance.options = to_js(self.options)
                 self.chart_instance.update()
             else:
-                self.chart_instance = chart_js.Chart.new(
+                self.chart_instance = _chart_js.Chart.new(
                     self.chart_canvas._dom_element, to_js(chart_args)
                 )
             # Publish the chart updated event.
@@ -148,7 +160,21 @@ class Chart(Widget):
                 options=self.options,
             )
 
+    async def _init_chart(self):
+        """
+        Load Chart.js then trigger the initial render. Runs as a background
+        task started by render() so that render() itself stays synchronous.
+        """
+        await _ensure_chart_js()
+        window.requestAnimationFrame(
+            create_proxy(lambda x: self._update_chart())
+        )
+
     def render(self):
+        """
+        Return the container element immediately and schedule Chart.js
+        loading and initial rendering as a background task.
+        """
         element = div(
             id=self.id,
             style={
@@ -161,8 +187,5 @@ class Chart(Widget):
         )
         self.chart_canvas = canvas()
         element.append(self.chart_canvas)
-        # Ensures the chart is properly rendered once added to the DOM.
-        window.requestAnimationFrame(
-            create_proxy(lambda x: self._update_chart())
-        )
+        asyncio.create_task(self._init_chart())
         return element

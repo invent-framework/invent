@@ -18,8 +18,9 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
+from pyscript import js_import
 from pyscript.ffi import to_js
-from pyscript.web import div
+from pyscript.web import div, style, page
 from invent.i18n import _
 from invent.ui.core import Widget, TextProperty, BooleanProperty
 
@@ -30,8 +31,77 @@ def hello(name="world"):
 
 # Themes passed to Shiki for light and dark mode. Shiki embeds both as CSS
 # custom properties on each token; the dark values are activated by the
-# @media rule injected into the page head by load_js_modules().
+# @media rule below.
 _THEMES = {"light": "github-light", "dark": "github-dark"}
+
+
+# CSS required by Shiki. The @media block activates Shiki's dark theme tokens
+# (embedded as CSS custom properties on each token span). The .highlighted
+# rule styles lines marked by transformerMetaHighlight with a neutral tint
+# that works in both light and dark mode.
+_SHIKI_CSS = """
+@media (prefers-color-scheme: dark) {
+    .shiki, .shiki span {
+        color: var(--shiki-dark) !important;
+        background-color: var(--shiki-dark-bg) !important;
+    }
+
+    /* Re-assert highlight on the line and all token spans within it. */
+    pre.shiki .line.highlighted,
+    pre.shiki .line.highlighted span {
+        background-color: rgba(255, 200, 0, 0.12) !important;
+    }
+}
+
+/* Line numbers: CSS counter on Shiki's generated .line spans.
+   The line-numbers class on <pre> acts as the toggle. */
+pre.shiki.line-numbers {
+    counter-reset: line;
+}
+
+pre.shiki.line-numbers .line::before {
+    counter-increment: line;
+    content: counter(line);
+    display: inline-block;
+    /* Enough width for 3-4 digit line counts. */
+    width: 2rem;
+    margin-right: 1rem;
+    text-align: right;
+    /* Muted so numbers don't compete with code. */
+    color: #888;
+    user-select: none;
+}
+
+/* Highlighted lines: neutral tint with a subtle left accent. Works in
+   both light and dark mode without needing separate colour values. */
+pre.shiki .line.highlighted {
+    background-color: rgba(255, 200, 0, 0.15) !important;
+    /* Inset box-shadow gives the left accent without affecting layout. */
+    box-shadow: inset 3px 0 0 rgba(255, 200, 0, 0.6);
+}
+"""
+
+# Module-level Shiki references, loaded once on first use.
+_shiki = None
+_shiki_transformers = None
+# Guard so the CSS block is only injected into the page head once.
+_shiki_css_injected = False
+
+
+async def _ensure_shiki():
+    """
+    Load Shiki and its transformers the first time they are needed, then
+    inject the supporting CSS into the page head once.
+    """
+    global _shiki, _shiki_transformers, _shiki_css_injected
+    if _shiki is None:
+        _shiki, _shiki_transformers = await js_import(
+            "https://esm.sh/shiki@3",
+            "https://esm.sh/@shikijs/transformers",
+        )
+    if not _shiki_css_injected:
+        page.head.append(style(_SHIKI_CSS))
+        _shiki_css_injected = True
 
 
 class Code(Widget):
@@ -65,24 +135,19 @@ class Code(Widget):
 
     async def _highlight_code(self):
         """
-        Re-render the highlighted code block using Shiki. Imported lazily to
-        avoid a circular import at module load time.
+        Re-render the highlighted code block using Shiki.
         """
-        from invent import (
-            shiki,
-            shiki_transformers,
-        )  # Avoid circular import at module load time.
-
+        await _ensure_shiki()
         options = {"lang": self.language, "themes": _THEMES}
         if self.highlight:
             # Wrap the highlight spec in braces as Shiki's meta string format
             # requires, e.g. '1,3-5' becomes '{1,3-5}'.
             options["meta"] = {"__raw": "{" + self.highlight + "}"}
             options["transformers"] = [
-                shiki_transformers.transformerMetaHighlight()
+                _shiki_transformers.transformerMetaHighlight()
             ]
         options = to_js(options)
-        html = await shiki.codeToHtml(self.code, options)
+        html = await _shiki.codeToHtml(self.code, options)
         self._container.replaceChildren()
         self._container._dom_element.innerHTML = html
         self._update_line_numbers()

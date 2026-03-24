@@ -288,7 +288,7 @@ def contrast_colours(hex_bg):
 
 def humanise_timestamp(dt):
     """
-    Format a datetime `dt` as a human-readable string. For example, 
+    Format a datetime `dt` as a human-readable string. For example,
     "Thu 01 Jan 2026, 14:32".
     """
     day_name = WEEKDAYS[dt.weekday()]
