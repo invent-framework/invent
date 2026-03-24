@@ -1118,12 +1118,12 @@ input[type="url"] {
     }
 
     /* Rotate the chevron when the accordion is open. */
-    &:is([open]) > .accordion-title:after,
-    &.collapse-open > .accordion-title:after,
-    &:focus:not(.collapse-close) > .accordion-title:after,
+    &:is([open]) > .invent-accordion-title:after,
+    &.collapse-open > .invent-accordion-title:after,
+    &:focus:not(.collapse-close) > .invent-accordion-title:after,
     &:not(.collapse-close) > input:is(
         [type="checkbox"], [type="radio"]
-    ):checked ~ .accordion-title:after {
+    ):checked ~ .invent-accordion-title:after {
         transform: translateY(-50%) rotate(225deg);
     }
 
