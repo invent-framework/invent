@@ -22,6 +22,8 @@ clean:
 	rm -rf invent.min.tar.gz
 	rm -rf test_suite.tar.gz
 	rm -rf static/*.tar.gz
+	rm -rf static/*.css
+	rm -rf temp
 	rm -rf test_suite
 	find . | grep -E "(__pycache__)" | xargs rm -rf
 
@@ -70,7 +72,9 @@ package:
 minify:
 	mkdir -p temp/invent
 	cp -r src/invent/* temp/invent/
+	cp src/invent/themes/default.css static/default.css
 	python -m rcssmin <src/invent/themes/default.css > temp/invent/themes/default.css
+	cp temp/invent/themes/default.css static/default.min.css
 	pyminify -i --remove-literal-statements temp/invent/
 	cd temp && tar --no-xattrs -czvf ../invent.min.tar.gz invent
 	cp invent.min.tar.gz static/

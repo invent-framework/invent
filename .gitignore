@@ -118,3 +118,5 @@ venv.bak/
 invent.tar.gz
 test_suite.tar.gz
 invent.min.tar.gz
+static/default.css
+static/default.min.css
