@@ -18,6 +18,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
+from pyscript import document
 from pyscript.web import page as dom  # Avoid name collision with page.
 
 import invent
@@ -110,9 +111,17 @@ class App:
         and how to contact them. The `license` is a string containing the license
         under which the app is released. The `pages` are a list of Page objects
         that define the structure of the app (as an explicit alternative to
-        passing them in as arguments). Finally, the `native` flag is used to
-        indicate if Invent should display the app as a responsive web app
+        passing them in as arguments). Additionally, the `native` flag is used
+        to indicate if Invent should display the app as a responsive web app
         (the default, with variable width) or a full width native looking app.
+        Finally, the `theme` argument is used to specify the CSS theme to use
+        for the app.
+
+        Keyup and keydown events are listened for on the document and published
+        to the "keypress" channel with the event details as the message body.
+        This allows for global handling of keypress events within the app. The
+        subject of the published message is "keydown" or "keyup" depending on
+        the type of event.
         """
         global __app__
         if not __app__:
@@ -136,6 +145,8 @@ class App:
             dom.body.classes.add("app-view")
         invent.set_media_root(media_root)
         invent.set_theme(theme)
+        document.addEventListener("keydown", self._on_keydown)
+        document.addEventListener("keyup", self._on_keyup)
 
     @property
     def pages(self):
@@ -216,6 +227,53 @@ class App:
         if self._current_page and self._current_page != new_page:
             self._current_page.hide()
         self._current_page = new_page
+
+    def _get_key_event_details(self, event):
+        """
+        Extract relevant details from a key event to be published as a message.
+
+        This includes the key that was pressed and any modifier keys (like
+        Shift, Ctrl, Alt) that were held down at the time of the event.
+        """
+        return {
+            "key": event.key,
+            "code": event.code,
+            "shift": event.shiftKey,
+            "ctrl": event.ctrlKey,
+            "alt": event.altKey,
+            "meta": event.metaKey,
+            "repeat": event.repeat,
+        }
+
+    def _on_keydown(self, event):
+        """
+        Handle keydown events on the document. This is used to implement global
+        keyboard shortcuts.
+
+        Publishes a "keydown" message to the "keypress" channel with the event
+        details as the message body.
+        """
+        invent.publish(
+            invent.Message(
+                subject="keydown", key=self._get_key_event_details(event)
+            ),
+            to_channel="keypress",
+        )
+
+    def _on_keyup(self, event):
+        """
+        Handle keyup events on the document. This is used to implement global
+        keyboard shortcuts.
+
+        Publishes a "keyup" message to the "keypress" channel with the event
+        details as the message body.
+        """
+        invent.publish(
+            invent.Message(
+                subject="keyup", key=self._get_key_event_details(event)
+            ),
+            to_channel="keypress",
+        )
 
     def go(self):
         """
