@@ -19,6 +19,7 @@ limitations under the License.
 """
 
 from pyscript import document
+from pyscript.ffi import create_proxy
 from pyscript.web import page as dom  # Avoid name collision with page.
 
 import invent
@@ -145,8 +146,8 @@ class App:
             dom.body.classes.add("app-view")
         invent.set_media_root(media_root)
         invent.set_theme(theme)
-        document.addEventListener("keydown", self._on_keydown)
-        document.addEventListener("keyup", self._on_keyup)
+        document.addEventListener("keydown", create_proxy(self._on_keydown))
+        document.addEventListener("keyup", create_proxy(self._on_keyup))
 
     @property
     def pages(self):
