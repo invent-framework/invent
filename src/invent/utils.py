@@ -315,22 +315,17 @@ def set_theme(theme):
       as a single style tag.
     * Packaged with the app, in which case it'll be under the media root.
     """
-    # Remove any previous theme style tag to avoid conflicts.
-    existing = page.find("#invent-theme")
-    for el in existing:
-        el.remove()
     # Remove the loading indicator if it's still present.
     loader = page.find("#loader")
     for el in loader:
         el.remove()
+    # Remove any previous theme style tag to avoid conflicts.
+    existing = page.find("#invent-theme")
+    for el in existing:
+        el.remove()
     # Check if the theme is a built-in one by looking for it in the filesystem
     # under the `~/invent/themes/` directory. If it's there, load it and inject
     # it as a style tag.
-    # print contents of themes directory for debugging
-    import os
-
-    print("HELLO")
-    print("Available themes:", os.listdir("./invent/themes"))
     try:
         with open(f"./invent/themes/{theme}", "r") as f:
             css = f.read()

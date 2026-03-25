@@ -20,11 +20,13 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
+from pyscript.ffi import create_proxy
 from pyscript.web import page as document
 
 from .column import Column
 from invent.i18n import _
 from invent.ui.core import ChoiceProperty, TextProperty
+from invent.utils import is_micropython
 
 # Maps transition speed choices to their CSS variable equivalents.
 _SPEED_VARS = {
@@ -86,14 +88,20 @@ class Page(Column):
         Add an animation class and fire on_done when it completes.
         The listener removes itself after a single firing.
         """
-        self.element.classList.add(cls)
+        self.element.classes.add(cls)
 
         def handler(event):
-            self.element.classList.remove(cls)
-            self.element.removeEventListener("animationend", handler)
+            self.element.classes.remove(cls)
+            self.element.removeEventListener(
+                "animationend", self._animation_handler
+            )
+            if not is_micropython:
+                self._animation_handler.destroy()
+            self._animation_handler = None
             on_done()
 
-        self.element.addEventListener("animationend", handler)
+        self._animation_handler = create_proxy(handler)
+        self.element.addEventListener("animationend", self._animation_handler)
 
     def on_background_changed(self):
         """
