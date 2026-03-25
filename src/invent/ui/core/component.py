@@ -304,6 +304,17 @@ class Component:
         }
 
     @classmethod
+    def events(cls):
+        """
+        Return a dictionary of the component's events.
+        """
+        return {
+            name: value
+            for name, value in getmembers_static(cls)
+            if isinstance(value, Event)
+        }
+
+    @classmethod
     def _generate_unique_id(cls):
         """
         Create a unique but meaningful id for the component.

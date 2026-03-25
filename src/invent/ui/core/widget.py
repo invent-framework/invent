@@ -55,6 +55,25 @@ class Widget(Component):
         super().__init__(*args, **kwargs)
         if self.channel is None:
             self.channel = self.id
+        # Hook up any listeners referencing any of the widget's events.
+        my_events = type(self).events()
+        for key in kwargs:
+            if key in my_events:
+                handler = kwargs[key]
+                if callable(handler):
+                    invent.subscribe(
+                        handler=handler,
+                        to_channel=self.channel,
+                        when_subject=my_events[key].subject,
+                    )
+                elif isinstance(handler, list):
+                    for h in handler:
+                        if callable(h):
+                            invent.subscribe(
+                                handler=h,
+                                to_channel=self.channel,
+                                when_subject=my_events[key].subject,
+                            )
 
     def publish(self, event_name, **kwargs):
         """
@@ -74,28 +93,3 @@ class Widget(Component):
                 widget=self, name=event_name, **kwargs
             )
             invent.publish(message, to_channel=channels)
-
-    def when(self, subject, do=None):
-        """
-        Convenience method for wrapping subscriptions.
-
-        If no "do" handler is given, we assume this function is decorating the
-        handler to "do" the stuff.
-
-        The subject can be either individual strings or a list of strings to
-        indicate the message subject[s] to match.
-        """
-        if do:
-            invent.subscribe(
-                handler=do, to_channel=self.channel, when_subject=subject
-            )
-        else:
-
-            def inner_function(handler):
-                invent.subscribe(
-                    handler=handler,
-                    to_channel=self.channel,
-                    when_subject=subject,
-                )
-
-            return inner_function
