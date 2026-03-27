@@ -22,6 +22,7 @@ clean:
 	rm -rf invent.min.tar.gz
 	rm -rf test_suite.tar.gz
 	rm -rf static/*.tar.gz
+	rm -rf static/*.zip
 	rm -rf static/*.css
 	rm -rf temp
 	rm -rf test_suite
@@ -59,15 +60,21 @@ publish-live: dist
 
 package:
 	cd src && tar --no-xattrs -czvf ../invent.tar.gz invent/*
+	cd src && zip -r ../invent.zip invent
 	mkdir test_suite
 	cp -r src/invent test_suite
 	cp -r tests test_suite
 	cd test_suite && tar --no-xattrs -czvf ../test_suite.tar.gz tests/* invent/*
+	cd test_suite && zip -r ../test_suite.zip tests invent
 	rm -rf test_suite
 	cp invent.tar.gz static/
 	cp test_suite.tar.gz static/
+	cp invent.zip static/
+	cp test_suite.zip static/
 	rm invent.tar.gz
 	rm test_suite.tar.gz
+	rm invent.zip
+	rm test_suite.zip
 
 minify:
 	mkdir -p temp/invent
@@ -77,6 +84,9 @@ minify:
 	cp temp/invent/themes/default.css static/default.min.css
 	pyminify -i --remove-literal-statements temp/invent/
 	cd temp && tar --no-xattrs -czvf ../invent.min.tar.gz invent
+	cd temp && zip -r ../invent.min.zip invent
 	cp invent.min.tar.gz static/
+	cp invent.min.zip static/
 	rm invent.min.tar.gz
+	rm invent.min.zip
 	rm -rf temp/invent
