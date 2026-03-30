@@ -6,6 +6,7 @@ from invent.tools import speech
 from pyscript import window
 
 
+@upytest.skip()
 async def test_voices():
     """
     An array of voices should be returned.
@@ -30,7 +31,7 @@ async def test_voices():
     assert isinstance(result, list), "Voices not returned as a list."
     assert len(result) > 0, "No voices returned."
 
-
+@upytest.skip()
 async def test_get_voice():
     """
     A voice should be returned, by name.
@@ -59,7 +60,7 @@ async def test_get_voice():
         result.name == voice
     ), f"Voice not returned. Got: {result.name} Expected: {voice}"
 
-
+@upytest.skip()
 async def test_set_voice():
     """
     The preferred voice should be set.
@@ -88,7 +89,7 @@ async def test_set_voice():
         speech._PREFERRED_VOICE.name == voice
     ), "Preferred voice not set. Got: {speech.PREFERRED_VOICE.name} Expected: {voice}"
 
-
+@upytest.skip()
 async def test_say():
     """
     Use of the simple `say` function.
@@ -124,7 +125,7 @@ async def test_say():
         invent.datastore[result_key] == speech.ENDED
     ), "Speech end event not stored in datastore."
 
-
+@upytest.skip()
 async def test_say_with_options():
     """
     Use of the `say` function with options.

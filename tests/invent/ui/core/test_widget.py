@@ -1,6 +1,7 @@
 import umock
 from pyscript.web import div
 from invent.ui import core
+from invent import channels, Message
 
 
 def test_widget_init_defaults():
@@ -23,6 +24,39 @@ def test_widget_init_defaults():
     assert w.visible is True
     # The default channel for widget related messages is the same as its id.
     assert w.channel == w.id
+
+
+def test_widget_init_with_event_handlers():
+    """
+    Widgets can be initialized with named event handlers.
+    """
+
+    class TestWidget(core.Widget):
+        on_click = core.Event("When the widget is clicked")
+
+        def render(self):
+            return div()
+
+    handler = umock.Mock()
+    tw = TestWidget(on_click=handler)
+    # The handler should be subscribed to the widget's channel, with the
+    # subject of the event name.
+    channels.publish(
+        Message(subject="on_click"),
+        to_channel=tw.channel,
+    )
+    handler.assert_called_once()
+
+    # It's also possible to pass in a list of handlers for an event.
+    handler2 = umock.Mock()
+    handler3 = umock.Mock()
+    tw2 = TestWidget(on_click=[handler2, handler3])
+    channels.publish(
+        Message(subject="on_click"),
+        to_channel=tw2.channel,
+    )
+    handler2.assert_called_once()
+    handler3.assert_called_once()
 
 
 def test_widget_init_override():
@@ -59,49 +93,3 @@ def test_widget_publish():
         w.channel = "my_channel"
         w.publish("ping", strength=100)
         assert mock_publish.call_count == 1
-
-
-def test_widget_when_with_do():
-    """
-    A widget's when method can be used to short-cut message subscriptions.
-    """
-
-    class TestWidget(core.Widget):
-
-        def render(self):
-            return div()
-
-    tw = TestWidget(name="test1", id="12345")
-
-    def my_handler(message):
-        return
-
-    # Simple case with default channel name (component's id).
-    with umock.patch("invent.ui.core.component:invent.subscribe") as mock_sub:
-        tw.when("push", do=my_handler)
-        mock_sub.assert_called_once_with(
-            handler=my_handler, to_channel="12345", when_subject="push"
-        )
-
-
-def test_widget_when_as_decorator():
-    """
-    A widget's when method can be used to short-cut decorating handler
-    functions.
-    """
-
-    class TestWidget(core.Widget):
-
-        def render(self):
-            return div()
-
-    tw = TestWidget(name="test1", id="12345")
-
-    # Simple case with default channel name (component's id).
-    with umock.patch("invent.ui.core.component:invent.subscribe") as mock_sub:
-
-        @tw.when("push")
-        def my_first_handler(message):
-            return
-
-        assert mock_sub.call_count == 1

@@ -64,7 +64,7 @@ class Widget(Component):
                     invent.subscribe(
                         handler=handler,
                         to_channel=self.channel,
-                        when_subject=my_events[key].subject,
+                        when_subject=key,
                     )
                 elif isinstance(handler, list):
                     for h in handler:
@@ -72,7 +72,7 @@ class Widget(Component):
                             invent.subscribe(
                                 handler=h,
                                 to_channel=self.channel,
-                                when_subject=my_events[key].subject,
+                                when_subject=key,
                             )
 
     def publish(self, event_name, **kwargs):

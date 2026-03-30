@@ -1,4 +1,5 @@
 import upytest
+import umock
 from pyscript.web import div
 from invent.ui import core
 
@@ -60,6 +61,23 @@ def test_event_as_dict():
             "foo": "A foo to handle",
         },
     }
+
+
+def test_get_events():
+    """
+    The events defined on a component are available via the events class method.
+    """
+
+    class MyWidget(core.Widget):
+        """
+        A test widget.
+        """
+
+        ping = core.Event("Send a ping.", strength="The strength of the ping.")
+
+    my_widget = MyWidget.events()
+    assert len(my_widget) == 1
+    assert isinstance(my_widget["ping"], core.Event)
 
 
 def test_component_init_with_given_values():
