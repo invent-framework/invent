@@ -129,6 +129,16 @@ class Webcam(Widget):
         """
         if hasattr(self, "_mode_buttons"):
             self._update_mode_buttons()
+        if hasattr(self, "_mode_indicator"):
+            self._mode_indicator.textContent = self._mode_label()
+
+    def _mode_label(self):
+        """
+        Return the display label for the current mode.
+        """
+        if self.mode == "video":
+            return "Video Mode"
+        return "Photo Mode"
 
     def _update_mode_buttons(self):
         """
@@ -320,11 +330,11 @@ class Webcam(Widget):
         self._status_elem.id = f"{self.id}-status"
         self._status_elem.classes.add("invent-webcam-status")
 
-        mode_indicator = div(f"{self.mode.title()} Mode")
-        mode_indicator.id = f"{self.id}-mode-indicator"
-        mode_indicator.classes.add("invent-webcam-mode-indicator")
+        self._mode_indicator = div(self._mode_label())
+        self._mode_indicator.id = f"{self.id}-mode-indicator"
+        self._mode_indicator.classes.add("invent-webcam-mode-indicator")
 
-        indicators = div(self._status_elem, mode_indicator)
+        indicators = div(self._status_elem, self._mode_indicator)
         indicators.classes.add("invent-webcam-indicators")
         if not self.show_mode_indicator:
             indicators.style.display = "none"
