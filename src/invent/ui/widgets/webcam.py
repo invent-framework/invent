@@ -269,9 +269,8 @@ class Webcam(Widget):
         # Mode buttons
         photo_btn = button("Photo")
         photo_btn.id = f"{self.id}-photo-btn"
-        photo_btn.classes.add(
-            "invent-webcam-mode-btn", "invent-webcam-mode-active"
-        )
+        photo_btn.classes.add("invent-webcam-mode-btn")
+        photo_btn.classes.add("invent-webcam-mode-active")
         photo_btn._dom_element.addEventListener(
             "click",
             create_proxy(lambda e: self.set_mode("photo")),

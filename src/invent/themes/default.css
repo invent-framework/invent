@@ -2629,3 +2629,152 @@ figure.invent-avatar:focus-visible {
     outline:        var(--border-width) solid var(--secondary);
     outline-offset: calc(-1 * var(--border-width));
 }
+
+/* Webcam Widget Styles */
+.invent-webcam {
+    display:        flex;
+    flex-direction: column;
+    gap:            var(--spacing-md);
+    padding:        var(--spacing-md);
+    border-radius:  var(--border-radius-lg);
+    background:     var(--surface);
+    border:         1px solid var(--border);
+    max-width:      100%;
+}
+
+.invent-webcam-box {
+    position:       relative;
+    width:          100%;
+    padding-bottom: 62.5%; /* 16:9 aspect ratio */
+    overflow:       hidden;
+    border-radius:  var(--border-radius-md);
+    background:     var(--main-background);
+    border:         2px solid var(--border);
+}
+
+.invent-webcam-video {
+    position:      absolute;
+    top:           0;
+    left:          0;
+    width:         100%;
+    height:        100%;
+    object-fit:    cover;
+    border-radius: var(--border-radius-md);
+}
+
+.invent-webcam-actions {
+    display:        flex;
+    flex-direction: column;
+    gap:            var(--spacing-md);
+    align-items:    center;
+}
+
+.invent-webcam-modes {
+    display:         flex;
+    gap:             var(--spacing-sm);
+    justify-content: center;
+    flex-wrap:       wrap;
+}
+
+.invent-webcam-mode-btn {
+    padding:       var(--spacing-xs) var(--spacing-md);
+    border:        2px solid var(--border);
+    border-radius: var(--border-radius);
+    background:    var(--surface);
+    color:         var(--text);
+    cursor:        pointer;
+    font-size:     var(--font-size-sm);
+    transition:    all var(--transition-speed);
+    font-weight:   500;
+}
+
+.invent-webcam-mode-btn:hover {
+    background:   var(--primary-light);
+    border-color: var(--primary);
+}
+
+.invent-webcam-mode-btn.invent-webcam-mode-active {
+    background:    var(--primary);
+    color:         var(--primary-text);
+    border-color:  var(--primary);
+}
+
+.invent-webcam-shutter-container {
+    display:         flex;
+    justify-content: center;
+}
+
+.invent-webcam-shutter {
+    width:           60px;
+    height:          60px;
+    border-radius:   50%;
+    border:          none;
+    background:      var(--secondary);
+    color:           white;
+    cursor:          pointer;
+    font-size:       var(--font-size-md);
+    font-weight:     600;
+    transition:      all var(--transition-speed);
+    display:         flex;
+    align-items:     center;
+    justify-content: center;
+    box-shadow:      0 2px 8px rgba(0, 0, 0, 0.2);
+}
+
+.invent-webcam-shutter:hover {
+    transform:  scale(1.1);
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+}
+
+.invent-webcam-shutter:active {
+    transform: scale(0.95);
+}
+
+.invent-webcam-shutter.recording {
+    background: var(--error);
+    animation:  invent-webcam-pulse 1.5s infinite;
+}
+
+@keyframes invent-webcam-pulse {
+    0%, 100% {
+        opacity: 1;
+    }
+    50% {
+        opacity: 0.7;
+    }
+}
+
+.invent-webcam-gallery {
+    display:         flex;
+    justify-content: center;
+}
+
+.invent-webcam-gallery-btn {
+    padding:       var(--spacing-xs) var(--spacing-md);
+    border:        2px solid var(--border);
+    border-radius: var(--border-radius);
+    background:    var(--surface);
+    color:         var(--text);
+    cursor:        pointer;
+    font-size:     var(--font-size-sm);
+    transition:    all var(--transition-speed);
+    font-weight:   500;
+    opacity:       0.6;
+}
+
+.invent-webcam-gallery-btn:hover {
+    opacity: 1;
+}
+
+.invent-webcam-indicators {
+    display:        flex;
+    flex-direction: column;
+    gap:            var(--spacing-xs);
+    font-size:      var(--font-size-sm);
+    color:          var(--muted);
+    text-align:     center;
+}
+
+.invent-webcam-status {
+    font-weight: 500;
+}
