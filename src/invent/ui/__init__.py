@@ -69,6 +69,7 @@ from .widgets.textinput import TextInput
 from .widgets.texteditor import TextEditor
 from .widgets.time import TimePicker
 from .widgets.video import Video
+from .widgets.webcam import Webcam
 
 __all__ = [
     "Code",
@@ -122,6 +123,7 @@ __all__ = [
     "TimePicker",
     "Tree",
     "Video",
+    "Webcam",
 ]
 
 
@@ -165,4 +167,5 @@ AVAILABLE_COMPONENTS = {
     _("TextEditor"): TextEditor,
     _("TimePicker"): TimePicker,
     _("Video"): Video,
+    _("Webcam"): Webcam,
 }

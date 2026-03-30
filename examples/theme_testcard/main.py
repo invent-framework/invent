@@ -738,6 +738,8 @@ print(Hello().greet)""",
                         ),
                         Label(text="A test video player (Vimeo):"),
                         Video(source="https://vimeo.com/347119375"),
+                        Label(text="A test webcam (photo and video capture):"),
+                        Webcam(),
                         Label(text="## Layouts"),
                         Label(
                             text="A default fade carousel (can contain other widgets):"
