@@ -75,7 +75,7 @@ class Widget(Component):
                                 when_subject=key,
                             )
 
-    def publish(self, event_name, **kwargs):
+    def publish(self, event_instance, **kwargs):
         """
         Given the name of one of the class's defined events, publish a message
         to all the widget's channels with the message content defined in
@@ -89,7 +89,7 @@ class Widget(Component):
                 for channel in self.channel.split(",")
                 if channel.strip()
             ]
-            message = getattr(self, event_name).create_message(
-                widget=self, name=event_name, **kwargs
+            message = event_instance.create_message(
+                source=self, **kwargs
             )
             invent.publish(message, to_channel=channels)

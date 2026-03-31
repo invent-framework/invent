@@ -91,5 +91,5 @@ def test_widget_publish():
     with umock.patch("invent:publish") as mock_publish:
         w = MyWidget()
         w.channel = "my_channel"
-        w.publish("ping", strength=100)
+        w.publish(w.ping, strength=100)
         assert mock_publish.call_count == 1

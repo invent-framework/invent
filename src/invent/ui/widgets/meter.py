@@ -75,7 +75,7 @@ class Meter(Widget):
 
     def on_value_changed(self):
         self.element.value = self.value
-        self.publish("changed", value=self.value)
+        self.publish(self.changed, value=self.value)
 
     def on_minimum_changed(self):
         self.element.min = self.minimum

@@ -353,7 +353,7 @@ class Map(Widget):
             self.zoom_level,
         )
         self.publish(
-            "center_changed",
+            self.center_changed,
             latitude=self.center_latitude,
             longitude=self.center_longitude,
         )
@@ -378,7 +378,7 @@ class Map(Widget):
         if self.map is None:
             return
         self.map.setZoom(self.zoom_level)
-        self.publish("zoom_level_changed", zoom_level=self.zoom_level)
+        self.publish(self.zoom_level_changed, zoom_level=self.zoom_level)
 
     def on_height_changed(self):
         """
@@ -388,7 +388,7 @@ class Map(Widget):
         if self.map is None:
             return
         self.element.style["height"] = self.height
-        self.publish("height_changed", height=self.height)
+        self.publish(self.height_changed, height=self.height)
 
     def on_markers_changed(self):
         """
@@ -402,7 +402,7 @@ class Map(Widget):
             if not self.map.hasLayer(marker.marker):
                 self.map.addLayer(marker.marker)
                 self.publish(
-                    "marker_added",
+                    self.marker_added,
                     latitude=marker.latitude,
                     longitude=marker.longitude,
                     popup_content=marker.popup_content,
@@ -420,14 +420,14 @@ class Map(Widget):
         _leaflet.tileLayer(t["url"], {"attribution": t["attribution"]}).addTo(
             self.map
         )
-        self.publish("tiles_changed", tile_set=self.tile_set)
+        self.publish(self.tiles_changed, tile_set=self.tile_set)
 
     def _select_point(self, event):
         """
         Publish a point_selected event with the clicked lat/lng.
         """
         self.publish(
-            "point_selected",
+            self.point_selected,
             latitude=event.latlng.lat,
             longitude=event.latlng.lng,
         )

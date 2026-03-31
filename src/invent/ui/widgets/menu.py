@@ -68,13 +68,11 @@ class Menu(Widget):
 
     opened = Event(
         _("Sent when the button is pressed."),
-        menu=_("The menu that was opened."),
         button=_("The button that was clicked."),
     )
 
     selected = Event(
         _("The menu option has been selected."),
-        menu=(_("The menu in which the selection was made.")),
         selected=_("The new selected option."),
     )
 
@@ -135,8 +133,7 @@ class Menu(Widget):
             return
 
         self.publish(
-            "opened",
-            menu=self,
+            self.opened,
             button=self.trigger_button.element,
         )
 
@@ -146,7 +143,7 @@ class Menu(Widget):
             def handler(e):
                 e.stopPropagation()
                 self._close_menu()
-                self.publish("selected", menu=self, selected=option)
+                self.publish(self.selected, selected=option)
 
             return create_proxy(handler)
 

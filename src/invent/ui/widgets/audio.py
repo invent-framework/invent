@@ -35,20 +35,15 @@ class Audio(Widget):
 
     source = TextProperty(_("The audio source file to play."))
 
-    playing = Event(
-        _("Sent when the audio starts to play."),
-        source=_("The audio source playing."),
-    )
+    playing = Event(_("Sent when the audio starts to play."))
 
     paused = Event(
         _("Sent when the audio is paused."),
-        source=_("The audio source paused."),
         position=_("The pause position in seconds."),
     )
 
     position_changed = Event(
         _("Sent when the position in the audio is changed."),
-        source=_("The audio source that has been affected."),
         position=_("The new position in seconds."),
     )
 
@@ -87,14 +82,14 @@ class Audio(Widget):
         position, as a value in seconds.
         """
         self.element.currentTime = position
-        self.publish("position_changed", source=self.source, position=position)
+        self.publish(self.position_changed, position=position)
 
     def on_play(self, event):
-        self.publish("playing", source=self.source)
+        self.publish(self.playing)
 
     def on_pause(self, event):
         self.publish(
-            "paused", source=self.source, position=event.target.currentTime
+            self.paused, position=event.target.currentTime
         )
 
     def on_source_changed(self):

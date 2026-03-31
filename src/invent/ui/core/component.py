@@ -1,5 +1,13 @@
 """
-Core classes relating to the user interface aspects of the Invent framework.
+The Component is the base class for all user interface components in the
+Invent framework. It defines common properties and methods that all
+components share, such as id, name, enabled, visible, and styling properties.
+It also provides event handling and layout management capabilities.
+
+This class is not meant to be instantiated directly, but rather subclassed by
+specific types of components (e.g. Widget, Container, etc.) that will implement
+the render method to define how the component is displayed in the user
+interface.
 
 Based on original pre-COVID work by [Nicholas H.Tollervey.](https://ntoll.org/)
 
@@ -18,7 +26,6 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-import invent
 from invent.utils import getmembers_static
 from invent.i18n import _
 from .property import (
@@ -32,15 +39,21 @@ from .event import Event
 from .measures import TSHIRT_SIZES, GAP_SIZES, COMPONENT_DISTRIBUTION
 
 #: The default icon for a component. https://github.com/phosphor-icons/core
-_DEFAULT_ICON = '<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 256 256"><path fill="currentColor" d="M140 180a12 12 0 1 1-12-12a12 12 0 0 1 12 12M128 72c-22.06 0-40 16.15-40 36v4a8 8 0 0 0 16 0v-4c0-11 10.77-20 24-20s24 9 24 20s-10.77 20-24 20a8 8 0 0 0-8 8v8a8 8 0 0 0 16 0v-.72c18.24-3.35 32-17.9 32-35.28c0-19.85-17.94-36-40-36m104 56A104 104 0 1 1 128 24a104.11 104.11 0 0 1 104 104m-16 0a88 88 0 1 0-88 88a88.1 88.1 0 0 0 88-88"/></svg>'  # noqa
+_DEFAULT_ICON = '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 256 256"><path fill="currentColor" d="M140 180a12 12 0 1 1-12-12a12 12 0 0 1 12 12M128 72c-22.06 0-40 16.15-40 36v4a8 8 0 0 0 16 0v-4c0-11 10.77-20 24-20s24 9 24 20s-10.77 20-24 20a8 8 0 0 0-8 8v8a8 8 0 0 0 16 0v-.72c18.24-3.35 32-17.9 32-35.28c0-19.85-17.94-36-40-36m104 56A104 104 0 1 1 128 24a104.11 104.11 0 0 1 104 104m-16 0a88 88 0 1 0-88 88a88.1 88.1 0 0 0 88-88"/></svg>'  # noqa
 
 
 class Component:
     """
-    A base class for all user interface components (Widget, Container).
+    A base class for all user interface components.
 
     Ensures they all have optional names and ids. If they're not given, will
-    auto-generate them for the user.
+    auto-generate them for the user. Also defines a common set of properties
+    and methods that all components share. Includes the mechanism for
+    dynamically updating the properties of a component, and for defining the
+    events that a component can send during its lifetime. Also defines a
+    common set of styling properties that all components share, and the
+    associated methods to update the styles of the underlying HTML element
+    when the properties change.
     """
 
     # Used for quick component look-up.
@@ -60,15 +73,15 @@ class Component:
     )
 
     visible = BooleanProperty(
-        _("The component is visible is set to True."), default_value=True
+        _("Indicates if the component is visible."), default_value=True
     )
 
     flex = TextProperty(
         _(
             "Sets how a component will grow or shrink (i.e. flex) to fit the "
-            "space available. If blank won't stretch into available space, "
-            "if 'auto' will stretch an equal portion of any available space, "
-            "or an integer to stretch into the given proportion of the "
+            "space available. If blank, it won't stretch into available "
+            "space, if 'auto' will stretch an equal portion of any available "
+            "space, or an integer to stretch into the given proportion of the "
             "available space.",
         ),
         default_value=None,
@@ -77,13 +90,13 @@ class Component:
     )
 
     column_span = IntegerProperty(
-        _("Number of columns to fill in a grid container."),
+        _("The number of columns to fill in a grid container."),
         default_value=None,
         group="layout",
     )
 
     row_span = IntegerProperty(
-        _("Number of rows to fill in a grid container."),
+        _("The number of rows to fill in a grid container."),
         default_value=None,
         group="layout",
     )
@@ -367,18 +380,6 @@ class Component:
         return "General"
 
     @classmethod
-    def events(cls):
-        """
-        Returns a dictionary of the component's events that define the sort of
-        messages a component may send during its lifetime.
-        """
-        return {
-            name: value
-            for name, value in getmembers_static(cls)
-            if isinstance(value, Event)
-        }
-
-    @classmethod
     def definition(cls):
         """
         Return a dictionary defining all the essential information about the
@@ -426,6 +427,9 @@ class Component:
         Convenience method to update an HTML attribute on self.element. If
         the attribute_value is false-y, the attribute is removed.
         Otherwise, the named attribute is set to the given value.
+
+        Used by properties on components to update the attributes of the
+        underlying HTML element when the component's properties change.
         """
         if attribute_value:
             self.element.setAttribute(attribute_name, str(attribute_value))

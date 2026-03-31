@@ -301,7 +301,7 @@ class CodeEditor(Widget):
         self._setting_code = True
         self.code = self._view.state.doc.toString()
         self._setting_code = False
-        self.publish("changed", code=self.code)
+        self.publish(self.changed, code=self.code)
 
     # ------------------------------------------------------------------
     # Property change handlers

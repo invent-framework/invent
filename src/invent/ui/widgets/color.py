@@ -72,7 +72,7 @@ class ColorPicker(Widget):
 
     def on_value_changed(self):
         self._input_element.value = self.value
-        self.publish("picked", colour=self.value)
+        self.publish(self.picked, colour=self.value)
 
     def render(self):
         self._input_element = input_(type="color", id=self.id, name=self.name)

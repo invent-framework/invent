@@ -65,10 +65,10 @@ class CheckBox(Widget):
     def on_value_changed(self):
         if self.value:
             self._checkbox_element.setAttribute("checked", True)
-            self.publish("checked")
+            self.publish(self.checked)
         else:
             self._checkbox_element.removeAttribute("checked")
-            self.publish("unchecked")
+            self.publish(self.unchecked)
 
     def render(self):
         self._checkbox_element = input_(

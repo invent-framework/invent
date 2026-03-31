@@ -68,8 +68,8 @@ class ChatBubble(Widget):
         default_value="sent",
     )
 
-    clicked = Event(
-        _("An event that is fired when the chat bubble is clicked."),
+    pressed = Event(
+        _("An event that is fired when the chat bubble is pressed."),
         author_name=str,
         author_image=str,
         timestamp=datetime,
@@ -135,7 +135,7 @@ class ChatBubble(Widget):
         element.addEventListener(
             "click",
             lambda event: self.publish(
-                "clicked",
+                self.pressed,
                 author_name=self.author_name,
                 author_image=self.author_image,
                 timestamp=self.timestamp,
