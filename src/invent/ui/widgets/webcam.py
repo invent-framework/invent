@@ -182,8 +182,10 @@ class Webcam(Widget):
             btn_mode = btn_info["mode"]
             if btn_mode == self.mode:
                 btn.classes.add("invent-webcam-mode-active")
+                btn.classes.add("active")
             else:
                 btn.classes.remove("invent-webcam-mode-active")
+                btn.classes.remove("active")
 
     def _set_shutter_text(self):
         """
@@ -328,12 +330,15 @@ class Webcam(Widget):
 
         video_container = div(self._video_elem)
         video_container.classes.add("invent-webcam-box")
+        video_container.classes.add("webcam-box")
 
         # Mode buttons
         photo_btn = button("Photo")
         photo_btn.id = f"{self.id}-photo-btn"
         photo_btn.classes.add("invent-webcam-mode-btn")
+        photo_btn.classes.add("mode-btn")
         photo_btn.classes.add("invent-webcam-mode-active")
+        photo_btn.classes.add("active")
         photo_btn._dom_element.addEventListener(
             "click",
             create_proxy(lambda e: self.set_mode("photo")),
@@ -342,6 +347,7 @@ class Webcam(Widget):
         video_btn = button("Video")
         video_btn.id = f"{self.id}-video-btn"
         video_btn.classes.add("invent-webcam-mode-btn")
+        video_btn.classes.add("mode-btn")
         video_btn._dom_element.addEventListener(
             "click",
             create_proxy(lambda e: self.set_mode("video")),
@@ -354,11 +360,13 @@ class Webcam(Widget):
 
         modes_container = div(photo_btn, video_btn)
         modes_container.classes.add("invent-webcam-modes")
+        modes_container.classes.add("modes")
 
         # Shutter button
         self._shutter_btn = button("Take")
         self._shutter_btn.id = f"{self.id}-shutter"
         self._shutter_btn.classes.add("invent-webcam-shutter")
+        self._shutter_btn.classes.add("shutter")
         self._shutter_btn._dom_element.addEventListener(
             "click", create_proxy(self._on_shutter_click)
         )
@@ -366,18 +374,22 @@ class Webcam(Widget):
 
         shutter_container = div(self._shutter_btn)
         shutter_container.classes.add("invent-webcam-shutter-container")
+        shutter_container.classes.add("shutter-container")
 
         # Gallery button
         gallery_btn = button("Gallery")
         gallery_btn.id = f"{self.id}-gallery-btn"
         gallery_btn.classes.add("invent-webcam-gallery-btn")
+        gallery_btn.classes.add("small-btn")
 
         gallery_container = div(gallery_btn) if self.show_gallery else div()
         gallery_container.classes.add("invent-webcam-gallery")
+        gallery_container.classes.add("gallery")
 
         # Controls container
         controls = div(modes_container, shutter_container, gallery_container)
         controls.classes.add("invent-webcam-actions")
+        controls.classes.add("actions")
 
         # Status indicators
         self._status_elem = div("Initializing camera...")
@@ -386,12 +398,14 @@ class Webcam(Widget):
 
         self._mode_indicator = div(self._mode_label())
         self._mode_indicator.id = f"{self.id}-mode-indicator"
+        self._mode_indicator.classes.add("mode-selection")
         self._mode_indicator.classes.add("invent-webcam-mode-indicator")
 
         indicators = div(self._status_elem, self._mode_indicator)
         indicators.classes.add("invent-webcam-indicators")
+        indicators.classes.add("indicators")
         if not self.show_mode_indicator:
-            indicators.style.display = "none"
+            indicators.classes.add("hidden")
 
         # Main container
         element = div(
@@ -402,6 +416,7 @@ class Webcam(Widget):
             id=self.id,
         )
         element.classes.add("invent-webcam")
+        element.classes.add("webcam-container")
 
         # Initialize the webcam stream
         self._setup_webcam_stream()
