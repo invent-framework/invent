@@ -20,6 +20,7 @@ limitations under the License.
 """
 
 from invent.i18n import _
+import time
 from invent.ui.core import (
     Widget,
     ChoiceProperty,
@@ -33,10 +34,6 @@ from pyscript.ffi import create_proxy
 class Webcam(Widget):
     """
     A webcam widget with photo capture and video recording capabilities.
-
-    Allows users to toggle between photo and video modes, capture images,
-    and record videos. Captured files are automatically downloaded.
-    Supports event callbacks for when photos or videos are captured.
     """
 
     mode = ChoiceProperty(
@@ -60,12 +57,12 @@ class Webcam(Widget):
 
     photo_captured = Event(
         _("Sent when a photo is captured."),
-        widget=_("The Webcam widget that captured the photo."),
+        webcam=_("The Webcam widget that captured the photo."),
     )
 
     video_recorded = Event(
         _("Sent when a video is recorded."),
-        widget=_("The Webcam widget that recorded the video."),
+        webcam=_("The Webcam widget that recorded the video."),
     )
 
     @classmethod
@@ -93,35 +90,68 @@ class Webcam(Widget):
         Capture a photo from the current video stream.
         """
         if hasattr(self, "_canvas") and hasattr(self, "_video_elem"):
-            ctx = self._canvas.getContext("2d")
+            video_el = self._video_elem._dom_element
+            canvas_el = self._canvas._dom_element
+
+            width = video_el.videoWidth or 1280
+            height = video_el.videoHeight or 720
+            canvas_el.width = width
+            canvas_el.height = height
+
+            ctx = canvas_el.getContext("2d")
             ctx.drawImage(
-                self._video_elem,
+                video_el,
                 0,
                 0,
-                self._canvas.width,
-                self._canvas.height,
+                width,
+                height,
             )
             # Trigger download
             self._download_canvas_as_image()
-            self.publish("photo_captured", widget=self)
+            self.publish("photo_captured", webcam=self)
+
+    def _set_status(self, text):
+        """
+        Update status text in a way that works across wrappers/runtimes.
+        """
+        if not hasattr(self, "_status_elem"):
+            return
+        self._status_elem.textContent = text
+        self._status_elem._dom_element.textContent = text
+
+    def _timestamp(self):
+        """
+        Return a millisecond timestamp for generated filenames.
+        """
+        return int(time.time() * 1000)
 
     def start_recording(self):
         """
         Start recording video from the webcam.
         """
         if hasattr(self, "_recorder"):
-            if not self._recording:
+            if not self._recording and self._recorder.state == "inactive":
+                self._recorded_chunks = []
                 self._recording = True
                 self._recorder.start()
+                self._shutter_btn.classes.add("recording")
+                self._set_shutter_text()
+                self._set_status("Recording...")
 
     def stop_recording(self):
         """
         Stop recording and trigger download of the video file.
         """
-        if hasattr(self, "_recorder") and self._recording:
+        if (
+            hasattr(self, "_recorder")
+            and self._recording
+            and self._recorder.state == "recording"
+        ):
             self._recording = False
             self._recorder.stop()
-            self.publish("video_recorded", widget=self)
+            self._shutter_btn.classes.remove("recording")
+            self._set_shutter_text()
+            self._set_status("Saving video...")
 
     def on_mode_changed(self):
         """
@@ -131,6 +161,9 @@ class Webcam(Widget):
             self._update_mode_buttons()
         if hasattr(self, "_mode_indicator"):
             self._mode_indicator.textContent = self._mode_label()
+            self._mode_indicator._dom_element.textContent = self._mode_label()
+        if hasattr(self, "_shutter_btn"):
+            self._set_shutter_text()
 
     def _mode_label(self):
         """
@@ -152,6 +185,19 @@ class Webcam(Widget):
             else:
                 btn.classes.remove("invent-webcam-mode-active")
 
+    def _set_shutter_text(self):
+        """
+        Keep shutter text aligned with current mode and recording state.
+        """
+        if not hasattr(self, "_shutter_btn"):
+            return
+        if self.mode == "video":
+            text = "Stop" if self._recording else "Record"
+        else:
+            text = "Take"
+        self._shutter_btn.textContent = text
+        self._shutter_btn._dom_element.textContent = text
+
     def _download_canvas_as_image(self):
         """
         Download the canvas content as an image file.
@@ -160,8 +206,8 @@ class Webcam(Widget):
             from pyscript import window
 
             link = window.document.createElement("a")
-            link.href = self._canvas.toDataURL("image/jpeg")
-            link.download = f"photo-{window.Date().now()}.jpg"
+            link.href = self._canvas._dom_element.toDataURL("image/jpeg")
+            link.download = f"photo-{self._timestamp()}.jpg"
             window.document.body.appendChild(link)
             link.click()
             window.document.body.removeChild(link)
@@ -207,13 +253,11 @@ class Webcam(Widget):
                         constraints
                     )
                     self._video_elem.srcObject = stream
+                    self._set_status("Webcam ready")
                     self._setup_recorder(stream)
-                    if self.show_mode_indicator:
-                        self._status_elem.textContent = "Webcam ready"
                 except Exception as e:
                     print(f"Camera access denied or error: {e}")
-                    if self.show_mode_indicator:
-                        self._status_elem.textContent = "Camera access denied"
+                    self._set_status("Camera access denied")
 
             # Handle promise
             import asyncio
@@ -230,22 +274,30 @@ class Webcam(Widget):
         try:
             from pyscript import window
 
-            chunks = []
-
             def on_dataavailable(event):
                 if event.data.size > 0:
-                    chunks.append(event.data)
+                    self._recorded_chunks.append(event.data)
 
-            def on_stop():
-                blob = window.Blob(chunks, {"type": "video/webm"})
+            def on_stop(event):
+                if not self._recorded_chunks:
+                    self._set_status("No video captured")
+                    return
+
+                blob = window.Blob.new(
+                    self._recorded_chunks, {"type": "video/webm"}
+                )
                 link = window.document.createElement("a")
                 url = window.URL.createObjectURL(blob)
                 link.href = url
-                link.download = f"video-{window.Date().now()}.webm"
+                link.download = f"video-{self._timestamp()}.webm"
+                window.document.body.appendChild(link)
                 link.click()
+                window.document.body.removeChild(link)
                 window.URL.revokeObjectURL(url)
+                self.publish("video_recorded", webcam=self)
+                self._set_status("Video saved")
 
-            recorder = window.MediaRecorder(stream)
+            recorder = window.MediaRecorder.new(stream)
             recorder.addEventListener(
                 "dataavailable", create_proxy(on_dataavailable)
             )
@@ -253,6 +305,7 @@ class Webcam(Widget):
 
             self._recorder = recorder
             self._recording = False
+            self._recorded_chunks = []
         except Exception as e:
             print(f"Error setting up recorder: {e}")
 
@@ -309,6 +362,7 @@ class Webcam(Widget):
         self._shutter_btn._dom_element.addEventListener(
             "click", create_proxy(self._on_shutter_click)
         )
+        self._set_shutter_text()
 
         shutter_container = div(self._shutter_btn)
         shutter_container.classes.add("invent-webcam-shutter-container")

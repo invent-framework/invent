@@ -2689,12 +2689,11 @@ figure.invent-avatar:focus-visible {
 }
 
 .invent-webcam-mode-btn:hover {
-    background:   var(--primary-light);
     border-color: var(--primary);
 }
 
 .invent-webcam-mode-btn.invent-webcam-mode-active {
-    background:    var(--primary);
+    background:    var(--primary-light);
     color:         var(--primary-text);
     border-color:  var(--primary);
 }

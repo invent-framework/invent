@@ -738,7 +738,7 @@ print(Hello().greet)""",
                         ),
                         Label(text="A test video player (Vimeo):"),
                         Video(source="https://vimeo.com/347119375"),
-                        Label(text="A test webcam (photo and video capture):"),
+                        Label(text="A test webcam with photo and video:"),
                         Webcam(),
                         Label(text="## Layouts"),
                         Label(
