@@ -2647,7 +2647,7 @@ figure.invent-avatar:focus-visible {
     width:          100%;
     max-width:      800px;
     display:        flex;
-    aspect-ratio:   4 / 3;
+    min-height:     420px;
     flex-direction: column;
     gap:            15px;
 }
@@ -2655,7 +2655,9 @@ figure.invent-avatar:focus-visible {
 .invent-webcam-box,
 .webcam-box {
     width:         100%;
-    flex:          1;
+    flex:          1 1 auto;
+    min-height:    280px;
+    aspect-ratio:  4 / 3;
     border-radius: 12px;
     overflow:      hidden;
     background:    var(--webcam-bg);
@@ -2821,6 +2823,16 @@ figure.invent-avatar:focus-visible {
 }
 
 @media (max-width: 768px) {
+    .invent-webcam,
+    .webcam-container {
+        min-height: 340px;
+    }
+
+    .invent-webcam-box,
+    .webcam-box {
+        min-height: 220px;
+    }
+
     .invent-webcam-actions,
     .actions {
         grid-template-columns: 1fr;

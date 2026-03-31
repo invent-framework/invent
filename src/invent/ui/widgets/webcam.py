@@ -43,6 +43,7 @@ class Webcam(Widget):
         group="style",
     )
 
+    # TODO: REMOVE
     show_gallery = BooleanProperty(
         _("Whether to show the gallery button."),
         default_value=True,
@@ -210,9 +211,7 @@ class Webcam(Widget):
             link = window.document.createElement("a")
             link.href = self._canvas._dom_element.toDataURL("image/jpeg")
             link.download = f"photo-{self._timestamp()}.jpg"
-            window.document.body.appendChild(link)
             link.click()
-            window.document.body.removeChild(link)
         except Exception as e:
             print(f"Error downloading photo: {e}")
 
@@ -229,9 +228,6 @@ class Webcam(Widget):
                 self.start_recording()
 
     def _setup_webcam_stream(self):
-        """
-        Initialize the webcam stream with proper error handling.
-        """
         try:
             from pyscript import window
 
@@ -240,6 +236,7 @@ class Webcam(Widget):
                 print("Camera not supported in this browser")
                 return
 
+            # TODO: HERE as well for canvas width
             constraints = {
                 "video": {
                     "width": {"ideal": 1280},
@@ -292,11 +289,11 @@ class Webcam(Widget):
                 url = window.URL.createObjectURL(blob)
                 link.href = url
                 link.download = f"video-{self._timestamp()}.webm"
-                window.document.body.appendChild(link)
                 link.click()
-                window.document.body.removeChild(link)
                 window.URL.revokeObjectURL(url)
-                self.publish("video_recorded", webcam=self)
+                self.publish(self.video_recorded, webcam=self)
+                # self.publish("video_recorded", webcam=self)
+                # TODO: Change self.publish
                 self._set_status("Video saved")
 
             recorder = window.MediaRecorder.new(stream)
@@ -316,6 +313,7 @@ class Webcam(Widget):
         Render the webcam widget with controls.
         """
         # Hidden canvas for photo capture
+        # TODO: MAKE DYNAMIC? use invent global vars
         self._canvas = canvas()
         self._canvas.width = 1280
         self._canvas.height = 720
@@ -377,6 +375,7 @@ class Webcam(Widget):
         shutter_container.classes.add("shutter-container")
 
         # Gallery button
+        # TODO: Remove this too
         gallery_btn = button("Gallery")
         gallery_btn.id = f"{self.id}-gallery-btn"
         gallery_btn.classes.add("invent-webcam-gallery-btn")
