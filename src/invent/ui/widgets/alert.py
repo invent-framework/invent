@@ -60,8 +60,7 @@ class Alert(Widget):
         default_value=False,
     )
     dismissed = Event(
-        _("An event that is fired when the alert is dismissed."),
-        alert=_("The alert that was dismissed."),
+        _("An event that is fired when the alert is dismissed.")
     )
 
     @classmethod
@@ -73,7 +72,7 @@ class Alert(Widget):
         Handle the alert being dismissed by the user.
         """
         self.element.remove()
-        self.publish("dismissed", alert=self)
+        self.publish(self.dismissed)
 
     def on_purpose_changed(self):
         """

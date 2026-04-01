@@ -154,7 +154,7 @@ class Chart(Widget):
                 )
             # Publish the chart updated event.
             self.publish(
-                "chart_updated",
+                self.chart_updated,
                 chart_type=self.chart_type,
                 data=self.data,
                 options=self.options,

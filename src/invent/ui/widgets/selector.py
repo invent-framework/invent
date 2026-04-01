@@ -55,7 +55,7 @@ class Selector(Widget):
         Bound to the js "change" event on the widget's element.
         """
         self.value = self.element.options.selected.value
-        self.publish("changed", selected=self.value)
+        self.publish(self.changed, selected=self.value)
 
     def render(self):
         element = select(id=self.id)

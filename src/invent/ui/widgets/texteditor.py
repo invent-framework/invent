@@ -214,7 +214,7 @@ class TextEditor(Widget):
         finally:
             self._updating = False
 
-        self.publish("changed", text=self.text)
+        self.publish(self.changed, text=self.text)
 
     def _load_markdown(self, markdown):
         """

@@ -71,7 +71,7 @@ class Rating(Widget):
         group="style",
     )
 
-    change = Event(
+    changed = Event(
         _("Sent when the rating value is changed by the user."),
         rating=_("The Rating widget whose value changed."),
         value=_("The new rating value."),
@@ -97,7 +97,7 @@ class Rating(Widget):
                     self.value = 0.0
                 else:
                     self.value = value
-                self.publish("change", rating=self, value=self.value)
+                self.publish(self.changed, rating=self, value=self.value)
 
         return create_proxy(handler)
 

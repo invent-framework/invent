@@ -75,15 +75,13 @@ class Modal(Widget):
         group="style",
     )
 
-    open = Event(
+    opened = Event(
         _("Sent when the button is pressed."),
         button=_("The button that was clicked."),
-        modal=_("The modal that was opened."),
     )
 
-    close = Event(
+    closed = Event(
         _("Sent when the modal is dismissed."),
-        modal=_("The modal that was closed."),
     )
 
     def on_text_changed(self):
@@ -108,7 +106,7 @@ class Modal(Widget):
         """
         if hasattr(self, "backdrop"):
             self.backdrop.remove()
-            self.publish("close", modal=self)
+            self.publish(self.closed)
 
     def open_modal(self, event):
         """
@@ -123,7 +121,7 @@ class Modal(Widget):
         Ensure closing the modal publishes the "close" event, passing the
         modal as an argument.
         """
-        self.publish("open", button=self.trigger_button, modal=self)
+        self.publish(self.opened, button=self.trigger_button)
 
         # Dismiss ("×") button anchored to the modal's top-right corner.
         dismiss = button("×")

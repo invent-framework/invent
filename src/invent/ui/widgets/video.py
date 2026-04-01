@@ -75,18 +75,18 @@ class Video(Widget):
 
     playing = Event(
         _("Sent when the video starts to play."),
-        source=_("The video source playing."),
+        video=_("The video source playing."),
     )
 
     paused = Event(
         _("Sent when the video is paused."),
-        source=_("The video source paused."),
+        video=_("The video source paused."),
         position=_("The pause position in seconds."),
     )
 
     position_changed = Event(
         _("Sent when the position in the video is changed."),
-        source=_("The video source that has been affected."),
+        video=_("The video source that has been affected."),
         position=_("The new position in seconds."),
     )
 
@@ -126,20 +126,20 @@ class Video(Widget):
         native = self.element.querySelector("video")
         native.currentTime = position
         self.publish(
-            "position_changed",
-            source=self.source,
+            self.position_changed,
+            video=self.source,
             position=position,
         )
 
     def on_play(self, event):
         """Handle the native video play event."""
-        self.publish("playing", source=self.source)
+        self.publish(self.playing, video=self.source)
 
     def on_pause(self, event):
         """Handle the native video pause event."""
         self.publish(
-            "paused",
-            source=self.source,
+            self.paused,
+            video=self.source,
             position=event.target.currentTime,
         )
 

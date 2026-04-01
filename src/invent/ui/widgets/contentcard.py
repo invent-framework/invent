@@ -125,16 +125,15 @@ class ContentCard(Widget):
         group="style",
     )
 
-    press = Event(
-        _("Sent when the card is pressed."),
-        card=_("The card that was clicked."),
+    pressed = Event(
+        _("Sent when the card is pressed.")
     )
 
     def click(self, event):
         """
         Publish a press event when the card is clicked.
         """
-        self.publish("press", card=self)
+        self.publish(self.pressed)
 
     def render(self):
         """

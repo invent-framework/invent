@@ -30,7 +30,7 @@ def navigate(message):
     # Extract the page name from the button name. The button names are in the format
     # "pagename_button", so we split on "_button" and take the first part to get the page
     # name.
-    page_name = message.button.name.split("_button")[0]
+    page_name = message.source.name.split("_button")[0]
     invent.show_page(page_name)
 
 

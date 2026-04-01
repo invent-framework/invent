@@ -202,7 +202,7 @@ class Calendar(Widget):
         content.addEventListener(
             "click",
             create_proxy(
-                lambda e, date=d: self.publish("date_clicked", date=date)
+                lambda e, date=d: self.publish(self.date_clicked, date=date)
             ),
         )
         if evts:
@@ -215,7 +215,7 @@ class Calendar(Widget):
                     "click",
                     create_proxy(
                         lambda e, hm=hm, description=description: self.publish(
-                            "event_clicked",
+                            self.event_clicked,
                             date=d,
                             time=hm,
                             content=description,

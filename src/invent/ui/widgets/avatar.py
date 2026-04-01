@@ -66,17 +66,14 @@ class Avatar(Widget):
         _("The name of the person or entity represented by the avatar."),
         default_value=None,
     )
-    press = Event(
-        _("Sent when the avatar is pressed."),
-        avatar=_("The avatar that was clicked."),
-    )
+    press = Event(_("Sent when the avatar is pressed."))
 
     @classmethod
     def icon(cls):
         return '<svg xmlns="http://www.w3.org/2000/svg" fill="currentColor" viewBox="0 0 256 256"><path d="M128,24A104,104,0,1,0,232,128,104.11,104.11,0,0,0,128,24Zm0,192a88,88,0,1,1,88-88A88.1,88.1,0,0,1,128,216ZM80,108a12,12,0,1,1,12,12A12,12,0,0,1,80,108Zm96,0a12,12,0,1,1-12-12A12,12,0,0,1,176,108Zm-1.07,48c-10.29,17.79-27.4,28-46.93,28s-36.63-10.2-46.92-28a8,8,0,1,1,13.84-8c7.47,12.91,19.21,20,33.08,20s25.61-7.1,33.07-20a8,8,0,0,1,13.86,8Z"></path></svg>'  # noqa
 
     def click(self, event):
-        self.publish("press", avatar=self)
+        self.publish(self.press)
 
     def render(self):
         """

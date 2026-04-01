@@ -3,63 +3,24 @@ from pyscript.web import div
 from invent.ui import core
 
 
-def test_event():
+def test_get_events():
     """
-    Events have a description and key/value specifications of the
-    content of the messages they send.
-
-    class MyWidget(Widget):
-
-        name = TextProperty()
-        hold = Event(
-            "When the button is held",
-            duration="For how long the button was pressed.",
-        )
-
-        def _handle_hold(self, e):
-            self.publish("hold", duration=e.duration)
-
-        def render(self, container):
-            self.element = pyscript.web.button("Click me")
-            self.element.addEventListener("click", self._handle_hold)
+    The events defined on a component are available via the events class method.
     """
-    ev = core.Event("This is a test", foo="A foo to handle")
-    assert ev.description == "This is a test"
-    assert "foo" in ev.content
-    assert ev.content["foo"] == "A foo to handle"
 
+    class MyWidget(core.Widget):
+        """
+        A test widget.
+        """
 
-def test_event_create_message():
-    """
-    An Event creates the expected message.
-    """
-    ev = core.Event("This is a test", foo="A foo to handle")
-    # Cannot include fields that have not been specified.
-    with upytest.raises(ValueError) as exc:
-        ev.create_message(None, "subject", baz="This will fail")
-        assert exc.exception.args[0] == "Unknown field in event subject: baz"
-    # Can include all the fields.
-    msg = ev.create_message("fake_widget", "subject", foo="Foo to you")
-    assert msg.widget == "fake_widget"  # Will be reference to the widget.
-    assert msg._subject == "subject"
-    assert msg.foo == "Foo to you"
-    # Cannot miss an expected field.
-    with upytest.raises(ValueError) as exc:
-        ev.create_message("fake_widget", "subject")
-        assert exc.exception.args[0] == "Field missing from event subject: foo"
+        ping = core.Event("Send a ping.", strength="The strength of the ping.")
 
-
-def test_event_as_dict():
-    """
-    The expected dictionary definition of an Event is generated.
-    """
-    ev = core.Event("This is a test", foo="A foo to handle")
-    assert ev.as_dict() == {
-        "description": "This is a test",
-        "content": {
-            "foo": "A foo to handle",
-        },
-    }
+    my_events = MyWidget.events()
+    assert len(my_events) == 1
+    assert isinstance(my_events["ping"], core.Event)
+    assert my_events["ping"].description == "Send a ping."
+    assert my_events["ping"].content["strength"] == "The strength of the ping."
+    assert my_events["ping"]._event_name == "ping"
 
 
 def test_component_init_with_given_values():
@@ -178,22 +139,6 @@ def test_component_properties():
     assert isinstance(properties["foo"], core.TextProperty)
     assert isinstance(properties["numberwang"], core.IntegerProperty)
     assert isinstance(properties["favourite_colour"], core.ChoiceProperty)
-
-
-def test_component_events():
-    """
-    A component's (widget's) events are available in a dictionary.
-    """
-
-    class MyWidget(core.Widget):
-        """
-        A test widget.
-        """
-
-        ping = core.Event("Send a ping.", strength="The strength of the ping.")
-
-    mbp = MyWidget.events()
-    assert isinstance(mbp["ping"], core.Event)
 
 
 def test_component_definition():

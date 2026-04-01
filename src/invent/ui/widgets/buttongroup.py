@@ -100,7 +100,7 @@ class ButtonGroup(Widget):
         group="style",
     )
 
-    change = Event(
+    changed = Event(
         _("Sent when the selected option changes."),
         value=_("The new value of the button group."),
     )
@@ -191,7 +191,7 @@ class ButtonGroup(Widget):
         """Handle a radio change, updating value and emitting change."""
         new_value = event.target.value
         self.value = new_value
-        self.publish("change", value=new_value)
+        self.publish(self.changed, value=new_value)
 
     def render(self):
         """

@@ -70,7 +70,7 @@ class TextInput(Widget):
         ],
         map_to_attribute="type",
     )
-    keypress = Event(
+    keypressed = Event(
         _("Triggered when a key is pressed to enter text."),
         key=_("The key that was pressed."),
     )
@@ -103,7 +103,7 @@ class TextInput(Widget):
         """
         Bound to the js "keypress" event on the widget's element.
         """
-        self.publish("keypress", key=event.key)
+        self.publish(self.keypressed, key=event.key)
 
     def render(self):
         if self._number_of_lines == 1:

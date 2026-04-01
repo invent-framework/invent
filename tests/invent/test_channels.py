@@ -218,38 +218,3 @@ def test_unsubscribe_missing_channel():
         invent.unsubscribe(
             handler, from_channel="testing", when_subject="test"
         )
-
-
-def test_when_do_handler_is_given():
-    """
-    The expected subscription call happens at the time "when" is called with
-    an existing "do" handler function. (A "do" handler, does stuff.)
-    """
-
-    def my_handler(message):
-        return
-
-    with umock.patch("invent.channels:subscribe") as mock_sub:
-        invent.when(
-            subject="test_subject", to_channel="test_channel", do=my_handler
-        )
-        mock_sub.assert_called_once_with(
-            handler=my_handler,
-            to_channel="test_channel",
-            when_subject="test_subject",
-        )
-
-
-def test_when_handler_is_decorated():
-    """
-    the expected subscription call happens at the time "when" decorates a given
-    function.
-    """
-
-    with umock.patch("invent.channels:subscribe") as mock_sub:
-
-        @invent.when(subject="test_subject", to_channel="test_channel")
-        def my_handler(message):
-            return
-
-        assert mock_sub.call_count == 1

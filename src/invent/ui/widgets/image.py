@@ -48,7 +48,7 @@ class Image(Widget):
         group="style",
     )
 
-    touch = Event(
+    touched = Event(
         _("Sent when the image is touched."),
     )
 
@@ -72,7 +72,7 @@ class Image(Widget):
             self.element.style.remove("height")
 
     def touch_handler(self, event):
-        self.publish("touch")
+        self.publish(self.touched)
 
     def render(self):
         element = img(src=self.image, id=self.id)
