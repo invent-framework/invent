@@ -43,7 +43,8 @@ class Webcam(Widget):
         group="style",
     )
 
-    # TODO: REMOVE
+    # TODO: REMOVE the gallery feature entirely:
+    # this means it has to be removed from the render method and the CSS as well
     show_gallery = BooleanProperty(
         _("Whether to show the gallery button."),
         default_value=True,
@@ -236,7 +237,9 @@ class Webcam(Widget):
                 print("Camera not supported in this browser")
                 return
 
-            # TODO: HERE as well for canvas width
+            # TODO: Is there a way to make the canvas size dynamic based on 
+            # the size of the viewport? Is this an issue that needs to be solved?
+            # If so, is it solveable in the css?
             constraints = {
                 "video": {
                     "width": {"ideal": 1280},
@@ -291,9 +294,10 @@ class Webcam(Widget):
                 link.download = f"video-{self._timestamp()}.webm"
                 link.click()
                 window.URL.revokeObjectURL(url)
+                # NEW: publish the event using the new event system
                 self.publish(self.video_recorded, webcam=self)
-                # self.publish("video_recorded", webcam=self)
-                # TODO: Change self.publish
+                # OLD: self.publish("video_recorded", webcam=self)
+                # TODO: Change all of the self.publish
                 self._set_status("Video saved")
 
             recorder = window.MediaRecorder.new(stream)
@@ -375,7 +379,7 @@ class Webcam(Widget):
         shutter_container.classes.add("shutter-container")
 
         # Gallery button
-        # TODO: Remove this too
+        # TODO: Remove this too since we are removing the gallery feature
         gallery_btn = button("Gallery")
         gallery_btn.id = f"{self.id}-gallery-btn"
         gallery_btn.classes.add("invent-webcam-gallery-btn")
