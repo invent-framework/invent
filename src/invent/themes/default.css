@@ -2633,23 +2633,23 @@ figure.invent-avatar:focus-visible {
 /* Webcam Widget Styles */
 .invent-webcam,
 .webcam-container {
-    --webcam-bg:            color-mix(in srgb, var(--main-background) 82%, black);
-    --webcam-btn-bg:        color-mix(in srgb, var(--main-background) 60%, transparent);
-    --webcam-btn-hover:     var(--secondary);
-    --webcam-accent:        var(--primary);
+    --webcam-bg:            var(--muted-light);
+    --webcam-btn-bg:        var(--primary-light);
+    --webcam-btn-hover:     var(--primary-active);
+    --webcam-accent:        var(--secondary);
     --webcam-text-primary:  var(--color-body);
-    --webcam-text-secondary: var(--muted);
-    --webcam-border:        var(--border);
-    --webcam-shutter-bg:    color-mix(in srgb, var(--danger) 78%, black);
+    --webcam-text-secondary: var(--muted-text);
+    --webcam-shutter-bg:    var(--danger);
     --webcam-shutter-hover: var(--danger);
-    --webcam-indicator-bg:  color-mix(in srgb, var(--surface) 75%, transparent);
+    --webcam-indicator-bg:  var(--primary-light);
 
     width:          100%;
     max-width:      800px;
     display:        flex;
     min-height:     420px;
     flex-direction: column;
-    gap:            15px;
+    gap:            var(--spacing-lg);
+    font-family:    var(--font);
 }
 
 .invent-webcam-box,
@@ -2676,14 +2676,14 @@ figure.invent-avatar:focus-visible {
     display:               grid;
     grid-template-columns: 1fr auto;
     align-items:           center;
-    gap:                   10px;
+    gap:                   var(--spacing-sm);
 }
 
 .invent-webcam-modes,
 .modes {
     justify-self: start;
     display:      flex;
-    gap:          8px;
+    gap:          var(--spacing-sm);
 }
 
 .invent-webcam-shutter-container,
@@ -2697,11 +2697,12 @@ figure.invent-avatar:focus-visible {
     outline:       none;
     background:    var(--webcam-btn-bg);
     color:         var(--webcam-text-primary);
-    padding:       8px 16px;
+    padding:       var(--spacing-sm) var(--spacing-lg);
     height:        35px;
-    border-radius: 20px;
+    border-radius: var(--border-radius-lg);
     cursor:        pointer;
-    font-size:     11px;
+    font-size:     var(--font-size-sm);
+    font-family:   var(--font);
     transition:    all var(--transition-speed) ease;
 }
 
@@ -2712,7 +2713,7 @@ figure.invent-avatar:focus-visible {
 
 .invent-webcam-mode-btn.invent-webcam-mode-active,
 .mode-btn.active {
-    border: 1px solid var(--webcam-accent);
+    border: var(--border-width) solid var(--webcam-accent);
     color:  var(--webcam-accent);
 }
 
@@ -2724,10 +2725,11 @@ figure.invent-avatar:focus-visible {
     border:        0;
     border-radius: 50%;
     cursor:        pointer;
-    font-size:     12px;
+    font-size:     var(--font-size-sm);
+    font-family:   var(--font);
     font-weight:   500;
-    color:         #fff;
-    transition:    transform 0.2s ease;
+    color:         var(--white);
+    transition:    transform var(--transition-speed) ease;
     position:      relative;
 }
 
@@ -2749,22 +2751,22 @@ figure.invent-avatar:focus-visible {
     left:          -3px;
     right:         -3px;
     bottom:        -3px;
-    border:        2px solid transparent;
+    border:        var(--border-width) solid transparent;
     border-radius: 50%;
     z-index:       1;
 }
 
 @keyframes invent-webcam-recording-ring {
     0% {
-        border:           2px solid var(--webcam-text-primary);
-        border-top-color: #ff0000;
-        border-top-width: 4px;
+        border:           var(--border-width) solid var(--webcam-text-primary);
+        border-top-color: var(--danger);
+        border-top-width: calc(var(--border-width) * 2);
         transform:        rotate(0deg);
     }
     100% {
-        border:           2px solid var(--webcam-text-primary);
-        border-top-color: #ff0000;
-        border-top-width: 4px;
+        border:           var(--border-width) solid var(--webcam-text-primary);
+        border-top-color: var(--danger);
+        border-top-width: calc(var(--border-width) * 2);
         transform:        rotate(360deg);
     }
 }
@@ -2779,9 +2781,10 @@ figure.invent-avatar:focus-visible {
     width:           100%;
     display:         flex;
     justify-content: center;
-    gap:             20px;
+    gap:             var(--spacing-lg);
     color:           var(--webcam-text-primary);
-    font-size:       11px;
+    font-size:       var(--font-size-sm);
+    font-family:     var(--font);
     text-align:      center;
 }
 
@@ -2793,8 +2796,8 @@ figure.invent-avatar:focus-visible {
 .invent-webcam-status,
 .invent-webcam-mode-indicator {
     background:    var(--webcam-indicator-bg);
-    padding:       4px 12px;
-    border-radius: 12px;
+    padding:       var(--spacing-xs) var(--spacing-md);
+    border-radius: var(--border-radius-lg);
 }
 
 @media (max-width: 768px) {
@@ -2812,7 +2815,7 @@ figure.invent-avatar:focus-visible {
     .actions {
         grid-template-columns: 1fr;
         grid-template-rows:    auto auto;
-        gap:                   15px;
+        gap:                   var(--spacing-lg);
     }
 
     .invent-webcam-modes,
