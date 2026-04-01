@@ -43,14 +43,6 @@ class Webcam(Widget):
         group="style",
     )
 
-    # TODO: REMOVE the gallery feature entirely:
-    # this means it has to be removed from the render method and the CSS as well
-    show_gallery = BooleanProperty(
-        _("Whether to show the gallery button."),
-        default_value=True,
-        group="style",
-    )
-
     show_mode_indicator = BooleanProperty(
         _("Whether to show the mode/status indicators."),
         default_value=True,
@@ -110,7 +102,7 @@ class Webcam(Widget):
             )
             # Trigger download
             self._download_canvas_as_image()
-            self.publish("photo_captured", webcam=self)
+            self.publish(self.photo_captured, webcam=self)
 
     def _set_status(self, text):
         """
@@ -237,13 +229,15 @@ class Webcam(Widget):
                 print("Camera not supported in this browser")
                 return
 
-            # TODO: Is there a way to make the canvas size dynamic based on 
-            # the size of the viewport? Is this an issue that needs to be solved?
-            # If so, is it solveable in the css?
+            viewport_width = max(
+                320, min(int(window.innerWidth or 1280), 1280)
+            )
+            viewport_height = max(240, int(viewport_width * 9 / 16))
+
             constraints = {
                 "video": {
-                    "width": {"ideal": 1280},
-                    "height": {"ideal": 720},
+                    "width": {"ideal": viewport_width},
+                    "height": {"ideal": viewport_height},
                     "facingMode": "user",
                 },
                 "audio": True,
@@ -294,10 +288,7 @@ class Webcam(Widget):
                 link.download = f"video-{self._timestamp()}.webm"
                 link.click()
                 window.URL.revokeObjectURL(url)
-                # NEW: publish the event using the new event system
                 self.publish(self.video_recorded, webcam=self)
-                # OLD: self.publish("video_recorded", webcam=self)
-                # TODO: Change all of the self.publish
                 self._set_status("Video saved")
 
             recorder = window.MediaRecorder.new(stream)
@@ -317,10 +308,9 @@ class Webcam(Widget):
         Render the webcam widget with controls.
         """
         # Hidden canvas for photo capture
-        # TODO: MAKE DYNAMIC? use invent global vars
         self._canvas = canvas()
-        self._canvas.width = 1280
-        self._canvas.height = 720
+        self._canvas.width = 1
+        self._canvas.height = 1
         self._canvas.style.display = "none"
 
         # Video element for preview
@@ -329,6 +319,18 @@ class Webcam(Widget):
         self._video_elem.autoplay = True
         self._video_elem.muted = True
         self._video_elem.classes.add("invent-webcam-video")
+
+        def on_video_ready(event):
+            video_el = self._video_elem._dom_element
+            canvas_el = self._canvas._dom_element
+            width = video_el.videoWidth or 1280
+            height = video_el.videoHeight or 720
+            canvas_el.width = width
+            canvas_el.height = height
+
+        self._video_elem._dom_element.addEventListener(
+            "loadedmetadata", create_proxy(on_video_ready)
+        )
 
         video_container = div(self._video_elem)
         video_container.classes.add("invent-webcam-box")
@@ -378,19 +380,8 @@ class Webcam(Widget):
         shutter_container.classes.add("invent-webcam-shutter-container")
         shutter_container.classes.add("shutter-container")
 
-        # Gallery button
-        # TODO: Remove this too since we are removing the gallery feature
-        gallery_btn = button("Gallery")
-        gallery_btn.id = f"{self.id}-gallery-btn"
-        gallery_btn.classes.add("invent-webcam-gallery-btn")
-        gallery_btn.classes.add("small-btn")
-
-        gallery_container = div(gallery_btn) if self.show_gallery else div()
-        gallery_container.classes.add("invent-webcam-gallery")
-        gallery_container.classes.add("gallery")
-
         # Controls container
-        controls = div(modes_container, shutter_container, gallery_container)
+        controls = div(modes_container, shutter_container)
         controls.classes.add("invent-webcam-actions")
         controls.classes.add("actions")
 
