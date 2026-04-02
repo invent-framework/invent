@@ -2652,6 +2652,8 @@ figure.invent-avatar:focus-visible {
     font-family:    var(--font);
 }
 
+.invent-webcam-canvas-hidden { display: none; }
+
 .invent-webcam-box,
 .webcam-box {
     width:         100%;
@@ -2677,6 +2679,12 @@ figure.invent-avatar:focus-visible {
     grid-template-columns: 1fr auto;
     align-items:           center;
     gap:                   var(--spacing-sm);
+}
+
+.invent-webcam-actions.invent-webcam-actions-single,
+.actions.actions-single {
+    display:         flex;
+    justify-content: center;
 }
 
 .invent-webcam-modes,

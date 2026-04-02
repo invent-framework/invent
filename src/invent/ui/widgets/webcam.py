@@ -37,9 +37,9 @@ class Webcam(Widget):
     """
 
     mode = ChoiceProperty(
-        _("The current webcam mode (photo or video)."),
-        default_value="photo",
-        choices=["photo", "video"],
+        _("Webcam mode: photo, video, or both."),
+        default_value="both",
+        choices=["photo", "video", "both"],
         group="style",
     )
 
@@ -72,12 +72,28 @@ class Webcam(Widget):
 
     def set_mode(self, mode):
         """
-        Set the webcam mode to 'photo' or 'video'.
+        Set the active webcam mode when switching is enabled.
         """
+        if self.mode != "both":
+            return
         if mode in ["photo", "video"]:
-            self.mode = mode
+            self._active_mode = mode
             if hasattr(self, "_mode_buttons"):
                 self._update_mode_buttons()
+            if hasattr(self, "_mode_indicator"):
+                self._mode_indicator._dom_element.textContent = (
+                    self._mode_label()
+                )
+            if hasattr(self, "_shutter_btn"):
+                self._set_shutter_text()
+
+    def _current_mode(self):
+        """
+        Return the active mode used for behavior and UI labels.
+        """
+        if self.mode == "both":
+            return getattr(self, "_active_mode", "photo")
+        return self.mode
 
     def capture_photo(self):
         """
@@ -106,11 +122,10 @@ class Webcam(Widget):
 
     def _set_status(self, text):
         """
-        Update status text in a way that works across wrappers/runtimes.
+        Update the status indicator text.
         """
         if not hasattr(self, "_status_elem"):
             return
-        self._status_elem.textContent = text
         self._status_elem._dom_element.textContent = text
 
     def _timestamp(self):
@@ -149,21 +164,55 @@ class Webcam(Widget):
 
     def on_mode_changed(self):
         """
-        Handle mode change by updating button states.
+        Apply all mode-dependent configuration to the already-rendered DOM.
+        The framework calls this after the widget's properties are set,
+        so self.mode is reliable here (unlike during render()).
         """
-        if hasattr(self, "_mode_buttons"):
-            self._update_mode_buttons()
+        if not hasattr(self, "_controls"):
+            # render() hasn't run yet; nothing to configure
+            return
+
+        # Set active mode
+        self._active_mode = "photo" if self.mode == "both" else self.mode
+
+        # Rebuild controls: remove any existing modes container, then
+        # prepend one only when mode='both'.
+        controls_el = self._controls._dom_element
+        # Remove any previously inserted modes container
+        if hasattr(self, "_modes_container"):
+            try:
+                controls_el.removeChild(self._modes_container._dom_element)
+            except Exception:
+                pass
+            self._modes_container = None
+            self._mode_buttons = []
+
+        if self.mode == "both":
+            self._modes_container = self._build_mode_buttons()
+            controls_el.insertBefore(
+                self._modes_container._dom_element,
+                self._shutter_container._dom_element,
+            )
+        else:
+            self._mode_buttons = []
+
+        # Update shutter label and mode indicator text
+        self._set_shutter_text()
         if hasattr(self, "_mode_indicator"):
-            self._mode_indicator.textContent = self._mode_label()
             self._mode_indicator._dom_element.textContent = self._mode_label()
-        if hasattr(self, "_shutter_btn"):
-            self._set_shutter_text()
+
+        # Apply show_mode_indicator
+        if hasattr(self, "_indicators"):
+            if self.show_mode_indicator:
+                self._indicators.classes.remove("hidden")
+            else:
+                self._indicators.classes.add("hidden")
 
     def _mode_label(self):
         """
         Return the display label for the current mode.
         """
-        if self.mode == "video":
+        if self._current_mode() == "video":
             return "Video Mode"
         return "Photo Mode"
 
@@ -174,7 +223,7 @@ class Webcam(Widget):
         for btn_info in self._mode_buttons:
             btn = btn_info["element"]
             btn_mode = btn_info["mode"]
-            if btn_mode == self.mode:
+            if btn_mode == self._current_mode():
                 btn.classes.add("invent-webcam-mode-active")
                 btn.classes.add("active")
             else:
@@ -187,11 +236,11 @@ class Webcam(Widget):
         """
         if not hasattr(self, "_shutter_btn"):
             return
-        if self.mode == "video":
-            text = "Stop" if self._recording else "Record"
+        is_recording = getattr(self, "_recording", False)
+        if self._current_mode() == "video":
+            text = "Stop" if is_recording else "Record"
         else:
             text = "Take"
-        self._shutter_btn.textContent = text
         self._shutter_btn._dom_element.textContent = text
 
     def _download_canvas_as_image(self):
@@ -212,7 +261,7 @@ class Webcam(Widget):
         """
         Handle shutter button clicks.
         """
-        if self.mode == "photo":
+        if self._current_mode() == "photo":
             self.capture_photo()
         else:
             if self._recording:
@@ -250,7 +299,8 @@ class Webcam(Widget):
                     )
                     self._video_elem.srcObject = stream
                     self._set_status("Webcam ready")
-                    self._setup_recorder(stream)
+                    if self.mode in ("video", "both"):
+                        self._setup_recorder(stream)
                 except Exception as e:
                     print(f"Camera access denied or error: {e}")
                     self._set_status("Camera access denied")
@@ -303,15 +353,46 @@ class Webcam(Widget):
         except Exception as e:
             print(f"Error setting up recorder: {e}")
 
+    def _build_mode_buttons(self):
+        """
+        Build and return the mode toggle container for mode='both'.
+        Populates self._mode_buttons as a side effect.
+        """
+        self._mode_buttons = []
+
+        def build_mode_button(mode_name):
+            label = "Photo" if mode_name == "photo" else "Video"
+            btn = button(label)
+            btn.id = f"{self.id}-{mode_name}-btn"
+            btn.classes.add("invent-webcam-mode-btn")
+            btn.classes.add("mode-btn")
+            btn._dom_element.addEventListener(
+                "click",
+                create_proxy(lambda e, m=mode_name: self.set_mode(m)),
+            )
+            return btn
+
+        mode_buttons = []
+        for mode_name in ["photo", "video"]:
+            btn = build_mode_button(mode_name)
+            mode_buttons.append(btn)
+            self._mode_buttons.append({"element": btn, "mode": mode_name})
+
+        modes_container = div(*mode_buttons)
+        modes_container.classes.add("invent-webcam-modes")
+        modes_container.classes.add("modes")
+        self._update_mode_buttons()
+        return modes_container
+
     def render(self):
         """
         Render the webcam widget with controls.
+        Mode-dependent configuration is applied in on_mode_changed,
+        which the framework calls after properties are set.
         """
         # Hidden canvas for photo capture
         self._canvas = canvas()
-        self._canvas.width = 1
-        self._canvas.height = 1
-        self._canvas.style.display = "none"
+        self._canvas.classes.add("invent-webcam-canvas-hidden")
 
         # Video element for preview
         self._video_elem = video()
@@ -336,36 +417,6 @@ class Webcam(Widget):
         video_container.classes.add("invent-webcam-box")
         video_container.classes.add("webcam-box")
 
-        # Mode buttons
-        photo_btn = button("Photo")
-        photo_btn.id = f"{self.id}-photo-btn"
-        photo_btn.classes.add("invent-webcam-mode-btn")
-        photo_btn.classes.add("mode-btn")
-        photo_btn.classes.add("invent-webcam-mode-active")
-        photo_btn.classes.add("active")
-        photo_btn._dom_element.addEventListener(
-            "click",
-            create_proxy(lambda e: self.set_mode("photo")),
-        )
-
-        video_btn = button("Video")
-        video_btn.id = f"{self.id}-video-btn"
-        video_btn.classes.add("invent-webcam-mode-btn")
-        video_btn.classes.add("mode-btn")
-        video_btn._dom_element.addEventListener(
-            "click",
-            create_proxy(lambda e: self.set_mode("video")),
-        )
-
-        self._mode_buttons = [
-            {"element": photo_btn, "mode": "photo"},
-            {"element": video_btn, "mode": "video"},
-        ]
-
-        modes_container = div(photo_btn, video_btn)
-        modes_container.classes.add("invent-webcam-modes")
-        modes_container.classes.add("modes")
-
         # Shutter button
         self._shutter_btn = button("Take")
         self._shutter_btn.id = f"{self.id}-shutter"
@@ -374,39 +425,38 @@ class Webcam(Widget):
         self._shutter_btn._dom_element.addEventListener(
             "click", create_proxy(self._on_shutter_click)
         )
-        self._set_shutter_text()
 
         shutter_container = div(self._shutter_btn)
         shutter_container.classes.add("invent-webcam-shutter-container")
         shutter_container.classes.add("shutter-container")
 
-        # Controls container
-        controls = div(modes_container, shutter_container)
-        controls.classes.add("invent-webcam-actions")
-        controls.classes.add("actions")
+        # Controls container: starts with just the shutter;
+        # on_mode_changed inserts mode toggle buttons when mode='both'.
+        self._controls = div(shutter_container)
+        self._controls.classes.add("invent-webcam-actions")
+        self._controls.classes.add("actions")
+        self._shutter_container = shutter_container
 
         # Status indicators
         self._status_elem = div("Initializing camera...")
         self._status_elem.id = f"{self.id}-status"
         self._status_elem.classes.add("invent-webcam-status")
 
-        self._mode_indicator = div(self._mode_label())
+        self._mode_indicator = div("")
         self._mode_indicator.id = f"{self.id}-mode-indicator"
         self._mode_indicator.classes.add("mode-selection")
         self._mode_indicator.classes.add("invent-webcam-mode-indicator")
 
-        indicators = div(self._status_elem, self._mode_indicator)
-        indicators.classes.add("invent-webcam-indicators")
-        indicators.classes.add("indicators")
-        if not self.show_mode_indicator:
-            indicators.classes.add("hidden")
+        self._indicators = div(self._status_elem, self._mode_indicator)
+        self._indicators.classes.add("invent-webcam-indicators")
+        self._indicators.classes.add("indicators")
 
         # Main container
         element = div(
             self._canvas,
             video_container,
-            controls,
-            indicators,
+            self._controls,
+            self._indicators,
             id=self.id,
         )
         element.classes.add("invent-webcam")
