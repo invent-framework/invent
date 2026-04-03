@@ -88,9 +88,7 @@ class Audio(Widget):
         self.publish(self.playing)
 
     def on_pause(self, event):
-        self.publish(
-            self.paused, position=event.target.currentTime
-        )
+        self.publish(self.paused, position=event.target.currentTime)
 
     def on_source_changed(self):
         self.element.setAttribute("src", self.source)

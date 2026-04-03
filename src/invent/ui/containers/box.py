@@ -27,7 +27,7 @@ from ..core.measures import TSHIRT_SIZES, MEDIUM
 
 class Box(Container):
     """
-    Common base class for Row and Column.
+    Common base class for Row, Column, and their children.
     """
 
     gap = ChoiceProperty(

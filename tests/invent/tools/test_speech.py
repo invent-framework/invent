@@ -31,6 +31,7 @@ async def test_voices():
     assert isinstance(result, list), "Voices not returned as a list."
     assert len(result) > 0, "No voices returned."
 
+
 @upytest.skip("Chrome only.")
 async def test_get_voice():
     """
@@ -60,6 +61,7 @@ async def test_get_voice():
         result.name == voice
     ), f"Voice not returned. Got: {result.name} Expected: {voice}"
 
+
 @upytest.skip("Chrome only.")
 async def test_set_voice():
     """
@@ -88,6 +90,7 @@ async def test_set_voice():
     assert (
         speech._PREFERRED_VOICE.name == voice
     ), "Preferred voice not set. Got: {speech.PREFERRED_VOICE.name} Expected: {voice}"
+
 
 @upytest.skip("Chrome only.")
 async def test_say():
@@ -124,6 +127,7 @@ async def test_say():
     assert (
         invent.datastore[result_key] == speech.ENDED
     ), "Speech end event not stored in datastore."
+
 
 @upytest.skip("Chrome only.")
 async def test_say_with_options():

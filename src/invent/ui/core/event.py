@@ -83,7 +83,8 @@ class Event:
         """
         self.description = description
         self.content = kwargs
-        self._event_name = None  # Set via __set_name__ when assigned in a class.
+        # Set via __set_name__ when assigned in a class.
+        self._event_name = None
     
     def __set_name__(self, owner, name):
         """
@@ -106,13 +107,17 @@ class Event:
         for k in kwargs:
             if k not in self.content:
                 raise ValueError(
-                    _("Unknown field in event {event}: ").format(event=self._event_name)
+                    _("Unknown field in event {event}: ").format(
+                        event=self._event_name
+                    )
                     + k
                 )
         for k in self.content:
             if k not in kwargs:
                 raise ValueError(
-                    _("Field missing from event {event}:").format(event=self._event_name)
+                    _("Field missing from event {event}:").format(
+                        event=self._event_name
+                    )
                     + k
                 )
         kwargs["source"] = source

@@ -415,13 +415,15 @@ img, video {
     max-width:  var(--page-max-width);
     padding:    var(--page-padding);
     width:      var(--page-width);
+    min-height: 100dvh;
 }
 
 /* Full-width native-app layout: removes the centred document column. */
 body.app-view .invent-page {
     margin:    0;
     max-width: none;
-    padding:   1rem;
+    min-height:    100dvh;
+    padding:   unset;
     width:     100%;
 }
 

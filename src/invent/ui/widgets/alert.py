@@ -59,9 +59,7 @@ class Alert(Widget):
         _("Whether the alert can be dismissed by the user."),
         default_value=False,
     )
-    dismissed = Event(
-        _("An event that is fired when the alert is dismissed.")
-    )
+    dismissed = Event(_("An event that is fired when the alert is dismissed."))
 
     @classmethod
     def icon(cls):

@@ -2,11 +2,13 @@ import upytest
 from pyscript.web import div
 from invent.ui import core
 
+
 def test_event():
     """
     Events have a description and key/value specifications of the
     content of the messages they send.
     """
+
     class TestWidget(core.Widget):
         hold = core.Event(
             "When the button is held",
@@ -15,12 +17,14 @@ def test_event():
 
         def render(self):
             return div()
-    
+
     tw = TestWidget()
     assert tw.hold._event_name == "hold"
     assert tw.hold.description == "When the button is held"
     assert "duration" in tw.hold.content
-    assert tw.hold.content["duration"] == "For how long the button was pressed."
+    assert (
+        tw.hold.content["duration"] == "For how long the button was pressed."
+    )
 
 
 def test_event_create_message():
@@ -36,8 +40,8 @@ def test_event_create_message():
 
         def render(self):
             return div()
-    
-    tw= TestWidget()
+
+    tw = TestWidget()
     # Cannot include fields that have not been specified.
     with upytest.raises(ValueError) as exc:
         tw.hold.create_message(tw, baz="This will fail")
@@ -50,7 +54,10 @@ def test_event_create_message():
     # Cannot miss an expected field.
     with upytest.raises(ValueError) as exc:
         tw.hold.create_message(tw)
-        assert exc.exception.args[0] == "Field missing from event subject: duration"
+        assert (
+            exc.exception.args[0]
+            == "Field missing from event subject: duration"
+        )
 
 
 def test_event_as_dict():

@@ -125,9 +125,7 @@ class ContentCard(Widget):
         group="style",
     )
 
-    pressed = Event(
-        _("Sent when the card is pressed.")
-    )
+    pressed = Event(_("Sent when the card is pressed."))
 
     def click(self, event):
         """

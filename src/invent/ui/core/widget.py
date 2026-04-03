@@ -89,7 +89,5 @@ class Widget(Component):
                 for channel in self.channel.split(",")
                 if channel.strip()
             ]
-            message = event_instance.create_message(
-                source=self, **kwargs
-            )
+            message = event_instance.create_message(source=self, **kwargs)
             invent.publish(message, to_channel=channels)
