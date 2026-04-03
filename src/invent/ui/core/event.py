@@ -85,7 +85,7 @@ class Event:
         self.content = kwargs
         # Set via __set_name__ when assigned in a class.
         self._event_name = None
-    
+
     def __set_name__(self, owner, name):
         """
         Helper via the descriptor protocol: provides the name against
