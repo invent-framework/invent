@@ -1,6 +1,0 @@
-"""
-Vibrate
-Microphone
-Flashlight
-Camera
-"""
