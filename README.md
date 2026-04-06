@@ -3,8 +3,11 @@
 View this repository
 [via GitHub pages](https://invent-framework.github.io/invent/).
 
-This project's documentation can be found
-[here](https://invent-framework.rtfd.io).
+To view the project docs (a work in progress):
+
+```
+zensical serve
+```
 
 This project started in 2019 as "PyperCard" ~ a re-implementation of 
 [Adafruit's CircuitPython PYOA](https://github.com/adafruit/Adafruit_CircuitPython_PYOA)
