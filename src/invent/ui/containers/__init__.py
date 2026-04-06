@@ -1,5 +1,4 @@
 from invent.ui.containers.accordion import Accordion
-from .box import Box
 from .carousel import Carousel
 from .column import Column
 from .footer import Footer
@@ -13,7 +12,6 @@ from .tree import Tree
 
 __all__ = [
     "Accordion",
-    "Box",
     "Carousel",
     "Column",
     "Footer",
