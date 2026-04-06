@@ -89,4 +89,4 @@ minify:
 	cp invent.min.zip static/
 	rm invent.min.tar.gz
 	rm invent.min.zip
-	rm -rf temp/invent
+	rm -rf temp/
