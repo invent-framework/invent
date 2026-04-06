@@ -248,7 +248,7 @@ The logo and identity will need to work across these contexts:
   meetups.
 - **"Invented!" badge** - a small, unobtrusive mark that could
   appear in apps built with the framework (this is the maker's mark
-  use case - see *The Two Phrases* below).
+  use case - see *The Two Phrases* above).
 
 ### Practical Constraints
 
