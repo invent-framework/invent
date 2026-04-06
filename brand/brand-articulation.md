@@ -11,25 +11,23 @@ complementing and amplifying the creative process.
 
 ## The Ethos
 
-```txt
 Code runs our world.
 
 Yet code isn't written for computers.
 
-We write code because we are human beings
-  imbued with ideas, imagination and feelings.
-Code expresses our thoughts made digital:
-  a medium for our values, cultures and ways of life.
+We write code because we are human beings<br/>
+&nbsp;&nbsp;imbued with ideas, imagination and feelings.<br/>
+Code expresses our thoughts made digital:<br/>
+&nbsp;&nbsp;a medium for our values, cultures and ways of life.
 
-If you knew code, what would you create?
+If you knew code, what would _you_ create?
 
-For those who venture into the world of code
-  will be the ones creating our futures.
+For those who venture into the world of code<br/>
+&nbsp;&nbsp;will be the ones creating our futures.
 
-What will your contribution be..?
+What will _your contribution_ be..?
 
-The only way to find out, is to try.
-```
+The only way to find out, **is to try**.
 
 ## Values
 
