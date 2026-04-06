@@ -46,7 +46,7 @@ the "other" is a paradoxical tension that drives invention.
 - **Dignity over direction.** Everyone who makes something deserves tools
   that respect them (although the tools express an opinion).
 - **Honesty over hiding.** No magic, no hidden complexity, no pretence
-  (yet abstractions exist to engage at your mode of thinking).
+  (yet abstractions exist to integrate with your mode of thinking).
 - **Expression over explaining.** Everyone has a unique voice and
   perspective (but this needs affirmative articulation).
 
