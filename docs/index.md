@@ -16,11 +16,6 @@ For full documentation visit [zensical.org](https://zensical.org/docs/).
   [serve]: https://zensical.org/docs/usage/preview/
   [build]: https://zensical.org/docs/usage/build/
 
-## Project conventions
-
-See [Naming Conventions](conventions.md) for Invent API naming guidance,
-including standardized min/max property names.
-
 ## Examples
 
 ### Admonitions
