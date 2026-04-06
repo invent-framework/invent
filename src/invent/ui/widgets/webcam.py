@@ -26,8 +26,9 @@ from invent.ui.core import (
     ChoiceProperty,
     BooleanProperty,
     Event,
+    IntegerProperty,
 )
-from pyscript.web import div, video, button, canvas
+from pyscript.web import div, video, button, canvas, img
 from pyscript.ffi import create_proxy
 
 
@@ -35,6 +36,22 @@ class Webcam(Widget):
     """
     A webcam widget with photo capture and video recording capabilities.
     """
+
+    photo_output = ChoiceProperty(
+        _("How captured photos are handled: downloaded, previewed, or both."),
+        default_value="download",
+        choices=["download", "preview", "both"],
+        group="behavior",
+    )
+
+    max_captures = IntegerProperty(
+        _(
+            "The maximum number of captured images and recordings to keep in memory."
+        ),
+        default_value=10,
+        minimum=0,
+        group="behavior",
+    )
 
     mode = ChoiceProperty(
         _("Webcam mode: photo, video, or both."),
@@ -52,6 +69,7 @@ class Webcam(Widget):
     photo_captured = Event(
         _("Sent when a photo is captured."),
         webcam=_("The Webcam widget that captured the photo."),
+        capture=_("The captured photo metadata."),
     )
 
     video_recorded = Event(
@@ -62,6 +80,109 @@ class Webcam(Widget):
     @classmethod
     def icon(cls):
         return '<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 256 256"><circle cx="128" cy="128" r="32" fill="currentColor" opacity="0.2"/><path fill="currentColor" d="M208 56H48a16 16 0 0 0-16 16v112a16 16 0 0 0 16 16h160a16 16 0 0 0 16-16V72a16 16 0 0 0-16-16m0 128H48V72h160zM128 96a32 32 0 1 0 32 32a32 32 0 0 0-32-32m0 48a16 16 0 1 1 16-16a16 16 0 0 1-16 16"/></svg>'  # noqa
+
+    def __init__(self, *args, **kwargs):
+        self._captures = []
+        self._capture_counter = 0
+        super().__init__(*args, **kwargs)
+
+    def _capture_output_enabled(self):
+        return self.photo_output in ("preview", "both")
+
+    def _capture_download_enabled(self):
+        return self.photo_output in ("download", "both")
+
+    def _capture_id(self, media_type):
+        self._capture_counter += 1
+        return f"{media_type}-{self._timestamp()}-{self._capture_counter}"
+
+    def _store_capture(self, capture):
+        capture = dict(capture)
+        capture.setdefault("type", "photo")
+        capture.setdefault("timestamp", self._timestamp())
+        capture.setdefault("id", self._capture_id(capture["type"]))
+        self._captures.append(capture)
+
+        if self.max_captures and self.max_captures > 0:
+            overflow = len(self._captures) - self.max_captures
+            if overflow > 0:
+                self._captures = self._captures[overflow:]
+
+        if capture["type"] == "photo" and self._capture_output_enabled():
+            self._show_capture_preview(capture)
+
+        return capture
+
+    def captures(self, media_type=None):
+        if media_type is None:
+            return list(self._captures)
+        return [
+            capture
+            for capture in self._captures
+            if capture.get("type") == media_type
+        ]
+
+    def latest_capture(self, media_type=None):
+        captures = self.captures(media_type=media_type)
+        return captures[-1] if captures else None
+
+    def find_capture(self, capture_id):
+        for capture in self._captures:
+            if capture.get("id") == capture_id:
+                return capture
+        return None
+
+    def remove_capture(self, capture_id):
+        for index, capture in enumerate(self._captures):
+            if capture.get("id") == capture_id:
+                removed = self._captures.pop(index)
+                self._refresh_capture_preview()
+                return removed
+        return None
+
+    def clear_captures(self, media_type=None):
+        if media_type is None:
+            removed = list(self._captures)
+            self._captures = []
+            self._refresh_capture_preview()
+            return removed
+
+        kept = []
+        removed = []
+        for capture in self._captures:
+            if capture.get("type") == media_type:
+                removed.append(capture)
+            else:
+                kept.append(capture)
+        self._captures = kept
+        self._refresh_capture_preview()
+        return removed
+
+    def photo_bytes(self, capture=None):
+        capture = capture or self.latest_capture(media_type="photo")
+        if not capture:
+            return None
+        if capture.get("photo_bytes") is not None:
+            return capture["photo_bytes"]
+        data_url = capture.get("data_url")
+        if not data_url or "," not in data_url:
+            return None
+        import base64
+
+        return base64.b64decode(data_url.split(",", 1)[1])
+
+    def _show_capture_preview(self, capture):
+        if not hasattr(self, "_capture_preview"):
+            return
+        data_url = capture.get("data_url")
+        if not data_url:
+            return
+        self._capture_preview.src = data_url
+        self._capture_preview.classes.remove("hidden")
+
+    def _hide_capture_preview(self):
+        if hasattr(self, "_capture_preview"):
+            self._capture_preview.classes.add("hidden")
 
     def trigger(self):
         """
@@ -116,9 +237,20 @@ class Webcam(Widget):
                 width,
                 height,
             )
-            # Trigger download
-            self._download_canvas_as_image()
-            self.publish(self.photo_captured, webcam=self)
+            capture = self._store_capture(
+                {
+                    "type": "photo",
+                    "timestamp": self._timestamp(),
+                    "data_url": self._canvas._dom_element.toDataURL(
+                        "image/jpeg"
+                    ),
+                }
+            )
+            if self._capture_download_enabled():
+                self._download_canvas_as_image(capture)
+            if not self._capture_output_enabled():
+                self._hide_capture_preview()
+            self.publish(self.photo_captured, webcam=self, capture=capture)
 
     def _set_status(self, text):
         """
@@ -179,7 +311,10 @@ class Webcam(Widget):
         # prepend one only when mode='both'.
         controls_el = self._controls._dom_element
         # Remove any previously inserted modes container
-        if hasattr(self, "_modes_container"):
+        if (
+            hasattr(self, "_modes_container")
+            and self._modes_container is not None
+        ):
             try:
                 controls_el.removeChild(self._modes_container._dom_element)
             except Exception:
@@ -207,6 +342,28 @@ class Webcam(Widget):
                 self._indicators.classes.remove("hidden")
             else:
                 self._indicators.classes.add("hidden")
+
+    def _refresh_capture_preview(self):
+        if not self._capture_output_enabled():
+            self._hide_capture_preview()
+            return
+        latest_photo = self.latest_capture(media_type="photo")
+        if latest_photo:
+            self._show_capture_preview(latest_photo)
+        else:
+            self._hide_capture_preview()
+
+    def on_photo_output_changed(self):
+        if not hasattr(self, "_capture_preview"):
+            return
+        self._refresh_capture_preview()
+
+    def on_max_captures_changed(self):
+        if self.max_captures and self.max_captures > 0:
+            overflow = len(self._captures) - self.max_captures
+            if overflow > 0:
+                self._captures = self._captures[overflow:]
+        self._refresh_capture_preview()
 
     def _mode_label(self):
         """
@@ -243,15 +400,21 @@ class Webcam(Widget):
             text = "Take"
         self._shutter_btn._dom_element.textContent = text
 
-    def _download_canvas_as_image(self):
+    def _download_canvas_as_image(self, capture=None):
         """
         Download the canvas content as an image file.
         """
         try:
             from pyscript import window
 
+            capture = capture or self.latest_capture(media_type="photo")
+            if capture and capture.get("data_url"):
+                data_url = capture["data_url"]
+            else:
+                data_url = self._canvas._dom_element.toDataURL("image/jpeg")
+
             link = window.document.createElement("a")
-            link.href = self._canvas._dom_element.toDataURL("image/jpeg")
+            link.href = data_url
             link.download = f"photo-{self._timestamp()}.jpg"
             link.click()
         except Exception as e:
@@ -451,12 +614,19 @@ class Webcam(Widget):
         self._indicators.classes.add("invent-webcam-indicators")
         self._indicators.classes.add("indicators")
 
+        self._capture_preview = img()
+        self._capture_preview.id = f"{self.id}-capture-preview"
+        self._capture_preview.classes.add("invent-webcam-capture-preview")
+        self._capture_preview.classes.add("capture-preview")
+        self._capture_preview.classes.add("hidden")
+
         # Main container
         element = div(
             self._canvas,
             video_container,
             self._controls,
             self._indicators,
+            self._capture_preview,
             id=self.id,
         )
         element.classes.add("invent-webcam")

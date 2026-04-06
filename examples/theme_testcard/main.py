@@ -78,6 +78,8 @@ invent.datastore["code_in_editor"] = """def greet(name):
 print(greet("world"))
 """
 
+preview_webcam = Webcam(photo_output="both", max_captures=5)
+
 # User Interface #######################################################################
 
 app = invent.App(
@@ -742,6 +744,13 @@ print(Hello().greet)""",
                         Webcam(mode="photo", show_mode_indicator=False),
                         Label(text="A default webcam:"),
                         Webcam(),
+                        Label(
+                            text="A webcam that keeps the last photo on the page and stores recent captures:"
+                        ),
+                        preview_webcam,
+                        Label(
+                            text="Use preview_webcam.latest_capture() or preview_webcam.photo_bytes() in the REPL after snapping a photo."
+                        ),
                         Label(text="## Layouts"),
                         Label(
                             text="A default fade carousel (can contain other widgets):"
