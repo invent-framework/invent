@@ -35,7 +35,7 @@ class Rating(Widget):
     A star rating widget with half-star precision (0.5 steps).
 
     Each star is split into a left half (scores i-0.5) and a right half
-    (scores i), giving values like 0.5, 1, 1.5 ... up to maximum.
+    (scores i), giving values like 0.5, 1, 1.5 ... up to max_value.
 
     Displays the numeric value alongside the stars. When the user changes
     the rating a brief popup message appears and then fades away.
@@ -46,7 +46,7 @@ class Rating(Widget):
         default_value=0.0,
     )
 
-    maximum = ChoiceProperty(
+    max_value = ChoiceProperty(
         _("The number of stars to display."),
         default_value="5",
         choices=["1", "3", "5", "10"],
@@ -102,10 +102,10 @@ class Rating(Widget):
         return create_proxy(handler)
 
     def _rebuild_stars(self):
-        """Redraw all star spans to reflect the current value and maximum."""
+        """Redraw all star spans to reflect the current value and max_value."""
         self._stars_element._dom_element.replaceChildren()
 
-        max_stars = int(self.maximum)
+        max_stars = int(self.max_value)
         for i in range(1, max_stars + 1):
             star = span()
             star.classes.add("invent-rating-star")
@@ -155,7 +155,7 @@ class Rating(Widget):
             new_value = f"{self.value}".replace(
                 ".0", ""
             )  # Remove trailing .0 for whole numbers.
-            self._value_element.textContent = f"{new_value}/{self.maximum}"
+            self._value_element.textContent = f"{new_value}/{self.max_value}"
         else:
             self._value_element.textContent = ""
 
@@ -165,9 +165,9 @@ class Rating(Widget):
         if hasattr(self, "_stars_element"):
             self._rebuild_stars()
 
-    def on_maximum_changed(self):
-        if self.value > int(self.maximum):
-            self.value = float(int(self.maximum))
+    def on_max_value_changed(self):
+        if self.value > int(self.max_value):
+            self.value = float(int(self.max_value))
         if hasattr(self, "_stars_element"):
             self._rebuild_stars()
 
@@ -187,7 +187,7 @@ class Rating(Widget):
         self._stars_element = span()
         self._stars_element.classes.add("invent-rating-stars")
 
-        self._value_element = span(f"{self.value}/{self.maximum}")
+        self._value_element = span(f"{self.value}/{self.max_value}")
         self._value_element.classes.add("invent-rating-value")
 
         self._message_element = span("")

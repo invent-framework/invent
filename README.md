@@ -77,6 +77,16 @@ The tests should open in your browser, and pass. ;-)
 
 Coming soon...
 
+## API naming conventions
+
+Invent uses explicit names for bounded values:
+
+* `min_value` / `max_value` for value ranges.
+* `min_length` / `max_length` for text length ranges.
+
+This convention is used across widgets and core property APIs to keep naming
+predictable.
+
 ## Supporters
 
 Invent is an independent open source project.

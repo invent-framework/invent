@@ -263,15 +263,15 @@ class Property:
 
 class NumericProperty(Property):
     """
-    A numeric property, with an optional maximum and minimum, for a Widget.
+    A numeric property, with an optional max_value and min_value, for a Widget.
     """
 
     def __init__(
         self,
         description,
         default_value=None,
-        minimum=None,
-        maximum=None,
+        min_value=None,
+        max_value=None,
         **kwargs,
     ):
         """
@@ -279,8 +279,8 @@ class NumericProperty(Property):
         define the bounds of a valid value. If set to None, these won't be
         checked during validation.
         """
-        self.minimum = minimum
-        self.maximum = maximum
+        self.min_value = min_value
+        self.max_value = max_value
         super().__init__(description, default_value, **kwargs)
 
     def coerce(self, value):
@@ -313,21 +313,21 @@ class NumericProperty(Property):
         The value must be a number (None is allowed if the property is not
         required).
 
-        If set, the value must be between the minimum and maximum boundaries.
+        If set, the value must be between the min_value and max_value boundaries.
         """
         value = super().validate(self.coerce(value))
         if value is not None:
-            if self.minimum and value < self.minimum:
+            if self.min_value and value < self.min_value:
                 raise ValidationError(
-                    _("The value is less than the minimum allowed."),
+                    _("The value is less than the min_value allowed."),
                     value,
-                    self.minimum,
+                    self.min_value,
                 )
-            if self.maximum and value > self.maximum:
+            if self.max_value and value > self.max_value:
                 raise ValidationError(
-                    _("The value is greater than the maximum."),
+                    _("The value is greater than the max_value."),
                     value,
-                    self.maximum,
+                    self.max_value,
                 )
         return value
 
@@ -337,8 +337,8 @@ class NumericProperty(Property):
         essential information about the property.
         """
         result = super().as_dict()
-        result["minimum"] = self.minimum
-        result["maximum"] = self.maximum
+        result["min_value"] = self.min_value
+        result["max_value"] = self.max_value
         return result
 
 
@@ -399,18 +399,18 @@ class TextProperty(Property):
         """
         The value must be a string (or None if not a required property).
 
-        If set, the value must be between the minimum and maximum boundaries.
+        If set, the value must be between the min_value and max_value boundaries.
         """
         value = super().validate(self.coerce(value))
         if value is not None:
             length = len(value)
             if self.min_length and length < self.min_length:
                 raise ValidationError(
-                    _("The length of the value is less than minimum allowed.")
+                    _("The length of the value is less than min_value allowed.")
                 )
             if self.max_length and length > self.max_length:
                 raise ValidationError(
-                    _("The length of the value is more than maximum allowed.")
+                    _("The length of the value is more than max_value allowed.")
                 )
         return value
 
@@ -565,7 +565,7 @@ class DateProperty(Property):
     A property for a Widget that represents a date. The date is assigned as
     a datetime.Date instance, a string in the format "YYYY-MM-DD" or None.
 
-    The date is stored as a datetime.Date instance. If a minimum or maximum
+    The date is stored as a datetime.Date instance. If a min_value or max_value
     date is set, the value must be within the range.
     """
 
@@ -573,8 +573,8 @@ class DateProperty(Property):
         self,
         description,
         default_value=None,
-        minimum=None,
-        maximum=None,
+        min_value=None,
+        max_value=None,
         **kwargs,
     ):
         """
@@ -582,8 +582,8 @@ class DateProperty(Property):
         define the bounds of a valid value. If set to None, these won't be
         checked during validation.
         """
-        self.minimum = self.coerce(minimum)
-        self.maximum = self.coerce(maximum)
+        self.min_value = self.coerce(min_value)
+        self.max_value = self.coerce(max_value)
         super().__init__(description, default_value, **kwargs)
 
     def coerce(self, value):
@@ -602,17 +602,17 @@ class DateProperty(Property):
     def validate(self, value):
         value = super().validate(self.coerce(value))
         if value is not None:
-            if self.minimum and value < self.minimum:
+            if self.min_value and value < self.min_value:
                 raise ValidationError(
-                    _("The date is less than the minimum allowed."),
+                    _("The date is less than the min_value allowed."),
                     value,
-                    self.minimum,
+                    self.min_value,
                 )
-            if self.maximum and value > self.maximum:
+            if self.max_value and value > self.max_value:
                 raise ValidationError(
-                    _("The date is greater than the maximum allowed."),
+                    _("The date is greater than the max_value allowed."),
                     value,
-                    self.maximum,
+                    self.max_value,
                 )
         return value
 
@@ -623,8 +623,8 @@ class DateProperty(Property):
         """
         result = super().as_dict()
         result["default_value"] = str(self.default_value)
-        result["minimum"] = str(self.minimum)
-        result["maximum"] = str(self.maximum)
+        result["min_value"] = str(self.min_value)
+        result["max_value"] = str(self.max_value)
         return result
 
     def __str__(self):
@@ -639,7 +639,7 @@ class TimeProperty(Property):
     A property for a Widget that represents a time. The time is assigned as
     a datetime.Time instance, a string in the format "HH:MM:SS" or None.
 
-    The time is stored as a datetime.Time instance. If a minimum or maximum
+    The time is stored as a datetime.Time instance. If a min_value or max_value
     time is set, the value must be within the range.
     """
 
@@ -647,8 +647,8 @@ class TimeProperty(Property):
         self,
         description,
         default_value=None,
-        minimum=None,
-        maximum=None,
+        min_value=None,
+        max_value=None,
         **kwargs,
     ):
         """
@@ -656,8 +656,8 @@ class TimeProperty(Property):
         define the bounds of a valid value. If set to None, these won't be
         checked during validation.
         """
-        self.minimum = self.coerce(minimum)
-        self.maximum = self.coerce(maximum)
+        self.min_value = self.coerce(min_value)
+        self.max_value = self.coerce(max_value)
         super().__init__(description, default_value, **kwargs)
 
     def coerce(self, value):
@@ -676,17 +676,17 @@ class TimeProperty(Property):
     def validate(self, value):
         value = super().validate(self.coerce(value))
         if value is not None:
-            if self.minimum and value < self.minimum:
+            if self.min_value and value < self.min_value:
                 raise ValidationError(
-                    _("The time is less than the minimum allowed."),
+                    _("The time is less than the min_value allowed."),
                     value,
-                    self.minimum,
+                    self.min_value,
                 )
-            if self.maximum and value > self.maximum:
+            if self.max_value and value > self.max_value:
                 raise ValidationError(
-                    _("The time is greater than the maximum allowed."),
+                    _("The time is greater than the max_value allowed."),
                     value,
-                    self.maximum,
+                    self.max_value,
                 )
         return value
 
@@ -697,8 +697,8 @@ class TimeProperty(Property):
         """
         result = super().as_dict()
         result["default_value"] = str(self.default_value)
-        result["minimum"] = str(self.minimum)
-        result["maximum"] = str(self.maximum)
+        result["min_value"] = str(self.min_value)
+        result["max_value"] = str(self.max_value)
         return result
 
     def __str__(self):
@@ -714,16 +714,16 @@ class DatetimeProperty(Property):
     assigned as a datetime.Datetime instance, a string in the format
     "YYYY-MM-DD HH:MM:SS" or None.
 
-    The datetime is stored as a datetime.Datetime instance. If a minimum or
-    maximum datetime is set, the value must be within the range.
+    The datetime is stored as a datetime.Datetime instance. If a min_value or
+    max_value datetime is set, the value must be within the range.
     """
 
     def __init__(
         self,
         description,
         default_value=None,
-        minimum=None,
-        maximum=None,
+        min_value=None,
+        max_value=None,
         **kwargs,
     ):
         """
@@ -731,8 +731,8 @@ class DatetimeProperty(Property):
         define the bounds of a valid value. If set to None, these won't be
         checked during validation.
         """
-        self.minimum = self.coerce(minimum)
-        self.maximum = self.coerce(maximum)
+        self.min_value = self.coerce(min_value)
+        self.max_value = self.coerce(max_value)
         super().__init__(description, default_value, **kwargs)
 
     def coerce(self, value):
@@ -755,17 +755,17 @@ class DatetimeProperty(Property):
     def validate(self, value):
         value = super().validate(self.coerce(value))
         if value is not None:
-            if self.minimum and value < self.minimum:
+            if self.min_value and value < self.min_value:
                 raise ValidationError(
-                    _("The datetime is less than the minimum allowed."),
+                    _("The datetime is less than the min_value allowed."),
                     value,
-                    self.minimum,
+                    self.min_value,
                 )
-            if self.maximum and value > self.maximum:
+            if self.max_value and value > self.max_value:
                 raise ValidationError(
-                    _("The datetime is greater than the maximum allowed."),
+                    _("The datetime is greater than the max_value allowed."),
                     value,
-                    self.maximum,
+                    self.max_value,
                 )
         return value
 
@@ -776,8 +776,8 @@ class DatetimeProperty(Property):
         """
         result = super().as_dict()
         result["default_value"] = str(self.default_value)
-        result["minimum"] = str(self.minimum)
-        result["maximum"] = str(self.maximum)
+        result["min_value"] = str(self.min_value)
+        result["max_value"] = str(self.max_value)
         return result
 
     def __str__(self):
