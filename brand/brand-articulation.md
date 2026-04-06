@@ -11,6 +11,7 @@ complementing and amplifying the creative process.
 
 ## The Ethos
 
+```txt
 Code runs our world.
 
 Yet code isn't written for computers.
@@ -28,6 +29,7 @@ For those who venture into the world of code
 What will your contribution be..?
 
 The only way to find out, is to try.
+```
 
 ## Values
 
