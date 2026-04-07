@@ -4,10 +4,25 @@ UI aspects of the Invent framework are shown in a page, and allow the user to
 select different "themes" to see how they affect the appearance of the page.
 """
 
+import base64
+import html as html_lib
+import io
 import random
 
 import invent
 from invent.ui import *
+
+try:
+    import cv2
+    import numpy as np
+    from PIL import Image as PILImage
+
+    _opencv_available = True
+except ImportError:
+    cv2 = None
+    np = None
+    PILImage = None
+    _opencv_available = False
 
 # Datastore ############################################################################
 
@@ -77,8 +92,121 @@ invent.datastore["code_in_editor"] = """def greet(name):
 
 print(greet("world"))
 """
+invent.datastore["opencv_code"] = """# Variables available in this editor:
+# capture, image, array_of_rgb, array_of_bgr, grey, cv2, np, PILImage
+
+grey = cv2.cvtColor(array_of_rgb, cv2.COLOR_RGB2GRAY)
+edges = cv2.Canny(grey, 80, 160)
+result_image = PILImage.fromarray(edges)
+"""
+invent.datastore["opencv_result"] = (
+    "<pre>Run the snippet after capturing a photo.</pre>"
+)
 
 preview_webcam = Webcam(photo_output="both", max_captures=5)
+opencv_code_editor = CodeEditor(
+    language="python",
+    min_height="220px",
+    code=from_datastore("opencv_code"),
+)
+opencv_result_image = Image(width="100%")
+opencv_result_html = Html(html=from_datastore("opencv_result"))
+
+
+def _pil_image_to_data_url(pil_image):
+    """
+    Convert a PIL image into a data URL for the image widget.
+    """
+    buffer = io.BytesIO()
+    pil_image.save(buffer, format="PNG")
+    encoded = base64.b64encode(buffer.getvalue()).decode("ascii")
+    return f"data:image/png;base64,{encoded}"
+
+
+def _render_opencv_result(text):
+    """
+    Render status or traceback text as safe HTML.
+    """
+    invent.datastore["opencv_result"] = (
+        "<pre class='opencv-result'>" + html_lib.escape(text) + "</pre>"
+    )
+
+
+def run_opencv_on_latest_capture(message=None):
+    """
+    Execute the current OpenCV snippet against the most recent webcam capture.
+    """
+    if not _opencv_available:
+        opencv_result_image.image = invent.media.images.invent_logo.png
+        _render_opencv_result(
+            "OpenCV support is not available in this runtime. "
+            "Install cv2, numpy, and Pillow in a local Python environment "
+            "or use a browser-compatible image-processing library."
+        )
+        return
+
+    capture = preview_webcam.latest_capture(media_type="photo")
+    if not capture:
+        opencv_result_image.image = invent.media.images.invent_logo.png
+        _render_opencv_result("No photo has been captured yet.")
+        return
+
+    raw_bytes = preview_webcam.photo_bytes(capture=capture)
+    if raw_bytes is None:
+        opencv_result_image.image = invent.media.images.invent_logo.png
+        _render_opencv_result("The latest capture could not be decoded.")
+        return
+
+    try:
+        source_image = PILImage.open(io.BytesIO(raw_bytes)).convert("RGB")
+        array_of_rgb = np.array(source_image)
+        array_of_bgr = cv2.cvtColor(array_of_rgb, cv2.COLOR_RGB2BGR)
+        grey = cv2.cvtColor(array_of_rgb, cv2.COLOR_RGB2GRAY)
+
+        namespace = {
+            "capture": capture,
+            "image": source_image,
+            "array_of_rgb": array_of_rgb,
+            "array_of_bgr": array_of_bgr,
+            "grey": grey,
+            "cv2": cv2,
+            "np": np,
+            "PILImage": PILImage,
+        }
+        exec(opencv_code_editor.code, namespace, namespace)
+
+        result_image = (
+            namespace.get("result_image")
+            or namespace.get("processed_image")
+            or namespace.get("output_image")
+            or namespace.get("result")
+        )
+        if isinstance(result_image, np.ndarray):
+            result_image = PILImage.fromarray(result_image)
+        elif result_image is None:
+            result_image = source_image
+
+        if isinstance(result_image, PILImage.Image):
+            opencv_result_image.image = _pil_image_to_data_url(result_image)
+        else:
+            opencv_result_image.image = _pil_image_to_data_url(source_image)
+
+        summary = [
+            f"Capture id: {capture.get('id', 'unknown')}",
+            f"Capture size: {array_of_rgb.shape[1]} x {array_of_rgb.shape[0]}",
+            "Snippet executed successfully.",
+        ]
+        _render_opencv_result("\n".join(summary))
+    except Exception as exc:
+        opencv_result_image.image = invent.media.images.invent_logo.png
+        _render_opencv_result(f"OpenCV snippet failed:\n{exc}")
+
+
+invent.subscribe(
+    run_opencv_on_latest_capture,
+    to_channel="opencv-run",
+    when_subject=["press"],
+)
 
 # User Interface #######################################################################
 
@@ -749,7 +877,23 @@ print(Hello().greet)""",
                         ),
                         preview_webcam,
                         Label(
-                            text="Use preview_webcam.latest_capture() or preview_webcam.photo_bytes() in the REPL after snapping a photo."
+                            text="Use the editor below to run OpenCV against the latest captured photo."
+                        ),
+                        Label(
+                            text="### OpenCV capture processor\n\nThe editor starts with a snippet that converts the latest photo to edges. The runner provides `capture`, `image`, `array_of_rgb`, `array_of_bgr`, `grey`, `cv2`, `np`, and `PILImage`."
+                        ),
+                        opencv_code_editor,
+                        Button(
+                            text="Run OpenCV on latest capture",
+                            purpose="PRIMARY",
+                            channel="opencv-run",
+                        ),
+                        Label(text="Processed image preview:"),
+                        opencv_result_image,
+                        Label(text="Run log:"),
+                        opencv_result_html,
+                        Label(
+                            text="Use preview_webcam.latest_capture() or preview_webcam.photo_bytes() from the REPL if you want to inspect the current capture directly."
                         ),
                         Label(text="## Layouts"),
                         Label(
