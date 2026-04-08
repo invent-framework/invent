@@ -89,33 +89,17 @@ invent.datastore["code_in_editor"] = """def greet(name):
 
 print(greet("world"))
 """
-
-# ---------------------------------------------------------------------------
-# Webcam widgets
-# ---------------------------------------------------------------------------
-
-# Standard photo-only webcam (download on capture)
+# Pre-define some webcam variations
 preview_webcam = Webcam(
     photo_output="download",
     max_captures=5,
 )
 
-# OpenCV playground webcam.
-# opencv_mode=True means:
-#   • No auto-download on snap
-#   • Capture appears side-by-side with the live feed
-#   • Built-in CodeEditor + "Run OpenCV" button + result image
-# The default snippet (edges via Canny) is baked into the widget, but you
-# can override it before the widget renders:
-#
-#   opencv_webcam._opencv_code = "result_image = PILImage.fromarray(grey)"
-#
 opencv_webcam = Webcam(
     opencv_mode=True,
     photo_output="preview",
     max_captures=5,
 )
-
 
 def run_opencv_from_button(message):
     """Run OpenCV processing on the latest captured webcam photo."""
@@ -788,10 +772,8 @@ print(Hello().greet)""",
                         ),
                         Label(text="A test video player (Vimeo):"),
                         Video(source="https://vimeo.com/347119375"),
-                        # ---- Webcam: download-only (no OpenCV) ----
-                        Label(text="## Standard webcam (download on capture)"),
+                        Label(text="## Standard webcam"),
                         preview_webcam,
-                        # ---- Webcam: OpenCV playground ----
                         Label(text="## OpenCV webcam playground"),
                         Label(
                             text=(
