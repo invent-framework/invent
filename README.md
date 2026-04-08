@@ -1,4 +1,4 @@
-# Invent - an app framework for beginners
+# Invent - express yourself with code
 
 View this repository
 [via GitHub pages](https://invent-framework.github.io/invent/).

@@ -27,7 +27,6 @@ __all__ = [
     "subscribe",
     "publish",
     "unsubscribe",
-    "when",
 ]
 
 

@@ -8,7 +8,7 @@ dynamic = ["version"]
 authors = [
   { name="Nicholas H.Tollervey", email="ntoll@ntoll.org" },
 ]
-description = "Invent - an app framework for beginner programmers"
+description = "Invent - express yourself with code."
 readme = "README.md"
 requires-python = ">=3.7"
 classifiers = [

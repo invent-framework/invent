@@ -24,6 +24,7 @@ clean:
 	rm -rf static/*.tar.gz
 	rm -rf static/*.zip
 	rm -rf static/*.css
+	rm -rf site
 	rm -rf temp
 	rm -rf test_suite
 	find . | grep -E "(__pycache__)" | xargs rm -rf
@@ -32,7 +33,7 @@ tidy:
 	black -l 79 examples src/invent tests utils
 
 lint:
-	flake8 --extend-ignore=E203,E701 src/invent
+	flake8 --extend-ignore=E203,E701 src/invent/*
 
 lint-all:
 	flake8 --extend-ignore=E203,E701 src/invent tests/*
@@ -43,7 +44,7 @@ serve: clean tidy package minify
 test:
 	python -m webbrowser http://localhost:8000/index.html
 
-dist: clean lint
+dist: clean
 	@echo "Packaging module..."
 	python -m pip install --upgrade build
 	python -m build

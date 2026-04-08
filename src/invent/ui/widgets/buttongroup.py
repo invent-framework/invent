@@ -147,11 +147,13 @@ class ButtonGroup(Widget):
         """
         Update name and id on all radio inputs when the group changes.
         """
-        for i, (radio, label) in enumerate(self._items.values()):
+        for i, (radio_element, label_element) in enumerate(
+            self._items.values()
+        ):
             button_id = f"{self.group}-{i}"
-            radio.name = self.group
-            radio.id = button_id
-            label.for_ = button_id
+            radio_element.name = self.group
+            radio_element.id = button_id
+            label_element.for_ = button_id
 
     def on_value_changed(self):
         """
