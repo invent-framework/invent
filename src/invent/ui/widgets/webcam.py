@@ -52,8 +52,7 @@ except ImportError:
 
 
 class _Cv2Compat:
-    """Minimal cv2-compatible surface for browser runtimes without cv2."""
-
+    """Provides a small subset of OpenCV functionality using Pillow and numpy when cv2 is not available."""
     COLOR_RGB2BGR = 1
     COLOR_RGB2GRAY = 2
 
@@ -106,14 +105,14 @@ class Webcam(Widget):
     The code snippet executed by "Run OpenCV" has the following names bound
     in its namespace:
 
-        capture       – the raw capture dict stored by the widget
-        image         – PIL Image (RGB) of the captured photo
-        array_of_rgb  – numpy uint8 array, shape (H, W, 3), RGB order
-        array_of_bgr  – numpy uint8 array, shape (H, W, 3), BGR order
-        grey          – numpy uint8 array, shape (H, W),    greyscale
-        cv2           – the cv2 module
-        np            – the numpy module
-        PILImage      – PIL.Image module
+        capture       : the raw capture dict stored by the widget
+        image         : PIL Image (RGB) of the captured photo
+        array_of_rgb  : numpy uint8 array, shape (H, W, 3), RGB order
+        array_of_bgr  : numpy uint8 array, shape (H, W, 3), BGR order
+        grey          : numpy uint8 array, shape (H, W),    greyscale
+        cv2           : the cv2 module
+        np            : the numpy module
+        PILImage      : PIL.Image module
 
     The snippet should assign one of the following names to be shown as the
     result image:
@@ -156,9 +155,6 @@ class Webcam(Widget):
     opencv_mode = BooleanProperty(
         _(
             "When True, enables the built-in OpenCV processing playground. "
-            "The capture preview is shown side-by-side with the live feed, "
-            "downloads are suppressed, and a code editor + run button are "
-            "rendered inside the widget."
         ),
         default_value=False,
         group="behavior",
@@ -216,10 +212,8 @@ class Webcam(Widget):
         self._opencv_status_elem = None  # <p> for status text
         super().__init__(*args, **kwargs)
 
-    # ------------------------------------------------------------------
-    # Capture management
-    # ------------------------------------------------------------------
 
+    # Capture management
     def _store_capture(self, capture):
         capture = dict(capture)
         capture.setdefault("type", "photo")
@@ -299,10 +293,8 @@ class Webcam(Widget):
             return None
         return base64.b64decode(data_url.split(",", 1)[1])
 
-    # ------------------------------------------------------------------
-    # Preview helpers
-    # ------------------------------------------------------------------
 
+    # Preview helpers
     def _show_capture_preview(self, capture):
         if not hasattr(self, "_capture_preview"):
             return
@@ -331,19 +323,14 @@ class Webcam(Widget):
         else:
             self._hide_capture_preview()
 
-    # ------------------------------------------------------------------
-    # Programmatic trigger
-    # ------------------------------------------------------------------
 
     def trigger(self):
         """Trigger the current action (capture photo or start/stop recording)."""
         if hasattr(self, "_shutter_btn"):
             self._shutter_btn.click()
 
-    # ------------------------------------------------------------------
-    # Mode switching
-    # ------------------------------------------------------------------
 
+    # Mode switching
     def set_mode(self, mode):
         """Set the active webcam mode when switching is enabled."""
         if self.mode != "both":
@@ -367,10 +354,8 @@ class Webcam(Widget):
             return getattr(self, "_active_mode", "photo")
         return self.mode
 
-    # ------------------------------------------------------------------
-    # Photo capture
-    # ------------------------------------------------------------------
 
+    # Photo capture
     def capture_photo(self):
         """Capture a photo from the current video stream."""
         if hasattr(self, "_canvas") and hasattr(self, "_video_elem"):
@@ -413,10 +398,8 @@ class Webcam(Widget):
 
             self.publish(self.photo_captured, webcam=self, capture=capture)
 
-    # ------------------------------------------------------------------
-    # Status helpers
-    # ------------------------------------------------------------------
 
+    # Status helpers
     def _set_status(self, text):
         if not hasattr(self, "_status_elem"):
             return
@@ -425,10 +408,8 @@ class Webcam(Widget):
     def _timestamp(self):
         return int(time.time() * 1000)
 
-    # ------------------------------------------------------------------
-    # Video recording
-    # ------------------------------------------------------------------
 
+    # Video recording
     def start_recording(self):
         if hasattr(self, "_recorder"):
             if not self._recording and self._recorder.state == "inactive":
@@ -451,10 +432,8 @@ class Webcam(Widget):
             self._set_shutter_text()
             self._set_status("Saving video...")
 
-    # ------------------------------------------------------------------
-    # Property-change callbacks
-    # ------------------------------------------------------------------
 
+    # Callbacks
     def on_mode_changed(self):
         if not hasattr(self, "_controls"):
             return
@@ -507,10 +486,8 @@ class Webcam(Widget):
                 self._captures = self._captures[overflow:]
         self._refresh_capture_preview()
 
-    # ------------------------------------------------------------------
-    # Mode-button UI helpers
-    # ------------------------------------------------------------------
 
+    # UI helpers
     def _update_mode_buttons(self):
         for btn_info in self._mode_buttons:
             btn = btn_info["element"]
@@ -532,10 +509,8 @@ class Webcam(Widget):
             text = "Take"
         self._shutter_btn._dom_element.textContent = text
 
-    # ------------------------------------------------------------------
-    # Download helper
-    # ------------------------------------------------------------------
 
+    # Download helper
     def _download_canvas_as_image(self, capture=None):
         try:
             from pyscript import window
@@ -553,10 +528,6 @@ class Webcam(Widget):
         except Exception as e:
             print(f"Error downloading photo: {e}")
 
-    # ------------------------------------------------------------------
-    # Shutter click
-    # ------------------------------------------------------------------
-
     def _on_shutter_click(self, event):
         if self._current_mode() == "photo":
             self.capture_photo()
@@ -566,10 +537,8 @@ class Webcam(Widget):
             else:
                 self.start_recording()
 
-    # ------------------------------------------------------------------
-    # Webcam stream setup
-    # ------------------------------------------------------------------
 
+    # Webcam stream
     def _setup_webcam_stream(self):
         try:
             from pyscript import window
@@ -650,10 +619,8 @@ class Webcam(Widget):
         except Exception as e:
             print(f"Error setting up recorder: {e}")
 
-    # ------------------------------------------------------------------
-    # Mode-button builder
-    # ------------------------------------------------------------------
 
+    # Determine Camera Mode (video or photo)
     def _build_mode_buttons(self):
         self._mode_buttons = []
 
@@ -681,10 +648,8 @@ class Webcam(Widget):
         self._update_mode_buttons()
         return modes_container
 
-    # ------------------------------------------------------------------
-    # OpenCV helpers
-    # ------------------------------------------------------------------
 
+    # OpenCV helpers
     def _set_opencv_status(self, text):
         """Update the status <p> element inside the OpenCV panel."""
         if self._opencv_status_elem is not None:
@@ -766,7 +731,7 @@ class Webcam(Widget):
             )
 
             if isinstance(result, _np.ndarray):
-                # Greyscale (2-D) → needs conversion for PIL
+                # Greyscale which needs PIL conversion
                 if result.ndim == 2:
                     result = _PILImage.fromarray(result)
                 else:
@@ -798,10 +763,8 @@ class Webcam(Widget):
             self._set_opencv_status(f"Error: {exc}")
             self._set_status("OpenCV error")
 
-    # ------------------------------------------------------------------
-    # OpenCV panel builder
-    # ------------------------------------------------------------------
 
+    # OpenCV UI construction
     def _build_opencv_panel(self):
         """
         Build and return the OpenCV result panel that sits below the video
@@ -812,8 +775,8 @@ class Webcam(Widget):
         only handles displaying the processed result and status.
 
         Populates:
-            self._opencv_result_img_elem – img element for the result
-            self._opencv_status_elem     – p element for status text
+            self._opencv_result_img_elem : img element for the result
+            self._opencv_status_elem     : p element for status text
         """
         # ---- result image ----
         result_img = img()
@@ -839,9 +802,12 @@ class Webcam(Widget):
 
         return opencv_panel
 
-    # ------------------------------------------------------------------
+
     # render()
-    # ------------------------------------------------------------------
+    # 
+    # This function constructs the entire DOM structure of the widget. 
+    # It is called once when the widget is first rendered, and should 
+    # return the root element.
 
     def render(self):
         """
@@ -915,15 +881,11 @@ class Webcam(Widget):
         self._capture_preview.classes.add("capture-preview")
         self._capture_preview.classes.add("hidden")
 
-        # ------------------------------------------------------------------
-        # Layout differs between normal and opencv_mode
-        # ------------------------------------------------------------------
-
         if self.opencv_mode or self._initial_opencv_mode:
             # ----------------------------------------------------------
             # opencv_mode layout
             # ----------------------------------------------------------
-            # Row 1: [live feed] [raw capture preview]  ← flex row
+            # Row 1: [live feed] [raw capture preview]  <-- flex row
             # Row 2: [opencv panel: editor + run btn + result]
 
             # Label the two panels
@@ -961,9 +923,7 @@ class Webcam(Widget):
             )
 
         else:
-            # ----------------------------------------------------------
-            # Normal (original) layout
-            # ----------------------------------------------------------
+            # Normal (vertical) layout
             element = div(
                 self._canvas,
                 video_container,
@@ -976,7 +936,7 @@ class Webcam(Widget):
         element.classes.add("invent-webcam")
         element.classes.add("webcam-container")
 
-        # Kick off the camera stream
+        # Start the camera stream!
         self._setup_webcam_stream()
 
         return element
