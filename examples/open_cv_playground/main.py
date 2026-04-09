@@ -65,9 +65,19 @@ opencv_webcam = Webcam(
     max_captures=5,
 )
 
+opencv_code_editor = CodeEditor(
+    theme="light",
+    code=opencv_webcam._DEFAULT_OPENCV_CODE,
+)
+
 
 def run_opencv_from_button(message):
-    """Run OpenCV processing on the latest captured webcam photo."""
+    """Run OpenCV processing on the latest captured webcam photo.
+
+    Syncs the external CodeEditor's current code into the webcam widget
+    before executing, so edits made in the editor are always used.
+    """
+    opencv_webcam._opencv_code = opencv_code_editor.code
     opencv_webcam.run_opencv()
 
 
@@ -85,37 +95,25 @@ app = invent.App(
         Page(
             id="testcard",
             children=[
-                Column(
-                    children=[
-                        Row(
-                            children=[
-                                Label(text="# Invent Test Card"),
-                            ]
-                        ),
-                        Label(
-                            text="This is a test card for the Invent framework. It includes all the different widgets and components in the framework, so that we can see how they look with different themes applied."
-                        ),
-                        Label(text="## Standard webcam"),
-                        preview_webcam,
-                        Label(text="## OpenCV webcam playground"),
-                        Label(
-                            text=(
-                                "Snap a photo above, edit the snippet, then press "
-                                "**Run OpenCV (channel button)**. Available names: `capture`, `image`, "
-                                "`array_of_rgb`, `array_of_bgr`, `grey`, `cv2`, `np`, "
-                                "`PILImage`. Assign any of `result_image`, "
-                                "`processed_image`, `output_image`, or `result` to "
-                                "display the output."
-                            )
-                        ),
-                        Button(
-                            text="Run OpenCV",
-                            purpose="PRIMARY",
-                            channel="opencv-controls",
-                        ),
-                        opencv_webcam,
-                    ],
+                Label(text="# Invent Test Card"),
+                Label(
+                    text="This is a test card for the Invent framework. It includes all the different widgets and components in the framework, so that we can see how they look with different themes applied."
                 ),
+                Label(text="## Standard webcam"),
+                preview_webcam,
+                Label(text="## OpenCV webcam playground"),
+                Label(
+                    text=(
+                        "Taka a photo, edit the snippet, then press Run OpenCV."
+                    )
+                ),
+                opencv_webcam,
+                Button(
+                    text="Run OpenCV",
+                    purpose="PRIMARY",
+                    channel="opencv-controls",
+                ),
+                opencv_code_editor,
             ],
         ),
     ],

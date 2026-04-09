@@ -113,11 +113,11 @@ class Webcam(Widget):
     When True the widget renders a self-contained OpenCV playground:
       • Captured image appears **side-by-side** with the live feed.
       • Automatic file downloads are suppressed regardless of photo_output.
-      • A code editor pre-filled with a starter snippet and a "Run OpenCV"
-        button are rendered below the video row.
+            • A code editor pre-filled with a starter snippet is rendered below
+                the video row.
       • The processed result is shown next to the raw capture.
 
-    The code snippet executed by "Run OpenCV" has the following names bound
+    The code snippet executed by run_opencv() has the following names bound
     in its namespace:
 
         capture       – the raw capture dict stored by the widget
@@ -175,7 +175,7 @@ class Webcam(Widget):
         _(
             "When True, enables the built-in OpenCV processing playground. "
             "The capture preview is shown side-by-side with the live feed, "
-            "downloads are suppressed, and a code editor + run button are "
+            "downloads are suppressed, and a code editor is "
             "rendered inside the widget."
         ),
         default_value=False,
@@ -919,18 +919,9 @@ class Webcam(Widget):
             )
             self._opencv_code_editor = None
 
-        # ---- run button ----
-        run_btn = button("Run OpenCV")
-        run_btn.id = f"{self.id}-opencv-run-btn"
-        run_btn.classes.add("invent-webcam-opencv-run-btn")
-        run_btn._dom_element.addEventListener(
-            "click", create_proxy(self.run_opencv)
-        )
-
         # ---- assemble panel ----
         opencv_panel = div(
             editor_element,
-            run_btn,
             status_p,
             result_container,
         )
@@ -1018,12 +1009,12 @@ class Webcam(Widget):
         # Layout differs between normal and opencv_mode
         # ------------------------------------------------------------------
 
-        if self.opencv_mode:
+        if self.opencv_mode or self._initial_opencv_mode:
             # ----------------------------------------------------------
             # opencv_mode layout
             # ----------------------------------------------------------
             # Row 1: [live feed] [raw capture preview]  ← flex row
-            # Row 2: [opencv panel: editor + run btn + result]
+            # Row 2: [opencv panel: editor + status + result]
 
             # Label the two panels
             live_label = p("Live feed")
