@@ -70,6 +70,7 @@ opencv_webcam = Webcam(
 def _on_code_changed(message):
     opencv_webcam._opencv_code = message.code
 
+
 opencv_code_editor = CodeEditor(
     theme="light",
     code=opencv_webcam._DEFAULT_OPENCV_CODE,

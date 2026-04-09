@@ -89,7 +89,6 @@ class _Cv2Compat:
         return _np.array(edges, dtype=_np.uint8)
 
 
-
 import base64
 import io
 
@@ -128,10 +127,6 @@ class Webcam(Widget):
     Any of those may be a numpy ndarray or a PIL Image; both are handled.
     If none is assigned the original captured image is shown unchanged.
     """
-
-    # ------------------------------------------------------------------
-    # Properties
-    # ------------------------------------------------------------------
 
     photo_output = ChoiceProperty(
         _("How captured photos are handled: downloaded, previewed, or both."),
@@ -177,10 +172,6 @@ class Webcam(Widget):
         "The default OpenCV snippet shown in the code editor."
     )
 
-    # ------------------------------------------------------------------
-    # Events
-    # ------------------------------------------------------------------
-
     photo_captured = Event(
         _("Sent when a photo is captured."),
         webcam=_("The Webcam widget that captured the photo."),
@@ -192,9 +183,7 @@ class Webcam(Widget):
         webcam=_("The Webcam widget that recorded the video."),
     )
 
-    # ------------------------------------------------------------------
-    # Default OpenCV starter snippet
-    # ------------------------------------------------------------------
+    # Starting Code:
 
     _DEFAULT_OPENCV_CODE = (
         "# Names available: capture, image, array_of_rgb, array_of_bgr,\n"
@@ -206,8 +195,6 @@ class Webcam(Widget):
         "edges = cv2.Canny(grey, 80, 160)\n"
         "result_image = PILImage.fromarray(edges)\n"
     )
-
-    # ------------------------------------------------------------------
 
     @classmethod
     def icon(cls):
@@ -250,24 +237,6 @@ class Webcam(Widget):
         super().__init__(*args, **kwargs)
 
     # ------------------------------------------------------------------
-    # Download / preview helpers
-    # ------------------------------------------------------------------
-
-    def _capture_output_enabled(self):
-        """True when the preview img should be shown after capture."""
-        return self.photo_output in ("preview", "both")
-
-    def _capture_download_enabled(self):
-        """
-        True when the file should be auto-downloaded after capture.
-        Downloads are always suppressed in opencv_mode.
-        """
-        use_opencv_layout = self.opencv_mode or self._initial_opencv_mode
-        if use_opencv_layout:
-            return False
-        return self.photo_output in ("download", "both")
-
-    # ------------------------------------------------------------------
     # Capture management
     # ------------------------------------------------------------------
 
@@ -287,11 +256,11 @@ class Webcam(Widget):
             if overflow > 0:
                 self._captures = self._captures[overflow:]
 
-        if capture["type"] == "photo" and self._capture_output_enabled():
-            self._show_capture_preview(capture)
-
-        # In opencv_mode, always show the raw capture in the side panel.
-        if self.opencv_mode and capture["type"] == "photo":
+        if capture["type"] == "photo" and (
+            self.photo_output in ("preview", "both")
+            or self.opencv_mode
+            or self._initial_opencv_mode
+        ):
             self._show_capture_preview(capture)
 
         return capture
@@ -366,7 +335,11 @@ class Webcam(Widget):
             self._capture_preview.classes.add("hidden")
 
     def _refresh_capture_preview(self):
-        if not self._capture_output_enabled() and not self.opencv_mode:
+        if not (
+            self.photo_output in ("preview", "both")
+            or self.opencv_mode
+            or self._initial_opencv_mode
+        ):
             self._hide_capture_preview()
             return
         latest_photo = self.latest_capture(media_type="photo")
@@ -436,10 +409,16 @@ class Webcam(Widget):
                 }
             )
 
-            if self._capture_download_enabled():
+            if self.photo_output in ("download", "both") and not (
+                self.opencv_mode or self._initial_opencv_mode
+            ):
                 self._download_canvas_as_image(capture)
 
-            if not self._capture_output_enabled() and not self.opencv_mode:
+            if not (
+                self.photo_output in ("preview", "both")
+                or self.opencv_mode
+                or self._initial_opencv_mode
+            ):
                 self._hide_capture_preview()
 
             self.publish(self.photo_captured, webcam=self, capture=capture)
@@ -969,7 +948,8 @@ class Webcam(Widget):
         # Layout differs between normal and opencv_mode
         # ------------------------------------------------------------------
 
-        if self.opencv_mode or self._initial_opencv_mode:
+        use_opencv_layout = self.opencv_mode or self._initial_opencv_mode
+        if use_opencv_layout:
             # ----------------------------------------------------------
             # opencv_mode layout
             # ----------------------------------------------------------
