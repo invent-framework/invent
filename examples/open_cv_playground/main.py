@@ -65,19 +65,25 @@ opencv_webcam = Webcam(
     max_captures=5,
 )
 
+
+# Keep the webcam's code in sync whenever the editor changes.
+def _on_code_changed(message):
+    opencv_webcam._opencv_code = message.code
+
 opencv_code_editor = CodeEditor(
     theme="light",
     code=opencv_webcam._DEFAULT_OPENCV_CODE,
 )
 
+invent.subscribe(
+    _on_code_changed,
+    to_channel=opencv_code_editor.channel,
+    when_subject="changed",
+)
+
 
 def run_opencv_from_button(message):
-    """Run OpenCV processing on the latest captured webcam photo.
-
-    Syncs the external CodeEditor's current code into the webcam widget
-    before executing, so edits made in the editor are always used.
-    """
-    opencv_webcam._opencv_code = opencv_code_editor.code
+    """Run OpenCV using the current code in the editor."""
     opencv_webcam.run_opencv()
 
 
@@ -104,7 +110,12 @@ app = invent.App(
                 Label(text="## OpenCV webcam playground"),
                 Label(
                     text=(
-                        "Taka a photo, edit the snippet, then press Run OpenCV."
+                        "Snap a photo above, edit the snippet, then press "
+                        "**Run OpenCV (channel button)**. Available names: `capture`, `image`, "
+                        "`array_of_rgb`, `array_of_bgr`, `grey`, `cv2`, `np`, "
+                        "`PILImage`. Assign any of `result_image`, "
+                        "`processed_image`, `output_image`, or `result` to "
+                        "display the output."
                     )
                 ),
                 opencv_webcam,

@@ -89,15 +89,6 @@ class _Cv2Compat:
         return _np.array(edges, dtype=_np.uint8)
 
 
-try:
-    # CodeEditor is a peer Invent widget – import lazily so webcam.py can be
-    # imported even in environments where the editor widget isn't present.
-    from invent.ui import CodeEditor as _CodeEditor
-
-    _CODE_EDITOR_AVAILABLE = True
-except ImportError:
-    _CodeEditor = None
-    _CODE_EDITOR_AVAILABLE = False
 
 import base64
 import io
@@ -113,11 +104,11 @@ class Webcam(Widget):
     When True the widget renders a self-contained OpenCV playground:
       • Captured image appears **side-by-side** with the live feed.
       • Automatic file downloads are suppressed regardless of photo_output.
-            • A code editor pre-filled with a starter snippet is rendered below
-                the video row.
+      • A code editor pre-filled with a starter snippet and a "Run OpenCV"
+        button are rendered below the video row.
       • The processed result is shown next to the raw capture.
 
-    The code snippet executed by run_opencv() has the following names bound
+    The code snippet executed by "Run OpenCV" has the following names bound
     in its namespace:
 
         capture       – the raw capture dict stored by the widget
@@ -175,7 +166,7 @@ class Webcam(Widget):
         _(
             "When True, enables the built-in OpenCV processing playground. "
             "The capture preview is shown side-by-side with the live feed, "
-            "downloads are suppressed, and a code editor is "
+            "downloads are suppressed, and a code editor + run button are "
             "rendered inside the widget."
         ),
         default_value=False,
@@ -792,14 +783,8 @@ class Webcam(Widget):
             self._set_status("Capture decode failed")
             return
 
-        # Retrieve the current snippet from the embedded CodeEditor, falling
-        # back to the stored string if the editor widget isn't available.
+        # Run the current snippet (set externally via self._opencv_code).
         code_to_run = self._opencv_code
-        if hasattr(self, "_opencv_code_editor"):
-            try:
-                code_to_run = self._opencv_code_editor.code
-            except Exception:
-                pass
 
         try:
             source_image = _PILImage.open(io.BytesIO(raw_bytes)).convert("RGB")
@@ -869,17 +854,18 @@ class Webcam(Widget):
 
     def _build_opencv_panel(self):
         """
-        Build and return the OpenCV editor + result panel that sits below
-        the video row when opencv_mode=True.
+        Build and return the OpenCV result panel that sits below the video
+        row when opencv_mode=True.
 
-        Also populates:
-            self._opencv_code_editor   – CodeEditor widget (if available)
+        The code editor and run button live outside the widget (in the app)
+        and communicate via self._opencv_code / run_opencv(). This panel
+        only handles displaying the processed result and status.
+
+        Populates:
             self._opencv_result_img_elem – img element for the result
-            self._opencv_status_elem   – p element for status text
+            self._opencv_status_elem     – p element for status text
         """
-        # ---- result image (shown in the side panel, updated after run) ----
-        # (The raw capture preview is shown in _capture_preview which lives
-        #  inside the video row.  The *processed* result goes here.)
+        # ---- result image ----
         result_img = img()
         result_img.id = f"{self.id}-opencv-result"
         result_img.classes.add("invent-webcam-opencv-result-img")
@@ -897,34 +883,8 @@ class Webcam(Widget):
         status_p.classes.add("invent-webcam-opencv-status")
         self._opencv_status_elem = status_p
 
-        # ---- code editor ----
-        if _CODE_EDITOR_AVAILABLE:
-            try:
-                editor = _CodeEditor(
-                    language="python",
-                    min_height="180px",
-                    code=self._opencv_code,
-                )
-                self._opencv_code_editor = editor
-                editor_element = editor
-            except Exception as e:
-                print(f"Could not create CodeEditor: {e}")
-                editor_element = p(
-                    "CodeEditor unavailable – edit self._opencv_code directly."
-                )
-                self._opencv_code_editor = None
-        else:
-            editor_element = p(
-                "CodeEditor widget not available – edit self._opencv_code directly."
-            )
-            self._opencv_code_editor = None
-
         # ---- assemble panel ----
-        opencv_panel = div(
-            editor_element,
-            status_p,
-            result_container,
-        )
+        opencv_panel = div(status_p, result_container)
         opencv_panel.classes.add("invent-webcam-opencv-panel")
 
         return opencv_panel
@@ -1014,7 +974,7 @@ class Webcam(Widget):
             # opencv_mode layout
             # ----------------------------------------------------------
             # Row 1: [live feed] [raw capture preview]  ← flex row
-            # Row 2: [opencv panel: editor + status + result]
+            # Row 2: [opencv panel: editor + run btn + result]
 
             # Label the two panels
             live_label = p("Live feed")
