@@ -46,11 +46,10 @@ Here is what we ask of each other:
 >
 > Thank you.
 
-We, the core maintainers of the Invent project, promise to engage
-seriously and constructively with all parties should problems arise.
-Reach out to us, in confidence.
+We promise to engage seriously and constructively with all parties should
+problems arise. Reach out to us, in confidence.
 
-Our aim is to foster a safe, enriching space for creative
+Our aim is to sustain a safe, enriching space for creative
 collaboration - rooted in care, compassion and understanding.
 
 That said, we reserve the right to exclude participants for bad faith
