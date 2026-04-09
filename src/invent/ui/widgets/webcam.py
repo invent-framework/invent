@@ -50,10 +50,6 @@ except ImportError:
     _PILImage = None
     _PILImageFilter = None
 
-_OPENCV_AVAILABLE = _cv2 is not None
-_NUMPY_AVAILABLE = _np is not None
-_PIL_AVAILABLE = _PILImage is not None
-
 
 class _Cv2Compat:
     """Minimal cv2-compatible surface for browser runtimes without cv2."""
@@ -208,26 +204,10 @@ class Webcam(Widget):
             ' 16-16a16 16 0 0 1-16 16"/></svg>'
         )
 
-    @staticmethod
-    def _coerce_bool(value):
-        """Best-effort bool coercion for initial constructor kwargs."""
-        if isinstance(value, bool):
-            return value
-        if isinstance(value, str):
-            return value.strip().lower() in {
-                "1",
-                "true",
-                "yes",
-                "on",
-            }
-        return bool(value)
-
     def __init__(self, *args, **kwargs):
         # Invent may render before all properties are fully applied. Capture
         # the requested mode from kwargs so initial layout is correct.
-        self._initial_opencv_mode = self._coerce_bool(
-            kwargs.get("opencv_mode", False)
-        )
+        self._initial_opencv_mode = bool(kwargs.get("opencv_mode", False))
         self._captures = []
         self._capture_counter = 0
         # opencv_mode internal state
@@ -240,27 +220,29 @@ class Webcam(Widget):
     # Capture management
     # ------------------------------------------------------------------
 
-    def _capture_id(self, media_type):
-        self._capture_counter += 1
-        return f"{media_type}-{self._timestamp()}-{self._capture_counter}"
-
     def _store_capture(self, capture):
         capture = dict(capture)
         capture.setdefault("type", "photo")
         capture.setdefault("timestamp", self._timestamp())
-        capture.setdefault("id", self._capture_id(capture["type"]))
+        self._capture_counter += 1
+        capture.setdefault(
+            "id",
+            f"{capture['type']}-{self._timestamp()}-{self._capture_counter}",
+        )
         self._captures.append(capture)
+
+        preview_enabled = (
+            self.photo_output in ("preview", "both")
+            or self.opencv_mode
+            or self._initial_opencv_mode
+        )
 
         if self.max_captures and self.max_captures > 0:
             overflow = len(self._captures) - self.max_captures
             if overflow > 0:
                 self._captures = self._captures[overflow:]
 
-        if capture["type"] == "photo" and (
-            self.photo_output in ("preview", "both")
-            or self.opencv_mode
-            or self._initial_opencv_mode
-        ):
+        if capture["type"] == "photo" and preview_enabled:
             self._show_capture_preview(capture)
 
         return capture
@@ -335,11 +317,12 @@ class Webcam(Widget):
             self._capture_preview.classes.add("hidden")
 
     def _refresh_capture_preview(self):
-        if not (
+        preview_enabled = (
             self.photo_output in ("preview", "both")
             or self.opencv_mode
             or self._initial_opencv_mode
-        ):
+        )
+        if not preview_enabled:
             self._hide_capture_preview()
             return
         latest_photo = self.latest_capture(media_type="photo")
@@ -367,12 +350,15 @@ class Webcam(Widget):
             return
         if mode in ["photo", "video"]:
             self._active_mode = mode
+            mode_label = (
+                "Video Mode"
+                if self._current_mode() == "video"
+                else "Photo Mode"
+            )
             if hasattr(self, "_mode_buttons"):
                 self._update_mode_buttons()
             if hasattr(self, "_mode_indicator"):
-                self._mode_indicator._dom_element.textContent = (
-                    self._mode_label()
-                )
+                self._mode_indicator._dom_element.textContent = mode_label
             if hasattr(self, "_shutter_btn"):
                 self._set_shutter_text()
 
@@ -409,16 +395,20 @@ class Webcam(Widget):
                 }
             )
 
-            if self.photo_output in ("download", "both") and not (
-                self.opencv_mode or self._initial_opencv_mode
-            ):
-                self._download_canvas_as_image(capture)
-
-            if not (
+            download_enabled = self.photo_output in (
+                "download",
+                "both",
+            ) and not (self.opencv_mode or self._initial_opencv_mode)
+            preview_enabled = (
                 self.photo_output in ("preview", "both")
                 or self.opencv_mode
                 or self._initial_opencv_mode
-            ):
+            )
+
+            if download_enabled:
+                self._download_canvas_as_image(capture)
+
+            if not preview_enabled:
                 self._hide_capture_preview()
 
             self.publish(self.photo_captured, webcam=self, capture=capture)
@@ -470,6 +460,9 @@ class Webcam(Widget):
             return
 
         self._active_mode = "photo" if self.mode == "both" else self.mode
+        mode_label = (
+            "Video Mode" if self._current_mode() == "video" else "Photo Mode"
+        )
 
         controls_el = self._controls._dom_element
         if (
@@ -494,7 +487,7 @@ class Webcam(Widget):
 
         self._set_shutter_text()
         if hasattr(self, "_mode_indicator"):
-            self._mode_indicator._dom_element.textContent = self._mode_label()
+            self._mode_indicator._dom_element.textContent = mode_label
 
         if hasattr(self, "_indicators"):
             if self.show_mode_indicator:
@@ -517,11 +510,6 @@ class Webcam(Widget):
     # ------------------------------------------------------------------
     # Mode-button UI helpers
     # ------------------------------------------------------------------
-
-    def _mode_label(self):
-        if self._current_mode() == "video":
-            return "Video Mode"
-        return "Photo Mode"
 
     def _update_mode_buttons(self):
         for btn_info in self._mode_buttons:
@@ -697,24 +685,10 @@ class Webcam(Widget):
     # OpenCV helpers
     # ------------------------------------------------------------------
 
-    @staticmethod
-    def _pil_to_data_url(pil_image):
-        """Convert a PIL Image to a PNG data URL string."""
-        buf = io.BytesIO()
-        pil_image.save(buf, format="PNG")
-        encoded = base64.b64encode(buf.getvalue()).decode("ascii")
-        return f"data:image/png;base64,{encoded}"
-
     def _set_opencv_status(self, text):
         """Update the status <p> element inside the OpenCV panel."""
         if self._opencv_status_elem is not None:
             self._opencv_status_elem._dom_element.textContent = text
-
-    def _set_opencv_result_image(self, data_url):
-        """Set the src of the OpenCV result <img> element."""
-        if self._opencv_result_img_elem is not None:
-            self._opencv_result_img_elem.src = data_url
-            self._opencv_result_img_elem.classes.remove("hidden")
 
     def run_opencv(self, event=None):
         """
@@ -729,24 +703,22 @@ class Webcam(Widget):
         self._set_opencv_status("Running OpenCV...")
         self._set_status("Running OpenCV...")
 
-        cv2_module = _cv2
-        compatibility_mode = False
-        if cv2_module is None:
-            if not (_NUMPY_AVAILABLE and _PIL_AVAILABLE):
+        if _cv2 is None:
+            if _np is None or _PILImage is None or _PILImageFilter is None:
                 self._set_opencv_status(
                     "OpenCV unavailable. Install numpy + Pillow to run compatibility mode."
                 )
                 self._set_status("OpenCV unavailable")
                 return
-            cv2_module = _Cv2Compat
-            compatibility_mode = True
 
-        if not (_NUMPY_AVAILABLE and _PIL_AVAILABLE):
+        if _np is None or _PILImage is None:
             self._set_opencv_status(
                 "Image processing requires numpy and Pillow in this runtime."
             )
             self._set_status("Image processing unavailable")
             return
+
+        cv2_module = _cv2 or _Cv2Compat
 
         capture = self.latest_capture(media_type="photo")
         if not capture:
@@ -804,18 +776,17 @@ class Webcam(Widget):
                 result = source_image  # show original if snippet set nothing
 
             if isinstance(result, _PILImage.Image):
-                data_url = self._pil_to_data_url(result)
-                self._set_opencv_result_image(data_url)
+                buf = io.BytesIO()
+                result.save(buf, format="PNG")
+                encoded = base64.b64encode(buf.getvalue()).decode("ascii")
+                self._opencv_result_img_elem.src = (
+                    f"data:image/png;base64,{encoded}"
+                )
+                self._opencv_result_img_elem.classes.remove("hidden")
                 self._set_opencv_status(
                     f"OK — {array_of_rgb.shape[1]}×{array_of_rgb.shape[0]} px  "
                     f"| capture {capture.get('id', '?')}"
                 )
-                if compatibility_mode:
-                    self._set_opencv_status(
-                        "OK (compat mode: numpy + Pillow) — "
-                        f"{array_of_rgb.shape[1]}×{array_of_rgb.shape[0]} px  "
-                        f"| capture {capture.get('id', '?')}"
-                    )
                 self._set_status("OpenCV processing complete")
             else:
                 self._set_opencv_status(
@@ -948,8 +919,7 @@ class Webcam(Widget):
         # Layout differs between normal and opencv_mode
         # ------------------------------------------------------------------
 
-        use_opencv_layout = self.opencv_mode or self._initial_opencv_mode
-        if use_opencv_layout:
+        if self.opencv_mode or self._initial_opencv_mode:
             # ----------------------------------------------------------
             # opencv_mode layout
             # ----------------------------------------------------------
