@@ -4,28 +4,16 @@ UI aspects of the Invent framework are shown in a page, and allow the user to
 select different "themes" to see how they affect the appearance of the page.
 """
 
-import base64
-import html as html_lib
-import io
 import random
 
 import invent
 from invent.ui import *
 
-try:
-    import cv2
-    import numpy as np
-    from PIL import Image as PILImage
-
-    _opencv_available = True
-except ImportError:
-    _opencv_available = False
-
 # Datastore ############################################################################
 
 await invent.setup(
     richtext="This is a **rich text editor**. It supports _formatting_, [links](https://inventframework.org/), and more!"
-)
+)  # Load default values for the datastore.
 
 # Code #################################################################################
 
@@ -89,28 +77,6 @@ invent.datastore["code_in_editor"] = """def greet(name):
 
 print(greet("world"))
 """
-# Pre-define some webcam variations
-preview_webcam = Webcam(
-    photo_output="download",
-    max_captures=5,
-)
-
-opencv_webcam = Webcam(
-    opencv_mode=True,
-    photo_output="preview",
-    max_captures=5,
-)
-
-def run_opencv_from_button(message):
-    """Run OpenCV processing on the latest captured webcam photo."""
-    opencv_webcam.run_opencv()
-
-
-invent.subscribe(
-    run_opencv_from_button,
-    to_channel="opencv-controls",
-    when_subject=["press"],
-)
 
 # User Interface #######################################################################
 
@@ -772,25 +738,10 @@ print(Hello().greet)""",
                         ),
                         Label(text="A test video player (Vimeo):"),
                         Video(source="https://vimeo.com/347119375"),
-                        Label(text="## Standard webcam"),
-                        preview_webcam,
-                        Label(text="## OpenCV webcam playground"),
-                        Label(
-                            text=(
-                                "Snap a photo above, edit the snippet, then press "
-                                "**Run OpenCV (channel button)**. Available names: `capture`, `image`, "
-                                "`array_of_rgb`, `array_of_bgr`, `grey`, `cv2`, `np`, "
-                                "`PILImage`. Assign any of `result_image`, "
-                                "`processed_image`, `output_image`, or `result` to "
-                                "display the output."
-                            )
-                        ),
-                        Button(
-                            text="Run OpenCV",
-                            purpose="PRIMARY",
-                            channel="opencv-controls",
-                        ),
-                        opencv_webcam,
+                        Label(text="A webcam with just camera:"),
+                        Webcam(mode="photo", show_mode_indicator=False),
+                        Label(text="A default webcam:"),
+                        Webcam(),
                         Label(text="## Layouts"),
                         Label(
                             text="A default fade carousel (can contain other widgets):"

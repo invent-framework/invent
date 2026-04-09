@@ -1,0 +1,6 @@
+{
+    "packages": ["opencv-python", "numpy", "Pillow"],
+    "files": {
+        "/static/invent.min.tar.gz": "./*"
+    }
+}

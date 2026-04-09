@@ -33,11 +33,6 @@ from invent.ui.core import (
 from pyscript.web import div, video, button, canvas, img, p
 from pyscript.ffi import create_proxy
 
-# ---------------------------------------------------------------------------
-# Optional OpenCV / numpy / PIL imports – webcam works fine without them.
-# In opencv_mode, cv2 is preferred but we can run a compatibility path with
-# numpy + Pillow when cv2 is unavailable in-browser.
-# ---------------------------------------------------------------------------
 try:
     import cv2 as _cv2
 except ImportError:
