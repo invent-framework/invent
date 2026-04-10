@@ -53,6 +53,7 @@ except ImportError:
 
 class _Cv2Compat:
     """Provides a small subset of OpenCV functionality using Pillow and numpy when cv2 is not available."""
+
     COLOR_RGB2BGR = 1
     COLOR_RGB2GRAY = 2
 
@@ -153,9 +154,7 @@ class Webcam(Widget):
     )
 
     opencv_mode = BooleanProperty(
-        _(
-            "When True, enables the built-in OpenCV processing playground. "
-        ),
+        _("When True, enables the built-in OpenCV processing playground. "),
         default_value=False,
         group="behavior",
     )
@@ -211,7 +210,6 @@ class Webcam(Widget):
         self._opencv_result_img_elem = None  # the <img> DOM wrapper for result
         self._opencv_status_elem = None  # <p> for status text
         super().__init__(*args, **kwargs)
-
 
     # Capture management
     def _store_capture(self, capture):
@@ -293,7 +291,6 @@ class Webcam(Widget):
             return None
         return base64.b64decode(data_url.split(",", 1)[1])
 
-
     # Preview helpers
     def _show_capture_preview(self, capture):
         if not hasattr(self, "_capture_preview"):
@@ -323,12 +320,10 @@ class Webcam(Widget):
         else:
             self._hide_capture_preview()
 
-
     def trigger(self):
         """Trigger the current action (capture photo or start/stop recording)."""
         if hasattr(self, "_shutter_btn"):
             self._shutter_btn.click()
-
 
     # Mode switching
     def set_mode(self, mode):
@@ -353,7 +348,6 @@ class Webcam(Widget):
         if self.mode == "both":
             return getattr(self, "_active_mode", "photo")
         return self.mode
-
 
     # Photo capture
     def capture_photo(self):
@@ -398,7 +392,6 @@ class Webcam(Widget):
 
             self.publish(self.photo_captured, webcam=self, capture=capture)
 
-
     # Status helpers
     def _set_status(self, text):
         if not hasattr(self, "_status_elem"):
@@ -407,7 +400,6 @@ class Webcam(Widget):
 
     def _timestamp(self):
         return int(time.time() * 1000)
-
 
     # Video recording
     def start_recording(self):
@@ -431,7 +423,6 @@ class Webcam(Widget):
             self._shutter_btn.classes.remove("recording")
             self._set_shutter_text()
             self._set_status("Saving video...")
-
 
     # Callbacks
     def on_mode_changed(self):
@@ -486,7 +477,6 @@ class Webcam(Widget):
                 self._captures = self._captures[overflow:]
         self._refresh_capture_preview()
 
-
     # UI helpers
     def _update_mode_buttons(self):
         for btn_info in self._mode_buttons:
@@ -508,7 +498,6 @@ class Webcam(Widget):
         else:
             text = "Take"
         self._shutter_btn._dom_element.textContent = text
-
 
     # Download helper
     def _download_canvas_as_image(self, capture=None):
@@ -536,7 +525,6 @@ class Webcam(Widget):
                 self.stop_recording()
             else:
                 self.start_recording()
-
 
     # Webcam stream
     def _setup_webcam_stream(self):
@@ -619,7 +607,6 @@ class Webcam(Widget):
         except Exception as e:
             print(f"Error setting up recorder: {e}")
 
-
     # Determine Camera Mode (video or photo)
     def _build_mode_buttons(self):
         self._mode_buttons = []
@@ -647,7 +634,6 @@ class Webcam(Widget):
         modes_container.classes.add("modes")
         self._update_mode_buttons()
         return modes_container
-
 
     # OpenCV helpers
     def _set_opencv_status(self, text):
@@ -763,7 +749,6 @@ class Webcam(Widget):
             self._set_opencv_status(f"Error: {exc}")
             self._set_status("OpenCV error")
 
-
     # OpenCV UI construction
     def _build_opencv_panel(self):
         """
@@ -802,11 +787,10 @@ class Webcam(Widget):
 
         return opencv_panel
 
-
     # render()
-    # 
-    # This function constructs the entire DOM structure of the widget. 
-    # It is called once when the widget is first rendered, and should 
+    #
+    # This function constructs the entire DOM structure of the widget.
+    # It is called once when the widget is first rendered, and should
     # return the root element.
 
     def render(self):
