@@ -1,4 +1,29 @@
 """
+New Implementation and planning:
+
+- I should be able to channel to a donkey 
+- the worker does the heavy lifting with the OpenCV, the donkey is in between
+  and there is a lightweight micropython section which is the existing webcam
+  in invent
+- take out everything from the widget except whats needed for4 the camera
+- OpenCV related code runs on the donkey and channel logic runs as a function in main.py
+  (a function of the invent app_
+- the donkey --> I want a worker and I want you to run this python code on the worker
+  the worker exposes OpenCV functions like find a face or run an outline
+  the donly then goes and there is a flag that you can check to see it ready
+  the user has to tell the donkey to go (I think) and tell the donkey to find a face
+  and then the donkey comes back with 
+
+cpython thigns are in the worker via the donkey
+app logic is in a function within main.py or simply within main.py
+webcam logic is in webcam
+
+"""
+
+
+
+
+"""
 A webcam widget for the Invent framework.
 
 Enables photo capture and video recording with automatic downloads.
