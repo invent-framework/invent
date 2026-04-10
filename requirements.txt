@@ -3,3 +3,4 @@ flake8
 python-minifier
 rcssmin
 watchdog
+zensical

@@ -31,7 +31,7 @@ class Progress(Widget):
 
     value = FloatProperty(_("The value to display."), default_value=None)
 
-    maximum = FloatProperty(
+    max_value = FloatProperty(
         _("The maximum allowed value."), default_value=100.0
     )
 
@@ -48,8 +48,8 @@ class Progress(Widget):
         self.element.value = self.value
         self.publish(self.changed, value=self.value)
 
-    def on_maximum_changed(self):
-        self.element.max = self.maximum
+    def on_max_value_changed(self):
+        self.element.max = self.max_value
 
     def render(self):
         return progress(id=self.id)

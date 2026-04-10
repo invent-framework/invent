@@ -20,9 +20,9 @@ limitations under the License.
 """
 
 from invent.i18n import _
-from ..core.container import Container
-from ..core.property import ChoiceProperty
-from ..core.measures import TSHIRT_SIZES, MEDIUM
+from .container import Container
+from .property import ChoiceProperty
+from .measures import TSHIRT_SIZES, MEDIUM
 
 
 class Box(Container):

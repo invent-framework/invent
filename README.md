@@ -1,10 +1,13 @@
-# Invent - an app framework for beginners
+# Invent - express yourself with code
 
 View this repository
 [via GitHub pages](https://invent-framework.github.io/invent/).
 
-This project's documentation can be found
-[here](https://invent-framework.rtfd.io).
+To view the project docs (a work in progress):
+
+```
+zensical serve
+```
 
 This project started in 2019 as "PyperCard" ~ a re-implementation of 
 [Adafruit's CircuitPython PYOA](https://github.com/adafruit/Adafruit_CircuitPython_PYOA)
@@ -73,6 +76,15 @@ The tests should open in your browser, and pass. ;-)
 ## Example applications
 
 Coming soon...
+
+## API naming conventions
+
+Invent uses explicit names for bounded values:
+
+* `min_value` / `max_value` for value ranges.
+* `min_length` / `max_length` for text length ranges.
+
+This convention is used across widgets to keep naming predictable.
 
 ## Supporters
 
