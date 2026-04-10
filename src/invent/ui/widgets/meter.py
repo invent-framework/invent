@@ -35,9 +35,11 @@ class Meter(Widget):
 
     value = FloatProperty(_("The value to display."), default_value=50.0)
 
-    minimum = FloatProperty(_("The minimum allowed value."), default_value=0.0)
+    min_value = FloatProperty(
+        _("The minimum allowed value."), default_value=0.0
+    )
 
-    maximum = FloatProperty(
+    max_value = FloatProperty(
         _("The maximum allowed value."), default_value=100.0
     )
 
@@ -77,11 +79,11 @@ class Meter(Widget):
         self.element.value = self.value
         self.publish(self.changed, value=self.value)
 
-    def on_minimum_changed(self):
-        self.element.min = self.minimum
+    def on_min_value_changed(self):
+        self.element.min = self.min_value
 
-    def on_maximum_changed(self):
-        self.element.max = self.maximum
+    def on_max_value_changed(self):
+        self.element.max = self.max_value
 
     def on_low_changed(self):
         self.element.low = self.low

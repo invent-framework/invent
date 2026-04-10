@@ -49,11 +49,11 @@ class TextInput(Widget):
         _("The placeholder text to put into the empty text box."),
         map_to_attribute="placeholder",
     )
-    minlength = IntegerProperty(
+    min_length = IntegerProperty(
         _("The minimum character length for the input."),
         map_to_attribute="minlength",
     )
-    maxlength = IntegerProperty(
+    max_length = IntegerProperty(
         _("The maximum character length for the input."),
         map_to_attribute="maxlength",
     )

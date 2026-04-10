@@ -507,7 +507,7 @@ print(Hello().greet)""",
                                 Rating(
                                     value=1,
                                     step="1",
-                                    maximum="1",
+                                    max_value="1",
                                     show_label=False,
                                 ),
                             ]
@@ -515,19 +515,19 @@ print(Hello().greet)""",
                         Row(
                             children=[
                                 Label(text="3-star half:"),
-                                Rating(value=2.5, step="0.5", maximum="3"),
+                                Rating(value=2.5, step="0.5", max_value="3"),
                             ]
                         ),
                         Row(
                             children=[
                                 Label(text="5-star:"),
-                                Rating(value=3.5, step="0.5", maximum="5"),
+                                Rating(value=3.5, step="0.5", max_value="5"),
                             ]
                         ),
                         Row(
                             children=[
                                 Label(text="5-star full:"),
-                                Rating(value=5.0, step="1", maximum="5"),
+                                Rating(value=5.0, step="1", max_value="5"),
                             ]
                         ),
                         Row(
@@ -536,7 +536,7 @@ print(Hello().greet)""",
                                 Rating(
                                     value=7.5,
                                     step="0.5",
-                                    maximum="10",
+                                    max_value="10",
                                     read_only=True,
                                 ),
                             ]

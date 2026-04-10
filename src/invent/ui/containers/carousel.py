@@ -53,7 +53,7 @@ class Carousel(Component):
     current_index = IntegerProperty(
         _("The index of the currently displayed item in the carousel."),
         default_value=0,
-        minimum=0,
+        min_value=0,
     )
 
     transition = ChoiceProperty(
