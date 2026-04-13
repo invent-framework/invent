@@ -17,12 +17,10 @@ await invent.setup()
 # Pre-define some webcam variations
 preview_webcam = Webcam(
     photo_output="download",
-    max_captures=5,
 )
 
 opencv_webcam = Webcam(
     photo_output="preview",
-    max_captures=5,
 )
 
 opencv_output = Image(
@@ -78,18 +76,30 @@ async def run_worker_action(action):
         opencv_status.text = f"Worker error: {exc}"
         return
 
-    if isinstance(result, dict) and result.get("ok"):
-        processed_data_url = result.get("data_url")
+    if result is None:
+        opencv_status.text = "Worker returned no result."
+        return
+
+    getter = getattr(result, "get", None)
+    if callable(getter):
+        ok = getter("ok")
+        processed_data_url = getter("data_url")
+        face_count = getter("count", 0)
+    else:
+        ok = False
+        processed_data_url = None
+        face_count = 0
+
+    if ok:
         if processed_data_url:
             opencv_output.image = processed_data_url
         if action == "find_face":
-            face_count = result.get("count", 0)
             opencv_status.text = f"Done. Faces found: {face_count}."
         else:
             opencv_status.text = "Done. Outline generated."
         return
 
-    opencv_status.text = "Worker returned no displayable result."
+    opencv_status.text = f"Worker returned no displayable result ({type(result).__name__})."
 
 
 async def handle_opencv_controls(message):

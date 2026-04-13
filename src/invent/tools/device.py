@@ -7,15 +7,16 @@ PyScript Donkey worker whilst keeping UI widgets lightweight.
 
 import invent
 import asyncio
+import json
 from pyscript import window
 from pyscript.ffi import to_js
 
 # Datastore flags for Donkey worker status.
 DONKEY_CREATING = "_DEVICE_DONKEY_CREATING"
-DONKEY_READY    = "_DEVICE_DONKEY_READY"
-DONKEY_BUSY     = "_DEVICE_DONKEY_BUSY"
-DONKEY_ERROR    = "_DEVICE_DONKEY_ERROR"
-DONKEY_KILLED   = "_DEVICE_DONKEY_KILLED"
+DONKEY_READY = "_DEVICE_DONKEY_READY"
+DONKEY_BUSY = "_DEVICE_DONKEY_BUSY"
+DONKEY_ERROR = "_DEVICE_DONKEY_ERROR"
+DONKEY_KILLED = "_DEVICE_DONKEY_KILLED"
 
 
 # The OpenCV worker code written to the worker's virtual filesystem as a
@@ -147,9 +148,10 @@ class OpenCVDonkey:
             raise RuntimeError("Donkey is not ready yet")
         self._set_status(DONKEY_BUSY)
         try:
-            result = await self._donkey.evaluate(
-                f"worker_run({action!r}, {data_url!r})"
+            payload = await self._donkey.evaluate(
+                f"__import__('json').dumps(worker_run({action!r}, {data_url!r}))"
             )
+            result = json.loads(payload)
             self._set_status(DONKEY_READY)
             return result
         except Exception as exc:
@@ -178,19 +180,23 @@ async def create_opencv_donkey(result_key=None, *, packages=None):
         packages = []
 
     base_packages = ["opencv-python", "numpy"]
-    all_packages = base_packages + [p for p in packages if p not in base_packages]
+    all_packages = base_packages + [
+        p for p in packages if p not in base_packages
+    ]
 
     if result_key:
         invent.datastore[result_key] = DONKEY_CREATING
 
     await _await_donkey_bridge()
 
-    options = to_js({
-        "type": "py",
-        "persistent": True,
-        "terminal": "#donkey-terminal",
-        "config": {"packages": all_packages},
-    })
+    options = to_js(
+        {
+            "type": "py",
+            "persistent": True,
+            "terminal": "#donkey-terminal",
+            "config": {"packages": all_packages},
+        }
+    )
 
     donkey = await window.__invent_make_donkey(options)
 
