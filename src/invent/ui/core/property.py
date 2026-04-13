@@ -406,11 +406,15 @@ class TextProperty(Property):
             length = len(value)
             if self.min_length and length < self.min_length:
                 raise ValidationError(
-                    _("The length of the value is less than min_value allowed.")
+                    _(
+                        "The length of the value is less than min_value allowed."
+                    )
                 )
             if self.max_length and length > self.max_length:
                 raise ValidationError(
-                    _("The length of the value is more than max_value allowed.")
+                    _(
+                        "The length of the value is more than max_value allowed."
+                    )
                 )
         return value
 

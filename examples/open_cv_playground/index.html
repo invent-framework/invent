@@ -5,23 +5,31 @@
     <meta name="viewport" content="width=device-width, initial-scale=1">
     <title>Test Card</title>
 
+    <!--
+      mini-coi sets the Cross-Origin isolation headers via a service worker,
+      enabling SharedArrayBuffer and Atomics. This is required for PyScript
+      donkey workers to access window/document on the main thread (e.g. to
+      create the terminal element). Must be the FIRST script in <head> and
+      mini-coi.js must be served from the root of your site.
+    -->
+    <script src="/mini-coi.js"></script>
+
     <!-- PyScript -->
-    <link rel="stylesheet" href="https://pyscript.net/releases/2026.2.1/core.css">
-    <script type="module" src="https://pyscript.net/releases/2026.2.1/core.js"></script>
+    <link rel="stylesheet" href="https://pyscript.net/releases/2026.3.1/core.css">
+    <script type="module" src="https://pyscript.net/releases/2026.3.1/core.js"></script>
 
     <style id="invent-theme">
-      /* Honour the OS light/dark preference via browser defaults. */
       :root { color-scheme: light dark; }
 
       html { height: 100%; }
- 
+
       body {
         display:     grid;
         place-items: center;
         min-height:  100vh;
         margin:      0;
       }
- 
+
       #loader {
         width:        6rem;
         height:       6rem;
@@ -31,20 +39,33 @@
         animation: spin .8s linear infinite,
                    fade 1s ease forwards;
       }
- 
-      @keyframes spin {
-        to { transform: rotate(360deg); }
-      }
- 
-      @keyframes fade {
-        from { opacity: 0; }
-        to   { opacity: 1; }
-      }
+
+      @keyframes spin { to { transform: rotate(360deg); } }
+      @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
+
+      /* The donkey terminal is functional but not part of the app UI. */
+      #donkey-terminal { display: none; }
     </style>
-</head>
-<!-- <body class="app-view"> for native app look (full width)-->
-<body> <!-- default "website" look (responsive width) -->
-  <div id="loader" role="status" aria-label="Loading, please wait"></div>
-  <script type="py" src="./main.py" config="./config.json"></script>
-</body>
+  </head>
+  <body>
+    <div id="loader" role="status" aria-label="Loading, please wait"></div>
+
+    <!--
+      Pre-existing hidden terminal element for the donkey worker.
+      Pointing terminal at a real DOM element that already exists means
+      the donkey never needs to touch document.createElement from the
+      worker side, avoiding the SharedArrayBuffer/window access error.
+    -->
+    <div id="donkey-terminal"></div>
+
+    <script type="module">
+      import { donkey } from "https://pyscript.net/releases/2026.3.1/core.js";
+
+      window.__invent_make_donkey = async (options) => {
+        return await donkey(options);
+      };
+    </script>
+
+    <script type="mpy" src="./main.py" config="./config.json"></script>
+  </body>
 </html>

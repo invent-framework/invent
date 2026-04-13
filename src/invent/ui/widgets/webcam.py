@@ -1,35 +1,8 @@
 """
-New Implementation and planning:
-
-- I should be able to channel to a donkey 
-- the worker does the heavy lifting with the OpenCV, the donkey is in between
-  and there is a lightweight micropython section which is the existing webcam
-  in invent
-- take out everything from the widget except whats needed for4 the camera
-- OpenCV related code runs on the donkey and channel logic runs as a function in main.py
-  (a function of the invent app_
-- the donkey --> I want a worker and I want you to run this python code on the worker
-  the worker exposes OpenCV functions like find a face or run an outline
-  the donly then goes and there is a flag that you can check to see it ready
-  the user has to tell the donkey to go (I think) and tell the donkey to find a face
-  and then the donkey comes back with 
-
-cpython thigns are in the worker via the donkey
-app logic is in a function within main.py or simply within main.py
-webcam logic is in webcam
-
-"""
-
-
-
-
-"""
 A webcam widget for the Invent framework.
 
 Enables photo capture and video recording with automatic downloads.
 Supports live video preview from the user's webcam.
-Supports an opencv_mode for running OpenCV processing on captured images,
-with side-by-side layout and no automatic downloads.
 
 Copyright (c) 2019-present Invent contributors.
 
@@ -55,98 +28,14 @@ from invent.ui.core import (
     Event,
     IntegerProperty,
 )
-from pyscript.web import div, video, button, canvas, img, p
+from pyscript.web import div, video, button, canvas, img
 from pyscript.ffi import create_proxy
-
-try:
-    import cv2 as _cv2
-except ImportError:
-    _cv2 = None
-
-try:
-    import numpy as _np
-except ImportError:
-    _np = None
-
-try:
-    from PIL import Image as _PILImage
-    from PIL import ImageFilter as _PILImageFilter
-except ImportError:
-    _PILImage = None
-    _PILImageFilter = None
-
-
-class _Cv2Compat:
-    """Provides a small subset of OpenCV functionality using Pillow and numpy when cv2 is not available."""
-
-    COLOR_RGB2BGR = 1
-    COLOR_RGB2GRAY = 2
-
-    @staticmethod
-    def cvtColor(array, code):
-        if _np is None:
-            raise RuntimeError("numpy is required for cv2 compatibility mode")
-
-        if code == _Cv2Compat.COLOR_RGB2BGR:
-            return array[..., ::-1].copy()
-
-        if code == _Cv2Compat.COLOR_RGB2GRAY:
-            if array.ndim != 3 or array.shape[2] < 3:
-                raise ValueError("Expected RGB image with shape (H, W, 3)")
-            grey = _np.dot(array[..., :3], _np.array([0.299, 0.587, 0.114]))
-            return grey.astype(_np.uint8)
-
-        raise ValueError(f"Unsupported color conversion code: {code}")
-
-    @staticmethod
-    def Canny(grey, threshold1, threshold2):
-        del threshold1, threshold2
-        if _PILImage is None or _PILImageFilter is None or _np is None:
-            raise RuntimeError(
-                "Pillow and numpy are required for edge detection"
-            )
-        pil = _PILImage.fromarray(grey.astype(_np.uint8), mode="L")
-        edges = pil.filter(_PILImageFilter.FIND_EDGES)
-        return _np.array(edges, dtype=_np.uint8)
-
-
 import base64
-import io
 
 
 class Webcam(Widget):
     """
-    A webcam widget with photo capture, video recording, and optional
-    OpenCV processing capabilities.
-
-    opencv_mode
-    -----------
-    When True the widget renders a self-contained OpenCV playground:
-      • Captured image appears **side-by-side** with the live feed.
-      • Automatic file downloads are suppressed regardless of photo_output.
-      • A code editor pre-filled with a starter snippet and a "Run OpenCV"
-        button are rendered below the video row.
-      • The processed result is shown next to the raw capture.
-
-    The code snippet executed by "Run OpenCV" has the following names bound
-    in its namespace:
-
-        capture       : the raw capture dict stored by the widget
-        image         : PIL Image (RGB) of the captured photo
-        array_of_rgb  : numpy uint8 array, shape (H, W, 3), RGB order
-        array_of_bgr  : numpy uint8 array, shape (H, W, 3), BGR order
-        grey          : numpy uint8 array, shape (H, W),    greyscale
-        cv2           : the cv2 module
-        np            : the numpy module
-        PILImage      : PIL.Image module
-
-    The snippet should assign one of the following names to be shown as the
-    result image:
-
-        result_image | processed_image | output_image | result
-
-    Any of those may be a numpy ndarray or a PIL Image; both are handled.
-    If none is assigned the original captured image is shown unchanged.
+    A webcam widget with photo capture and video recording.
     """
 
     photo_output = ChoiceProperty(
@@ -161,7 +50,7 @@ class Webcam(Widget):
             "The maximum number of captured images and recordings to keep in memory."
         ),
         default_value=10,
-        minimum=0,
+        min_value=0,
         group="behavior",
     )
 
@@ -178,16 +67,6 @@ class Webcam(Widget):
         group="style",
     )
 
-    opencv_mode = BooleanProperty(
-        _("When True, enables the built-in OpenCV processing playground. "),
-        default_value=False,
-        group="behavior",
-    )
-
-    opencv_default_code = _(
-        "The default OpenCV snippet shown in the code editor."
-    )
-
     photo_captured = Event(
         _("Sent when a photo is captured."),
         webcam=_("The Webcam widget that captured the photo."),
@@ -197,19 +76,6 @@ class Webcam(Widget):
     video_recorded = Event(
         _("Sent when a video is recorded."),
         webcam=_("The Webcam widget that recorded the video."),
-    )
-
-    # Starting Code:
-
-    _DEFAULT_OPENCV_CODE = (
-        "# Names available: capture, image, array_of_rgb, array_of_bgr,\n"
-        "# grey, cv2, np, PILImage\n"
-        "#\n"
-        "# Assign result_image (PIL Image or numpy array) to show output.\n"
-        "\n"
-        "grey = cv2.cvtColor(array_of_rgb, cv2.COLOR_RGB2GRAY)\n"
-        "edges = cv2.Canny(grey, 80, 160)\n"
-        "result_image = PILImage.fromarray(edges)\n"
     )
 
     @classmethod
@@ -225,15 +91,8 @@ class Webcam(Widget):
         )
 
     def __init__(self, *args, **kwargs):
-        # Invent may render before all properties are fully applied. Capture
-        # the requested mode from kwargs so initial layout is correct.
-        self._initial_opencv_mode = bool(kwargs.get("opencv_mode", False))
         self._captures = []
         self._capture_counter = 0
-        # opencv_mode internal state
-        self._opencv_code = self._DEFAULT_OPENCV_CODE
-        self._opencv_result_img_elem = None  # the <img> DOM wrapper for result
-        self._opencv_status_elem = None  # <p> for status text
         super().__init__(*args, **kwargs)
 
     # Capture management
@@ -248,11 +107,7 @@ class Webcam(Widget):
         )
         self._captures.append(capture)
 
-        preview_enabled = (
-            self.photo_output in ("preview", "both")
-            or self.opencv_mode
-            or self._initial_opencv_mode
-        )
+        preview_enabled = self.photo_output in ("preview", "both")
 
         if self.max_captures and self.max_captures > 0:
             overflow = len(self._captures) - self.max_captures
@@ -331,11 +186,7 @@ class Webcam(Widget):
             self._capture_preview.classes.add("hidden")
 
     def _refresh_capture_preview(self):
-        preview_enabled = (
-            self.photo_output in ("preview", "both")
-            or self.opencv_mode
-            or self._initial_opencv_mode
-        )
+        preview_enabled = self.photo_output in ("preview", "both")
         if not preview_enabled:
             self._hide_capture_preview()
             return
@@ -402,12 +253,8 @@ class Webcam(Widget):
             download_enabled = self.photo_output in (
                 "download",
                 "both",
-            ) and not (self.opencv_mode or self._initial_opencv_mode)
-            preview_enabled = (
-                self.photo_output in ("preview", "both")
-                or self.opencv_mode
-                or self._initial_opencv_mode
             )
+            preview_enabled = self.photo_output in ("preview", "both")
 
             if download_enabled:
                 self._download_canvas_as_image(capture)
@@ -660,171 +507,9 @@ class Webcam(Widget):
         self._update_mode_buttons()
         return modes_container
 
-    # OpenCV helpers
-    def _set_opencv_status(self, text):
-        """Update the status <p> element inside the OpenCV panel."""
-        if self._opencv_status_elem is not None:
-            self._opencv_status_elem._dom_element.textContent = text
-
-    def run_opencv(self, event=None):
-        """
-        Execute the OpenCV snippet from the embedded code editor against
-        the most recent captured photo.
-
-        This method is also callable from outside the widget, e.g. from
-        main.py, if you keep a reference to the Webcam instance:
-
-            my_webcam.run_opencv()
-        """
-        self._set_opencv_status("Running OpenCV...")
-        self._set_status("Running OpenCV...")
-
-        if _cv2 is None:
-            if _np is None or _PILImage is None or _PILImageFilter is None:
-                self._set_opencv_status(
-                    "OpenCV unavailable. Install numpy + Pillow to run compatibility mode."
-                )
-                self._set_status("OpenCV unavailable")
-                return
-
-        if _np is None or _PILImage is None:
-            self._set_opencv_status(
-                "Image processing requires numpy and Pillow in this runtime."
-            )
-            self._set_status("Image processing unavailable")
-            return
-
-        cv2_module = _cv2 or _Cv2Compat
-
-        capture = self.latest_capture(media_type="photo")
-        if not capture:
-            self._set_opencv_status(
-                "No photo captured yet. Press 'Take' first."
-            )
-            self._set_status("No photo to process")
-            return
-
-        raw_bytes = self.photo_bytes(capture=capture)
-        if raw_bytes is None:
-            self._set_opencv_status("Could not decode the latest capture.")
-            self._set_status("Capture decode failed")
-            return
-
-        # Run the current snippet (set externally via self._opencv_code).
-        code_to_run = self._opencv_code
-
-        try:
-            source_image = _PILImage.open(io.BytesIO(raw_bytes)).convert("RGB")
-            array_of_rgb = _np.array(source_image)
-            array_of_bgr = cv2_module.cvtColor(
-                array_of_rgb, cv2_module.COLOR_RGB2BGR
-            )
-            grey = cv2_module.cvtColor(array_of_rgb, cv2_module.COLOR_RGB2GRAY)
-
-            namespace = {
-                "capture": capture,
-                "image": source_image,
-                "array_of_rgb": array_of_rgb,
-                "array_of_bgr": array_of_bgr,
-                "grey": grey,
-                "cv2": cv2_module,
-                "np": _np,
-                "PILImage": _PILImage,
-            }
-
-            exec(code_to_run, namespace, namespace)  # noqa: S102
-
-            result = (
-                namespace.get("result_image")
-                or namespace.get("processed_image")
-                or namespace.get("output_image")
-                or namespace.get("result")
-            )
-
-            if isinstance(result, _np.ndarray):
-                # Greyscale which needs PIL conversion
-                if result.ndim == 2:
-                    result = _PILImage.fromarray(result)
-                else:
-                    result = _PILImage.fromarray(result)
-
-            if result is None:
-                result = source_image  # show original if snippet set nothing
-
-            if isinstance(result, _PILImage.Image):
-                buf = io.BytesIO()
-                result.save(buf, format="PNG")
-                encoded = base64.b64encode(buf.getvalue()).decode("ascii")
-                self._opencv_result_img_elem.src = (
-                    f"data:image/png;base64,{encoded}"
-                )
-                self._opencv_result_img_elem.classes.remove("hidden")
-                self._set_opencv_status(
-                    f"OK — {array_of_rgb.shape[1]}×{array_of_rgb.shape[0]} px  "
-                    f"| capture {capture.get('id', '?')}"
-                )
-                self._set_status("OpenCV processing complete")
-            else:
-                self._set_opencv_status(
-                    "Snippet did not produce a displayable image."
-                )
-                self._set_status("OpenCV produced no displayable image")
-
-        except Exception as exc:
-            self._set_opencv_status(f"Error: {exc}")
-            self._set_status("OpenCV error")
-
-    # OpenCV UI construction
-    def _build_opencv_panel(self):
-        """
-        Build and return the OpenCV result panel that sits below the video
-        row when opencv_mode=True.
-
-        The code editor and run button live outside the widget (in the app)
-        and communicate via self._opencv_code / run_opencv(). This panel
-        only handles displaying the processed result and status.
-
-        Populates:
-            self._opencv_result_img_elem : img element for the result
-            self._opencv_status_elem     : p element for status text
-        """
-        # ---- result image ----
-        result_img = img()
-        result_img.id = f"{self.id}-opencv-result"
-        result_img.classes.add("invent-webcam-opencv-result-img")
-        result_img.classes.add("hidden")
-        self._opencv_result_img_elem = result_img
-
-        result_label_el = p("Processed result:")
-        result_label_el.classes.add("invent-webcam-opencv-label")
-
-        result_container = div(result_label_el, result_img)
-        result_container.classes.add("invent-webcam-opencv-result-panel")
-
-        # ---- status line ----
-        status_p = p("Run OpenCV to see results.")
-        status_p.classes.add("invent-webcam-opencv-status")
-        self._opencv_status_elem = status_p
-
-        # ---- assemble panel ----
-        opencv_panel = div(status_p, result_container)
-        opencv_panel.classes.add("invent-webcam-opencv-panel")
-
-        return opencv_panel
-
-    # render()
-    #
-    # This function constructs the entire DOM structure of the widget.
-    # It is called once when the widget is first rendered, and should
-    # return the root element.
-
     def render(self):
         """
         Render the webcam widget.
-
-        Normal mode  → identical layout to the original widget.
-        opencv_mode  → video + raw-capture side-by-side in a flex row,
-                       followed by a code-editor + result panel below.
         """
         # ---- hidden canvas for photo capture ----
         self._canvas = canvas()
@@ -890,57 +575,14 @@ class Webcam(Widget):
         self._capture_preview.classes.add("capture-preview")
         self._capture_preview.classes.add("hidden")
 
-        if self.opencv_mode or self._initial_opencv_mode:
-            # ----------------------------------------------------------
-            # opencv_mode layout
-            # ----------------------------------------------------------
-            # Row 1: [live feed] [raw capture preview]  <-- flex row
-            # Row 2: [opencv panel: editor + run btn + result]
-
-            # Label the two panels
-            live_label = p("Live feed")
-            live_label.classes.add("invent-webcam-opencv-label")
-
-            capture_label = p("Captured image")
-            capture_label.classes.add("invent-webcam-opencv-label")
-
-            live_col = div(live_label, video_container, self._controls)
-            live_col.classes.add("invent-webcam-opencv-col")
-
-            capture_preview_box = div(self._capture_preview)
-            capture_preview_box.classes.add("invent-webcam-box")
-            capture_preview_box.classes.add("webcam-box")
-            capture_preview_box.classes.add("invent-webcam-opencv-preview-box")
-
-            capture_col = div(
-                capture_label,
-                capture_preview_box,
-                self._indicators,
-            )
-            capture_col.classes.add("invent-webcam-opencv-col")
-
-            video_row = div(live_col, capture_col)
-            video_row.classes.add("invent-webcam-opencv-video-row")
-
-            opencv_panel = self._build_opencv_panel()
-
-            element = div(
-                self._canvas,
-                video_row,
-                opencv_panel,
-                id=self.id,
-            )
-
-        else:
-            # Normal (vertical) layout
-            element = div(
-                self._canvas,
-                video_container,
-                self._controls,
-                self._indicators,
-                self._capture_preview,
-                id=self.id,
-            )
+        element = div(
+            self._canvas,
+            video_container,
+            self._controls,
+            self._indicators,
+            self._capture_preview,
+            id=self.id,
+        )
 
         element.classes.add("invent-webcam")
         element.classes.add("webcam-container")
