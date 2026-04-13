@@ -45,15 +45,6 @@ class Webcam(Widget):
         group="behavior",
     )
 
-    max_captures = IntegerProperty(
-        _(
-            "The maximum number of captured images and recordings to keep in memory."
-        ),
-        default_value=10,
-        min_value=0,
-        group="behavior",
-    )
-
     mode = ChoiceProperty(
         _("Webcam mode: photo, video, or both."),
         default_value="both",
@@ -108,11 +99,6 @@ class Webcam(Widget):
         self._captures.append(capture)
 
         preview_enabled = self.photo_output in ("preview", "both")
-
-        if self.max_captures and self.max_captures > 0:
-            overflow = len(self._captures) - self.max_captures
-            if overflow > 0:
-                self._captures = self._captures[overflow:]
 
         if capture["type"] == "photo" and preview_enabled:
             self._show_capture_preview(capture)
@@ -340,13 +326,6 @@ class Webcam(Widget):
     def on_photo_output_changed(self):
         if not hasattr(self, "_capture_preview"):
             return
-        self._refresh_capture_preview()
-
-    def on_max_captures_changed(self):
-        if self.max_captures and self.max_captures > 0:
-            overflow = len(self._captures) - self.max_captures
-            if overflow > 0:
-                self._captures = self._captures[overflow:]
         self._refresh_capture_preview()
 
     # UI helpers
