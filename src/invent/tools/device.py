@@ -51,47 +51,46 @@ def _encode_png_data_url(image):
     return "data:image/png;base64," + payload
 
 
-def worker_find_face(data_url):
-    image = _decode_data_url(data_url)
-    grey = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    detector = cv2.CascadeClassifier(
-        cv2.data.haarcascades + "haarcascade_frontalface_default.xml"
-    )
-    faces = detector.detectMultiScale(
-        grey,
-        scaleFactor=1.2,
-        minNeighbors=5,
-        minSize=(40, 40),
-    )
-    for x, y, w, h in faces:
-        cv2.rectangle(image, (x, y), (x + w, y + h), (0, 255, 0), 2)
-    return {
-        "ok": True,
-        "kind": "find_face",
-        "count": int(len(faces)),
-        "data_url": _encode_png_data_url(image),
+def worker_run_user_code(user_code, data_url):
+    image_bgr = _decode_data_url(data_url)
+    image_rgb = cv2.cvtColor(image_bgr, cv2.COLOR_BGR2RGB)
+    grey = cv2.cvtColor(image_bgr, cv2.COLOR_BGR2GRAY)
+
+    namespace = {
+        "cv2": cv2,
+        "np": np,
+        "image_bgr": image_bgr,
+        "image_rgb": image_rgb,
+        "grey": grey,
+        "result_image": None,
+        "result": None,
     }
 
+    exec(user_code, namespace, namespace)  # noqa: S102
 
-def worker_outline(data_url):
-    image = _decode_data_url(data_url)
-    grey = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    edges = cv2.Canny(grey, 80, 160)
-    outlined = cv2.cvtColor(edges, cv2.COLOR_GRAY2BGR)
+    result = namespace.get("result_image")
+    if result is None:
+        result = namespace.get("result")
+    if result is None:
+        result = image_bgr
+
+    if not isinstance(result, np.ndarray):
+        raise ValueError(
+            "Your code must assign a numpy ndarray to result_image or result"
+        )
+
+    if result.ndim == 2:
+        result = cv2.cvtColor(result, cv2.COLOR_GRAY2BGR)
+    elif result.ndim == 3 and result.shape[2] == 3:
+        pass
+    else:
+        raise ValueError("Unsupported result_image shape")
+
     return {
         "ok": True,
-        "kind": "outline",
-        "count": 0,
-        "data_url": _encode_png_data_url(outlined),
+        "kind": "user_code",
+        "data_url": _encode_png_data_url(result),
     }
-
-
-def worker_run(action, data_url):
-    if action == "find_face":
-        return worker_find_face(data_url)
-    if action == "outline":
-        return worker_outline(data_url)
-    raise ValueError("Unsupported worker action: " + str(action))
 """
 
 
@@ -143,13 +142,15 @@ class OpenCVDonkey:
         self._ready = True
         self._set_status(DONKEY_READY)
 
-    async def run(self, action, data_url):
+    async def run_code(self, code, data_url):
         if not self._ready:
             raise RuntimeError("Donkey is not ready yet")
         self._set_status(DONKEY_BUSY)
         try:
             payload = await self._donkey.evaluate(
-                f"__import__('json').dumps(worker_run({action!r}, {data_url!r}))"
+                "__import__('json').dumps(worker_run_user_code(" 
+                f"{code!r}, {data_url!r}" 
+                "))"
             )
             result = json.loads(payload)
             self._set_status(DONKEY_READY)

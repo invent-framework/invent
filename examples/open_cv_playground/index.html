@@ -6,6 +6,7 @@
     <title>Test Card</title>
 
     <!--
+      https://docs.pyscript.net/2026.3.1/faq/#sharedarraybuffer
       mini-coi sets the Cross-Origin isolation headers via a service worker,
       enabling SharedArrayBuffer and Atomics. This is required for PyScript
       donkey workers to access window/document on the main thread (e.g. to
@@ -19,17 +20,18 @@
     <script type="module" src="https://pyscript.net/releases/2026.3.1/core.js"></script>
 
     <style id="invent-theme">
+      /* Honour the OS light/dark preference via browser defaults. */
       :root { color-scheme: light dark; }
 
       html { height: 100%; }
-
+ 
       body {
         display:     grid;
         place-items: center;
         min-height:  100vh;
         margin:      0;
       }
-
+ 
       #loader {
         width:        6rem;
         height:       6rem;
@@ -39,12 +41,15 @@
         animation: spin .8s linear infinite,
                    fade 1s ease forwards;
       }
-
-      @keyframes spin { to { transform: rotate(360deg); } }
-      @keyframes fade { from { opacity: 0; } to { opacity: 1; } }
-
-      /* The donkey terminal is functional but not part of the app UI. */
-      #donkey-terminal { display: none; }
+ 
+      @keyframes spin {
+        to { transform: rotate(360deg); }
+      }
+ 
+      @keyframes fade {
+        from { opacity: 0; }
+        to   { opacity: 1; }
+      }
     </style>
   </head>
   <body>
@@ -56,7 +61,7 @@
       the donkey never needs to touch document.createElement from the
       worker side, avoiding the SharedArrayBuffer/window access error.
     -->
-    <div id="donkey-terminal"></div>
+    <div id="donkey-terminal" style="display: none;"></div>
 
     <script type="module">
       import { donkey } from "https://pyscript.net/releases/2026.3.1/core.js";

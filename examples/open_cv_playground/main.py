@@ -28,7 +28,20 @@ opencv_output = Image(
 )
 
 opencv_status = Label(
-    text="Donkey idle. Press 'Start Donkey' to initialize the worker.",
+    text="Donkey starting...",
+)
+
+default_code = (
+    "# Available variables: image_bgr, image_rgb, grey, cv2, np\n"
+    "# Set result_image (or result) to a numpy ndarray.\n"
+    "# Example: start with the current frame and modify it however you like.\n\n"
+    "result_image = image_bgr.copy()\n"
+)
+
+opencv_code_editor = CodeEditor(
+    code=default_code,
+    language="python",
+    min_height="280px",
 )
 
 opencv_worker = None
@@ -46,7 +59,7 @@ async def ensure_worker():
             result_key="opencv.worker.status"
         )
         opencv_status.text = (
-            "Donkey ready. Capture a photo and choose an action."
+            "Donkey ready. Capture a photo and run your code."
         )
     except Exception as exc:
         opencv_status.text = f"Failed to start donkey worker: {exc}"
@@ -59,7 +72,7 @@ def _latest_capture_data_url():
     return capture.get("data_url")
 
 
-async def run_worker_action(action):
+async def run_worker_code():
     if opencv_worker is None or not opencv_worker.ready:
         opencv_status.text = "Donkey is not ready. Press 'Start Donkey' first."
         return
@@ -69,9 +82,14 @@ async def run_worker_action(action):
         opencv_status.text = "Capture a photo first, then run an action."
         return
 
-    opencv_status.text = f"Running {action}..."
+    code = opencv_code_editor.code or ""
+    if not code.strip():
+        opencv_status.text = "Write some OpenCV code first."
+        return
+
+    opencv_status.text = "Running code..."
     try:
-        result = await opencv_worker.run(action, data_url)
+        result = await opencv_worker.run_code(code, data_url)
     except Exception as exc:
         opencv_status.text = f"Worker error: {exc}"
         return
@@ -84,37 +102,26 @@ async def run_worker_action(action):
     if callable(getter):
         ok = getter("ok")
         processed_data_url = getter("data_url")
-        face_count = getter("count", 0)
     else:
         ok = False
         processed_data_url = None
-        face_count = 0
 
     if ok:
         if processed_data_url:
             opencv_output.image = processed_data_url
-        if action == "find_face":
-            opencv_status.text = f"Done. Faces found: {face_count}."
-        else:
-            opencv_status.text = "Done. Outline generated."
+        opencv_status.text = "Done. Custom OpenCV code executed."
         return
 
-    opencv_status.text = f"Worker returned no displayable result ({type(result).__name__})."
+    opencv_status.text = (
+        f"Worker returned no displayable result ({type(result).__name__})."
+    )
 
 
 async def handle_opencv_controls(message):
     button_name = getattr(message.source, "name", "")
 
-    if button_name == "start_donkey_button":
-        await ensure_worker()
-        return
-
-    if button_name == "find_face_button":
-        await run_worker_action("find_face")
-        return
-
-    if button_name == "outline_button":
-        await run_worker_action("outline")
+    if button_name == "run_code_button":
+        await run_worker_code()
 
 
 invent.subscribe(
@@ -124,7 +131,7 @@ invent.subscribe(
 )
 
 
-# Lazy boot so the first interaction is still explicit via Start Donkey.
+# Lazy boot so the worker starts automatically when the page loads.
 asyncio.create_task(ensure_worker())
 
 # User Interface #######################################################################
@@ -145,28 +152,17 @@ app = invent.App(
                 Label(
                     text=(
                         "The webcam remains lightweight and only captures images. "
-                        "OpenCV runs in a Donkey worker. "
-                        "Press **Start Donkey**, capture a photo, then run **Find Face** "
-                        "or **Outline**."
+                        "OpenCV runs in a Donkey worker and starts automatically. "
+                        "Capture a photo, write code, then press **Run Code**."
                     )
                 ),
                 opencv_webcam,
                 Button(
-                    text="Start Donkey",
-                    name="start_donkey_button",
-                    purpose="PRIMARY",
+                    text="Run Code",
+                    name="run_code_button",
                     channel="opencv-controls",
                 ),
-                Button(
-                    text="Find Face",
-                    name="find_face_button",
-                    channel="opencv-controls",
-                ),
-                Button(
-                    text="Outline",
-                    name="outline_button",
-                    channel="opencv-controls",
-                ),
+                opencv_code_editor,
                 opencv_status,
                 Label(text="Processed output"),
                 opencv_output,
