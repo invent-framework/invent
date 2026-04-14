@@ -21,6 +21,7 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
+import base64
 import json
 from pyscript import Storage, window
 from .channels import Message, publish
@@ -107,19 +108,6 @@ class DataBackend:
         Synchronise the data store with the backend.
         """
         raise NotImplementedError()
-
-    def update(self, *args, **kwargs):
-        """
-        For each key/value pair in the iterable, insert them into the
-        data store.
-        """
-        new_items = {}
-        for arg in args:
-            if isinstance(arg, dict):
-                new_items.update(arg)
-        new_items.update(kwargs)
-        for key, value in new_items.items():
-            self[key] = value
 
     def values(self):
         """
@@ -262,20 +250,15 @@ class LocalStorageBackend(DataBackend):
         Get and JSON deserialize the item stored against the given `key`.
         """
         if key in self:
-            return json.loads(self.store.getItem(self._namespace_key(key)))
+            return self.store.getItem(self._namespace_key(key))
         else:
             raise KeyError(key)
 
     def __setitem__(self, key, value):
         """
         Set the `value` (as a JSON string) against the given `key`.
-
-        The underlying JavaScript Storage only stored values as strings.
         """
-        result = self.store.setItem(
-            self._namespace_key(key), json.dumps(value)
-        )
-        return result
+        return self.store.setItem(self._namespace_key(key), value)
 
     def __delitem__(self, key):
         """
@@ -331,10 +314,12 @@ class DataStore(DataBackend):
         Any `**kwargs` are passed to the backend.
         """
         if _backend is None:
-            _backend = LocalStorageBackend(**kwargs)
+            _backend = LocalStorageBackend()
         else:
-            _backend.update(**kwargs)
+            _backend.update()
         self.backend = _backend
+        if kwargs:
+            self.update(**kwargs)
 
     def clear(self):
         """
@@ -358,16 +343,36 @@ class DataStore(DataBackend):
         """
         Get the value stored against the given  `key`.
         """
-        return self.backend[key]
+        raw_value = self.backend[key]
+        value = json.loads(raw_value)
+        if isinstance(value, dict) and "__bytearray__" in value:
+            # This is a base64 encoded bytearray, so decode it back to a bytearray.
+            return base64.b64decode(value["__bytearray__"])
+        return value
 
     def __setitem__(self, key, value):
         """
         Set the `value` against the given `key`.
 
+        If the `value` is of type `bytes` or a `bytearray`, it is base64
+        encoded and wrapped in a dictionary to allow it to be JSON serialized.
+        This is because the underlying storage only stores values as strings.
+
         Publishes a message whose type is the item's `key`, along with the new
         `value`, to the `self.DATASTORE_SET_CHANNEL` channel.
         """
-        self.backend[key] = value
+        stored_value = value
+        if isinstance(value, (bytes, bytearray)):
+            stored_value = {
+                "__bytearray__": base64.b64encode(value).decode("utf-8")
+            }
+        try:
+            stored_value = json.dumps(stored_value)
+        except TypeError as e:
+            raise ValueError(
+                f"Value for key '{key}' is not JSON serializable: {e}"
+            )
+        self.backend[key] = stored_value
         publish(
             Message(subject=key, value=value),
             to_channel=self.DATASTORE_SET_CHANNEL,
@@ -385,3 +390,16 @@ class DataStore(DataBackend):
             Message(subject=key),
             to_channel=self.DATASTORE_DELETE_CHANNEL,
         )
+
+    def update(self, *args, **kwargs):
+        """
+        For each key/value pair in the iterable, insert them into the
+        data store.
+        """
+        new_items = {}
+        for arg in args:
+            if isinstance(arg, dict):
+                new_items.update(arg)
+        new_items.update(kwargs)
+        for key, value in new_items.items():
+            self[key] = value

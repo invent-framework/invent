@@ -62,8 +62,9 @@ def test_datastore_copy():
     ds = invent.DataStore()
     ds["a"] = 1
     ds["b"] = 2
+    ds["c"] = b"foo"
     copy_ds = ds.copy()
-    assert copy_ds == {"a": 1, "b": 2}
+    assert copy_ds == {"a": 1, "b": 2, "c": b"foo"}, copy_ds
     assert copy_ds is not ds
 
 
@@ -73,7 +74,9 @@ def test_datastore_get_with_value():
     """
     ds = invent.DataStore()
     ds["a"] = 1
+    ds["b"] = b"foo"
     assert ds.get("a") == 1
+    assert ds.get("b") == b"foo"
 
 
 def test_datastore_get_missing_key_no_default():
@@ -100,6 +103,7 @@ def test_datastore_items():
     ds = invent.DataStore()
     ds["a"] = 1
     ds["b"] = 2
+    ds["c"] = b"foo"
     for k, v in ds.items():
         assert k in ds
         assert ds[k] == v
@@ -329,8 +333,9 @@ async def test_index_db_copy():
     ds = invent.datastore
     ds["a"] = 1
     ds["b"] = 2
+    ds["c"] = b"foo"
     copy_ds = ds.copy()
-    assert copy_ds == {"a": 1, "b": 2}
+    assert copy_ds == {"a": 1, "b": 2, "c": b"foo"}, copy_ds
     assert copy_ds is not ds
 
 
