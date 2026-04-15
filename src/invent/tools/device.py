@@ -1,10 +1,3 @@
-"""
-Device related helpers.
-
-This module contains helpers for running heavyweight device processing in a
-PyScript Donkey worker whilst keeping UI widgets lightweight.
-"""
-
 import invent
 import asyncio
 import json
@@ -73,7 +66,7 @@ def worker_run_user_code(user_code, data_url):
         "result": None,
     }
 
-    exec(user_code, namespace, namespace)  # noqa: S102
+    exec(user_code, namespace, namespace)
 
     result = namespace.get("result_image")
     if result is None:
@@ -168,8 +161,8 @@ async def create_opencv_donkey(result_key=None, *, packages=None):
     """
     Create and initialise an OpenCV donkey worker.
 
-    Parameters
-    ----------
+    Parameters:
+
     result_key : str | None
         Datastore key for status updates, e.g. "opencv.worker.status".
     packages : list[str] | None

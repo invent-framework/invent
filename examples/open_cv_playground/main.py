@@ -1,7 +1,3 @@
-"""
-OpenCV playground with a camera-only webcam widget and Donkey worker pipeline.
-"""
-
 import asyncio
 
 import invent
@@ -150,9 +146,7 @@ app = invent.App(
                 Label(text="## OpenCV webcam playground"),
                 Label(
                     text=(
-                        "The webcam remains lightweight and only captures images. "
-                        "OpenCV runs in a Donkey worker and starts automatically. "
-                        "Capture a photo, write code, then press **Run Code**."
+                        "Take a photo, write your OpenCV code, and then press **Run Code**."
                     )
                 ),
                 opencv_webcam,
