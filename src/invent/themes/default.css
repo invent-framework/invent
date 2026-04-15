@@ -2773,95 +2773,71 @@ figure.invent-avatar:focus-visible {
     z-index:       1;
 }
 
-.invent-webcam-opencv-video-row {
-    align-items:           stretch;
-    display:               grid;
-    gap:                   var(--spacing-lg);
-    grid-template-columns: minmax(0, 0.9fr) minmax(0, 1.1fr);
+/* Media row: transparent by default so video box stacks normally in the
+ * flex-column webcam container. Activated side-by-side with modifier class. */
+.invent-webcam-media-row {
+    display: contents;
 }
 
-.invent-webcam-opencv-col .invent-webcam-box {
-    min-height: 220px;
+/* Capture preview in stacked mode: full-width img below the video. */
+.invent-webcam-preview-col {
+    width: 100%;
 }
 
-.invent-webcam-opencv-col {
-    display:        flex;
-    flex-direction: column;
-    gap:            var(--spacing-sm);
-    min-width:      0;
+.invent-webcam-preview-col .invent-webcam-capture-preview {
+    border-radius: 12px;
+    display:       block;
+    height:        auto;
+    width:         100%;
 }
 
-.invent-webcam-opencv-col video,
-.invent-webcam-opencv-col img {
-    display: block;
-    height:  auto;
-    width:   100%;
+.invent-webcam-preview-col .invent-webcam-capture-preview.hidden {
+    display: none;
 }
 
-.invent-webcam-opencv-preview-box {
-    position: relative;
+/* Side-by-side mode: media row becomes a flex row, both columns equal size. */
+.invent-webcam--side-by-side {
+    min-height: 0;
 }
 
-.invent-webcam-opencv-preview-box .invent-webcam-capture-preview {
-    height:     100%;
-    object-fit: cover;
-    width:      100%;
+.invent-webcam--side-by-side .invent-webcam-media-row {
+    display:     flex;
+    gap:         var(--spacing-lg);
+    align-items: flex-start;
 }
 
-.invent-webcam-opencv-label {
-    color:          var(--webcam-text-secondary);
-    font-family:    var(--font-mono);
-    font-size:      var(--font-size-xs);
-    margin:         0;
-    text-transform: uppercase;
+.invent-webcam--side-by-side .invent-webcam-media-row .invent-webcam-box {
+    flex:       1;
+    min-width:  0;
+    min-height: 0;
+    width:      auto;
 }
 
-.invent-webcam-opencv-panel {
-    background:     var(--main-background);
-    border:         var(--border-width) solid var(--primary-light);
-    border-radius:  var(--border-radius-lg);
-    display:        flex;
-    flex-direction: column;
-    gap:            var(--spacing-sm);
-    padding:        var(--spacing-md);
+.invent-webcam--side-by-side .invent-webcam-preview-col {
+    aspect-ratio:    4 / 3;
+    background:      var(--webcam-bg);
+    border-radius:   12px;
+    display:         flex;
+    align-items:     center;
+    justify-content: center;
+    flex:            1;
+    min-width:       0;
+    overflow:        hidden;
+    width:           auto;
 }
 
-.invent-webcam-opencv-run-btn {
-    align-self:    flex-start;
-    background:    var(--primary-light);
-    border:        var(--border-width) solid var(--primary);
-    border-radius: var(--border-radius-lg);
-    color:         var(--primary-text);
-    cursor:        pointer;
-    font-family:   var(--font);
-    font-size:     var(--font-size-sm);
-    font-weight:   600;
-    padding:       var(--spacing-sm) var(--spacing-lg);
+.invent-webcam--side-by-side .invent-webcam-preview-col .invent-webcam-capture-preview {
+    border-radius: 0;
+    display:       block;
+    height:        100%;
+    object-fit:    cover;
+    width:         100%;
 }
 
-.invent-webcam-opencv-run-btn:hover {
-    background: var(--primary-active);
-}
-
-.invent-webcam-opencv-status {
-    color:       var(--webcam-text-secondary);
-    font-family: var(--font-mono);
-    font-size:   var(--font-size-xs);
-    margin:      0;
-}
-
-.invent-webcam-opencv-result-panel {
-    display:        flex;
-    flex-direction: column;
-    gap:            var(--spacing-sm);
-}
-
-.invent-webcam-opencv-result-img {
-    aspect-ratio:  4 / 3;
-    background:    var(--webcam-bg);
-    border:        var(--border-width) solid var(--primary-light);
-    border-radius: var(--border-radius);
-    object-fit:    contain;
+@media (max-width: 600px) {
+    .invent-webcam--side-by-side .invent-webcam-media-row {
+        flex-direction: column;
+    }
 }
 
 @keyframes invent-webcam-recording-ring {

@@ -58,6 +58,13 @@ class Webcam(Widget):
         group="style",
     )
 
+    preview_layout = ChoiceProperty(
+        _("Layout of the capture preview relative to the live video feed."),
+        default_value="stacked",
+        choices=["stacked", "side-by-side"],
+        group="style",
+    )
+
     photo_captured = Event(
         _("Sent when a photo is captured."),
         webcam=_("The Webcam widget that captured the photo."),
@@ -181,6 +188,13 @@ class Webcam(Widget):
             self._show_capture_preview(latest_photo)
         else:
             self._hide_capture_preview()
+
+    def show_image(self, data_url):
+        """Display any image in the preview panel, replacing the current content."""
+        if not hasattr(self, "_capture_preview"):
+            return
+        self._capture_preview.src = data_url
+        self._capture_preview.classes.remove("hidden")
 
     def trigger(self):
         """Trigger the current action (capture photo or start/stop recording)."""
@@ -327,6 +341,14 @@ class Webcam(Widget):
         if not hasattr(self, "_capture_preview"):
             return
         self._refresh_capture_preview()
+
+    def on_preview_layout_changed(self):
+        if not hasattr(self, "element"):
+            return
+        if self.preview_layout == "side-by-side":
+            self.element.classes.add("invent-webcam--side-by-side")
+        else:
+            self.element.classes.remove("invent-webcam--side-by-side")
 
     # UI helpers
     def _update_mode_buttons(self):
@@ -554,12 +576,20 @@ class Webcam(Widget):
         self._capture_preview.classes.add("capture-preview")
         self._capture_preview.classes.add("hidden")
 
+        # Always wrap video + preview in a media row. The layout is toggled
+        # reactively via on_preview_layout_changed() which adds/removes the
+        # invent-webcam--side-by-side class on the outer element.
+        self._preview_col = div(self._capture_preview)
+        self._preview_col.classes.add("invent-webcam-preview-col")
+
+        self._media_row = div(video_container, self._preview_col)
+        self._media_row.classes.add("invent-webcam-media-row")
+
         element = div(
             self._canvas,
-            video_container,
+            self._media_row,
             self._controls,
             self._indicators,
-            self._capture_preview,
             id=self.id,
         )
 

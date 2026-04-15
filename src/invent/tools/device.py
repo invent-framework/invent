@@ -8,7 +8,7 @@ PyScript Donkey worker whilst keeping UI widgets lightweight.
 import invent
 import asyncio
 import json
-from pyscript import window
+from pyscript import document, js_import, window
 from pyscript.ffi import to_js
 
 # Datastore flags for Donkey worker status.
@@ -94,19 +94,17 @@ def worker_run_user_code(user_code, data_url):
 """
 
 
-async def _await_donkey_bridge(timeout_seconds=3.0):
-    """Wait for window.__invent_make_donkey to become available."""
-    interval = 0.05
-    checks = max(1, int(timeout_seconds / interval))
-    for _ in range(checks):
-        fn = getattr(window, "__invent_make_donkey", None)
-        if callable(fn):
-            return
-        await asyncio.sleep(interval)
-    raise RuntimeError(
-        f"Donkey bridge not available after {timeout_seconds}s. "
-        "Ensure index.html imports core.js and defines window.__invent_make_donkey."
-    )
+_PYSCRIPT_CORE = "https://pyscript.net/releases/2026.3.1/core.js"
+
+
+def _ensure_terminal_div(terminal_id="donkey-terminal"):
+    """Create a hidden terminal container in the DOM if it doesn't exist yet."""
+    if document.getElementById(terminal_id) is None:
+        div = document.createElement("div")
+        div.id = terminal_id
+        div.style.display = "none"
+        document.body.appendChild(div)
+    return f"#{terminal_id}"
 
 
 class OpenCVDonkey:
@@ -148,8 +146,8 @@ class OpenCVDonkey:
         self._set_status(DONKEY_BUSY)
         try:
             payload = await self._donkey.evaluate(
-                "__import__('json').dumps(worker_run_user_code(" 
-                f"{code!r}, {data_url!r}" 
+                "__import__('json').dumps(worker_run_user_code("
+                f"{code!r}, {data_url!r}"
                 "))"
             )
             result = json.loads(payload)
@@ -188,18 +186,21 @@ async def create_opencv_donkey(result_key=None, *, packages=None):
     if result_key:
         invent.datastore[result_key] = DONKEY_CREATING
 
-    await _await_donkey_bridge()
+    # Import donkey directly from the PyScript ES module — no HTML bridge needed.
+    (core,) = await js_import(_PYSCRIPT_CORE)
+    # Create the hidden terminal div programmatically so index.html stays clean.
+    terminal_selector = _ensure_terminal_div()
 
     options = to_js(
         {
             "type": "py",
             "persistent": True,
-            "terminal": "#donkey-terminal",
+            "terminal": terminal_selector,
             "config": {"packages": all_packages},
         }
     )
 
-    donkey = await window.__invent_make_donkey(options)
+    donkey = await core.donkey(options)
 
     worker = OpenCVDonkey(donkey, result_key=result_key)
     await worker.initialize()

@@ -21,11 +21,10 @@ preview_webcam = Webcam(
 
 opencv_webcam = Webcam(
     photo_output="preview",
+    preview_layout="side-by-side",
+    mode="photo",
 )
 
-opencv_output = Image(
-    width="100%",
-)
 
 opencv_status = Label(
     text="Donkey starting...",
@@ -108,7 +107,7 @@ async def run_worker_code():
 
     if ok:
         if processed_data_url:
-            opencv_output.image = processed_data_url
+            opencv_webcam.show_image(processed_data_url)
         opencv_status.text = "Done. Custom OpenCV code executed."
         return
 
@@ -164,8 +163,6 @@ app = invent.App(
                 ),
                 opencv_code_editor,
                 opencv_status,
-                Label(text="Processed output"),
-                opencv_output,
             ],
         ),
     ],

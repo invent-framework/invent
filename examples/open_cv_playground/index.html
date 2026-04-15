@@ -54,23 +54,6 @@
   </head>
   <body>
     <div id="loader" role="status" aria-label="Loading, please wait"></div>
-
-    <!--
-      Pre-existing hidden terminal element for the donkey worker.
-      Pointing terminal at a real DOM element that already exists means
-      the donkey never needs to touch document.createElement from the
-      worker side, avoiding the SharedArrayBuffer/window access error.
-    -->
-    <div id="donkey-terminal" style="display: none;"></div>
-
-    <script type="module">
-      import { donkey } from "https://pyscript.net/releases/2026.3.1/core.js";
-
-      window.__invent_make_donkey = async (options) => {
-        return await donkey(options);
-      };
-    </script>
-
     <script type="mpy" src="./main.py" config="./config.json"></script>
   </body>
 </html>
