@@ -2635,15 +2635,15 @@ figure.invent-avatar:focus-visible {
 /* Webcam Widget Styles */
 .invent-webcam,
 .webcam-container {
-    --webcam-bg:             var(--muted-light);
-    --webcam-btn-bg:         var(--primary-light);
-    --webcam-btn-hover:      var(--primary-active);
-    --webcam-accent:         var(--secondary);
-    --webcam-text-primary:   var(--color-body);
+    --webcam-bg:            var(--muted-light);
+    --webcam-btn-bg:        var(--primary-light);
+    --webcam-btn-hover:     var(--primary-active);
+    --webcam-accent:        var(--secondary);
+    --webcam-text-primary:  var(--color-body);
     --webcam-text-secondary: var(--muted-text);
-    --webcam-shutter-bg:     var(--danger);
-    --webcam-shutter-hover:  var(--danger);
-    --webcam-indicator-bg:   var(--primary-light);
+    --webcam-shutter-bg:    var(--danger);
+    --webcam-shutter-hover: var(--danger);
+    --webcam-indicator-bg:  var(--primary-light);
 
     width:          100%;
     max-width:      800px;
@@ -2730,24 +2730,24 @@ figure.invent-avatar:focus-visible {
 
 .invent-webcam-shutter,
 .shutter {
-    height:          60px;
-    width:           60px;
-    display:         flex;
-    align-items:     center;
+    height:        60px;
+    width:         60px;
+    display:       flex;
+    align-items:   center;
     justify-content: center;
-    text-align:      center;
-    padding:         0;
-    line-height:     1;
-    background:      var(--webcam-shutter-bg);
-    border:          0;
-    border-radius:   50%;
-    cursor:          pointer;
-    font-size:       var(--font-size-sm);
-    font-family:     var(--font);
-    font-weight:     500;
-    color:           var(--white);
-    transition:      transform var(--transition-speed) ease;
-    position:        relative;
+    text-align:    center;
+    padding:       0;
+    line-height:   1;
+    background:    var(--webcam-shutter-bg);
+    border:        0;
+    border-radius: 50%;
+    cursor:        pointer;
+    font-size:     var(--font-size-sm);
+    font-family:   var(--font);
+    font-weight:   500;
+    color:         var(--white);
+    transition:    transform var(--transition-speed) ease;
+    position:      relative;
 }
 
 .invent-webcam-shutter:hover,
