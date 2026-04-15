@@ -19,12 +19,19 @@ DONKEY_ERROR = "_DEVICE_DONKEY_ERROR"
 DONKEY_KILLED = "_DEVICE_DONKEY_KILLED"
 
 
+"""
+NOTE: I am using execute("from _opencv_worker import *") which
+pulls everything into the worker's global scope, which is the only
+reliable way to define persistent callables in a donkey worker that I 
+could find. Both
+  - process() feeds large multiline strings line-by-line which 
+              prevents this sort of data from using it, and
+  - execute() alone seems to scope defs locally and discard them
+              after the call returns.
+"""
+
 # The OpenCV worker code written to the worker's virtual filesystem as a
-# proper Python module. Using execute("from _opencv_worker import *") then
-# pulls everything into the worker's global scope, which is the only
-# reliable way to define persistent callables in a donkey worker —
-# process() chokes on large multiline strings via xterm-readline, and
-# execute() alone scopes defs locally and discards them.
+# proper Python module. 
 _OPENCV_WORKER_MODULE = r"""
 import base64
 import cv2
@@ -125,14 +132,8 @@ class OpenCVDonkey:
 
     async def initialize(self):
         self._set_status(DONKEY_BUSY)
-        # Write the module to the worker's virtual filesystem as a proper
+        # Write the module to the worker's virtual filesystem as a
         # .py file, then import it into global scope with execute().
-        # This sidesteps two known donkey limitations:
-        #   - process() feeds code through xterm-readline line-by-line,
-        #     which breaks on large multiline strings.
-        #   - execute() uses exec() which scopes `def` statements locally
-        #     and discards them after the call returns.
-        # Writing a file and importing it is the correct pattern.
         await self._donkey.execute(
             f"open('_opencv_worker.py', 'w').write({_OPENCV_WORKER_MODULE!r})"
         )
@@ -172,8 +173,7 @@ async def create_opencv_donkey(result_key=None, *, packages=None):
     result_key : str | None
         Datastore key for status updates, e.g. "opencv.worker.status".
     packages : list[str] | None
-        Extra packages to install in the worker (opencv-python and numpy
-        are always included).
+        Extra packages to install in the worker
     """
     if packages is None:
         packages = []
@@ -186,9 +186,9 @@ async def create_opencv_donkey(result_key=None, *, packages=None):
     if result_key:
         invent.datastore[result_key] = DONKEY_CREATING
 
-    # Import donkey directly from the PyScript ES module — no HTML bridge needed.
+    # Import donkey directly from PyScript
     (core,) = await js_import(_PYSCRIPT_CORE)
-    # Create the hidden terminal div programmatically so index.html stays clean.
+    # Create the hidden terminal div
     terminal_selector = _ensure_terminal_div()
 
     options = to_js(

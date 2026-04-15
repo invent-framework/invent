@@ -26,11 +26,9 @@ from invent.ui.core import (
     ChoiceProperty,
     BooleanProperty,
     Event,
-    IntegerProperty,
 )
 from pyscript.web import div, video, button, canvas, img
 from pyscript.ffi import create_proxy
-import base64
 
 
 class Webcam(Widget):
@@ -76,18 +74,6 @@ class Webcam(Widget):
         webcam=_("The Webcam widget that recorded the video."),
     )
 
-    @classmethod
-    def icon(cls):
-        return (
-            '<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em"'
-            ' viewBox="0 0 256 256"><circle cx="128" cy="128" r="32"'
-            ' fill="currentColor" opacity="0.2"/><path fill="currentColor"'
-            ' d="M208 56H48a16 16 0 0 0-16 16v112a16 16 0 0 0 16 16h160a16'
-            " 16 0 0 0 16-16V72a16 16 0 0 0-16-16m0 128H48V72h160zM128"
-            " 96a32 32 0 1 0 32 32a32 32 0 0 0-32-32m0 48a16 16 0 1 1"
-            ' 16-16a16 16 0 0 1-16 16"/></svg>'
-        )
-
     def __init__(self, *args, **kwargs):
         self._captures = []
         self._capture_counter = 0
@@ -121,49 +107,6 @@ class Webcam(Widget):
         captures = self.captures(media_type=media_type)
         return captures[-1] if captures else None
 
-    def find_capture(self, capture_id):
-        for capture in self._captures:
-            if capture.get("id") == capture_id:
-                return capture
-        return None
-
-    def remove_capture(self, capture_id):
-        for index, capture in enumerate(self._captures):
-            if capture.get("id") == capture_id:
-                removed = self._captures.pop(index)
-                self._refresh_capture_preview()
-                return removed
-        return None
-
-    def clear_captures(self, media_type=None):
-        if media_type is None:
-            removed = list(self._captures)
-            self._captures = []
-            self._refresh_capture_preview()
-            return removed
-
-        kept, removed = [], []
-        for capture in self._captures:
-            if capture.get("type") == media_type:
-                removed.append(capture)
-            else:
-                kept.append(capture)
-        self._captures = kept
-        self._refresh_capture_preview()
-        return removed
-
-    def photo_bytes(self, capture=None):
-        """Return raw JPEG bytes for *capture* (defaults to latest photo)."""
-        capture = capture or self.latest_capture(media_type="photo")
-        if not capture:
-            return None
-        if capture.get("photo_bytes") is not None:
-            return capture["photo_bytes"]
-        data_url = capture.get("data_url")
-        if not data_url or "," not in data_url:
-            return None
-        return base64.b64decode(data_url.split(",", 1)[1])
-
     # Preview helpers
     def _show_capture_preview(self, capture):
         if not hasattr(self, "_capture_preview"):
@@ -195,11 +138,6 @@ class Webcam(Widget):
             return
         self._capture_preview.src = data_url
         self._capture_preview.classes.remove("hidden")
-
-    def trigger(self):
-        """Trigger the current action (capture photo or start/stop recording)."""
-        if hasattr(self, "_shutter_btn"):
-            self._shutter_btn.click()
 
     # Mode switching
     def set_mode(self, mode):
@@ -512,11 +450,11 @@ class Webcam(Widget):
         """
         Render the webcam widget.
         """
-        # ---- hidden canvas for photo capture ----
+        # hidden canvas for photo capture
         self._canvas = canvas()
         self._canvas.classes.add("invent-webcam-canvas-hidden")
 
-        # ---- live video element ----
+        # live video element
         self._video_elem = video()
         self._video_elem.id = f"{self.id}-video"
         self._video_elem.autoplay = True
@@ -537,7 +475,7 @@ class Webcam(Widget):
         video_container.classes.add("invent-webcam-box")
         video_container.classes.add("webcam-box")
 
-        # ---- shutter button ----
+        # shutter button
         self._shutter_btn = button("Take")
         self._shutter_btn.id = f"{self.id}-shutter"
         self._shutter_btn.classes.add("invent-webcam-shutter")
@@ -555,7 +493,7 @@ class Webcam(Widget):
         self._controls.classes.add("actions")
         self._shutter_container = shutter_container
 
-        # ---- status indicators ----
+        # status indicators
         self._status_elem = div("Initializing camera...")
         self._status_elem.id = f"{self.id}-status"
         self._status_elem.classes.add("invent-webcam-status")
@@ -569,16 +507,14 @@ class Webcam(Widget):
         self._indicators.classes.add("invent-webcam-indicators")
         self._indicators.classes.add("indicators")
 
-        # ---- capture preview image ----
+        # capture preview image
         self._capture_preview = img()
         self._capture_preview.id = f"{self.id}-capture-preview"
         self._capture_preview.classes.add("invent-webcam-capture-preview")
         self._capture_preview.classes.add("capture-preview")
         self._capture_preview.classes.add("hidden")
 
-        # Always wrap video + preview in a media row. The layout is toggled
-        # reactively via on_preview_layout_changed() which adds/removes the
-        # invent-webcam--side-by-side class on the outer element.
+        # Wrap video and preview in a media row
         self._preview_col = div(self._capture_preview)
         self._preview_col.classes.add("invent-webcam-preview-col")
 
@@ -600,3 +536,4 @@ class Webcam(Widget):
         self._setup_webcam_stream()
 
         return element
+        
