@@ -15,10 +15,9 @@ await invent.setup(
 
 
 def navigate(message):
-    print(message)
-    if message.button.name == "to_lucy":
+    if message.source.name == "to_lucy":
         invent.show_page("Lucy")
-    elif message.button.name == "to_percy":
+    elif message.source.name == "to_percy":
         invent.show_page("Percy")
 
 

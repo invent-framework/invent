@@ -2,18 +2,18 @@ import asyncio
 import invent
 import json
 import upytest
-from invent.tools import net
+from invent.tools import connect
 
 # Simple utility function tests (from the user's perspective).
 
 
 def setup():
-    for key, value in net.WEBSOCKET_CONNECTIONS.items():
+    for key, value in connect.WEBSOCKET_CONNECTIONS.items():
         invent.publish(
             message=invent.Message("close"),
             to_channel=value.channel,
         )
-    net.WEBSOCKET_CONNECTIONS.clear()
+    connect.WEBSOCKET_CONNECTIONS.clear()
 
 
 async def test_request_get_as_json():
@@ -34,7 +34,7 @@ async def test_request_get_as_json():
         when_subject=result_key,
     )
 
-    net.request(url, result_key=result_key, response_format="json")
+    connect.request(url, result_key=result_key, response_format="json")
 
     await got_result_from_website.wait()
     assert (
@@ -64,7 +64,7 @@ async def test_request_get_as_bytes():
         when_subject=result_key,
     )
 
-    net.request(url, result_key=result_key, response_format="bytes")
+    connect.request(url, result_key=result_key, response_format="bytes")
 
     await got_result_from_website.wait()
     assert (
@@ -94,7 +94,7 @@ async def test_request_post_as_text():
         when_subject=result_key,
     )
 
-    net.request(url, result_key=result_key, method="POST", body=body)
+    connect.request(url, result_key=result_key, method="POST", body=body)
 
     await got_result_from_website.wait()
     assert (
@@ -131,7 +131,7 @@ async def test_websocket_send_and_receive():
         when_subject="message",
     )
 
-    net.websocket(url, channel)
+    connect.websocket(url, channel)
 
     # Send before open — should be queued and sent when ready.
     invent.publish(
@@ -194,7 +194,7 @@ async def test_websocket_full_lifecycle():
         when_subject="message",
     )
 
-    net.websocket(url, channel)
+    connect.websocket(url, channel)
 
     await got_connecting.wait()
     await got_open.wait()
@@ -213,7 +213,9 @@ async def test_websocket_full_lifecycle():
     )
 
     await got_closed.wait()
-    assert url not in net.WEBSOCKET_CONNECTIONS, "Connection not cleaned up."
+    assert (
+        url not in connect.WEBSOCKET_CONNECTIONS
+    ), "Connection not cleaned up."
 
 
 async def test_websocket_json_serialisation():
@@ -239,7 +241,7 @@ async def test_websocket_json_serialisation():
         when_subject="message",
     )
 
-    net.websocket(url, channel)
+    connect.websocket(url, channel)
 
     invent.publish(
         message=invent.Message("send", data=test_payload),
@@ -264,10 +266,10 @@ async def test_websocket_duplicate_url_raises():
     channel_a = "test_ws_dup_a"
     channel_b = "test_ws_dup_b"
 
-    net.websocket(url, channel_a)
+    connect.websocket(url, channel_a)
 
     with upytest.raises(ValueError):
-        net.websocket(url, channel_b)
+        connect.websocket(url, channel_b)
 
     # Tidy up.
     invent.publish(
@@ -301,7 +303,7 @@ async def test_websocket_cleanup_after_close():
         when_subject="status",
     )
 
-    net.websocket(url, channel)
+    connect.websocket(url, channel)
 
     await got_open.wait()
 
@@ -313,5 +315,5 @@ async def test_websocket_cleanup_after_close():
     await got_closed.wait()
 
     assert (
-        url not in net.WEBSOCKET_CONNECTIONS
+        url not in connect.WEBSOCKET_CONNECTIONS
     ), "Connection not removed from registry."

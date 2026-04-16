@@ -5,7 +5,7 @@ Example application that gets random cat facts via the net.
 import random
 import invent
 from invent.ui import *
-from invent.tools import net, sound
+from invent.tools import connect, sound
 from invent import App
 from invent.ui import Page, Column, Button, Label, Image
 
@@ -39,13 +39,14 @@ def get_cat_fact(message):
     key "cat_fact".
     """
     invent.datastore["working"] = True
-    net.request(url=URL, json=True, result_key="cat_fact")
+    connect.request(url=URL, result_key="cat_fact", response_format="json")
 
 
 def handle_cat_fact(value):
     """
     Play a meow sound and return the cat fact.
     """
+    print(type(value))
     if value:
         sound.play(random.choice(MEOWS))
         invent.datastore["working"] = False
