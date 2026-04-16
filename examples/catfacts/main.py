@@ -39,7 +39,7 @@ def get_cat_fact(message):
     key "cat_fact".
     """
     invent.datastore["working"] = True
-    connect.request(url=URL, result_key="cat_fact", response_format="json")
+    connect.web_request(url=URL, result_key="cat_fact", response_format="json")
 
 
 def handle_cat_fact(value):

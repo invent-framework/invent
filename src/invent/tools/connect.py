@@ -1,5 +1,6 @@
 """
-Defines tasks for web requests and websocket connections.
+Defines tasks for connecting to the outside world via web requests, websocket
+connections, web serial and BLE.
 
 Based on original pre-COVID work by [Nicholas H.Tollervey.](https://ntoll.org/)
 
@@ -37,9 +38,9 @@ VALID_RESULT_FORMATS = {
 }
 
 
-def request(url, result_key, response_format="text", *args, **kwargs):
+def web_request(url, result_key, response_format="text", *args, **kwargs):
     """
-    Make a request to a URL and store the result in the datastore
+    Make a web request to a URL and store the result in the datastore
     via the `result_key`.
 
     The `response_format` argument controls how the response is parsed
@@ -61,14 +62,14 @@ def request(url, result_key, response_format="text", *args, **kwargs):
 
     ```python
     # Make a GET request and store the JSON response in the datastore.
-    net.request(
+    connect.web_request(
         url="https://api.example.com/data",
         result_key="api_data",
         response_format="json",
     )
 
     # Make a POST request with a text body and store the response as text.
-    net.request(
+    connect.web_request(
         url="https://api.example.com/submit",
         result_key="submit_response",
         method="POST",
@@ -76,7 +77,7 @@ def request(url, result_key, response_format="text", *args, **kwargs):
     )
 
     # Make a GET request and store the response as bytes.
-    net.request(
+    connect.web_request(
         url="https://api.example.com/file.mp3",
         result_key="music_data",
         response_format="bytes",
@@ -294,4 +295,4 @@ class _InventWebSocket:
 
 
 # Expose the class as a module-level function for ease of use.
-websocket = _InventWebSocket
+web_socket = _InventWebSocket

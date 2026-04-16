@@ -34,7 +34,7 @@ async def test_request_get_as_json():
         when_subject=result_key,
     )
 
-    connect.request(url, result_key=result_key, response_format="json")
+    connect.web_request(url, result_key=result_key, response_format="json")
 
     await got_result_from_website.wait()
     assert (
@@ -64,7 +64,7 @@ async def test_request_get_as_bytes():
         when_subject=result_key,
     )
 
-    connect.request(url, result_key=result_key, response_format="bytes")
+    connect.web_request(url, result_key=result_key, response_format="bytes")
 
     await got_result_from_website.wait()
     assert (
@@ -94,7 +94,7 @@ async def test_request_post_as_text():
         when_subject=result_key,
     )
 
-    connect.request(url, result_key=result_key, method="POST", body=body)
+    connect.web_request(url, result_key=result_key, method="POST", body=body)
 
     await got_result_from_website.wait()
     assert (
@@ -131,7 +131,7 @@ async def test_websocket_send_and_receive():
         when_subject="message",
     )
 
-    connect.websocket(url, channel)
+    connect.web_socket(url, channel)
 
     # Send before open — should be queued and sent when ready.
     invent.publish(
@@ -194,7 +194,7 @@ async def test_websocket_full_lifecycle():
         when_subject="message",
     )
 
-    connect.websocket(url, channel)
+    connect.web_socket(url, channel)
 
     await got_connecting.wait()
     await got_open.wait()
@@ -241,7 +241,7 @@ async def test_websocket_json_serialisation():
         when_subject="message",
     )
 
-    connect.websocket(url, channel)
+    connect.web_socket(url, channel)
 
     invent.publish(
         message=invent.Message("send", data=test_payload),
@@ -266,10 +266,10 @@ async def test_websocket_duplicate_url_raises():
     channel_a = "test_ws_dup_a"
     channel_b = "test_ws_dup_b"
 
-    connect.websocket(url, channel_a)
+    connect.web_socket(url, channel_a)
 
     with upytest.raises(ValueError):
-        connect.websocket(url, channel_b)
+        connect.web_socket(url, channel_b)
 
     # Tidy up.
     invent.publish(
@@ -303,7 +303,7 @@ async def test_websocket_cleanup_after_close():
         when_subject="status",
     )
 
-    connect.websocket(url, channel)
+    connect.web_socket(url, channel)
 
     await got_open.wait()
 
