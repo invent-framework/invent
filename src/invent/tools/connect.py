@@ -104,7 +104,7 @@ def web_request(url, result_key, response_format="text", *args, **kwargs):
             else:
                 result = await response.text()
         else:
-            result = WEB_ERROR + f": {response.status} {response.message}"
+            result = WEB_ERROR + f": {response.status} {response.statusText}"
         invent.datastore[result_key] = result
 
     asyncio.create_task(wrapper())
