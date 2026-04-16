@@ -5,8 +5,7 @@ identify each other and personalize their online experience. They can also be
 used in applications to represent users in chat interfaces, comments sections,
 and other interactive elements. Avatars can be circular, rounded or square.
 
-Based on original pre-COVID work by [Nicholas H.Tollervey.](https://ntoll.org/)
-
+```
 Copyright (c) 2019-present Invent contributors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -20,6 +19,7 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
+```
 """
 
 from pyscript import web

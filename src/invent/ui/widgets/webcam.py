@@ -4,6 +4,7 @@ A webcam widget for the Invent framework.
 Enables photo capture and video recording with automatic downloads.
 Supports live video preview from the user's webcam.
 
+```
 Copyright (c) 2019-present Invent contributors.
 
 Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,6 +18,7 @@ distributed under the License is distributed on an "AS IS" BASIS,
 WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 See the License for the specific language governing permissions and
 limitations under the License.
+```
 """
 
 from invent.i18n import _
