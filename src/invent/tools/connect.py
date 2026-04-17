@@ -31,11 +31,20 @@ WEB_ERROR = "_WEB_ERROR"
 #: Flag for the datastore to indicate a serial connection error.
 SERIAL_ERROR = "_SERIAL_ERROR"
 
+#: Flag for the datastore to indicate a BLE error.
+BLE_ERROR = "_BLE_ERROR"
+
 #: Active websocket connections, keyed by URL.
 WEBSOCKET_CONNECTIONS = {}
 
 #: Active serial connections, keyed by individual channel name.
 SERIAL_CONNECTIONS = {}
+
+#: Active BLE channel bindings, keyed by channel name.
+BLE_CONNECTIONS = {}
+
+#: Shared BLE device connections, keyed by BluetoothDevice.id.
+BLE_DEVICES = {}
 
 #: Valid HTTP response formats for the `request` function.
 VALID_RESULT_FORMATS = {
@@ -175,6 +184,57 @@ def _port_info(port):
         value = getattr(info, key, None)
         if value is not None:
             result[key] = value
+    return result
+
+
+def ble_ports(result_key):
+    """
+    List the BLE devices the user has already authorised, storing
+    the result as a list of dicts in the datastore at `result_key`.
+
+    Each entry contains `id` and `name` keys, mirroring the relevant
+    fields of the browser's `BluetoothDevice` object. Keys are
+    JS-style camelCase to match the underlying browser API.
+
+    On failure, the `BLE_ERROR` flag is stored at `result_key`
+    instead, along with contextual information.
+
+    This wraps `navigator.bluetooth.getDevices()`, which does not
+    require a user gesture: it returns devices previously granted
+    access. To prompt the user to authorise a new device, use
+    `ble_connection`.
+
+    Example usage:
+
+    ```python
+    # Discover already-authorised BLE devices.
+    connect.ble_ports(result_key="my_devices")
+    # Later, invent.datastore["my_devices"] might be:
+    # [{"id": "abc123...", "name": "micro:bit"}]
+    ```
+    """
+
+    async def wrapper():
+        try:
+            devices = await pyscript.window.navigator.bluetooth.getDevices()
+            result = [_device_info(device) for device in devices]
+        except Exception as ex:
+            result = BLE_ERROR + f": {ex}"
+        invent.datastore[result_key] = result
+
+    asyncio.create_task(wrapper())
+
+
+def _device_info(device):
+    """
+    Convert a BluetoothDevice into a plain Python dict with the
+    human-relevant identifying fields. The `name` field may be
+    missing on some devices; in that case it is omitted.
+    """
+    result = {"id": device.id}
+    name = getattr(device, "name", None)
+    if name is not None:
+        result["name"] = name
     return result
 
 
@@ -799,6 +859,479 @@ class _InventSerial:
             await self._maybe_reconnect()
 
 
+class _InventBLEDevice:
+    """
+    Own a shared GATT server connection for a single physical BLE
+    device. Multiple channels may be bound to characteristics on the
+    same device; this class is the single point at which the GATT
+    connection is opened, observed, and torn down.
+
+    Lifecycle is reference-counted against the channel instances
+    using it: when the last channel detaches, the GATT server is
+    disconnected and the device entry is removed from BLE_DEVICES.
+
+    This is hidden plumbing; developers interact only with
+    `_InventBLE` via channels.
+    """
+
+    def __init__(self, device):
+        """
+        Wrap a BluetoothDevice and prepare for GATT connection.
+        """
+        self.device = device
+        self.server = None
+        self._channels = set()
+        # Listen for unexpected disconnects at the device level.
+        self.device.addEventListener(
+            "gattserverdisconnected", self._on_disconnected
+        )
+
+    async def connect_server(self):
+        """
+        Connect to the GATT server if not already connected. Safe to
+        call repeatedly; returns the connected server either way.
+        """
+        if self.server is None or not self.server.connected:
+            self.server = await self.device.gatt.connect()
+        return self.server
+
+    def attach(self, channel_instance):
+        """
+        Register a channel instance as using this device.
+        """
+        self._channels.add(channel_instance)
+
+    def detach(self, channel_instance):
+        """
+        Remove a channel instance from the set of users. If no
+        channels remain, disconnect the GATT server and remove the
+        device from the registry.
+        """
+        self._channels.discard(channel_instance)
+        if not self._channels:
+            self._teardown()
+
+    def _teardown(self):
+        """
+        Disconnect the GATT server and remove from the registry.
+        Guarded so a partial failure still completes cleanup.
+        """
+        try:
+            if self.server and self.server.connected:
+                self.device.gatt.disconnect()
+        except Exception:
+            pass
+        BLE_DEVICES.pop(self.device.id, None)
+
+    def _on_disconnected(self, event):
+        """
+        Handle an unexpected GATT disconnect. Notify every bound
+        channel that it has closed and remove the device entry. The
+        developer may reconnect by calling `ble_connection` again.
+        """
+        # Copy the set before iterating; channels mutate it on close.
+        for channel_instance in list(self._channels):
+            channel_instance._on_device_disconnected()
+        self._channels.clear()
+        BLE_DEVICES.pop(self.device.id, None)
+
+
+class _InventBLE:
+    """
+    Bind a channel to a single BLE characteristic on a device. One
+    `_InventBLE` instance manages one characteristic; multiple
+    instances may share an underlying `_InventBLEDevice` when their
+    characteristics live on the same physical device.
+
+    All communication with the characteristic is via the channel in
+    the usual Invent way:
+
+    - Publish a message with subject "send" and a `.data` attribute
+      to write bytes to the characteristic (requires the
+      characteristic to support write).
+    - Publish a message with subject "read" and a `.result_key`
+      attribute to trigger a one-shot read; the value is stored in
+      the datastore at `result_key`. The first "read" message on a
+      channel must include `result_key`; subsequent "read" messages
+      may omit it to reuse the last key, or supply a new key to
+      rebind.
+    - Publish a message with subject "close" to close this channel.
+      Other channels on the same device remain open; the GATT
+      connection is only torn down when the last channel closes.
+    - Subscribe to the channel with subject "message" to receive
+      notifications from the characteristic (arrives as `.data` on
+      the message, as raw bytes).
+    - Subscribe to the channel with subject "status" to receive
+      connection state changes (arrives as `.status`, one of:
+      "connecting", "open", "error", "closed"). If the status is
+      "error", a `.reason` attribute describes the cause.
+
+    Characteristic capability is auto-detected at connect time:
+    if the characteristic supports notify, notifications are started
+    and incoming values publish as "message". Attempting "send" on a
+    characteristic that does not support write, or "read" on one
+    that does not support read, publishes an "error" status.
+
+    BLE is packet-based: values are always raw bytes. Strings passed
+    to "send" are encoded using the configured `encoding`.
+
+    Browser support: Chrome, Edge, Opera, Samsung Internet. Not
+    supported in Firefox or Safari.
+
+    Example usage:
+
+    ```python
+    # Bind a channel to the micro:bit temperature characteristic.
+    connect.ble_connection(
+        channel="temperature",
+        service="e95d6100-251d-470a-a062-fa1922dfa9a8",
+        characteristic="e95d9250-251d-470a-a062-fa1922dfa9a8",
+    )
+
+    # Receive notifications (if the characteristic supports notify).
+    def on_message(message):
+        print("Temperature bytes:", message.data)
+
+    invent.subscribe(
+        handler=on_message,
+        to_channel="temperature",
+        when_subject="message",
+    )
+
+    # Request a one-shot read into the datastore.
+    invent.publish(
+        message=invent.Message("read", result_key="temperature_now"),
+        to_channel="temperature",
+    )
+
+    # Close the channel when done.
+    invent.publish(
+        message=invent.Message("close"),
+        to_channel="temperature",
+    )
+    ```
+    """
+
+    def __init__(
+        self,
+        channel,
+        service,
+        characteristic,
+        filters=None,
+        optional_services=None,
+        encoding="utf-8",
+    ):
+        """
+        Configure the channel binding and kick off the async
+        connection. The connection itself opens asynchronously;
+        subscribe to "status" to track its state.
+        """
+        if channel in BLE_CONNECTIONS:
+            raise ValueError(
+                f"Channel '{channel}' is already bound to a BLE "
+                f"connection."
+            )
+        BLE_CONNECTIONS[channel] = self
+        self.channel = channel
+        self._service_uuid = service
+        self._characteristic_uuid = characteristic
+        self._encoding = encoding
+        self._filters = filters
+        # Auto-inject the service into optional_services so
+        # requestDevice grants access even if the developer filtered
+        # on name or manufacturerData rather than services.
+        services = list(optional_services or [])
+        if service not in services:
+            services.append(service)
+        self._optional_services = services
+        self._device = None
+        self._characteristic = None
+        self._properties = None
+        self._read_key = None
+        self._closing = False
+        # Subscribe to the channel for send, read, and close.
+        invent.subscribe(
+            handler=self._handle_send,
+            to_channel=channel,
+            when_subject="send",
+        )
+        invent.subscribe(
+            handler=self._handle_read,
+            to_channel=channel,
+            when_subject="read",
+        )
+        invent.subscribe(
+            handler=self._handle_close,
+            to_channel=channel,
+            when_subject="close",
+        )
+        # Publish the initial connecting status, then start.
+        self._publish_status("connecting")
+        asyncio.create_task(self._connect())
+
+    def _publish_status(self, status, reason=None):
+        """
+        Publish a status message to the channel.
+        """
+        invent.publish(
+            message=invent.Message("status", status=status, reason=reason),
+            to_channel=self.channel,
+        )
+
+    def _publish_message(self, data):
+        """
+        Publish received data to the channel.
+        """
+        invent.publish(
+            message=invent.Message("message", data=data),
+            to_channel=self.channel,
+        )
+
+    def _cleanup(self):
+        """
+        Remove from the channel registry and unsubscribe handlers.
+        Does not touch the device; the caller handles device detach.
+        """
+        BLE_CONNECTIONS.pop(self.channel, None)
+        invent.unsubscribe(
+            handler=self._handle_send,
+            from_channel=self.channel,
+            when_subject="send",
+        )
+        invent.unsubscribe(
+            handler=self._handle_read,
+            from_channel=self.channel,
+            when_subject="read",
+        )
+        invent.unsubscribe(
+            handler=self._handle_close,
+            from_channel=self.channel,
+            when_subject="close",
+        )
+
+    async def _connect(self):
+        """
+        Select a device (matching authorised first, picker fallback),
+        share or create its GATT connection, fetch the characteristic,
+        and start notifications if supported. On unrecoverable failure
+        publishes "error" and cleans up.
+        """
+        try:
+            device = await self._select_device()
+            if device is None:
+                self._publish_status(
+                    "error",
+                    reason="No device available or picker cancelled.",
+                )
+                self._cleanup()
+                return
+            # Find or create the shared device wrapper.
+            ble_device = BLE_DEVICES.get(device.id)
+            if ble_device is None:
+                ble_device = _InventBLEDevice(device)
+                BLE_DEVICES[device.id] = ble_device
+            self._device = ble_device
+            ble_device.attach(self)
+            server = await ble_device.connect_server()
+            service = await server.getPrimaryService(self._service_uuid)
+            self._characteristic = await service.getCharacteristic(
+                self._characteristic_uuid
+            )
+            self._properties = self._characteristic.properties
+            if getattr(self._properties, "notify", False):
+                self._characteristic.addEventListener(
+                    "characteristicvaluechanged",
+                    self._on_characteristic_changed,
+                )
+                await self._characteristic.startNotifications()
+            self._publish_status("open")
+        except Exception as e:
+            self._publish_status(
+                "error", reason=f"Unexpected error during connection. {e}"
+            )
+            if self._device:
+                self._device.detach(self)
+                self._device = None
+            self._cleanup()
+
+    async def _select_device(self):
+        """
+        Return the first already-authorised device matching the
+        filters; otherwise prompt the user via the browser picker.
+        Returns `None` if the picker is cancelled.
+        """
+        bluetooth = pyscript.window.navigator.bluetooth
+        try:
+            devices = await bluetooth.getDevices()
+            for device in devices:
+                if self._device_matches(device):
+                    return device
+        except Exception:
+            # getDevices() may be unsupported; fall through to picker.
+            pass
+        # No existing match: open the picker. Requires a user gesture.
+        request_options = {"optionalServices": self._optional_services}
+        if self._filters:
+            request_options["filters"] = self._filters
+        else:
+            # No developer filters: default to the channel's service.
+            request_options["filters"] = [
+                {"services": [self._service_uuid]}
+            ]
+        try:
+            return await bluetooth.requestDevice(to_js(request_options))
+        except Exception:
+            return None
+
+    def _device_matches(self, device):
+        """
+        True if the device matches any of the developer's filters.
+        Web Bluetooth does not expose service UUIDs on
+        already-authorised devices without a GATT connection, so
+        matching is by name only when filters specify a name; with
+        no filters or only service filters we do not match (the
+        picker will be opened instead to ensure user consent).
+        """
+        if not self._filters:
+            return False
+        name = getattr(device, "name", None)
+        for filter_dict in self._filters:
+            wanted_name = filter_dict.get("name")
+            if wanted_name and name == wanted_name:
+                return True
+            prefix = filter_dict.get("namePrefix")
+            if prefix and name and name.startswith(prefix):
+                return True
+        return False
+
+    def _on_characteristic_changed(self, event):
+        """
+        Handle a notification from the characteristic. The value is
+        a DataView; convert to bytes and publish on the channel.
+        """
+        value = event.target.value
+        # DataView: read each byte via getUint8.
+        length = value.byteLength
+        data = bytes(value.getUint8(i) for i in range(length))
+        self._publish_message(data)
+
+    def _handle_send(self, message):
+        """
+        Write the message's data to the characteristic. Publishes an
+        "error" status if the characteristic does not support write
+        or if the write itself fails.
+        """
+        if not getattr(self._properties, "write", False) and not getattr(
+            self._properties, "writeWithoutResponse", False
+        ):
+            self._publish_status(
+                "error",
+                reason="Characteristic does not support write.",
+            )
+            return
+        asyncio.create_task(self._send(message.data))
+
+    async def _send(self, data):
+        """
+        Encode data as bytes and write to the characteristic. Strings
+        are encoded via the configured encoding.
+        """
+        if isinstance(data, str):
+            payload = data.encode(self._encoding)
+        else:
+            payload = bytes(data)
+        buffer = pyscript.window.Uint8Array.new(len(payload))
+        for index, byte_value in enumerate(payload):
+            buffer[index] = byte_value
+        try:
+            await self._characteristic.writeValue(buffer)
+        except Exception as e:
+            self._publish_status("error", reason=f"Write failed. {e}")
+
+    def _handle_read(self, message):
+        """
+        Trigger a one-shot read of the characteristic. The result is
+        stored in the datastore at `message.result_key` if supplied,
+        or at the last-supplied key for this channel. Publishes an
+        "error" if no key has ever been supplied, if the
+        characteristic does not support read, or if the read fails.
+        """
+        key = getattr(message, "result_key", None)
+        if key is not None:
+            self._read_key = key
+        if self._read_key is None:
+            self._publish_status(
+                "error",
+                reason="No result_key supplied for read.",
+            )
+            return
+        if not getattr(self._properties, "read", False):
+            reason = "Characteristic does not support read."
+            self._publish_status("error", reason=reason)
+            invent.datastore[self._read_key] = BLE_ERROR + f": {reason}"
+            return
+        asyncio.create_task(self._read(self._read_key))
+
+    async def _read(self, result_key):
+        """
+        Perform a one-shot read and store the value in the datastore.
+        On failure, publishes "error" on the channel and stores the
+        BLE_ERROR flag at the result key.
+        """
+        try:
+            value = await self._characteristic.readValue()
+            length = value.byteLength
+            data = bytes(value.getUint8(i) for i in range(length))
+            invent.datastore[result_key] = data
+        except Exception as e:
+            reason = f"Read failed. {e}"
+            self._publish_status("error", reason=reason)
+            invent.datastore[result_key] = BLE_ERROR + f": {reason}"
+
+    def _handle_close(self, message):
+        """
+        Close this channel. The underlying device connection is torn
+        down only if this is the last channel bound to it.
+        """
+        if self._closing:
+            return
+        self._closing = True
+        asyncio.create_task(self._close_channel())
+
+    async def _close_channel(self):
+        """
+        Stop notifications if running, detach from the shared device,
+        publish "closed", and clean up the channel registry.
+        """
+        try:
+            if self._characteristic and getattr(
+                self._properties, "notify", False
+            ):
+                await self._characteristic.stopNotifications()
+        except Exception:
+            pass
+        if self._device:
+            self._device.detach(self)
+            self._device = None
+        self._cleanup()
+        self._publish_status("closed")
+
+    def _on_device_disconnected(self):
+        """
+        Called by the shared device wrapper when the GATT server has
+        unexpectedly disconnected. Publishes "closed" with a reason
+        and cleans up the channel. The developer may reconnect by
+        calling `ble_connection` again.
+        """
+        self._closing = True
+        self._device = None
+        self._cleanup()
+        self._publish_status(
+            "closed", reason="Device disconnected unexpectedly."
+        )
+
+
 # Expose the classes as module-level functions for ease of use.
 web_socket = _InventWebSocket
 serial_connection = _InventSerial
+ble_connection = _InventBLE
