@@ -227,9 +227,9 @@ def ble_ports(result_key):
 
 def _device_info(device):
     """
-    Convert a BluetoothDevice into a plain Python dict with the
-    human-relevant identifying fields. The `name` field may be
-    missing on some devices; in that case it is omitted.
+    Convert a JavaScript `BluetoothDevice` into a plain Python dict
+    with the human-relevant identifying fields. The `name` field may
+    be missing on some devices; in that case it is omitted.
     """
     result = {"id": device.id}
     name = getattr(device, "name", None)
@@ -861,10 +861,11 @@ class _InventSerial:
 
 class _InventBLEDevice:
     """
-    Own a shared GATT server connection for a single physical BLE
-    device. Multiple channels may be bound to characteristics on the
-    same device; this class is the single point at which the GATT
-    connection is opened, observed, and torn down.
+    Represents a shared GATT (Generic ATTribute Profile) server
+    connection for a single physical BLE device. Multiple channels
+    may be bound to characteristics on the same device; this class is
+    the single point at which the GATT connection is opened, observed,
+    and torn down.
 
     Lifecycle is reference-counted against the channel instances
     using it: when the last channel detaches, the GATT server is
@@ -872,6 +873,18 @@ class _InventBLEDevice:
 
     This is hidden plumbing; developers interact only with
     `_InventBLE` via channels.
+
+    Devices have characteristics (e.g. temperature, humidity), and
+    characteristics can be bound to meaningfully named Invent channels.
+    The channels are what the developer interacts with, and the types
+    of message they publish and subscribe to on those channels are
+    defined by the characteristic's properties (e.g. read, write, notify).
+
+    This class represents the underlying connection to the single
+    physical device, and manages the GATT server connection and the set
+    of channels bound to it. It listens for unexpected disconnects at
+    the device level, and notifies all bound channels if that happens
+    so they can update their state accordingly.
     """
 
     def __init__(self, device):
@@ -881,7 +894,8 @@ class _InventBLEDevice:
         self.device = device
         self.server = None
         self._channels = set()
-        # Listen for unexpected disconnects at the device level.
+        # Listen for and cleanly handle unexpected disconnects at the
+        # device level.
         self.device.addEventListener(
             "gattserverdisconnected", self._on_disconnected
         )
@@ -903,9 +917,9 @@ class _InventBLEDevice:
 
     def detach(self, channel_instance):
         """
-        Remove a channel instance from the set of users. If no
-        channels remain, disconnect the GATT server and remove the
-        device from the registry.
+        Remove a channel instance from the set of channels in use.
+        If no channels remain, disconnect the GATT server and remove
+        the device from the registry.
         """
         self._channels.discard(channel_instance)
         if not self._channels:
@@ -929,8 +943,7 @@ class _InventBLEDevice:
         channel that it has closed and remove the device entry. The
         developer may reconnect by calling `ble_connection` again.
         """
-        # Copy the set before iterating; channels mutate it on close.
-        for channel_instance in list(self._channels):
+        for channel_instance in self._channels:
             channel_instance._on_device_disconnected()
         self._channels.clear()
         BLE_DEVICES.pop(self.device.id, None)
