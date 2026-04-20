@@ -247,8 +247,8 @@ kinds cover everything in an Invent module.
 ### Module docstring
 
 The module docstring orientates the reader. It says what the
-module is for, what it offers, and roughly when each public
-capability is the right tool to reach for. It does not document
+module is for, what it offers, and the idiom or intent for each
+public capability's implementation. It does not document
 arguments or behaviour in detail - that is the job of the
 individual functions and classes the module exposes.
 
