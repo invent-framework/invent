@@ -37,9 +37,9 @@ Both terms are necessary. Neither is enough on its own.
 We name the human term first because most technical conversations
 forget it.
 
-- **Humanity / technology.** People are luminous and vital yet
-  messy participants in our world of technology (composed and
-  wrought, designed and typical).
+- **Humanity / technology.** People are luminous and vital yet messy
+  and unique participants in our world of technology (a world composed
+  and wrought, designed and typical).
 - **Play / rules.** Exploration and discovery are how people learn
   and create (within a recognisable formal structure).
 - **Empowerment / process.** If the framework gets in the way, the
