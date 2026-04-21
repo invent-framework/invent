@@ -21,8 +21,9 @@ Invent quietly helps the practitioner express themselves in code.
 
 Documentation is part of that job. 
 
-A good docstring hands over a technique, then disappears: the reader
-closes the page, goes back to their code, and gets on with creating.
+A good docstring outlines context, explains details or illustrates a
+technique, then disappears: the reader closes the page, goes back to
+their work, and gets on with creating.
 
 That's it! 
 
