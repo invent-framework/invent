@@ -80,8 +80,8 @@ of an application built with Invent* - the people who eventually
 click the buttons in the practitioner's app. Those people are
 genuinely using the practitioner's software in the user sense, and
 "user" is the natural word for them. The distinction is who we are
-talking about: the person reaching for Invent (the practitioner) versus
-the person reaching for the app a practitioner built (the end user).
+talking about: the person creating with Invent (the practitioner)
+versus the person engaged with an app built with Invent (the end user).
 
 ## How a docstring sounds
 
@@ -317,7 +317,7 @@ and it takes arguments to do it. The class docstring has already
 explained what the class is *for*; the `__init__` docstring explains
 how to *get one*.
 
-Other public methods follow the same pattern as root-level
+All public methods follow the same pattern as root-level
 functions: intent, arguments in order as flowing prose, behaviour
 and side effects, return value, exceptions, examples where they
 add clarity.
@@ -368,7 +368,7 @@ When linking out for further reading, prefer:
 - Invent's own documentation at `https://inventframework.org`.
 - The PyScript documentation at `https://docs.pyscript.net`.
 - Mozilla Developer Network for web platform topics at
-  `https://developer.mozilla.org/`.
+  `https://developer.mozilla.org`.
 - The official Python documentation at `https://docs.python.org`.
 - The official MicroPython documentation at `https://docs.micropython.org`.
 
@@ -392,7 +392,9 @@ already the right shape - direct, accurate, efficient.
 
 Read the docstring back to yourself imagining you are one of the
 readers named above - a first-time coder, an educator preparing a
-lesson, a backend developer who has never built a GUI. If the
+lesson, a backend developer who has never built a GUI, a knowledge
+worker building a domain specific capability, an AI participating in
+vibe coding or a hobbyist just playfully exploring for fun. If the
 docstring respects that reader's intelligence without assuming their
 expertise, and if it would make them feel *especially* welcome rather
 than warily tolerated, it is doing its job.
