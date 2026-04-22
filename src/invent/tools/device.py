@@ -24,7 +24,7 @@ could find. Both
 """
 
 # The OpenCV worker code written to the worker's virtual filesystem as a
-# proper Python module. 
+# proper Python module.
 _OPENCV_WORKER_MODULE = r"""
 import base64
 import cv2
@@ -233,16 +233,16 @@ class DonkeyConnection:
         self._set_status(DONKEY_KILLED)
 
 
-class ChartDonkeyAdapter:
+class WidgetDonkeyAdapter:
     """
-    Attach donkey-driven Python logic to a Chart widget.
+    Base adapter for attaching donkey logic to a widget-like target.
 
-    The adapter expects plugin code to assign `result` as a dictionary
-    containing optional `data` and `options` keys for chart updates.
+    Subclasses must implement:
+    - _context()
+    - _apply_result(payload)
     """
 
-    def __init__(self, chart_widget, status_key, result_key):
-        self._chart = chart_widget
+    def __init__(self, status_key, result_key):
         self._status_key = status_key
         self._result_key = result_key
         self._connection = None
@@ -257,25 +257,10 @@ class ChartDonkeyAdapter:
         )
 
     def _context(self):
-        return {
-            "chart_type": self._chart.chart_type,
-            "data": self._chart.data,
-            "options": self._chart.options,
-        }
+        raise NotImplementedError()
 
     def _apply_result(self, payload):
-        if not isinstance(payload, dict):
-            raise ValueError("Result payload must be a dict.")
-        if not payload.get("ok"):
-            return payload
-        result = payload.get("result")
-        if not isinstance(result, dict):
-            raise ValueError("Result value must be a dict.")
-        if "data" in result:
-            self._chart.data = result["data"]
-        if "options" in result:
-            self._chart.options = result["options"]
-        return payload
+        raise NotImplementedError()
 
     async def run(self, code):
         if not self.ready:
@@ -299,6 +284,78 @@ class ChartDonkeyAdapter:
     async def kill(self):
         if self._connection is not None:
             await self._connection.kill()
+
+
+class ChartDonkeyAdapter(WidgetDonkeyAdapter):
+    """
+    Attach donkey-driven Python logic to a Chart widget.
+
+    The adapter expects plugin code to assign `result` as a dictionary
+    containing optional `data` and `options` keys for chart updates.
+    """
+
+    def __init__(self, chart_widget, status_key, result_key):
+        super().__init__(status_key=status_key, result_key=result_key)
+        self._chart = chart_widget
+
+    def _context(self):
+        return {
+            "chart_type": self._chart.chart_type,
+            "data": self._chart.data,
+            "options": self._chart.options,
+        }
+
+    def _apply_result(self, payload):
+        if not isinstance(payload, dict):
+            raise ValueError("Result payload must be a dict.")
+        if not payload.get("ok"):
+            return payload
+        result = payload.get("result")
+        if not isinstance(result, dict):
+            raise ValueError("Result value must be a dict.")
+        if "data" in result:
+            self._chart.data = result["data"]
+        if "options" in result:
+            self._chart.options = result["options"]
+        return payload
+
+
+class CodeEditorDonkeyAdapter(WidgetDonkeyAdapter):
+    """
+    Run donkey logic from a CodeEditor and update an output target.
+
+    The output target must provide a writable `text` attribute.
+    """
+
+    def __init__(
+        self,
+        code_editor_widget,
+        output_widget,
+        status_key,
+        result_key,
+    ):
+        super().__init__(status_key=status_key, result_key=result_key)
+        self._code_editor = code_editor_widget
+        self._output = output_widget
+
+    def _context(self):
+        return {
+            "editor_code": self._code_editor.code or "",
+        }
+
+    def _apply_result(self, payload):
+        if not isinstance(payload, dict):
+            raise ValueError("Result payload must be a dict.")
+        if not payload.get("ok"):
+            return payload
+        result = payload.get("result")
+        if not isinstance(result, dict):
+            raise ValueError("Result value must be a dict.")
+        message = result.get("output")
+        if message is None:
+            raise ValueError("Result must include an `output` value.")
+        self._output.text = str(message)
+        return payload
 
 
 async def create_donkey_connection(result_key=None):
