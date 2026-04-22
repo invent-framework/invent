@@ -1,7 +1,11 @@
 import asyncio
 
 import invent
-from invent.tools import ChartDonkeyAdapter, DonkeyPluginFlow
+from invent.tools import (
+    ChartDonkeyAdapter,
+    make_assertion_callbacks,
+    make_plugin_runner,
+)
 from invent.ui import *
 
 await invent.setup()
@@ -63,36 +67,25 @@ code_editor = CodeEditor(
 
 assert_worker = Html(html=_wait_html("Worker not started."))
 assert_run = Html(html=_wait_html("Code not run."))
+callbacks = make_assertion_callbacks(
+    worker_assert_widget=assert_worker,
+    run_assert_widget=assert_run,
+    pass_html=_pass_html,
+    fail_html=_fail_html,
+)
 
 adapter = ChartDonkeyAdapter(
     chart_widget=chart,
     status_key="chart.worker.status",
     result_key="chart.worker.result",
 )
-flow = DonkeyPluginFlow(adapter=adapter, status_widget=status)
-
-
-async def ensure_worker():
-    result = await flow.ensure_worker(
-        ready_text="Donkey ready. Press Run Code."
-    )
-    if result.get("ok"):
-        assert_worker.html = _pass_html("Donkey worker started.")
-        return
-    error = result.get("error", "Unknown error.")
-    assert_worker.html = _fail_html(f"Donkey worker failed to start: {error}")
-
-
-async def run_chart_code():
-    result = await flow.run_code(
-        code_editor.code or "",
-        success_text="Done. Chart updated from donkey result.",
-    )
-    if isinstance(result, dict) and result.get("ok"):
-        assert_run.html = _pass_html("Code run succeeded.")
-        return
-    error = result.get("error", "Unknown error.")
-    assert_run.html = _fail_html(f"Code run failed: {error}")
+_, ensure_worker, run_chart_code = make_plugin_runner(
+    adapter=adapter,
+    status_widget=status,
+    code_getter=lambda: code_editor.code or "",
+    success_text="Done. Chart updated from donkey result.",
+    **callbacks,
+)
 
 
 async def handle_controls(message):

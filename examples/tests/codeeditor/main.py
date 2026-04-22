@@ -1,7 +1,11 @@
 import asyncio
 
 import invent
-from invent.tools import CodeEditorDonkeyAdapter, DonkeyPluginFlow
+from invent.tools import (
+    CodeEditorDonkeyAdapter,
+    make_assertion_callbacks,
+    make_plugin_runner,
+)
 from invent.ui import *
 
 await invent.setup()
@@ -51,6 +55,12 @@ output_label = Label(text="Output appears here after run.")
 status_label = Label(text="Donkey starting...")
 assert_worker = Html(html=_wait_html("Worker not started."))
 assert_run = Html(html=_wait_html("Code not run."))
+callbacks = make_assertion_callbacks(
+    worker_assert_widget=assert_worker,
+    run_assert_widget=assert_run,
+    pass_html=_pass_html,
+    fail_html=_fail_html,
+)
 
 adapter = CodeEditorDonkeyAdapter(
     code_editor_widget=source_editor,
@@ -58,30 +68,13 @@ adapter = CodeEditorDonkeyAdapter(
     status_key="codeeditor.worker.status",
     result_key="codeeditor.worker.result",
 )
-flow = DonkeyPluginFlow(adapter=adapter, status_widget=status_label)
-
-
-async def ensure_worker():
-    result = await flow.ensure_worker(
-        ready_text="Donkey ready. Press Run Code."
-    )
-    if result.get("ok"):
-        assert_worker.html = _pass_html("Donkey worker started.")
-        return
-    error = result.get("error", "Unknown error.")
-    assert_worker.html = _fail_html(f"Donkey worker failed to start: {error}")
-
-
-async def run_plugin_code():
-    result = await flow.run_code(
-        plugin_editor.code or "",
-        success_text="Done. Plugin updated output label.",
-    )
-    if isinstance(result, dict) and result.get("ok"):
-        assert_run.html = _pass_html("Code run succeeded.")
-        return
-    error = result.get("error", "Unknown error.")
-    assert_run.html = _fail_html(f"Code run failed: {error}")
+_, ensure_worker, run_plugin_code = make_plugin_runner(
+    adapter=adapter,
+    status_widget=status_label,
+    code_getter=lambda: plugin_editor.code or "",
+    success_text="Done. Plugin updated output label.",
+    **callbacks,
+)
 
 
 async def handle_controls(message):

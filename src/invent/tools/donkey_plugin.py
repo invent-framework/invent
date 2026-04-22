@@ -63,3 +63,81 @@ class DonkeyPluginFlow:
         error = self._error_from_result(result)
         self._status.text = f"Worker error: {error}"
         return {"ok": False, "error": error}
+
+
+def make_plugin_runner(
+    *,
+    adapter,
+    status_widget,
+    code_getter,
+    ready_text="Donkey ready. Press Run Code.",
+    success_text="Done.",
+    on_worker_ready=None,
+    on_worker_error=None,
+    on_run_success=None,
+    on_run_error=None,
+):
+    """
+    Return standard `ensure_worker` and `run_code` callables.
+
+    This helper reduces repetitive workflow wiring in user-facing pages.
+    """
+    flow = DonkeyPluginFlow(adapter=adapter, status_widget=status_widget)
+
+    async def ensure_worker():
+        result = await flow.ensure_worker(ready_text=ready_text)
+        if result.get("ok"):
+            if callable(on_worker_ready):
+                on_worker_ready(result)
+            return result
+        if callable(on_worker_error):
+            on_worker_error(result)
+        return result
+
+    async def run_code():
+        result = await flow.run_code(
+            code_getter(),
+            success_text=success_text,
+        )
+        if result.get("ok"):
+            if callable(on_run_success):
+                on_run_success(result)
+            return result
+        if callable(on_run_error):
+            on_run_error(result)
+        return result
+
+    return flow, ensure_worker, run_code
+
+
+def make_assertion_callbacks(
+    *,
+    worker_assert_widget,
+    run_assert_widget,
+    pass_html,
+    fail_html,
+):
+    """Return standard assertion callbacks for plugin runner hooks."""
+
+    def on_worker_ready(_result):
+        worker_assert_widget.html = pass_html("Donkey worker started.")
+
+    def on_worker_error(result):
+        error = result.get("error", "Unknown error.")
+        worker_assert_widget.html = fail_html(
+            f"Donkey worker failed to start: {error}"
+        )
+
+    def on_run_success(_result):
+        run_assert_widget.html = pass_html("Code run succeeded.")
+
+    def on_run_error(result):
+        error = result.get("error", "Unknown error.")
+        run_assert_widget.html = fail_html(f"Code run failed: {error}")
+
+    return {
+        "on_worker_ready": on_worker_ready,
+        "on_worker_error": on_worker_error,
+        "on_run_success": on_run_success,
+        "on_run_error": on_run_error,
+    }
