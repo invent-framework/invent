@@ -1,7 +1,7 @@
 import asyncio
 
 import invent
-from invent.tools import CodeEditorDonkeyAdapter
+from invent.tools import CodeEditorDonkeyAdapter, DonkeyPluginFlow
 from invent.ui import *
 
 await invent.setup()
@@ -58,45 +58,29 @@ adapter = CodeEditorDonkeyAdapter(
     status_key="codeeditor.worker.status",
     result_key="codeeditor.worker.result",
 )
+flow = DonkeyPluginFlow(adapter=adapter, status_widget=status_label)
 
 
 async def ensure_worker():
-    if adapter.ready:
-        status_label.text = "Donkey ready."
+    result = await flow.ensure_worker(
+        ready_text="Donkey ready. Press Run Code."
+    )
+    if result.get("ok"):
         assert_worker.html = _pass_html("Donkey worker started.")
         return
-    status_label.text = "Starting donkey worker..."
-    try:
-        await adapter.initialize()
-        status_label.text = "Donkey ready. Press Run Code."
-        assert_worker.html = _pass_html("Donkey worker started.")
-    except Exception as exc:
-        status_label.text = f"Failed to start donkey: {exc}"
-        assert_worker.html = _fail_html(
-            f"Donkey worker failed to start: {exc}"
-        )
+    error = result.get("error", "Unknown error.")
+    assert_worker.html = _fail_html(f"Donkey worker failed to start: {error}")
 
 
 async def run_plugin_code():
-    if not adapter.ready:
-        status_label.text = "Donkey not ready."
-        return
-    code = plugin_editor.code or ""
-    if not code.strip():
-        status_label.text = "Write plugin code first."
-        return
-    status_label.text = "Running code..."
-    result = await adapter.run(code)
+    result = await flow.run_code(
+        plugin_editor.code or "",
+        success_text="Done. Plugin updated output label.",
+    )
     if isinstance(result, dict) and result.get("ok"):
-        status_label.text = "Done. Plugin updated output label."
         assert_run.html = _pass_html("Code run succeeded.")
         return
-    error = None
-    if isinstance(result, dict):
-        error = result.get("error")
-    if not error:
-        error = "Unknown error."
-    status_label.text = f"Worker error: {error}"
+    error = result.get("error", "Unknown error.")
     assert_run.html = _fail_html(f"Code run failed: {error}")
 
 

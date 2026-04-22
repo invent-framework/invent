@@ -1,7 +1,7 @@
 import asyncio
 
 import invent
-from invent.tools import ChartDonkeyAdapter
+from invent.tools import ChartDonkeyAdapter, DonkeyPluginFlow
 from invent.ui import *
 
 await invent.setup()
@@ -69,45 +69,29 @@ adapter = ChartDonkeyAdapter(
     status_key="chart.worker.status",
     result_key="chart.worker.result",
 )
+flow = DonkeyPluginFlow(adapter=adapter, status_widget=status)
 
 
 async def ensure_worker():
-    if adapter.ready:
-        status.text = "Donkey ready."
+    result = await flow.ensure_worker(
+        ready_text="Donkey ready. Press Run Code."
+    )
+    if result.get("ok"):
         assert_worker.html = _pass_html("Donkey worker started.")
         return
-    status.text = "Starting donkey worker..."
-    try:
-        await adapter.initialize()
-        status.text = "Donkey ready. Press Run Code."
-        assert_worker.html = _pass_html("Donkey worker started.")
-    except Exception as exc:
-        status.text = f"Failed to start donkey: {exc}"
-        assert_worker.html = _fail_html(
-            f"Donkey worker failed to start: {exc}"
-        )
+    error = result.get("error", "Unknown error.")
+    assert_worker.html = _fail_html(f"Donkey worker failed to start: {error}")
 
 
 async def run_chart_code():
-    if not adapter.ready:
-        status.text = "Donkey not ready."
-        return
-    code = code_editor.code or ""
-    if not code.strip():
-        status.text = "Write plugin code first."
-        return
-    status.text = "Running code..."
-    result = await adapter.run(code)
+    result = await flow.run_code(
+        code_editor.code or "",
+        success_text="Done. Chart updated from donkey result.",
+    )
     if isinstance(result, dict) and result.get("ok"):
-        status.text = "Done. Chart updated from donkey result."
         assert_run.html = _pass_html("Code run succeeded.")
         return
-    error = None
-    if isinstance(result, dict):
-        error = result.get("error")
-    if not error:
-        error = "Unknown error."
-    status.text = f"Worker error: {error}"
+    error = result.get("error", "Unknown error.")
     assert_run.html = _fail_html(f"Code run failed: {error}")
 
 

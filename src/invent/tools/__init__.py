@@ -12,11 +12,13 @@ from .device import (
     create_donkey_connection,
     create_opencv_donkey,
 )
+from .donkey_plugin import DonkeyPluginFlow
 
 __all__ = [
     "ChartDonkeyAdapter",
     "CodeEditorDonkeyAdapter",
     "DonkeyConnection",
+    "DonkeyPluginFlow",
     "DONKEY_BUSY",
     "DONKEY_CREATING",
     "DONKEY_ERROR",
