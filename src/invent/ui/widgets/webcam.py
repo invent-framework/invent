@@ -19,14 +19,17 @@ See the License for the specific language governing permissions and
 limitations under the License.
 """
 
-from invent.i18n import _
+import asyncio
 import time
+
+from invent.i18n import _
 from invent.ui.core import (
     Widget,
     ChoiceProperty,
     BooleanProperty,
     Event,
 )
+from pyscript import window
 from pyscript.web import div, video, button, canvas, img
 from pyscript.ffi import create_proxy
 
@@ -313,8 +316,6 @@ class Webcam(Widget):
     # Download helper
     def _download_canvas_as_image(self, capture=None):
         try:
-            from pyscript import window
-
             capture = capture or self.latest_capture(media_type="photo")
             if capture and capture.get("data_url"):
                 data_url = capture["data_url"]
@@ -340,8 +341,6 @@ class Webcam(Widget):
     # Webcam stream
     def _setup_webcam_stream(self):
         try:
-            from pyscript import window
-
             navigator = window.navigator
             if not navigator.mediaDevices:
                 print("Camera not supported in this browser")
@@ -374,8 +373,6 @@ class Webcam(Widget):
                     print(f"Camera access denied or error: {e}")
                     self._set_status("Camera access denied")
 
-            import asyncio
-
             asyncio.create_task(get_stream())
 
         except Exception as e:
@@ -383,7 +380,6 @@ class Webcam(Widget):
 
     def _setup_recorder(self, stream):
         try:
-            from pyscript import window
 
             def on_dataavailable(event):
                 if event.data.size > 0:
@@ -536,4 +532,3 @@ class Webcam(Widget):
         self._setup_webcam_stream()
 
         return element
-        
