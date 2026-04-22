@@ -1,4 +1,5 @@
 from .device import (
+    ChartDonkeyAdapter,
     DonkeyConnection,
     DONKEY_BUSY,
     DONKEY_CREATING,
@@ -11,6 +12,7 @@ from .device import (
 )
 
 __all__ = [
+    "ChartDonkeyAdapter",
     "DonkeyConnection",
     "DONKEY_BUSY",
     "DONKEY_CREATING",

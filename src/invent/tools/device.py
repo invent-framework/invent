@@ -222,12 +222,83 @@ class DonkeyConnection:
             payload = await self.evaluate(expression)
             invent.datastore[result_key] = json.loads(payload)
         except Exception as exc:
-            invent.datastore[result_key] = f"{DONKEY_ERROR}: {exc}"
+            invent.datastore[result_key] = {
+                "ok": False,
+                "error": f"{DONKEY_ERROR}: {exc}",
+            }
 
     async def kill(self):
         await self._donkey.kill()
         self._ready = False
         self._set_status(DONKEY_KILLED)
+
+
+class ChartDonkeyAdapter:
+    """
+    Attach donkey-driven Python logic to a Chart widget.
+
+    The adapter expects plugin code to assign `result` as a dictionary
+    containing optional `data` and `options` keys for chart updates.
+    """
+
+    def __init__(self, chart_widget, status_key, result_key):
+        self._chart = chart_widget
+        self._status_key = status_key
+        self._result_key = result_key
+        self._connection = None
+
+    @property
+    def ready(self):
+        return self._connection is not None and self._connection.ready
+
+    async def initialize(self):
+        self._connection = await create_donkey_connection(
+            result_key=self._status_key
+        )
+
+    def _context(self):
+        return {
+            "chart_type": self._chart.chart_type,
+            "data": self._chart.data,
+            "options": self._chart.options,
+        }
+
+    def _apply_result(self, payload):
+        if not isinstance(payload, dict):
+            raise ValueError("Result payload must be a dict.")
+        if not payload.get("ok"):
+            return payload
+        result = payload.get("result")
+        if not isinstance(result, dict):
+            raise ValueError("Result value must be a dict.")
+        if "data" in result:
+            self._chart.data = result["data"]
+        if "options" in result:
+            self._chart.options = result["options"]
+        return payload
+
+    async def run(self, code):
+        if not self.ready:
+            raise RuntimeError("Donkey is not ready yet")
+        await self._connection.run_code(
+            code=code,
+            result_key=self._result_key,
+            context=self._context(),
+        )
+        payload = invent.datastore.get(self._result_key)
+        try:
+            return self._apply_result(payload)
+        except Exception as exc:
+            result = {
+                "ok": False,
+                "error": f"{DONKEY_ERROR}: {exc}",
+            }
+            invent.datastore[self._result_key] = result
+            return result
+
+    async def kill(self):
+        if self._connection is not None:
+            await self._connection.kill()
 
 
 async def create_donkey_connection(result_key=None):

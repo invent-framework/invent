@@ -53,9 +53,7 @@ async def ensure_worker():
         opencv_worker = await create_opencv_donkey(
             result_key="opencv.worker.status"
         )
-        opencv_status.text = (
-            "Donkey ready. Capture a photo and run your code."
-        )
+        opencv_status.text = "Donkey ready. Capture a photo and run your code."
     except Exception as exc:
         opencv_status.text = f"Failed to start donkey worker: {exc}"
 
