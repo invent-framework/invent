@@ -42,7 +42,29 @@ chart = Chart(
     options={"plugins": {"legend": {"display": True}}},
 )
 
-status = Label(text="Donkey starting...")
+status_label = Label(text="Donkey starting...")
+
+
+def _set_chart_status(text):
+    # Set the visible label and publish a status message.
+    status_label.text = text
+    invent.publish(invent.Message("status", status=text),
+                   to_channel="chart")
+
+
+class _StatusProxy:
+    # Proxy exposing a `text` property for runners.
+
+    @property
+    def text(self):
+        return status_label.text
+
+    @text.setter
+    def text(self, value):
+        _set_chart_status(value)
+
+
+status = _StatusProxy()
 
 default_code = (
     "# Inputs: chart_type, data, options\n"
@@ -128,7 +150,7 @@ app = invent.App(
                     channel="chart-controls",
                 ),
                 code_editor,
-                status,
+                status_label,
                 Label(text="## Assertions"),
                 assert_worker,
                 assert_run,

@@ -53,6 +53,28 @@ plugin_editor = CodeEditor(
 
 output_label = Label(text="Output appears here after run.")
 status_label = Label(text="Donkey starting...")
+
+
+def _set_codeeditor_status(text):
+    # Set visible label and publish a status message.
+    status_label.text = text
+    invent.publish(
+        invent.Message("status", status=text), to_channel="codeeditor"
+    )
+
+
+class _StatusProxy:
+    # Minimal proxy exposing `text` for plugin runners.
+    @property
+    def text(self):
+        return status_label.text
+
+    @text.setter
+    def text(self, value):
+        _set_codeeditor_status(value)
+
+
+status = _StatusProxy()
 assert_worker = Html(html=_wait_html("Worker not started."))
 assert_run = Html(html=_wait_html("Code not run."))
 callbacks = make_assertion_callbacks(
@@ -70,7 +92,7 @@ adapter = CodeEditorDonkeyAdapter(
 )
 _, ensure_worker, run_plugin_code = make_plugin_runner(
     adapter=adapter,
-    status_widget=status_label,
+    status_widget=status,
     code_getter=lambda: plugin_editor.code or "",
     success_text="Done. Plugin updated output label.",
     **callbacks,

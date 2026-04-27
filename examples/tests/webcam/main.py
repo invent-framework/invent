@@ -22,9 +22,19 @@ opencv_webcam = Webcam(
 )
 
 
-opencv_status = Label(
-    text="Donkey starting...",
-)
+opencv_status = Label(text="Donkey starting...")
+
+
+def _set_opencv_status(text):
+    """Set the on-page label and publish a status message.
+
+    Publishing to the `opencv` channel with subject `status` lets test
+    harnesses subscribe for assertions.
+    """
+    opencv_status.text = text
+    invent.publish(
+        invent.Message("status", status=text), to_channel="opencv"
+    )
 
 default_code = (
     "# Available variables: image_bgr, image_rgb, grey, cv2, np\n"
@@ -46,16 +56,18 @@ async def ensure_worker():
     """Start the Donkey worker and bootstrap OpenCV when needed."""
     global opencv_worker
     if opencv_worker is not None and opencv_worker.ready:
-        opencv_status.text = "Donkey ready."
+        _set_opencv_status("Donkey ready.")
         return
-    opencv_status.text = "Starting Donkey worker..."
+    _set_opencv_status("Starting Donkey worker...")
     try:
         opencv_worker = await create_opencv_donkey(
             result_key="opencv.worker.status"
         )
-        opencv_status.text = "Donkey ready. Capture a photo and run your code."
+        _set_opencv_status(
+            "Donkey ready. Capture a photo and run your code."
+        )
     except Exception as exc:
-        opencv_status.text = f"Failed to start donkey worker: {exc}"
+        _set_opencv_status(f"Failed to start donkey worker: {exc}")
 
 
 def _latest_capture_data_url():
@@ -67,24 +79,27 @@ def _latest_capture_data_url():
 
 async def run_worker_code():
     if opencv_worker is None or not opencv_worker.ready:
-        opencv_status.text = "Donkey is not ready. Press 'Start Donkey' first."
+        _set_opencv_status(
+            "Donkey is not ready. Press 'Start Donkey' first."
+        )
         return
 
     data_url = _latest_capture_data_url()
     if not data_url:
-        opencv_status.text = "Capture a photo first, then run an action."
+        _set_opencv_status(
+            "Capture a photo first, then run an action."
+        )
         return
 
     code = opencv_code_editor.code or ""
     if not code.strip():
-        opencv_status.text = "Write some OpenCV code first."
+        _set_opencv_status("Write some OpenCV code first.")
         return
-
-    opencv_status.text = "Running code..."
+    _set_opencv_status("Running code...")
     try:
         result = await opencv_worker.run_code(code, data_url)
     except Exception as exc:
-        opencv_status.text = f"Worker error: {exc}"
+        _set_opencv_status(f"Worker error: {exc}")
         return
 
     if result is None:
@@ -102,10 +117,9 @@ async def run_worker_code():
     if ok:
         if processed_data_url:
             opencv_webcam.show_image(processed_data_url)
-        opencv_status.text = "Done. Custom OpenCV code executed."
+        _set_opencv_status("Done. Custom OpenCV code executed.")
         return
-
-    opencv_status.text = (
+    _set_opencv_status(
         f"Worker returned no displayable result ({type(result).__name__})."
     )
 
