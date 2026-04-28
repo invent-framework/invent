@@ -1,6 +1,33 @@
 """
-Defines tasks for connecting to the outside world via web requests, websocket
-connections, web serial and BLE.
+Connect an Invent app to the outside world.
+
+This module gives four ways out of the browser: one-shot web requests,
+long-lived websocket connections, a serial port on a physically
+attached device, and a characteristic on a Bluetooth Low Energy
+device. The first is a direct call-and-store operation; the other
+three are Invent channels, so the rest of the app interacts with them
+by publishing and subscribing in the usual way.
+
+Public names:
+
+- `web_request` - fetch a URL and store the response in the datastore
+  under a chosen key. Supports text, JSON, and raw bytes.
+- `web_socket` - open a websocket and bind it to a channel. Messages
+  published on the channel are sent through the socket; messages
+  arriving from the socket are published back on the channel.
+- `serial_connection` - open a serial port (prompting the user once
+  via the browser's port picker) and bind it to a channel. Line-mode
+  and raw-bytes mode are both supported.
+- `ble_connection` - bind a channel to a single characteristic on a
+  Bluetooth Low Energy device. One channel per characteristic;
+  multiple channels may share the same underlying device.
+- `serial_ports` and `ble_ports` - functions that list the serial
+  ports and BLE devices the user has already authorised, into the
+  datastore.
+
+Developers reach for the specific function or class for the rest.
+Error flags stored in the datastore on failure are `WEB_ERROR`,
+`SERIAL_ERROR`, and `BLE_ERROR`.
 
 ```
 Copyright (c) 2019-present Invent contributors.
@@ -62,23 +89,25 @@ VALID_SERIAL_MODES = {
 
 def web_request(url, result_key, response_format="text", *args, **kwargs):
     """
-    Make a web request to a URL and store the result in the datastore
-    via the `result_key`.
+    Fetch a URL and store the response in the datastore at
+    `result_key`.
 
-    The `response_format` argument controls how the response is parsed
-    before being stored. It can be one of "text", "json", or "bytes"
-    (default is "text"). If an invalid format is provided, a ValueError
-    is raised. The "json" format will attempt to parse the response as
-    JSON and store the resulting Python object. The "bytes" format will
-    read the response as a byte stream and store it as raw bytes.
-    The "text" format will read the response as a string.
+    The `response_format` argument controls how the response body is
+    parsed before being stored: `"text"` (the default) stores a string,
+    `"json"` parses the body as JSON and stores the resulting Python
+    object, and `"bytes"` stores the raw byte stream. Any other value
+    raises `ValueError`.
 
-    If the response is not `OK`, a `WEB_ERROR` flag is stored in the
-    datastore at the `result_key`, along with contextual information.
-
-    This is an Invent-friendly wrapper around the standard
-    `pyscript.fetch` API, which is a direct binding to the browser's
-    own Fetch API (https://docs.pyscript.net/latest/api/fetch/).
+    The request runs asynchronously; this function returns immediately
+    and the datastore is updated when the response arrives. If the
+    response status is not OK, the `WEB_ERROR` flag is stored at
+    `result_key` along with the HTTP status and message, so a
+    subscriber can distinguish success from failure by inspecting the
+    stored value. Extra positional and keyword arguments are forwarded
+    to the underlying fetch call (e.g. `method="POST"`, `body=...`,
+    headers, and so on). See the
+    [PyScript fetch API](https://docs.pyscript.net/latest/api/fetch/)
+    for the full list.
 
     Example usage:
 
@@ -119,9 +148,9 @@ def web_request(url, result_key, response_format="text", *args, **kwargs):
             if response_format == "json":
                 result = await response.json()
             elif response_format == "bytes":
-                # The bytearray will be stored in the datastore as a type of
-                # bytes, which is supported by the custom JSON encoding /
-                # decoding in the datastore.
+                # NOTE: The bytearray will be stored in the datastore as
+                # a type of bytes, which is supported by the custom JSON
+                # encoding / decoding in the datastore.
                 result = await response.bytearray()
             else:
                 result = await response.text()
@@ -142,12 +171,11 @@ def serial_ports(result_key):
     `bluetoothServiceClassId` for Bluetooth RFCOMM ports). Keys are
     JS-style camelCase to match the underlying browser API.
 
-    On failure, the `SERIAL_ERROR` flag is stored at `result_key`
-    instead, along with contextual information.
-
-    This wraps `navigator.serial.getPorts()`, which does not require a
-    user gesture: it returns ports previously granted access. To
-    prompt the user to authorise a new port, use `serial_connection`.
+    Authorisation is per-origin and persists across visits, so an
+    already-authorised port will reappear here without the user being
+    prompted again. To prompt the user for a new port, use
+    `serial_connection` instead. On failure, the `SERIAL_ERROR` flag
+    is stored at `result_key` along with a description of the error.
 
     Example usage:
 
@@ -172,11 +200,8 @@ def serial_ports(result_key):
 
 def _port_info(port):
     """
-    Convert a SerialPort's getInfo() result into a Python dict using
+    Convert a `SerialPort.getInfo()` result into a Python dict using
     JS-style key names. Keys whose values are undefined are omitted.
-
-    We do this to convert from a JavaScript object into a plain Python
-    dict.
     """
     info = port.getInfo()
     result = {}
@@ -189,20 +214,18 @@ def _port_info(port):
 
 def ble_ports(result_key):
     """
-    List the BLE devices the user has already authorised, storing
-    the result as a list of dicts in the datastore at `result_key`.
+    List the BLE devices the user has already authorised, storing the
+    result as a list of dicts in the datastore at `result_key`.
 
     Each entry contains `id` and `name` keys, mirroring the relevant
     fields of the browser's `BluetoothDevice` object. Keys are
     JS-style camelCase to match the underlying browser API.
 
-    On failure, the `BLE_ERROR` flag is stored at `result_key`
-    instead, along with contextual information.
-
-    This wraps `navigator.bluetooth.getDevices()`, which does not
-    require a user gesture: it returns devices previously granted
-    access. To prompt the user to authorise a new device, use
-    `ble_connection`.
+    Authorisation is per-origin and persists across visits, so an
+    already-authorised device will reappear here without the user
+    being prompted again. To prompt the user for a new device, use
+    `ble_connection` instead. On failure, the `BLE_ERROR` flag is
+    stored at `result_key` along with a description of the error.
 
     Example usage:
 
@@ -228,8 +251,7 @@ def ble_ports(result_key):
 def _device_info(device):
     """
     Convert a JavaScript `BluetoothDevice` into a plain Python dict
-    with the human-relevant identifying fields. The `name` field may
-    be missing on some devices; in that case it is omitted.
+    with its `id` and (when present) `name`.
     """
     result = {"id": device.id}
     name = getattr(device, "name", None)
@@ -240,35 +262,37 @@ def _device_info(device):
 
 class _InventWebSocket:
     """
-    Manage a websocket connection bound to a channel.
+    A websocket connection expressed as an Invent channel.
 
-    Opens a websocket connection to the given URL and binds it to
-    the specified channel(s).
+    An instance of this class holds open one websocket to a given URL
+    and routes all traffic between the socket and a named channel. The
+    developer does not call methods on the instance directly; they
+    publish to and subscribe to the channel in the usual Invent way.
 
-    The channel argument can be a single channel name string or a
-    list of channel name strings.
+    The class handles the ordinary messiness of a websocket (the
+    connection has to open before it can be written to; either end may
+    close it; errors may arrive asynchronously) so the developer sees
+    a channel whose behaviour is predictable from one message to the
+    next. Messages published with subject `"send"` before the socket
+    is open are queued and dispatched as soon as the connection is
+    ready.
 
-    All communication with the websocket is via the channel(s):
+    Messages that flow through the channel:
 
-    - Publish a message with subject "send" and a `.data` attribute
-      to forward data through the websocket.
-    - Publish a message with subject "close" to close the
-      connection and clean up.
-    - Subscribe to the channel(s) with a subject "message" to
-      receive incoming data (arrives as `.data` on the message).
-    - Subscribe to the channel(s) with a subject "status" to receive
-      connection state changes (arrives as `.status` on the message,
-      one of: "connecting", "open", "error", "closed").
-
-    Messages published with subject "send" before the connection is
-    open will be queued and sent automatically once the connection
-    is ready.
+    - Publish with subject `"send"` and a `.data` attribute to forward
+      data through the socket.
+    - Publish with subject `"close"` to close the socket and clean up.
+    - Subscribe with subject `"message"` to receive incoming data; it
+      arrives as `.data` on the message.
+    - Subscribe with subject `"status"` to receive connection state
+      changes; the new state arrives as `.status`, one of
+      `"connecting"`, `"open"`, `"error"`, or `"closed"`.
 
     Example usage:
 
     ```python
     # Connect to a websocket and bind to a channel.
-    net.websocket("wss://example.com/socket", "my_channel")
+    connect.web_socket("wss://example.com/socket", "my_channel")
 
     # Send a message through the websocket.
     invent.publish(
@@ -306,7 +330,10 @@ class _InventWebSocket:
 
     def __init__(self, url, channel):
         """
-        Initialise the connection and bind to the channel[s].
+        Open a websocket to `url` and bind it to `channel`. The socket
+        opens asynchronously; subscribe to the channel with subject
+        `"status"` to track its state. Raises `ValueError` if a
+        websocket for this URL is already open in the current session.
         """
         if url in WEBSOCKET_CONNECTIONS:
             raise ValueError(f"Already connected to '{url}'.")
@@ -424,60 +451,61 @@ class _InventWebSocket:
 
 class _InventSerial:
     """
-    Manage a connection to a serial port and binds it to the specified
-    channel(s). On first use the browser will prompt the user to
-    authorise a port via the picker; subsequent calls will reuse
-    already-authorised ports matching the supplied USB filters.
+    A connection to a serial port, expressed as an Invent channel.
 
-    The channel argument can be a single channel name string or a
-    list of channel name strings.
+    An instance of this class holds open one serial port and routes
+    all traffic between the port and one or more named channels. The
+    developer does not call methods on the instance directly; they
+    publish to and subscribe to the channel(s) in the usual Invent
+    way. Binding to more than one channel is occasionally useful when
+    separate parts of an app want to observe the same port through
+    their own names; a single channel is the common case.
 
-    All communication with the serial port is via the channel(s) in the
-    usual Invent way:
+    On first use in a session the browser prompts the user to pick a
+    port via its port-picker dialog. This prompt requires a user
+    gesture (typically a click) to open. On later uses, if the user
+    has previously authorised a matching port, the browser reconnects
+    silently without showing the picker again.
 
-    - Publish a message with subject "send" and a `.data` attribute
-      to forward data through the serial port.
-    - Publish a message with subject "close" to close the connection
-      and clean up.
-    - Subscribe to the channel(s) with a subject "message" to receive
-      incoming data (arrives as `.data` on the message).
-    - Subscribe to the channel(s) with a subject "status" to receive
-      connection state changes (arrives as `.status` on the message,
-      one of: "connecting", "open", "error", "closed", "reconnecting").
-      If the status is "error", a `.reason` attribute may be included
-      with a description of the error.
+    Messages that flow through the channel(s):
 
-    Messages published with subject "send" before the connection is
-    open will be queued and sent automatically once the connection is
-    ready.
+    - Publish with subject `"send"` and a `.data` attribute to forward
+      data through the port.
+    - Publish with subject `"close"` to close the port and clean up.
+    - Subscribe with subject `"message"` to receive incoming data; it
+      arrives as `.data` on the message.
+    - Subscribe with subject `"status"` to receive connection state
+      changes; the new state arrives as `.status`, one of
+      `"connecting"`, `"open"`, `"error"`, `"closed"`, or
+      `"reconnecting"`. An `"error"` status may carry a `.reason`
+      attribute describing the cause.
 
-    Two connection modes are available:
+    Messages published with subject `"send"` before the port is open
+    are queued and dispatched as soon as the connection is ready.
 
-    - "line" (default): incoming bytes are buffered, decoded with the
-      configured encoding, and published as text once the newline
-      delimiter is seen. The delimiter is retained on each emitted
-      line. Outgoing strings are encoded via the configured encoding,
-      and the newline delimiter is appended if not already present.
-    - "raw": incoming data is published as raw bytes; outgoing data
-      is sent as-is (strings are encoded to bytes via the configured
-      encoding).
+    Two modes are available, chosen at construction time:
 
-    USB filters use the JS-style camelCase format from the Web Serial
-    API, e.g. `[{"usbVendorId": 0x2341, "usbProductId": 0x0043}]`.
-    With no filter, the first already-authorised port is used; if
-    none is available, the picker is shown with no constraint.
+    - `"line"` (the default): incoming bytes are buffered, decoded
+      with the configured encoding, and published as text once the
+      newline delimiter is seen. The delimiter is retained on each
+      emitted line. Outgoing strings are encoded with the configured
+      encoding, and the delimiter is appended if not already present.
+    - `"raw"`: incoming data is published as raw bytes and outgoing
+      data is sent as-is. Strings are still encoded to bytes using
+      the configured encoding.
 
-    If `auto_reconnect` is True, the connection will attempt to
-    re-open on unexpected loss, up to `reconnect_attempts` times,
-    waiting `reconnect_delay` seconds between attempts. A normal
-    close (via the "close" message) does not trigger reconnection.
+    If `auto_reconnect` is left on (the default), the class will try
+    to re-open the port on an unexpected loss, up to
+    `reconnect_attempts` times, waiting `reconnect_delay` seconds
+    between attempts. A deliberate close (via the `"close"` message)
+    does not trigger reconnection.
 
     Example usage:
 
     ```python
     # Open a serial connection to an Arduino Uno and bind to a channel.
     connect.serial_connection(
-        channel="my_device",
+        channels="my_device",
         filters=[{"usbVendorId": 0x2341, "usbProductId": 0x0043}],
     )
 
@@ -517,7 +545,7 @@ class _InventSerial:
 
     def __init__(
         self,
-        channel,
+        channels,
         baud_rate=115200,
         encoding="utf-8",
         newline="\n",
@@ -533,27 +561,59 @@ class _InventSerial:
         flow_control="none",
     ):
         """
-        Configure the connection and bind to the channel(s). The
-        connection itself opens asynchronously: subscribe to the
-        channel with subject "status" to track its state.
+        Configure the connection and start opening it asynchronously.
+
+        `channels` is the channel name (or list of channel names) the
+        port is bound to; every `"send"`, `"close"`, `"message"`, and
+        `"status"` message flows through it. A single string is
+        accepted as a convenience when there is only one channel;
+        list normalisation is handled downstream by `invent.subscribe`.
+        `baud_rate` is the line speed in bits per second and must
+        match whatever the attached device expects; `115200` is a
+        common default. `encoding` is applied when converting between
+        strings and bytes in either direction, and `newline` is the
+        line delimiter used in `"line"` mode.
+
+        `auto_reconnect`, `reconnect_delay`, and `reconnect_attempts`
+        together control what happens if the port drops unexpectedly:
+        whether to try again, how long to wait between tries, and how
+        many tries to make before giving up. `mode` selects between
+        `"line"` (text, delimited) and `"raw"` (bytes); an unknown
+        value raises `ValueError`.
+
+        `filters` narrows which ports are considered for silent
+        reconnection and what the picker will show the user on first
+        use. It uses the JS-style camelCase format from the Web Serial
+        API, e.g. `[{"usbVendorId": 0x2341, "usbProductId": 0x0043}]`.
+        With no filters, any already-authorised port is accepted and
+        the picker (if needed) shows every serial device in reach.
+
+        `data_bits`, `stop_bits`, `parity`, `buffer_size`, and
+        `flow_control` are forwarded to the browser's `port.open()`
+        call unchanged; the defaults suit most devices. See the
+        [Web Serial API](https://developer.mozilla.org/en-US/docs/Web/API/SerialPort/open)
+        for the permitted values.
+
+        The connection itself opens asynchronously: subscribe to the
+        channel with subject `"status"` to track its state. Raises
+        `ValueError` if any requested channel is already bound to a
+        serial connection.
         """
         if mode not in VALID_SERIAL_MODES:
             raise ValueError(
                 f"Invalid mode '{mode}'. Must be one of: "
                 f"{', '.join(sorted(VALID_SERIAL_MODES))}."
             )
-        # Normalise channel to a list for registry purposes only.
-        channels = channel if isinstance(channel, list) else [channel]
-        for ch in channels:
+        # Normalise to a list of channel names for registry checks.
+        self._channels = channels if isinstance(channels, list) else [channels]
+        for ch in self._channels:
             if ch in SERIAL_CONNECTIONS:
                 raise ValueError(
                     f"Channel '{ch}' is already bound to a "
                     f"serial connection."
                 )
-        for ch in channels:
+        for ch in self._channels:
             SERIAL_CONNECTIONS[ch] = self
-        self.channel = channel
-        self._channels = channels
         self._encoding = encoding
         self._newline_bytes = newline.encode(encoding)
         self._auto_reconnect = auto_reconnect
@@ -577,15 +637,15 @@ class _InventSerial:
         self._ready = asyncio.Event()
         self._closing = False
         self._reconnect_count = 0
-        # Subscribe to the channel for send and close commands.
+        # Subscribe to the channel(s) for send and close commands.
         invent.subscribe(
             handler=self._handle_send,
-            to_channel=channel,
+            to_channel=self._channels,
             when_subject="send",
         )
         invent.subscribe(
             handler=self._handle_close,
-            to_channel=channel,
+            to_channel=self._channels,
             when_subject="close",
         )
         # Publish the initial connecting status, then start.
@@ -594,20 +654,20 @@ class _InventSerial:
 
     def _publish_status(self, status, reason=None):
         """
-        Publish a status message to the channel.
+        Publish a status message to the channel(s).
         """
         invent.publish(
             message=invent.Message("status", status=status, reason=reason),
-            to_channel=self.channel,
+            to_channel=self._channels,
         )
 
     def _publish_message(self, data):
         """
-        Publish received data to the channel.
+        Publish received data to the channel(s).
         """
         invent.publish(
             message=invent.Message("message", data=data),
-            to_channel=self.channel,
+            to_channel=self._channels,
         )
 
     def _cleanup(self):
@@ -618,12 +678,12 @@ class _InventSerial:
             SERIAL_CONNECTIONS.pop(ch, None)
         invent.unsubscribe(
             handler=self._handle_send,
-            from_channel=self.channel,
+            from_channel=self._channels,
             when_subject="send",
         )
         invent.unsubscribe(
             handler=self._handle_close,
-            from_channel=self.channel,
+            from_channel=self._channels,
             when_subject="close",
         )
 
@@ -739,14 +799,11 @@ class _InventSerial:
         dlen = len(delimiter)
         pos = self._read_buffer.find(delimiter)
         while pos != -1:
-            line = bytes(self._read_buffer[:pos + dlen])
-            self._read_buffer = bytearray(
-                self._read_buffer[pos + dlen:]
-            )
+            line = bytes(self._read_buffer[: pos + dlen])
+            self._read_buffer = bytearray(self._read_buffer[pos + dlen :])
             text = line.decode(self._encoding)
             self._publish_message(text)
             pos = self._read_buffer.find(delimiter)
-
 
     def _handle_send(self, message):
         """
@@ -861,30 +918,21 @@ class _InventSerial:
 
 class _InventBLEDevice:
     """
-    Represents a shared GATT (Generic ATTribute Profile) server
-    connection for a single physical BLE device. Multiple channels
-    may be bound to characteristics on the same device; this class is
-    the single point at which the GATT connection is opened, observed,
-    and torn down.
+    A shared GATT (Generic ATTribute Profile) server connection to a
+    single physical BLE device. Multiple channels may be bound to
+    characteristics on the same device; this class is the single
+    point at which the GATT connection is opened, observed, and torn
+    down.
 
     Lifecycle is reference-counted against the channel instances
     using it: when the last channel detaches, the GATT server is
-    disconnected and the device entry is removed from BLE_DEVICES.
+    disconnected and the device entry is removed from `BLE_DEVICES`.
+    The class also listens for unexpected disconnects at the device
+    level and notifies every bound channel so they can update their
+    state accordingly.
 
     This is hidden plumbing; developers interact only with
     `_InventBLE` via channels.
-
-    Devices have characteristics (e.g. temperature, humidity), and
-    characteristics can be bound to meaningfully named Invent channels.
-    The channels are what the developer interacts with, and the types
-    of message they publish and subscribe to on those channels are
-    defined by the characteristic's properties (e.g. read, write, notify).
-
-    This class represents the underlying connection to the single
-    physical device, and manages the GATT server connection and the set
-    of channels bound to it. It listens for unexpected disconnects at
-    the device level, and notifies all bound channels if that happens
-    so they can update their state accordingly.
     """
 
     def __init__(self, device):
@@ -956,49 +1004,99 @@ class _InventBLE:
     instances may share an underlying `_InventBLEDevice` when their
     characteristics live on the same physical device.
 
-    All communication with the characteristic is via the channel in
-    the usual Invent way:
+    BLE terminology, briefly:
 
-    - Publish a message with subject "send" and a `.data` attribute
-      to write bytes to the characteristic (requires the
-      characteristic to support write).
-    - Publish a message with subject "read" and a `.result_key`
-      attribute to trigger a one-shot read; the value is stored in
-      the datastore at `result_key`. The first "read" message on a
-      channel must include `result_key`; subsequent "read" messages
-      may omit it to reuse the last key, or supply a new key to
-      rebind.
-    - Publish a message with subject "close" to close this channel.
-      Other channels on the same device remain open; the GATT
-      connection is only torn down when the last channel closes.
-    - Subscribe to the channel with subject "message" to receive
-      notifications from the characteristic (arrives as `.data` on
-      the message, as raw bytes).
-    - Subscribe to the channel with subject "status" to receive
-      connection state changes (arrives as `.status`, one of:
-      "connecting", "open", "error", "closed"). If the status is
-      "error", a `.reason` attribute describes the cause.
+    - A *device* is a single physical BLE peripheral (for example a
+      micro:bit). Devices have an ID and usually a name.
+    - A *service* is a named group of related functionality on a
+      device, identified by a UUID. A device typically offers
+      several (a micro:bit has separate services for its
+      temperature sensor, buttons, accelerometer, LED display,
+      and so on). A service groups the things you can read from,
+      write to, or be notified by.
+    - A *characteristic* is a single named data point within a
+      service, identified by a UUID. This is where the bytes live:
+      the value you read, write, or receive updates from.
+    - *Capabilities* (or *properties*) are the operations a
+      characteristic allows: *read* (pull its current value),
+      *write* (push a new value), and *notify* (the device pushes
+      updates without being asked). A characteristic may support
+      any combination of the three.
 
-    Characteristic capability is auto-detected at connect time:
-    if the characteristic supports notify, notifications are started
-    and incoming values publish as "message". Attempting "send" on a
-    characteristic that does not support write, or "read" on one
-    that does not support read, publishes an "error" status.
+    **An Invent channel binds to exactly one characteristic.** The
+    `service` and `characteristic` UUIDs given to `ble_connection`
+    locate it; everything else is done via the channel.
+
+    How a channel finds its device: the UUIDs address a location
+    *inside* a device, not the device itself. On first use in a
+    session, the browser opens a device-picker dialog and the user
+    chooses which device to connect to. This requires a user
+    gesture (typically a click) to open. On subsequent uses, if the
+    user has previously authorised a matching device, the browser
+    reconnects to it silently without opening the picker. The
+    optional `filters` argument narrows the picker so the user
+    only sees relevant devices, and enables the silent-reconnect
+    match on later visits.
+
+    Messages that flow through the channel:
+
+    - Publish with subject `"send"` and a `.data` attribute to write
+      bytes to the characteristic (requires the characteristic to
+      support write).
+    - Publish with subject `"read"` and a `.result_key` attribute to
+      trigger a one-shot read; the value is stored in the datastore
+      at `result_key`. The first `"read"` message on a channel must
+      include `result_key`; subsequent reads may omit it to reuse the
+      last key, or supply a new key to rebind.
+    - Publish with subject `"close"` to close this channel. Other
+      channels on the same device remain open; the GATT connection is
+      only torn down when the last channel closes.
+    - Subscribe with subject `"message"` to receive notifications from
+      the characteristic; data arrives as `.data` on the message, as
+      raw bytes.
+    - Subscribe with subject `"status"` to receive connection state
+      changes; the new state arrives as `.status`, one of
+      `"connecting"`, `"open"`, `"error"`, or `"closed"`. An
+      `"error"` status carries a `.reason` attribute describing the
+      cause.
+
+    Characteristic capability is auto-detected at connect time: if the
+    characteristic supports notify, notifications are started and
+    incoming values publish as `"message"`. Attempting `"send"` on a
+    characteristic that does not support write, or `"read"` on one
+    that does not support read, publishes an `"error"` status.
 
     BLE is packet-based: values are always raw bytes. Strings passed
-    to "send" are encoded using the configured `encoding`.
+    to `"send"` are encoded using the configured `encoding`.
 
-    Browser support: Chrome, Edge, Opera, Samsung Internet. Not
-    supported in Firefox or Safari.
+    **Web Bluetooth works only in Chromium-based browsers** (Chrome,
+    Edge, Opera, Samsung Internet, and so on). Firefox and Safari do
+    not support it.
 
     Example usage:
 
     ```python
-    # Bind a channel to the micro:bit temperature characteristic.
+    # Bind a channel to a characteristic on any device the user
+    # picks. The browser will open its device-picker dialog on
+    # first use and show every nearby BLE device.
     connect.ble_connection(
         channel="temperature",
         service="e95d6100-251d-470a-a062-fa1922dfa9a8",
         characteristic="e95d9250-251d-470a-a062-fa1922dfa9a8",
+    )
+
+    # The same binding, but restricted to micro:bit devices only.
+    # The picker will only show devices whose name starts with
+    # "BBC micro:bit". `namePrefix` is usually the friendliest
+    # filter: a specific `name` filter would require matching the
+    # exact five-letter suffix on each micro:bit (e.g. "BBC
+    # micro:bit [zuvat]"), whereas `namePrefix` catches any
+    # micro:bit the user has to hand.
+    connect.ble_connection(
+        channel="temperature",
+        service="e95d6100-251d-470a-a062-fa1922dfa9a8",
+        characteristic="e95d9250-251d-470a-a062-fa1922dfa9a8",
+        filters=[{"namePrefix": "BBC micro:bit"}],
     )
 
     # Receive notifications (if the characteristic supports notify).
@@ -1023,6 +1121,11 @@ class _InventBLE:
         to_channel="temperature",
     )
     ```
+
+    For further background on Web Bluetooth, see
+    [Chrome's Web Bluetooth guide](https://developer.chrome.com/docs/capabilities/bluetooth)
+    or the
+    [MDN Web Bluetooth reference](https://developer.mozilla.org/en-US/docs/Web/API/Web_Bluetooth_API).
     """
 
     def __init__(
@@ -1035,9 +1138,30 @@ class _InventBLE:
         encoding="utf-8",
     ):
         """
-        Configure the channel binding and kick off the async
-        connection. The connection itself opens asynchronously;
-        subscribe to "status" to track its state.
+        Configure the channel binding and start connecting
+        asynchronously.
+
+        `channel` is the name the characteristic is bound to; every
+        `"send"`, `"read"`, `"close"`, `"message"`, and `"status"`
+        message flows through it. `service` and `characteristic` are
+        the UUIDs that locate the specific piece of data within the
+        chosen device; both are required. `filters` narrows the
+        browser's picker (for example to devices whose name starts
+        with `"BBC micro:bit"`) and enables silent reconnection on
+        later visits when a matching device has been authorised
+        before.
+
+        `optional_services` lists additional service UUIDs the app
+        may need permission to read on the chosen device, beyond the
+        one named in `service`. It is rarely needed; the `service`
+        argument is always permitted automatically. `encoding` is
+        applied when a string is passed to `"send"` so that it can
+        be turned into bytes for the characteristic.
+
+        The connection itself opens asynchronously; subscribe to the
+        channel with subject `"status"` to track its state. Raises
+        `ValueError` if the channel is already bound to a BLE
+        connection.
         """
         if channel in BLE_CONNECTIONS:
             raise ValueError(
@@ -1188,9 +1312,7 @@ class _InventBLE:
             request_options["filters"] = self._filters
         else:
             # No developer filters: default to the channel's service.
-            request_options["filters"] = [
-                {"services": [self._service_uuid]}
-            ]
+            request_options["filters"] = [{"services": [self._service_uuid]}]
         try:
             return await bluetooth.requestDevice(to_js(request_options))
         except Exception:
@@ -1344,7 +1466,7 @@ class _InventBLE:
         )
 
 
-# Expose the classes as module-level functions for ease of use.
+# Public aliases for the internal connection classes.
 web_socket = _InventWebSocket
 serial_connection = _InventSerial
 ble_connection = _InventBLE
