@@ -1556,6 +1556,23 @@ Those Invent developers are really trying to think of everything to help make ou
         Page(
             id="page2",
             children=[
+                Header(
+                    children=[
+                        Menu(
+                            choices=[
+                                "Option 1",
+                                "Option 2",
+                                "Option 3",
+                            ],
+                            purpose="SECONDARY",
+                        ),
+                        Label(text="This is a non sticky header."),
+                        Button(
+                            text="A button in the header",
+                            purpose="PRIMARY",
+                        ),
+                    ],
+                ),
                 Label(
                     text="# This is page 2.\n\nThe content cards below are all examples of different configurations of the content card component, which is a versatile component for displaying content in a visually appealing way. The content card can be configured with different shapes, image positions, publication timestamp positions, and purposes to suit a wide variety of use cases."
                 ),

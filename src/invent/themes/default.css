@@ -411,9 +411,8 @@ img, video {
 
 .invent-page {
     box-sizing: border-box;
-    margin:     1rem auto;
+    margin:     auto;
     max-width:  var(--page-max-width);
-    padding:    var(--page-padding);
     width:      var(--page-width);
     min-height: 100dvh;
 }
