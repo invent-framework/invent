@@ -413,6 +413,7 @@ img, video {
     box-sizing: border-box;
     margin:     auto;
     max-width:  var(--page-max-width);
+    padding-bottom:    var(--page-padding);
     width:      var(--page-width);
     min-height: 100dvh;
 }
@@ -1164,7 +1165,7 @@ input[type="url"] {
     grid-row-start: 2;
     max-width:      100%;
     min-height:     0;
-    overflow-x:     clip;
+    overflow:       clip;
     padding-left:   1rem;
     padding-right:  1rem;
     transition:
