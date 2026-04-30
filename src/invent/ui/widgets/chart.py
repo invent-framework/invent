@@ -40,15 +40,36 @@ _CHARTS = [
 
 # Module-level Chart.js reference, loaded once on first use.
 _chart_js = None
+_chart_js_error = None
+
+# Candidate ESM sources for Chart.js. We try these in order.
+_CHART_JS_SOURCES = [
+    "https://esm.sh/chart.js@4.5.1/auto?bundle-deps",
+    "https://cdn.jsdelivr.net/npm/chart.js@4.5.1/auto/+esm",
+    "https://esm.run/chart.js/auto",
+]
 
 
 async def _ensure_chart_js():
     """
     Load Chart.js the first time a Chart widget is rendered.
     """
-    global _chart_js
-    if _chart_js is None:
-        (_chart_js,) = await js_import("https://esm.run/chart.js/auto")
+    global _chart_js, _chart_js_error
+    if _chart_js is not None:
+        return
+    if _chart_js_error is not None:
+        raise RuntimeError(_chart_js_error)
+    for source in _CHART_JS_SOURCES:
+        try:
+            (_chart_js,) = await js_import(source)
+            _chart_js_error = None
+            return
+        except Exception as ex:
+            _chart_js_error = f"{type(ex).__name__}: {ex}"
+    raise RuntimeError(
+        "Could not load Chart.js from any configured source. "
+        f"Last error: {_chart_js_error}"
+    )
 
 
 class Chart(Widget):
@@ -135,6 +156,11 @@ class Chart(Widget):
         during render().
         """
         if self.parent:
+            if _chart_js is None:
+                raise RuntimeError(
+                    "Chart.js is not loaded. "
+                    "Cannot render chart without JS runtime."
+                )
             chart_args = {
                 "data": self.data,
                 "responsive": True,
@@ -149,6 +175,12 @@ class Chart(Widget):
                 self.chart_instance.options = to_js(self.options)
                 self.chart_instance.update()
             else:
+                existing = _chart_js.Chart.getChart(
+                    self.chart_canvas._dom_element
+                )
+                destroy = getattr(existing, "destroy", None)
+                if callable(destroy):
+                    destroy()
                 self.chart_instance = _chart_js.Chart.new(
                     self.chart_canvas._dom_element, to_js(chart_args)
                 )
@@ -165,10 +197,19 @@ class Chart(Widget):
         Load Chart.js then trigger the initial render. Runs as a background
         task started by render() so that render() itself stays synchronous.
         """
-        await _ensure_chart_js()
-        window.requestAnimationFrame(
-            create_proxy(lambda x: self._update_chart())
-        )
+        try:
+            await _ensure_chart_js()
+            window.requestAnimationFrame(
+                create_proxy(lambda x: self._update_chart())
+            )
+        except Exception as ex:
+            if self.chart_instance:
+                try:
+                    self.chart_instance.destroy()
+                except Exception:
+                    pass
+                self.chart_instance = None
+            print(f"Chart initialisation failed: {ex}")
 
     def render(self):
         """
