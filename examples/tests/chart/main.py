@@ -48,8 +48,7 @@ status_label = Label(text="Donkey starting...")
 def _set_chart_status(text):
     # Set the visible label and publish a status message.
     status_label.text = text
-    invent.publish(invent.Message("status", status=text),
-                   to_channel="chart")
+    invent.publish(invent.Message("status", status=text), to_channel="chart")
 
 
 class _StatusProxy:

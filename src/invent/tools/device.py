@@ -93,9 +93,6 @@ def worker_run_user_code(user_code, data_url):
     }
 """
 
-
-_PYSCRIPT_CORE = "https://pyscript.net/releases/2026.3.1/core.js"
-
 _DONKEY_RUNTIME_MODULE = r"""
 import json
 
@@ -113,6 +110,8 @@ def invent_run_code(code, context_json):
     return namespace["result"]
 """
 
+_PYSCRIPT_CORE = "https://pyscript.net/releases/2026.3.1/core.js"
+
 
 def _ensure_terminal_div(terminal_id="donkey-terminal"):
     """
@@ -124,38 +123,6 @@ def _ensure_terminal_div(terminal_id="donkey-terminal"):
         div.style.display = "none"
         document.body.appendChild(div)
     return f"#{terminal_id}"
-
-
-class OpenCVDonkey:
-    """Thin wrapper around a PyScript donkey used for OpenCV processing."""
-
-    def __init__(self, connection):
-        self._connection = connection
-
-    @property
-    def ready(self):
-        return self._connection.ready
-
-    async def initialize(self):
-        # Write the module to the worker's virtual filesystem as a
-        # .py file, then import it into global scope with execute().
-        await self._connection.execute(
-            f"open('_opencv_worker.py', 'w').write({_OPENCV_WORKER_MODULE!r})"
-        )
-        await self._connection.execute("from _opencv_worker import *")
-
-    async def run_code(self, code, data_url):
-        if not self._connection.ready:
-            raise RuntimeError("Donkey is not ready yet")
-        payload = await self._connection.evaluate(
-            "__import__('json').dumps(worker_run_user_code("
-            f"{code!r}, {data_url!r}"
-            "))"
-        )
-        return json.loads(payload)
-
-    async def kill(self):
-        await self._connection.kill()
 
 
 class DonkeyConnection:
@@ -252,9 +219,15 @@ class WidgetDonkeyAdapter:
         return self._connection is not None and self._connection.ready
 
     async def initialize(self):
+        # Allow subclasses to request extra packages by defining
+        # `self._packages` prior to initialize() being called.
+        packages = getattr(self, "_packages", None)
         self._connection = await create_donkey_connection(
-            result_key=self._status_key
+            result_key=self._status_key, packages=packages
         )
+        # Give subclasses a chance to prepare the worker (write
+        # modules, import helpers, etc.). Default is no-op.
+        await self._prepare_worker(self._connection)
 
     def _context(self):
         raise NotImplementedError()
@@ -280,6 +253,15 @@ class WidgetDonkeyAdapter:
             }
             invent.datastore[self._result_key] = result
             return result
+
+    async def _prepare_worker(self, connection):
+        """Optional hook called after the connection is created.
+
+        Subclasses may override to write files into the worker and
+        import helper modules. The default implementation does
+        nothing.
+        """
+        return None
 
     async def kill(self):
         if self._connection is not None:
@@ -358,7 +340,77 @@ class CodeEditorDonkeyAdapter(WidgetDonkeyAdapter):
         return payload
 
 
-async def create_donkey_connection(result_key=None):
+class WebcamDonkeyAdapter(WidgetDonkeyAdapter):
+    """
+    Attach OpenCV donkey logic to a Webcam widget.
+
+    The worker executes user code with a pre-built image namespace
+    (image_bgr, image_rgb, grey, cv2, np). User code must assign a
+    numpy ndarray to `result_image` or `result`. The processed frame
+    is displayed via the webcam widget's `show_image()` method.
+    """
+
+    def __init__(self, webcam_widget, status_key, result_key):
+        super().__init__(status_key=status_key, result_key=result_key)
+        self._webcam = webcam_widget
+        # Request OpenCV and numpy packages when creating the worker.
+        self._packages = ["opencv-python", "numpy"]
+
+    async def _prepare_worker(self, connection):
+        # Write the OpenCV helper module into the worker and import it.
+        await connection.execute(
+            f"open('_opencv_worker.py', 'w').write({_OPENCV_WORKER_MODULE!r})"
+        )
+        await connection.execute("from _opencv_worker import *")
+
+    def _context(self):
+        # Not used; OpenCV worker uses its own entrypoint.
+        return {}
+
+    def _apply_result(self, payload):
+        if not isinstance(payload, dict):
+            raise ValueError("Result payload must be a dict.")
+        if not payload.get("ok"):
+            return payload
+        data_url = payload.get("data_url")
+        if not data_url:
+            raise ValueError("Result must include a data_url value.")
+        self._webcam.show_image(data_url)
+        return payload
+
+    async def run(self, code):
+        if not self.ready:
+            raise RuntimeError("Donkey is not ready yet")
+
+        capture = self._webcam.latest_capture(media_type="photo")
+        if capture is None:
+            raise ValueError("No photo captured yet. Take a photo first.")
+        data_url = capture.get("data_url")
+        if not data_url:
+            raise ValueError("Latest capture has no data_url.")
+
+        expression = (
+            "__import__('json').dumps(worker_run_user_code("
+            f"{code!r}, {data_url!r}"
+            "))"
+        )
+        try:
+            payload_str = await self._connection.evaluate(expression)
+            payload = json.loads(payload_str)
+            invent.datastore[self._result_key] = payload
+        except Exception as exc:
+            payload = {"ok": False, "error": f"{DONKEY_ERROR}: {exc}"}
+            invent.datastore[self._result_key] = payload
+
+        try:
+            return self._apply_result(payload)
+        except Exception as exc:
+            result = {"ok": False, "error": f"{DONKEY_ERROR}: {exc}"}
+            invent.datastore[self._result_key] = result
+            return result
+
+
+async def create_donkey_connection(result_key=None, packages=None):
     """
     Create a donkey connection for Python code execution.
 
@@ -375,47 +427,10 @@ async def create_donkey_connection(result_key=None):
             "type": "py",
             "persistent": True,
             "terminal": terminal_selector,
-            "config": {"packages": []},
+            "config": {"packages": packages or []},
         }
     )
     donkey = await core.donkey(options)
     connection = DonkeyConnection(donkey, result_key=result_key)
     await connection.initialize()
     return connection
-
-
-async def create_opencv_donkey(result_key=None, *, packages=None):
-    """
-    Create and initialise an OpenCV donkey worker.
-
-    Parameters:
-
-    result_key : str | None
-        Datastore key for status updates, e.g. "opencv.worker.status".
-    packages : list[str] | None
-        Extra packages to install in the worker
-    """
-    if packages:
-        raise ValueError(
-            "Package overrides are not supported for OpenCV donkey."
-        )
-
-    if result_key:
-        invent.datastore[result_key] = DONKEY_CREATING
-
-    (core,) = await js_import(_PYSCRIPT_CORE)
-    terminal_selector = _ensure_terminal_div()
-    options = to_js(
-        {
-            "type": "py",
-            "persistent": True,
-            "terminal": terminal_selector,
-            "config": {"packages": ["opencv-python", "numpy"]},
-        }
-    )
-    donkey = await core.donkey(options)
-    connection = DonkeyConnection(donkey, result_key=result_key)
-    await connection.initialize()
-    worker = OpenCVDonkey(connection)
-    await worker.initialize()
-    return worker

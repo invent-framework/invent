@@ -1,7 +1,7 @@
 import asyncio
 
 import invent
-from invent.tools import create_opencv_donkey
+from invent.tools import WebcamDonkeyAdapter
 from invent.ui import *
 
 # Datastore ############################################################################
@@ -32,9 +32,8 @@ def _set_opencv_status(text):
     harnesses subscribe for assertions.
     """
     opencv_status.text = text
-    invent.publish(
-        invent.Message("status", status=text), to_channel="opencv"
-    )
+    invent.publish(invent.Message("status", status=text), to_channel="opencv")
+
 
 default_code = (
     "# Available variables: image_bgr, image_rgb, grey, cv2, np\n"
@@ -49,46 +48,28 @@ opencv_code_editor = CodeEditor(
     min_height="280px",
 )
 
-opencv_worker = None
+opencv_adapter = WebcamDonkeyAdapter(
+    webcam_widget=opencv_webcam,
+    status_key="opencv.worker.status",
+    result_key="opencv.worker.result",
+)
 
 
 async def ensure_worker():
-    """Start the Donkey worker and bootstrap OpenCV when needed."""
-    global opencv_worker
-    if opencv_worker is not None and opencv_worker.ready:
+    if opencv_adapter.ready:
         _set_opencv_status("Donkey ready.")
         return
     _set_opencv_status("Starting Donkey worker...")
     try:
-        opencv_worker = await create_opencv_donkey(
-            result_key="opencv.worker.status"
-        )
-        _set_opencv_status(
-            "Donkey ready. Capture a photo and run your code."
-        )
+        await opencv_adapter.initialize()
+        _set_opencv_status("Donkey ready. Capture a photo and run your code.")
     except Exception as exc:
         _set_opencv_status(f"Failed to start donkey worker: {exc}")
 
 
-def _latest_capture_data_url():
-    capture = opencv_webcam.latest_capture(media_type="photo")
-    if capture is None:
-        return None
-    return capture.get("data_url")
-
-
 async def run_worker_code():
-    if opencv_worker is None or not opencv_worker.ready:
-        _set_opencv_status(
-            "Donkey is not ready. Press 'Start Donkey' first."
-        )
-        return
-
-    data_url = _latest_capture_data_url()
-    if not data_url:
-        _set_opencv_status(
-            "Capture a photo first, then run an action."
-        )
+    if not opencv_adapter.ready:
+        _set_opencv_status("Donkey is not ready. Press 'Start Donkey' first.")
         return
 
     code = opencv_code_editor.code or ""
@@ -97,31 +78,20 @@ async def run_worker_code():
         return
     _set_opencv_status("Running code...")
     try:
-        result = await opencv_worker.run_code(code, data_url)
+        result = await opencv_adapter.run(code)
+    except ValueError as exc:
+        _set_opencv_status(str(exc))
+        return
     except Exception as exc:
         _set_opencv_status(f"Worker error: {exc}")
         return
 
-    if result is None:
-        opencv_status.text = "Worker returned no result."
+    if result is None or not result.get("ok"):
+        error = (result or {}).get("error", "Unknown error.")
+        _set_opencv_status(f"Worker error: {error}")
         return
 
-    getter = getattr(result, "get", None)
-    if callable(getter):
-        ok = getter("ok")
-        processed_data_url = getter("data_url")
-    else:
-        ok = False
-        processed_data_url = None
-
-    if ok:
-        if processed_data_url:
-            opencv_webcam.show_image(processed_data_url)
-        _set_opencv_status("Done. Custom OpenCV code executed.")
-        return
-    _set_opencv_status(
-        f"Worker returned no displayable result ({type(result).__name__})."
-    )
+    _set_opencv_status("Done. Custom OpenCV code executed.")
 
 
 async def handle_opencv_controls(message):

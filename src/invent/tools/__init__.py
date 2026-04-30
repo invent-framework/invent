@@ -7,10 +7,9 @@ from .device import (
     DONKEY_ERROR,
     DONKEY_KILLED,
     DONKEY_READY,
-    OpenCVDonkey,
+    WebcamDonkeyAdapter,
     WidgetDonkeyAdapter,
     create_donkey_connection,
-    create_opencv_donkey,
 )
 from .donkey_plugin import (
     DonkeyPluginFlow,
@@ -30,8 +29,7 @@ __all__ = [
     "DONKEY_ERROR",
     "DONKEY_KILLED",
     "DONKEY_READY",
-    "OpenCVDonkey",
+    "WebcamDonkeyAdapter",
     "WidgetDonkeyAdapter",
     "create_donkey_connection",
-    "create_opencv_donkey",
 ]
