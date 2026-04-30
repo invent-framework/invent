@@ -3,29 +3,16 @@ import asyncio
 import invent
 from invent.tools import (
     ChartDonkeyAdapter,
+    StatusProxy,
+    fail_html,
     make_assertion_callbacks,
     make_plugin_runner,
+    pass_html,
+    wait_html,
 )
 from invent.ui import *
 
 await invent.setup()
-
-_PASS = "color:green;font-family:monospace;margin:4px 0"
-_FAIL = "color:red;font-family:monospace;margin:4px 0"
-_WAIT = "color:#555;font-family:monospace;margin:4px 0"
-
-
-def _pass_html(text):
-    return f'<p style="{_PASS}">[PASS] {text}</p>'
-
-
-def _fail_html(text):
-    return f'<p style="{_FAIL}">[FAIL] {text}</p>'
-
-
-def _wait_html(text):
-    return f'<p style="{_WAIT}">[ ] {text}</p>'
-
 
 chart = Chart(
     chart_type="bar",
@@ -43,27 +30,7 @@ chart = Chart(
 )
 
 status_label = Label(text="Donkey starting...")
-
-
-def _set_chart_status(text):
-    # Set the visible label and publish a status message.
-    status_label.text = text
-    invent.publish(invent.Message("status", status=text), to_channel="chart")
-
-
-class _StatusProxy:
-    # Proxy exposing a `text` property for runners.
-
-    @property
-    def text(self):
-        return status_label.text
-
-    @text.setter
-    def text(self, value):
-        _set_chart_status(value)
-
-
-status = _StatusProxy()
+status = StatusProxy(status_label, "chart")
 
 default_code = (
     "# Inputs: chart_type, data, options\n"
@@ -86,13 +53,13 @@ code_editor = CodeEditor(
     min_height="260px",
 )
 
-assert_worker = Html(html=_wait_html("Worker not started."))
-assert_run = Html(html=_wait_html("Code not run."))
+assert_worker = Html(html=wait_html("Worker not started."))
+assert_run = Html(html=wait_html("Code not run."))
 callbacks = make_assertion_callbacks(
     worker_assert_widget=assert_worker,
     run_assert_widget=assert_run,
-    pass_html=_pass_html,
-    fail_html=_fail_html,
+    pass_html=pass_html,
+    fail_html=fail_html,
 )
 
 adapter = ChartDonkeyAdapter(

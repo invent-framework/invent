@@ -16,6 +16,7 @@ from .donkey_plugin import (
     make_assertion_callbacks,
     make_plugin_runner,
 )
+from .test_helpers import StatusProxy, fail_html, pass_html, wait_html
 
 __all__ = [
     "ChartDonkeyAdapter",
@@ -32,4 +33,8 @@ __all__ = [
     "WebcamDonkeyAdapter",
     "WidgetDonkeyAdapter",
     "create_donkey_connection",
+    "StatusProxy",
+    "fail_html",
+    "pass_html",
+    "wait_html",
 ]

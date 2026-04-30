@@ -1,7 +1,15 @@
 import asyncio
 
 import invent
-from invent.tools import WebcamDonkeyAdapter
+from invent.tools import (
+    StatusProxy,
+    WebcamDonkeyAdapter,
+    fail_html,
+    make_assertion_callbacks,
+    make_plugin_runner,
+    pass_html,
+    wait_html,
+)
 from invent.ui import *
 
 # Datastore ############################################################################
@@ -23,16 +31,7 @@ opencv_webcam = Webcam(
 
 
 opencv_status = Label(text="Donkey starting...")
-
-
-def _set_opencv_status(text):
-    """Set the on-page label and publish a status message.
-
-    Publishing to the `opencv` channel with subject `status` lets test
-    harnesses subscribe for assertions.
-    """
-    opencv_status.text = text
-    invent.publish(invent.Message("status", status=text), to_channel="opencv")
+status = StatusProxy(opencv_status, "opencv")
 
 
 default_code = (
@@ -48,57 +47,35 @@ opencv_code_editor = CodeEditor(
     min_height="280px",
 )
 
-opencv_adapter = WebcamDonkeyAdapter(
+
+adapter = WebcamDonkeyAdapter(
     webcam_widget=opencv_webcam,
     status_key="opencv.worker.status",
     result_key="opencv.worker.result",
 )
 
+# Assertions and plugin runner wiring
+assert_worker = Html(html=wait_html("Worker not started."))
+assert_run = Html(html=wait_html("Code not run."))
+callbacks = make_assertion_callbacks(
+    worker_assert_widget=assert_worker,
+    run_assert_widget=assert_run,
+    pass_html=pass_html,
+    fail_html=fail_html,
+)
 
-async def ensure_worker():
-    if opencv_adapter.ready:
-        _set_opencv_status("Donkey ready.")
-        return
-    _set_opencv_status("Starting Donkey worker...")
-    try:
-        await opencv_adapter.initialize()
-        _set_opencv_status("Donkey ready. Capture a photo and run your code.")
-    except Exception as exc:
-        _set_opencv_status(f"Failed to start donkey worker: {exc}")
-
-
-async def run_worker_code():
-    if not opencv_adapter.ready:
-        _set_opencv_status("Donkey is not ready. Press 'Start Donkey' first.")
-        return
-
-    code = opencv_code_editor.code or ""
-    if not code.strip():
-        _set_opencv_status("Write some OpenCV code first.")
-        return
-    _set_opencv_status("Running code...")
-    try:
-        result = await opencv_adapter.run(code)
-    except ValueError as exc:
-        _set_opencv_status(str(exc))
-        return
-    except Exception as exc:
-        _set_opencv_status(f"Worker error: {exc}")
-        return
-
-    if result is None or not result.get("ok"):
-        error = (result or {}).get("error", "Unknown error.")
-        _set_opencv_status(f"Worker error: {error}")
-        return
-
-    _set_opencv_status("Done. Custom OpenCV code executed.")
+flow, ensure_worker, run_plugin_code = make_plugin_runner(
+    adapter=adapter,
+    status_widget=status,
+    code_getter=lambda: opencv_code_editor.code or "",
+    success_text="Done. Custom OpenCV code executed.",
+    **callbacks,
+)
 
 
 async def handle_opencv_controls(message):
-    button_name = getattr(message.source, "name", "")
-
-    if button_name == "run_code_button":
-        await run_worker_code()
+    if getattr(message.source, "name", "") == "run_code_button":
+        await run_plugin_code()
 
 
 invent.subscribe(
