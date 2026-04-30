@@ -12,11 +12,7 @@ from invent.tools import (
 )
 from invent.ui import *
 
-# Datastore ############################################################################
-
 await invent.setup()
-
-# Code #################################################################################
 
 # Pre-define some webcam variations
 preview_webcam = Webcam(

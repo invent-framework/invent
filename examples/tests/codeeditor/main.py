@@ -14,7 +14,6 @@ from invent.ui import *
 
 await invent.setup()
 
-
 source_editor = CodeEditor(
     code=(
         "Invent donkey plugins are composable.\n"
