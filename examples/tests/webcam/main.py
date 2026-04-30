@@ -25,7 +25,6 @@ opencv_webcam = Webcam(
     mode="photo",
 )
 
-
 opencv_status = Label(text="Donkey starting...")
 status = StatusProxy(opencv_status, "opencv")
 
@@ -80,8 +79,6 @@ invent.subscribe(
     when_subject=["press"],
 )
 
-
-# Lazy boot so the worker starts automatically when the page loads.
 asyncio.create_task(ensure_worker())
 
 # User Interface #######################################################################
@@ -112,11 +109,12 @@ app = invent.App(
                 ),
                 opencv_code_editor,
                 opencv_status,
+                Label(text="## Assertions"),
+                assert_worker,
+                assert_run,
             ],
         ),
     ],
 )
-
-# GO! ##################################################################################
 
 invent.go()
