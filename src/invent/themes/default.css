@@ -2699,7 +2699,7 @@ figure.invent-avatar:focus-visible {
 .invent-webcam-shutter-container,
 .shutter-container {
     justify-self: center;
-    text-align: center;
+    text-align:   center;
 }
 
 .invent-webcam-mode-btn,
@@ -2771,6 +2771,73 @@ figure.invent-avatar:focus-visible {
     border:        var(--border-width) solid transparent;
     border-radius: 50%;
     z-index:       1;
+}
+
+/* Media row: transparent by default so video box stacks normally in the
+ * flex-column webcam container. Activated side-by-side with modifier class. */
+.invent-webcam-media-row {
+    display: contents;
+}
+
+/* Capture preview in stacked mode: full-width img below the video. */
+.invent-webcam-preview-col {
+    width: 100%;
+}
+
+.invent-webcam-preview-col .invent-webcam-capture-preview {
+    border-radius: 12px;
+    display:       block;
+    height:        auto;
+    width:         100%;
+}
+
+.invent-webcam-preview-col .invent-webcam-capture-preview.hidden {
+    display: none;
+}
+
+/* Side-by-side mode: media row becomes a flex row, both columns equal size. */
+.invent-webcam--side-by-side {
+    min-height: 0;
+}
+
+.invent-webcam--side-by-side .invent-webcam-media-row {
+    display:     flex;
+    gap:         var(--spacing-lg);
+    align-items: flex-start;
+}
+
+.invent-webcam--side-by-side .invent-webcam-media-row .invent-webcam-box {
+    flex:       1;
+    min-width:  0;
+    min-height: 0;
+    width:      auto;
+}
+
+.invent-webcam--side-by-side .invent-webcam-preview-col {
+    aspect-ratio:    4 / 3;
+    background:      var(--webcam-bg);
+    border-radius:   12px;
+    display:         flex;
+    align-items:     center;
+    justify-content: center;
+    flex:            1;
+    min-width:       0;
+    overflow:        hidden;
+    width:           auto;
+}
+
+.invent-webcam--side-by-side .invent-webcam-preview-col .invent-webcam-capture-preview {
+    border-radius: 0;
+    display:       block;
+    height:        100%;
+    object-fit:    cover;
+    width:         100%;
+}
+
+@media (max-width: 600px) {
+    .invent-webcam--side-by-side .invent-webcam-media-row {
+        flex-direction: column;
+    }
 }
 
 @keyframes invent-webcam-recording-ring {

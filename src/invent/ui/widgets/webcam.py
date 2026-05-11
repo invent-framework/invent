@@ -21,22 +21,32 @@ limitations under the License.
 ```
 """
 
-from invent.i18n import _
+import asyncio
 import time
+
+from invent.i18n import _
 from invent.ui.core import (
     Widget,
     ChoiceProperty,
     BooleanProperty,
     Event,
 )
-from pyscript.web import div, video, button, canvas
+from pyscript import window
+from pyscript.web import div, video, button, canvas, img
 from pyscript.ffi import create_proxy
 
 
 class Webcam(Widget):
     """
-    A webcam widget with photo capture and video recording capabilities.
+    A webcam widget with photo capture and video recording.
     """
+
+    photo_output = ChoiceProperty(
+        _("How captured photos are handled: downloaded, previewed, or both."),
+        default_value="download",
+        choices=["download", "preview", "both"],
+        group="behavior",
+    )
 
     mode = ChoiceProperty(
         _("Webcam mode: photo, video, or both."),
@@ -51,9 +61,17 @@ class Webcam(Widget):
         group="style",
     )
 
+    preview_layout = ChoiceProperty(
+        _("Layout of the capture preview relative to the live video feed."),
+        default_value="stacked",
+        choices=["stacked", "side-by-side"],
+        group="style",
+    )
+
     photo_captured = Event(
         _("Sent when a photo is captured."),
         webcam=_("The Webcam widget that captured the photo."),
+        capture=_("The captured photo metadata."),
     )
 
     video_recorded = Event(
@@ -61,46 +79,98 @@ class Webcam(Widget):
         webcam=_("The Webcam widget that recorded the video."),
     )
 
-    @classmethod
-    def icon(cls):
-        return '<svg xmlns="http://www.w3.org/2000/svg" width="1em" height="1em" viewBox="0 0 256 256"><circle cx="128" cy="128" r="32" fill="currentColor" opacity="0.2"/><path fill="currentColor" d="M208 56H48a16 16 0 0 0-16 16v112a16 16 0 0 0 16 16h160a16 16 0 0 0 16-16V72a16 16 0 0 0-16-16m0 128H48V72h160zM128 96a32 32 0 1 0 32 32a32 32 0 0 0-32-32m0 48a16 16 0 1 1 16-16a16 16 0 0 1-16 16"/></svg>'  # noqa
+    def __init__(self, *args, **kwargs):
+        self._captures = []
+        self._capture_counter = 0
+        super().__init__(*args, **kwargs)
 
-    def trigger(self):
-        """
-        Trigger the current action (capture photo or start/stop recording).
-        """
-        if hasattr(self, "_shutter_btn"):
-            self._shutter_btn.click()
+    # Capture management
+    def _store_capture(self, capture):
+        capture = dict(capture)
+        capture.setdefault("type", "photo")
+        capture.setdefault("timestamp", self._timestamp())
+        self._capture_counter += 1
+        capture.setdefault(
+            "id",
+            f"{capture['type']}-{self._timestamp()}-{self._capture_counter}",
+        )
+        self._captures.append(capture)
 
+        preview_enabled = self.photo_output in ("preview", "both")
+
+        if capture["type"] == "photo" and preview_enabled:
+            self._show_capture_preview(capture)
+
+        return capture
+
+    def captures(self, media_type=None):
+        if media_type is None:
+            return list(self._captures)
+        return [c for c in self._captures if c.get("type") == media_type]
+
+    def latest_capture(self, media_type=None):
+        captures = self.captures(media_type=media_type)
+        return captures[-1] if captures else None
+
+    # Preview helpers
+    def _show_capture_preview(self, capture):
+        if not hasattr(self, "_capture_preview"):
+            return
+        data_url = capture.get("data_url")
+        if not data_url:
+            return
+        self._capture_preview.src = data_url
+        self._capture_preview.classes.remove("hidden")
+
+    def _hide_capture_preview(self):
+        if hasattr(self, "_capture_preview"):
+            self._capture_preview.classes.add("hidden")
+
+    def _refresh_capture_preview(self):
+        preview_enabled = self.photo_output in ("preview", "both")
+        if not preview_enabled:
+            self._hide_capture_preview()
+            return
+        latest_photo = self.latest_capture(media_type="photo")
+        if latest_photo:
+            self._show_capture_preview(latest_photo)
+        else:
+            self._hide_capture_preview()
+
+    def show_image(self, data_url):
+        """Display any image in the preview panel, replacing the current content."""
+        if not hasattr(self, "_capture_preview"):
+            return
+        self._capture_preview.src = data_url
+        self._capture_preview.classes.remove("hidden")
+
+    # Mode switching
     def set_mode(self, mode):
-        """
-        Set the active webcam mode when switching is enabled.
-        """
+        """Set the active webcam mode when switching is enabled."""
         if self.mode != "both":
             return
         if mode in ["photo", "video"]:
             self._active_mode = mode
+            mode_label = (
+                "Video Mode"
+                if self._current_mode() == "video"
+                else "Photo Mode"
+            )
             if hasattr(self, "_mode_buttons"):
                 self._update_mode_buttons()
             if hasattr(self, "_mode_indicator"):
-                self._mode_indicator._dom_element.textContent = (
-                    self._mode_label()
-                )
+                self._mode_indicator._dom_element.textContent = mode_label
             if hasattr(self, "_shutter_btn"):
                 self._set_shutter_text()
 
     def _current_mode(self):
-        """
-        Return the active mode used for behavior and UI labels.
-        """
         if self.mode == "both":
             return getattr(self, "_active_mode", "photo")
         return self.mode
 
+    # Photo capture
     def capture_photo(self):
-        """
-        Capture a photo from the current video stream.
-        """
+        """Capture a photo from the current video stream."""
         if hasattr(self, "_canvas") and hasattr(self, "_video_elem"):
             video_el = self._video_elem._dom_element
             canvas_el = self._canvas._dom_element
@@ -111,35 +181,43 @@ class Webcam(Widget):
             canvas_el.height = height
 
             ctx = canvas_el.getContext("2d")
-            ctx.drawImage(
-                video_el,
-                0,
-                0,
-                width,
-                height,
-            )
-            # Trigger download
-            self._download_canvas_as_image()
-            self.publish(self.photo_captured, webcam=self)
+            ctx.drawImage(video_el, 0, 0, width, height)
 
+            capture = self._store_capture(
+                {
+                    "type": "photo",
+                    "timestamp": self._timestamp(),
+                    "data_url": self._canvas._dom_element.toDataURL(
+                        "image/jpeg"
+                    ),
+                }
+            )
+
+            download_enabled = self.photo_output in (
+                "download",
+                "both",
+            )
+            preview_enabled = self.photo_output in ("preview", "both")
+
+            if download_enabled:
+                self._download_canvas_as_image(capture)
+
+            if not preview_enabled:
+                self._hide_capture_preview()
+
+            self.publish(self.photo_captured, webcam=self, capture=capture)
+
+    # Status helpers
     def _set_status(self, text):
-        """
-        Update the status indicator text.
-        """
         if not hasattr(self, "_status_elem"):
             return
         self._status_elem._dom_element.textContent = text
 
     def _timestamp(self):
-        """
-        Return a millisecond timestamp for generated filenames.
-        """
         return int(time.time() * 1000)
 
+    # Video recording
     def start_recording(self):
-        """
-        Start recording video from the webcam.
-        """
         if hasattr(self, "_recorder"):
             if not self._recording and self._recorder.state == "inactive":
                 self._recorded_chunks = []
@@ -150,9 +228,6 @@ class Webcam(Widget):
                 self._set_status("Recording...")
 
     def stop_recording(self):
-        """
-        Stop recording and trigger download of the video file.
-        """
         if (
             hasattr(self, "_recorder")
             and self._recording
@@ -164,24 +239,21 @@ class Webcam(Widget):
             self._set_shutter_text()
             self._set_status("Saving video...")
 
+    # Callbacks
     def on_mode_changed(self):
-        """
-        Apply all mode-dependent configuration to the already-rendered DOM.
-        The framework calls this after the widget's properties are set,
-        so self.mode is reliable here (unlike during render()).
-        """
         if not hasattr(self, "_controls"):
-            # render() hasn't run yet; nothing to configure
             return
 
-        # Set active mode
         self._active_mode = "photo" if self.mode == "both" else self.mode
+        mode_label = (
+            "Video Mode" if self._current_mode() == "video" else "Photo Mode"
+        )
 
-        # Rebuild controls: remove any existing modes container, then
-        # prepend one only when mode='both'.
         controls_el = self._controls._dom_element
-        # Remove any previously inserted modes container
-        if hasattr(self, "_modes_container"):
+        if (
+            hasattr(self, "_modes_container")
+            and self._modes_container is not None
+        ):
             try:
                 controls_el.removeChild(self._modes_container._dom_element)
             except Exception:
@@ -198,30 +270,31 @@ class Webcam(Widget):
         else:
             self._mode_buttons = []
 
-        # Update shutter label and mode indicator text
         self._set_shutter_text()
         if hasattr(self, "_mode_indicator"):
-            self._mode_indicator._dom_element.textContent = self._mode_label()
+            self._mode_indicator._dom_element.textContent = mode_label
 
-        # Apply show_mode_indicator
         if hasattr(self, "_indicators"):
             if self.show_mode_indicator:
                 self._indicators.classes.remove("hidden")
             else:
                 self._indicators.classes.add("hidden")
 
-    def _mode_label(self):
-        """
-        Return the display label for the current mode.
-        """
-        if self._current_mode() == "video":
-            return "Video Mode"
-        return "Photo Mode"
+    def on_photo_output_changed(self):
+        if not hasattr(self, "_capture_preview"):
+            return
+        self._refresh_capture_preview()
 
+    def on_preview_layout_changed(self):
+        if not hasattr(self, "element"):
+            return
+        if self.preview_layout == "side-by-side":
+            self.element.classes.add("invent-webcam--side-by-side")
+        else:
+            self.element.classes.remove("invent-webcam--side-by-side")
+
+    # UI helpers
     def _update_mode_buttons(self):
-        """
-        Update the visual state of mode buttons based on current mode.
-        """
         for btn_info in self._mode_buttons:
             btn = btn_info["element"]
             btn_mode = btn_info["mode"]
@@ -233,9 +306,6 @@ class Webcam(Widget):
                 btn.classes.remove("active")
 
     def _set_shutter_text(self):
-        """
-        Keep shutter text aligned with current mode and recording state.
-        """
         if not hasattr(self, "_shutter_btn"):
             return
         is_recording = getattr(self, "_recording", False)
@@ -245,24 +315,23 @@ class Webcam(Widget):
             text = "Take"
         self._shutter_btn._dom_element.textContent = text
 
-    def _download_canvas_as_image(self):
-        """
-        Download the canvas content as an image file.
-        """
+    # Download helper
+    def _download_canvas_as_image(self, capture=None):
         try:
-            from pyscript import window
+            capture = capture or self.latest_capture(media_type="photo")
+            if capture and capture.get("data_url"):
+                data_url = capture["data_url"]
+            else:
+                data_url = self._canvas._dom_element.toDataURL("image/jpeg")
 
             link = window.document.createElement("a")
-            link.href = self._canvas._dom_element.toDataURL("image/jpeg")
+            link.href = data_url
             link.download = f"photo-{self._timestamp()}.jpg"
             link.click()
         except Exception as e:
             print(f"Error downloading photo: {e}")
 
     def _on_shutter_click(self, event):
-        """
-        Handle shutter button clicks.
-        """
         if self._current_mode() == "photo":
             self.capture_photo()
         else:
@@ -271,10 +340,9 @@ class Webcam(Widget):
             else:
                 self.start_recording()
 
+    # Webcam stream
     def _setup_webcam_stream(self):
         try:
-            from pyscript import window
-
             navigator = window.navigator
             if not navigator.mediaDevices:
                 print("Camera not supported in this browser")
@@ -307,20 +375,13 @@ class Webcam(Widget):
                     print(f"Camera access denied or error: {e}")
                     self._set_status("Camera access denied")
 
-            # Handle promise
-            import asyncio
-
             asyncio.create_task(get_stream())
 
         except Exception as e:
             print(f"Error setting up webcam: {e}")
 
     def _setup_recorder(self, stream):
-        """
-        Set up the MediaRecorder for video recording.
-        """
         try:
-            from pyscript import window
 
             def on_dataavailable(event):
                 if event.data.size > 0:
@@ -355,11 +416,8 @@ class Webcam(Widget):
         except Exception as e:
             print(f"Error setting up recorder: {e}")
 
+    # Determine Camera Mode (video or photo)
     def _build_mode_buttons(self):
-        """
-        Build and return the mode toggle container for mode='both'.
-        Populates self._mode_buttons as a side effect.
-        """
         self._mode_buttons = []
 
         def build_mode_button(mode_name):
@@ -388,15 +446,13 @@ class Webcam(Widget):
 
     def render(self):
         """
-        Render the webcam widget with controls.
-        Mode-dependent configuration is applied in on_mode_changed,
-        which the framework calls after properties are set.
+        Render the webcam widget.
         """
-        # Hidden canvas for photo capture
+        # hidden canvas for photo capture
         self._canvas = canvas()
         self._canvas.classes.add("invent-webcam-canvas-hidden")
 
-        # Video element for preview
+        # live video element
         self._video_elem = video()
         self._video_elem.id = f"{self.id}-video"
         self._video_elem.autoplay = True
@@ -406,10 +462,8 @@ class Webcam(Widget):
         def on_video_ready(event):
             video_el = self._video_elem._dom_element
             canvas_el = self._canvas._dom_element
-            width = video_el.videoWidth or 1280
-            height = video_el.videoHeight or 720
-            canvas_el.width = width
-            canvas_el.height = height
+            canvas_el.width = video_el.videoWidth or 1280
+            canvas_el.height = video_el.videoHeight or 720
 
         self._video_elem._dom_element.addEventListener(
             "loadedmetadata", create_proxy(on_video_ready)
@@ -419,7 +473,7 @@ class Webcam(Widget):
         video_container.classes.add("invent-webcam-box")
         video_container.classes.add("webcam-box")
 
-        # Shutter button
+        # shutter button
         self._shutter_btn = button("Take")
         self._shutter_btn.id = f"{self.id}-shutter"
         self._shutter_btn.classes.add("invent-webcam-shutter")
@@ -432,14 +486,12 @@ class Webcam(Widget):
         shutter_container.classes.add("invent-webcam-shutter-container")
         shutter_container.classes.add("shutter-container")
 
-        # Controls container: starts with just the shutter;
-        # on_mode_changed inserts mode toggle buttons when mode='both'.
         self._controls = div(shutter_container)
         self._controls.classes.add("invent-webcam-actions")
         self._controls.classes.add("actions")
         self._shutter_container = shutter_container
 
-        # Status indicators
+        # status indicators
         self._status_elem = div("Initializing camera...")
         self._status_elem.id = f"{self.id}-status"
         self._status_elem.classes.add("invent-webcam-status")
@@ -453,18 +505,32 @@ class Webcam(Widget):
         self._indicators.classes.add("invent-webcam-indicators")
         self._indicators.classes.add("indicators")
 
-        # Main container
+        # capture preview image
+        self._capture_preview = img()
+        self._capture_preview.id = f"{self.id}-capture-preview"
+        self._capture_preview.classes.add("invent-webcam-capture-preview")
+        self._capture_preview.classes.add("capture-preview")
+        self._capture_preview.classes.add("hidden")
+
+        # Wrap video and preview in a media row
+        self._preview_col = div(self._capture_preview)
+        self._preview_col.classes.add("invent-webcam-preview-col")
+
+        self._media_row = div(video_container, self._preview_col)
+        self._media_row.classes.add("invent-webcam-media-row")
+
         element = div(
             self._canvas,
-            video_container,
+            self._media_row,
             self._controls,
             self._indicators,
             id=self.id,
         )
+
         element.classes.add("invent-webcam")
         element.classes.add("webcam-container")
 
-        # Initialize the webcam stream
+        # Start the camera stream!
         self._setup_webcam_stream()
 
         return element

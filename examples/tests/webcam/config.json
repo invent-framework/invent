@@ -1,0 +1,6 @@
+{
+    "files": {
+        "/static/invent.min.tar.gz": "./*",
+        "./opencv_helper.py": ""
+    }
+}

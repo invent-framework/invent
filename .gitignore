@@ -121,3 +121,7 @@ invent.min.tar.gz
 static/default.css
 static/default.min.css
 static/*.zip
+
+# All temp files
+/temp
+temp/
